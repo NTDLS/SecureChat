@@ -74,7 +74,7 @@
             // 
             // pictureBoxLogo
             // 
-            pictureBoxLogo.BackgroundImage = Properties.Resources._64;
+            pictureBoxLogo.BackgroundImage = (Image)resources.GetObject("pictureBoxLogo.BackgroundImage");
             pictureBoxLogo.BackgroundImageLayout = ImageLayout.Center;
             pictureBoxLogo.Location = new Point(12, 31);
             pictureBoxLogo.Name = "pictureBoxLogo";
