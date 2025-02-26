@@ -1,0 +1,12 @@
+
+SecureChat.Client/bin/
+
+SecureChat.Client/obj/
+
+SecureChat.Library/bin/
+
+SecureChat.Library/obj/
+
+SecureChat.Server/obj/
+
+SecureChat.Server/bin/
