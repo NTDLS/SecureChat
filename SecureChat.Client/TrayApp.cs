@@ -22,7 +22,7 @@ namespace SecureChat.Client
             //_trayIcon.BalloonTipText = "Hello from the system tray!";
             //_trayIcon.ShowBalloonTip(3000);
 
-            SetTrayIcon(OnlineStatus.Online);
+            SetTrayIcon(ScOnlineStatus.Online);
 
             _trayIcon.ContextMenuStrip.Items.Add("Exit", null, OnExit);
         }
@@ -34,12 +34,12 @@ namespace SecureChat.Client
             return new Icon(stream);
         }
 
-        void SetTrayIcon(OnlineStatus state)
+        void SetTrayIcon(ScOnlineStatus state)
         {
             _trayIcon.Icon = state switch
             {
-                OnlineStatus.Online => LoadIconFromResources(Properties.Resources.Online16),
-                OnlineStatus.Offline => LoadIconFromResources(Properties.Resources.Offline16),
+                ScOnlineStatus.Online => LoadIconFromResources(Properties.Resources.Online16),
+                ScOnlineStatus.Offline => LoadIconFromResources(Properties.Resources.Offline16),
                 _ => throw new NotImplementedException()
             };
         }
