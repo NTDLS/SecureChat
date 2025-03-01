@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
+using SecureChat.Library;
 using Serilog;
+using System.Text;
 using Topshelf;
 
 namespace SecureChat.Server
@@ -8,6 +10,18 @@ namespace SecureChat.Server
     {
         static void Main(string[] args)
         {
+
+            // Generate RSA Key Pair
+            var keyPair = Crypto.GeneratePublicPrivateKeyPair();
+
+            // Encrypt the data
+            byte[] encryptedData = Crypto.RsaEncryptBytes(Encoding.UTF8.GetBytes("Hello, world!"), keyPair.PublicRsaKey);
+
+            // Decrypt the data
+            byte[] decryptedData = Crypto.RsaDecryptBytes(encryptedData, keyPair.PrivateRsaKey);
+            Console.WriteLine(Encoding.UTF8.GetString(decryptedData)); // Should print "Hello, world!"
+
+
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", false)
                 .Build();

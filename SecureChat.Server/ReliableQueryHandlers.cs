@@ -2,8 +2,10 @@
 using NTDLS.Helpers;
 using NTDLS.ReliableMessaging;
 using NTDLS.SqliteDapperWrapper;
+using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
 using SecureChat.Server.Models;
+using Serilog;
 
 namespace SecureChat.Server
 {
@@ -23,6 +25,42 @@ namespace SecureChat.Server
             _dbFactory = new ManagedDataStorageFactory($"Data Source={sqliteConnection}");
         }
 
+
+        /// <summary>
+        /// The remote service is letting us know that they are about to start using the cryptography provider,
+        /// so we need to apply the one that we have ready on this end.
+        /// </summary>
+        public void InitializeBaselineCryptography(RmContext context, InitializeBaselineCryptography notification)
+        {
+            try
+            {
+                var session = _chatService.GetSession(context.ConnectionId);
+                if (session != null)
+                {
+                    context.SetCryptographyProvider(session.BaselineCryptographyProvider);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+
+        public ExchangePublicKeyQueryReply ExchangePublicKeyQuery(RmContext context, ExchangePublicKeyQuery param)
+        {
+            try
+            {
+                var localPPKP = Crypto.GeneratePublicPrivateKeyPair();
+                _chatService.RegisterSession(context.ConnectionId, new BaselineCryptographyProvider(param.PublicRsaKey, localPPKP.PrivateRsaKey));
+                return new ExchangePublicKeyQueryReply(localPPKP.PublicRsaKey);
+            }
+            catch (Exception ex)
+            {
+                return new ExchangePublicKeyQueryReply(ex.GetBaseException());
+            }
+        }
+
         public LoginQueryReply LoginQuery(RmContext context, LoginQuery param)
         {
             try
@@ -38,9 +76,13 @@ namespace SecureChat.Server
                     return new LoginQueryReply(new Exception("Invalid username or password."));
                 }
 
-                _chatService.RegisterSession(context.ConnectionId, login.Id);
-
-                return new LoginQueryReply(login.Username.EnsureNotNull(), login.DisplayName.EnsureNotNull());
+                var session = _chatService.GetSession(context.ConnectionId);
+                if (session != null)
+                {
+                    session.SetAccountId(login.Id);
+                    return new LoginQueryReply(login.Username.EnsureNotNull(), login.DisplayName.EnsureNotNull());
+                }
+                return new LoginQueryReply(new Exception("Session not found."));
             }
             catch (Exception ex)
             {

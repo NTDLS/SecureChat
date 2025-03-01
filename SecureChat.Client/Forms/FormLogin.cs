@@ -5,6 +5,7 @@ using NTDLS.WinFormsHelpers;
 using SecureChat.Client.Models;
 using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
+using System.Configuration;
 
 namespace SecureChat.Client.Forms
 {
@@ -54,8 +55,26 @@ namespace SecureChat.Client.Forms
                 {
                     try
                     {
-                        var client = new RmClient();
+                        var keyPair = Crypto.GeneratePublicPrivateKeyPair();
+
+                        var clientConfiguration = new RmConfiguration()
+                        {
+                            //We leave asynchronous notifications disabled for the sake or initializing cryptgraphy.
+                            AsynchronousNotifications = false
+                        };
+                        var client = new RmClient(clientConfiguration);
                         client.Connect(serverAddress, serverPort);
+
+                        client.OnException += Client_OnException;
+
+                        //Send our public key to the server and wait on a reply of their public key.
+                        var remotePublicKey = client.Query(new ExchangePublicKeyQuery(keyPair.PublicRsaKey)).ContinueWith(o =>
+                        {
+                            return o.Result.PublicRsaKey;
+                        }).Result;
+
+                        client.Notify(new InitializeBaselineCryptography());
+                        client.SetCryptographyProvider(new BaselineCryptographyProvider(remotePublicKey, keyPair.PrivateRsaKey));
 
                         var isSuccess = client.Query(new LoginQuery(username, passwordHash)).ContinueWith(o =>
                         {
@@ -72,12 +91,16 @@ namespace SecureChat.Client.Forms
                             return o.Result.IsSuccess;
                         }).Result;
 
+                        client.OnException -= Client_OnException;
+
                         if (!isSuccess)
                         {
                             client.Disconnect();
                         }
                         else
                         {
+                            client.Configuration.AsynchronousNotifications = true;
+
                             var persisted = LocalUserApplicationData.LoadFromDisk(Constants.AppName, new PersistedState());
 
                             if (persisted.Users.ContainsKey(username) == false)
@@ -104,6 +127,11 @@ namespace SecureChat.Client.Forms
             {
                 MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
             }
+        }
+
+        private void Client_OnException(RmContext? context, Exception ex, IRmPayload? payload)
+        {
+            throw new NotImplementedException();
         }
 
         private void ButtonCancel_Click(object sender, EventArgs e)

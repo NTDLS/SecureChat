@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using NTDLS.ReliableMessaging;
+using SecureChat.Library;
 using Serilog;
 using static SecureChat.Library.Constants;
 
@@ -50,9 +51,9 @@ namespace SecureChat.Server
             Log.Verbose("Message stopped.");
         }
 
-        public void RegisterSession(Guid connectionId, int accountId)
+        public void RegisterSession(Guid connectionId, BaselineCryptographyProvider baselineCryptographyProvider)
         {
-            _sessions.Add(connectionId, new AccountSession(connectionId, accountId));
+            _sessions.Add(connectionId, new AccountSession(connectionId, baselineCryptographyProvider));
         }
 
         public void DeregisterSession(Guid connectionId)
