@@ -2,7 +2,8 @@ SELECT
 	A.Id,
 	A.DisplayName,
 	Ac.IsAccepted,
-	A.LastSeen
+	A.LastSeen,
+	A.Status
 FROM
 	Acquaintance as Ac
 INNER JOIN Account as A
@@ -16,7 +17,8 @@ SELECT
 	A.Id,
 	A.DisplayName,
 	Ac.IsAccepted,
-	A.LastSeen
+	A.LastSeen,
+	A.Status
 FROM
 	Acquaintance as Ac
 INNER JOIN Account as A

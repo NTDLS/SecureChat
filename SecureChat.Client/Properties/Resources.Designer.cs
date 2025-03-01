@@ -61,12 +61,12 @@ namespace SecureChat.Client.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static System.Drawing.Bitmap _64 {
+        internal static byte[] Away16 {
             get {
-                object obj = ResourceManager.GetObject("64", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                object obj = ResourceManager.GetObject("Away16", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         

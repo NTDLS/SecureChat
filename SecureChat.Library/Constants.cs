@@ -8,10 +8,9 @@
 
         public enum ScOnlineStatus
         {
-            Online,
             Offline,
-            Away,
-            Busy
+            Online,
+            Away
         }
 
         /// <summary>

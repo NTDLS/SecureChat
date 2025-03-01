@@ -1,4 +1,5 @@
 ﻿using NTDLS.Helpers;
+using NTDLS.Persistence;
 using NTDLS.ReliableMessaging;
 using NTDLS.WinFormsHelpers;
 using SecureChat.Client.Models;
@@ -65,7 +66,7 @@ namespace SecureChat.Client.Forms
 
                             if (o.Result.IsSuccess)
                             {
-                                _loginResult = new LoginResult(client, o.Result.DisplayName.EnsureNotNull());
+                                _loginResult = new LoginResult(client, o.Result.Username.EnsureNotNull(), o.Result.DisplayName.EnsureNotNull());
                             }
 
                             return o.Result.IsSuccess;
@@ -74,6 +75,21 @@ namespace SecureChat.Client.Forms
                         if (!isSuccess)
                         {
                             client.Disconnect();
+                        }
+                        else
+                        {
+                            var persisted = LocalUserApplicationData.LoadFromDisk(Constants.AppName, new PersistedState());
+
+                            if (persisted.Users.ContainsKey(username) == false)
+                            {
+                                persisted.Users.Add(username,
+                                new PersistedUserState()
+                                {
+                                    ExplicitAway = false
+                                });
+                            }
+
+                            LocalUserApplicationData.SaveToDisk(Constants.AppName, persisted);
                         }
 
                         this.InvokeClose(isSuccess ? DialogResult.OK : DialogResult.Cancel);

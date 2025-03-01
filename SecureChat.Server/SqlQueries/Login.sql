@@ -1,5 +1,6 @@
 SELECT
 	Id,
+	Username,
 	DisplayName
 FROM
 	Account

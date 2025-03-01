@@ -28,12 +28,34 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Text = "FormHome";
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormHome));
+            treeViewAcquaintances = new TreeView();
+            SuspendLayout();
+            // 
+            // treeViewAcquaintances
+            // 
+            treeViewAcquaintances.Location = new Point(12, 12);
+            treeViewAcquaintances.Name = "treeViewAcquaintances";
+            treeViewAcquaintances.Size = new Size(286, 535);
+            treeViewAcquaintances.TabIndex = 0;
+            // 
+            // FormHome
+            // 
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(310, 559);
+            Controls.Add(treeViewAcquaintances);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            Icon = (Icon)resources.GetObject("$this.Icon");
+            MaximizeBox = false;
+            Name = "FormHome";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Secure Chat";
+            ResumeLayout(false);
         }
 
         #endregion
+
+        private TreeView treeViewAcquaintances;
     }
 }

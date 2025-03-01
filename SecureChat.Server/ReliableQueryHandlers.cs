@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using NTDLS.Helpers;
 using NTDLS.ReliableMessaging;
 using NTDLS.SqliteDapperWrapper;
 using SecureChat.Library.ReliableMessages;
@@ -39,10 +40,7 @@ namespace SecureChat.Server
 
                 _chatService.RegisterSession(context.ConnectionId, login.Id);
 
-                return new LoginQueryReply(true)
-                {
-                    DisplayName = login.DisplayName
-                };
+                return new LoginQueryReply(login.Username.EnsureNotNull(), login.DisplayName.EnsureNotNull());
             }
             catch (Exception ex)
             {

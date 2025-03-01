@@ -29,9 +29,11 @@ namespace SecureChat.Library.ReliableMessages
             ErrorMessage = exception.GetBaseException().Message;
         }
 
-        public LoginQueryReply(bool isSuccess)
+        public LoginQueryReply(string username, string displayName)
         {
-            IsSuccess = isSuccess;
+            Username = username;
+            DisplayName = displayName;
+            IsSuccess = true;
         }
 
         public LoginQueryReply()

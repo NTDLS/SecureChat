@@ -1,6 +1,8 @@
 ﻿using NTDLS.Helpers;
+using NTDLS.Persistence;
 using NTDLS.ReliableMessaging;
 using SecureChat.Client.Forms;
+using SecureChat.Client.Properties;
 using SecureChat.Library;
 using static SecureChat.Library.Constants;
 
@@ -9,10 +11,8 @@ namespace SecureChat.Client
     class TrayApp : ApplicationContext
     {
         private readonly NotifyIcon _trayIcon;
-        private RmClient? _rmClient;
         private FormHome? _formHome;
         private FormLogin? _formLogin;
-        private ScOnlineStatus _currentState = ScOnlineStatus.Offline;
 
         public TrayApp()
         {
@@ -34,7 +34,7 @@ namespace SecureChat.Client
 
         private void TrayIcon_MouseDoubleClick(object? sender, MouseEventArgs e)
         {
-            if (_rmClient == null)
+            if (SessionState.Instance?.Client == null)
             {
                 Login();
             }
@@ -60,7 +60,7 @@ namespace SecureChat.Client
 
         private void Login()
         {
-            _rmClient = null;
+            SessionState.Instance = null;
 
             try
             {
@@ -78,13 +78,26 @@ namespace SecureChat.Client
                         var loginResult = _formLogin.DoLogin();
                         if (loginResult != null)
                         {
-                            _rmClient = loginResult.Client;
-                            _rmClient.OnDisconnected += RmClient_OnDisconnected;
+                            var persistedState = LocalUserApplicationData.LoadFromDisk(Constants.AppName, new PersistedState());
+                            SessionState.Instance = new SessionState(loginResult.Client, loginResult.Username, loginResult.DisplayName);
+                            loginResult.Client.OnDisconnected += RmClient_OnDisconnected;
 
-                            UpdateClientState(ScOnlineStatus.Online);
+                            if (persistedState.Users.TryGetValue(loginResult.Username, out var persistedUserState) == false)
+                            {
+                                persistedUserState = new();
+                            }
+
+                            if (persistedUserState.ExplicitAway)
+                            {
+                                UpdateClientState(ScOnlineStatus.Away);
+                            }
+                            else
+                            {
+                                UpdateClientState(ScOnlineStatus.Online);
+                            }
 
                             _trayIcon.BalloonTipText = $"Welcome back {loginResult.DisplayName}, you are now logged in.";
-                            _trayIcon.ShowBalloonTip(3000);                    
+                            _trayIcon.ShowBalloonTip(3000);
                         }
                     }
                     _formLogin = null;
@@ -104,18 +117,17 @@ namespace SecureChat.Client
             UpdateClientState(ScOnlineStatus.Offline);
         }
 
-        static Icon LoadIconFromResources(byte[] iconData)
-        {
-            using var stream = new MemoryStream(iconData);
-            return new Icon(stream);
-        }
-
         void UpdateClientState(ScOnlineStatus state)
         {
-            if (state == _currentState)
+            if (state == SessionState.Instance?.ConnectionState)
             {
                 return;
             }
+            if (SessionState.Instance != null)
+            {
+                SessionState.Instance.ConnectionState = state;
+            }
+
             _trayIcon.ContextMenuStrip.EnsureNotNull();
 
             if (_trayIcon.ContextMenuStrip.InvokeRequired)
@@ -128,23 +140,38 @@ namespace SecureChat.Client
             {
                 _trayIcon.ContextMenuStrip.Items.Clear();
 
-                //_trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-
                 switch (state)
                 {
                     case ScOnlineStatus.Online:
                         {
-                            _trayIcon.Icon = LoadIconFromResources(Properties.Resources.Online16);
+                            _trayIcon.Icon = Imaging.LoadIconFromResources(Resources.Online16);
+                            var awayItem = new ToolStripMenuItem("Away", null, OnAway)
+                            {
+                                Checked = false
+                            };
+                            _trayIcon.ContextMenuStrip.Items.Add(awayItem); _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
                             _trayIcon.ContextMenuStrip.Items.Add("Logout", null, OnLogout);
                         }
                         break;
                     case ScOnlineStatus.Offline:
                         {
-                            _trayIcon.Icon = LoadIconFromResources(Properties.Resources.Offline16);
+                            _trayIcon.Icon = Imaging.LoadIconFromResources(Resources.Offline16);
                             _trayIcon.ContextMenuStrip.Items.Add("Login", null, OnLogin);
 
                             _trayIcon.BalloonTipText = $"You have been disconnected.";
                             _trayIcon.ShowBalloonTip(3000);
+                        }
+                        break;
+                    case ScOnlineStatus.Away:
+                        {
+                            _trayIcon.Icon = Imaging.LoadIconFromResources(Resources.Away16);
+                            var awayItem = new ToolStripMenuItem("Away", null, OnAway)
+                            {
+                                Checked = true
+                            };
+                            _trayIcon.ContextMenuStrip.Items.Add(awayItem);
+                            _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+                            _trayIcon.ContextMenuStrip.Items.Add("Logout", null, OnLogout);
                         }
                         break;
                     default:
@@ -153,9 +180,30 @@ namespace SecureChat.Client
 
                 _trayIcon.ContextMenuStrip.Items.Add("Exit", null, OnExit);
             }
-            finally
+            catch (Exception ex)
             {
-                _currentState = state;
+            }
+        }
+
+        private void OnAway(object? sender, EventArgs e)
+        {
+            if (SessionState.Instance != null && sender is ToolStripMenuItem menuItem)
+            {
+                SessionState.Instance.ExplicitAway = !SessionState.Instance.ExplicitAway;
+
+                menuItem.Checked = SessionState.Instance.ExplicitAway; //Toggle the explicit away state.
+
+                var persistedState = LocalUserApplicationData.LoadFromDisk(Constants.AppName, new PersistedState());
+
+                if (persistedState.Users.TryGetValue(SessionState.Instance.Username, out var persistedUserState) == false)
+                {
+                    //Add a default state if its not already present.
+                    persistedUserState = new();
+                    persistedState.Users.Add(SessionState.Instance.Username, persistedUserState);
+                }
+
+                persistedUserState.ExplicitAway = SessionState.Instance.ExplicitAway;
+                LocalUserApplicationData.SaveToDisk(Constants.AppName, persistedState);
             }
         }
 
@@ -166,15 +214,19 @@ namespace SecureChat.Client
 
         private void OnLogout(object? sender, EventArgs e)
         {
-            Task.Run(() => _rmClient?.Disconnect());
+            Task.Run(() => SessionState.Instance?.Client?.Disconnect());
+            Thread.Sleep(10);
             UpdateClientState(ScOnlineStatus.Offline);
-            _rmClient = null;
+            SessionState.Instance = null;
         }
 
         private void OnExit(object? sender, EventArgs e)
         {
+            Task.Run(() => SessionState.Instance?.Client?.Disconnect());
+
             _formHome?.Close();
             _trayIcon.Visible = false;
+            SessionState.Instance = null;
             Application.Exit();
         }
     }
