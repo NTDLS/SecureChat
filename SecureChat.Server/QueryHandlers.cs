@@ -2,6 +2,7 @@
 using NTDLS.ReliableMessaging;
 using NTDLS.SqliteDapperWrapper;
 using SecureChat.Library.Messages;
+using SecureChat.Server.Models;
 
 namespace SecureChat.Server
 {
@@ -25,18 +26,21 @@ namespace SecureChat.Server
         {
             try
             {
-                var userId = _dbFactory.ExecuteScalar<int?>(@"SqlQueries\Login.sql",
+                var login = _dbFactory.QueryFirst<LoginModel>(@"SqlQueries\Login.sql",
                     new
                     {
                         Username = param.Username,
                         PasswordHash = param.PasswordHash
                     });
-                if (userId == null)
+                if (login == null)
                 {
                     return new LoginQueryReply(new Exception("Invalid username or password."));
                 }
 
-                return new LoginQueryReply(true);
+                return new LoginQueryReply(true)
+                {
+                    DisplayName = login.DisplayName
+                };
             }
             catch (Exception ex)
             {

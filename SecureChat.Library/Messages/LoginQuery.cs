@@ -21,6 +21,8 @@ namespace SecureChat.Library.Messages
     {
         public bool IsSuccess { get; set; }
         public string? ErrorMessage { get; set; }
+        public string? Username { get; set; }
+        public string? DisplayName { get; set; }
 
         public LoginQueryReply(Exception exception)
         {

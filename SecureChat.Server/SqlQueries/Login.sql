@@ -1,5 +1,6 @@
 SELECT
-	Id
+	Id,
+	DisplayName
 FROM
 	Account
 WHERE
