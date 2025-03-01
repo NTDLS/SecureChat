@@ -23,20 +23,20 @@ namespace SecureChat.Library
 
         public static PublicPrivateKeyPair GeneratePublicPrivateKeyPair()
         {
-            using var rsa = RSA.Create();
-            var keyPair = new PublicPrivateKeyPair(rsa.ExportSubjectPublicKeyInfo(), rsa.ExportPkcs8PrivateKey());
-            return keyPair;
+            using var rsa = RSA.Create(4096);
+            return new PublicPrivateKeyPair(rsa.ExportSubjectPublicKeyInfo(), rsa.ExportPkcs8PrivateKey());
         }
 
         /// <summary>
-        /// Encrypts a byte array with RSA using a public key and returns array.
+        /// Encrypts a byte array with AES using a public key and returns array.
         /// </summary>
-        public static byte[] RsaEncryptBytes(byte[] data, byte[] publicKey)
+        public static byte[] AesEncryptBytes(byte[] data, byte[] publicKey)
         {
-            using RSA rsa = RSA.Create();
+            using RSA rsa = RSA.Create(4096);
             rsa.ImportSubjectPublicKeyInfo(publicKey, out _);
 
             using Aes aes = Aes.Create();
+            aes.KeySize = 256;
             aes.GenerateKey();
             aes.GenerateIV();
 
@@ -58,11 +58,11 @@ namespace SecureChat.Library
         }
 
         /// <summary>
-        /// Decrypts a byte array with RSA using a private key and returns a bytes array.
+        /// Decrypts a byte array with AES using a private key and returns a bytes array.
         /// </summary>
-        public static byte[] RsaDecryptBytes(byte[] encryptedData, byte[] privateKey)
+        public static byte[] AesDecryptBytes(byte[] encryptedData, byte[] privateKey)
         {
-            using RSA rsa = RSA.Create();
+            using RSA rsa = RSA.Create(4096);
             rsa.ImportPkcs8PrivateKey(privateKey, out _);
 
             //Extract the encrypted AES key length.

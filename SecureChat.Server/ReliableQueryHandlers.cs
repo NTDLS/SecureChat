@@ -9,6 +9,9 @@ using Serilog;
 
 namespace SecureChat.Server
 {
+    /// <summary>
+    /// Reliable query and notification handler for client-server communication.
+    /// </summary>
     internal class ReliableQueryHandlers
         : IRmMessageHandler
     {
@@ -25,35 +28,43 @@ namespace SecureChat.Server
             _dbFactory = new ManagedDataStorageFactory($"Data Source={sqliteConnection}");
         }
 
-
         /// <summary>
-        /// The remote service is letting us know that they are about to start using the cryptography provider,
-        /// so we need to apply the one that we have ready on this end.
+        /// The remote service is letting us know that they are about to start using the
+        /// cryptography provider, so we need to apply the one that we have ready on this end.
         /// </summary>
-        public void InitializeBaselineCryptography(RmContext context, InitializeBaselineCryptography notification)
+        public void InitializeServerClientCryptography(RmContext context, InitializeServerClientCryptography notification)
         {
             try
             {
+                if (context.GetCryptographyProvider() != null)
+                    throw new Exception("Cryptography has already been initialized.");
+
                 var session = _chatService.GetSession(context.ConnectionId);
                 if (session != null)
                 {
-                    context.SetCryptographyProvider(session.BaselineCryptographyProvider);
+                    context.SetCryptographyProvider(session.ServerClientCryptographyProvider);
                 }
             }
             catch (Exception ex)
             {
-                throw;
+                Log.Error("Failed to apply client-server cryptography.", ex);
             }
         }
 
-
+        /// <summary>
+        /// Client is supplying the server with their public key that should be used for all client-server communication.
+        /// Save it, generate our own public-private-key-pair and reply with the public key.
+        /// </summary>
         public ExchangePublicKeyQueryReply ExchangePublicKeyQuery(RmContext context, ExchangePublicKeyQuery param)
         {
             try
             {
-                var localPPKP = Crypto.GeneratePublicPrivateKeyPair();
-                _chatService.RegisterSession(context.ConnectionId, new BaselineCryptographyProvider(param.PublicRsaKey, localPPKP.PrivateRsaKey));
-                return new ExchangePublicKeyQueryReply(localPPKP.PublicRsaKey);
+                if (context.GetCryptographyProvider() != null)
+                    throw new Exception("Cryptography has already been initialized.");
+
+                var localPublicPrivateKeyPair = Crypto.GeneratePublicPrivateKeyPair();
+                _chatService.RegisterSession(context.ConnectionId, new ServerClientCryptographyProvider(param.PublicRsaKey, localPublicPrivateKeyPair.PrivateRsaKey));
+                return new ExchangePublicKeyQueryReply(localPublicPrivateKeyPair.PublicRsaKey);
             }
             catch (Exception ex)
             {
@@ -61,28 +72,33 @@ namespace SecureChat.Server
             }
         }
 
+        /// <summary>
+        /// Client is supplying the server with login credentials, test them and reply.
+        /// </summary>
         public LoginQueryReply LoginQuery(RmContext context, LoginQuery param)
         {
             try
             {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Login cannot be attempted until cryptography has been initialized.");
+
+                var session = _chatService.GetSession(context.ConnectionId)
+                    ?? throw new Exception("Session not found.");
+
+                if (session.AccountId != null)
+                {
+                    throw new Exception("Session is already logged in.");
+                }
+
                 var login = _dbFactory.QueryFirst<LoginModel>(@"SqlQueries\Login.sql",
                     new
                     {
                         Username = param.Username,
                         PasswordHash = param.PasswordHash
-                    });
-                if (login == null)
-                {
-                    return new LoginQueryReply(new Exception("Invalid username or password."));
-                }
+                    }) ?? throw new Exception("Invalid username or password.");
 
-                var session = _chatService.GetSession(context.ConnectionId);
-                if (session != null)
-                {
-                    session.SetAccountId(login.Id);
-                    return new LoginQueryReply(login.Username.EnsureNotNull(), login.DisplayName.EnsureNotNull());
-                }
-                return new LoginQueryReply(new Exception("Session not found."));
+                session.SetAccountId(login.Id);
+                return new LoginQueryReply(login.Username.EnsureNotNull(), login.DisplayName.EnsureNotNull());
             }
             catch (Exception ex)
             {
@@ -90,22 +106,23 @@ namespace SecureChat.Server
             }
         }
 
+        /// <summary>
+        /// Client is requesting a list of acquaintances for their account.
+        /// </summary>
         public GetAcquaintancesQueryReply GetAcquaintancesQuery(RmContext context, GetAcquaintancesQuery param)
         {
             try
             {
-                var session = _chatService.GetSession(context.ConnectionId);
-                if (session != null)
-                {
-                    var acquaintances = _dbFactory.Query<AcquaintancesModel>(@"SqlQueries\GetAcquaintances.sql",
-                        new
-                        {
-                            AccountId = session.AccountId,
-                        }).ToList();
+                var session = _chatService.GetSession(context.ConnectionId)
+                    ?? throw new Exception("Session not found.");
 
-                    return new GetAcquaintancesQueryReply(acquaintances);
-                }
-                return new GetAcquaintancesQueryReply(new Exception("Session not found."));
+                var acquaintances = _dbFactory.Query<AcquaintancesModel>(@"SqlQueries\GetAcquaintances.sql",
+                    new
+                    {
+                        AccountId = session.AccountId,
+                    }).ToList();
+
+                return new GetAcquaintancesQueryReply(acquaintances);
             }
             catch (Exception ex)
             {

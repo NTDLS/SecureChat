@@ -1,6 +1,6 @@
 [
   {
-    "Name": "New Profile",
+    "Name": "Server and Client",
     "Projects": [
       {
         "Path": "SecureChat.Server\\SecureChat.Server.csproj",

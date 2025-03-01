@@ -1,8 +1,10 @@
 ﻿using NTDLS.ReliableMessaging;
-using SecureChat.Library;
 
 namespace SecureChat.Client.Models
 {
+    /// <summary>
+    /// Result class for the FormLogin.
+    /// </summary>
     internal class LoginResult
     {
         public RmClient Client { get; private set; }

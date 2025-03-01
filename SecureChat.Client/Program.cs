@@ -1,23 +1,25 @@
-﻿namespace SecureChat.Client
+﻿using Microsoft.Extensions.Configuration;
+using Serilog;
+
+namespace SecureChat.Client
 {
     static class VoiceChat
     {
-
         [STAThread]
         static void Main()
         {
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", false)
+                .Build();
+
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .CreateLogger();
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new TrayApp()); // No visible form!
         }
-
-        /*
-        static void Main()
-        {
-            using var formLogin = new FormLogin();
-            formLogin.ShowDialog();
-        }
-        */
 
         /*
          using NAudio.CoreAudioApi;
@@ -103,7 +105,6 @@
         waveOut?.Dispose();
         resampler?.Dispose();
     }
-
          */
     }
 }

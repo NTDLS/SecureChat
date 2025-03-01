@@ -3,6 +3,9 @@ using static SecureChat.Library.Constants;
 
 namespace SecureChat.Client
 {
+    /// <summary>
+    /// Used to store state information about the logged in session.
+    /// </summary>
     internal class SessionState
     {
         public static SessionState? Instance;

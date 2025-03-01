@@ -6,6 +6,9 @@ using static SecureChat.Library.Constants;
 
 namespace SecureChat.Server
 {
+    /// <summary>
+    /// The main server class.
+    /// </summary>
     internal class ChatService
     {
         private readonly RmServer _rmServer;
@@ -51,7 +54,7 @@ namespace SecureChat.Server
             Log.Verbose("Message stopped.");
         }
 
-        public void RegisterSession(Guid connectionId, BaselineCryptographyProvider baselineCryptographyProvider)
+        public void RegisterSession(Guid connectionId, ServerClientCryptographyProvider baselineCryptographyProvider)
         {
             _sessions.Add(connectionId, new AccountSession(connectionId, baselineCryptographyProvider));
         }

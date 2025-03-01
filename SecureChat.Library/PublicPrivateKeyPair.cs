@@ -1,5 +1,8 @@
 ﻿namespace SecureChat.Library
 {
+    /// <summary>
+    /// Just a plain ol' public and private key pair in byte arrays.
+    /// </summary>
     public class PublicPrivateKeyPair
     {
         public byte[] PublicRsaKey { get; private set; }

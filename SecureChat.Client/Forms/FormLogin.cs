@@ -5,7 +5,7 @@ using NTDLS.WinFormsHelpers;
 using SecureChat.Client.Models;
 using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
-using System.Configuration;
+using Serilog;
 
 namespace SecureChat.Client.Forms
 {
@@ -29,6 +29,9 @@ namespace SecureChat.Client.Forms
 #endif
         }
 
+        /// <summary>
+        /// Prompts the user for login credentials and returns NULL on cancel or a connected reliable messaging client on success.
+        /// </summary>
         internal LoginResult? DoLogin()
         {
             if (ShowDialog() == DialogResult.OK && _loginResult != null)
@@ -73,8 +76,8 @@ namespace SecureChat.Client.Forms
                             return o.Result.PublicRsaKey;
                         }).Result;
 
-                        client.Notify(new InitializeBaselineCryptography());
-                        client.SetCryptographyProvider(new BaselineCryptographyProvider(remotePublicKey, keyPair.PrivateRsaKey));
+                        client.Notify(new InitializeServerClientCryptography());
+                        client.SetCryptographyProvider(new ServerClientCryptographyProvider(remotePublicKey, keyPair.PrivateRsaKey));
 
                         var isSuccess = client.Query(new LoginQuery(username, passwordHash)).ContinueWith(o =>
                         {
@@ -131,7 +134,7 @@ namespace SecureChat.Client.Forms
 
         private void Client_OnException(RmContext? context, Exception ex, IRmPayload? payload)
         {
-            throw new NotImplementedException();
+            Log.Error("Reliable messaging exception.", ex);
         }
 
         private void ButtonCancel_Click(object sender, EventArgs e)

@@ -4,6 +4,7 @@ using NTDLS.ReliableMessaging;
 using SecureChat.Client.Forms;
 using SecureChat.Client.Properties;
 using SecureChat.Library;
+using Serilog;
 using static SecureChat.Library.Constants;
 
 namespace SecureChat.Client
@@ -16,60 +17,75 @@ namespace SecureChat.Client
 
         public TrayApp()
         {
-            _trayIcon = new NotifyIcon
+            try
             {
-                Icon = Icon.ExtractIcon(Application.ExecutablePath, 0, 16),
-                Text = Constants.AppName,
-                Visible = true,
-                ContextMenuStrip = new ContextMenuStrip()
-            };
+                _trayIcon = new NotifyIcon
+                {
+                    Icon = Icon.ExtractIcon(Application.ExecutablePath, 0, 16),
+                    Text = Constants.AppName,
+                    Visible = true,
+                    ContextMenuStrip = new ContextMenuStrip()
+                };
 
-            _trayIcon.MouseDoubleClick += TrayIcon_MouseDoubleClick;
+                _trayIcon.MouseDoubleClick += TrayIcon_MouseDoubleClick;
 
-            _trayIcon.ContextMenuStrip.Items.Add("Login", null, OnLogin);
-            _trayIcon.ContextMenuStrip.Items.Add("Exit", null, OnExit);
+                _trayIcon.ContextMenuStrip.Items.Add("Login", null, OnLogin);
+                _trayIcon.ContextMenuStrip.Items.Add("Exit", null, OnExit);
 
-            Login();
+                Login();
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal("Error in TrayApp.", ex);
+                throw;
+            }
         }
 
         private void TrayIcon_MouseDoubleClick(object? sender, MouseEventArgs e)
         {
-            if (SessionState.Instance?.Client == null)
+            try
             {
-                Login();
-            }
-            else
-            {
-                if (_formHome != null)
+                if (SessionState.Instance?.Client == null)
                 {
-                    _formHome.Show();
-
-                    if (_formHome.WindowState == FormWindowState.Minimized)
-                    {
-                        _formHome.WindowState = FormWindowState.Normal;
-                    }
-
-                    _formHome.BringToFront();
-                    _formHome.Activate();
-                    _formHome.Focus();
+                    Login();
                 }
                 else
                 {
-                    using (_formHome = new FormHome())
+                    if (_formHome != null)
                     {
-                        _formHome.ShowDialog();
+                        _formHome.Show();
+
+                        if (_formHome.WindowState == FormWindowState.Minimized)
+                        {
+                            _formHome.WindowState = FormWindowState.Normal;
+                        }
+
+                        _formHome.BringToFront();
+                        _formHome.Activate();
+                        _formHome.Focus();
                     }
-                    _formHome = null;
+                    else
+                    {
+                        using (_formHome = new FormHome())
+                        {
+                            _formHome.ShowDialog();
+                        }
+                        _formHome = null;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error in TrayIcon_MouseDoubleClick.", ex);
             }
         }
 
         private void Login()
         {
-            SessionState.Instance = null;
-
             try
             {
+                SessionState.Instance = null;
+
                 if (_formLogin != null)
                 {
                     _formLogin.Show();
@@ -87,6 +103,7 @@ namespace SecureChat.Client
                             var persistedState = LocalUserApplicationData.LoadFromDisk(Constants.AppName, new PersistedState());
                             SessionState.Instance = new SessionState(loginResult.Client, loginResult.Username, loginResult.DisplayName);
                             loginResult.Client.OnDisconnected += RmClient_OnDisconnected;
+                            loginResult.Client.OnException += Client_OnException;
 
                             if (persistedState.Users.TryGetValue(loginResult.Username, out var persistedUserState) == false)
                             {
@@ -111,39 +128,52 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                _trayIcon.BalloonTipTitle = "Connection Failure";
+                Log.Error("Error in Login.", ex);
+                _trayIcon.BalloonTipTitle = "Login Failure";
                 _trayIcon.BalloonTipText = $"An error has occurred during the connection process.";
                 _trayIcon.ShowBalloonTip(3000);
 
             }
         }
 
+        private void Client_OnException(RmContext? context, Exception ex, IRmPayload? payload)
+        {
+            Log.Error("Reliable messaging exception.", ex);
+        }
+
         private void RmClient_OnDisconnected(RmContext context)
         {
-            UpdateClientState(ScOnlineStatus.Offline);
+            try
+            {
+                UpdateClientState(ScOnlineStatus.Offline);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error in RmClient_OnDisconnected.", ex);
+            }
         }
 
         void UpdateClientState(ScOnlineStatus state)
         {
-            if (state == SessionState.Instance?.ConnectionState)
-            {
-                return;
-            }
-            if (SessionState.Instance != null)
-            {
-                SessionState.Instance.ConnectionState = state;
-            }
-
-            _trayIcon.ContextMenuStrip.EnsureNotNull();
-
-            if (_trayIcon.ContextMenuStrip.InvokeRequired)
-            {
-                _trayIcon.ContextMenuStrip.Invoke(UpdateClientState, state);
-                return;
-            }
-
             try
             {
+                if (state == SessionState.Instance?.ConnectionState)
+                {
+                    return;
+                }
+                if (SessionState.Instance != null)
+                {
+                    SessionState.Instance.ConnectionState = state;
+                }
+
+                _trayIcon.ContextMenuStrip.EnsureNotNull();
+
+                if (_trayIcon.ContextMenuStrip.InvokeRequired)
+                {
+                    _trayIcon.ContextMenuStrip.Invoke(UpdateClientState, state);
+                    return;
+                }
+
                 _trayIcon.ContextMenuStrip.Items.Clear();
 
                 switch (state)
@@ -188,52 +218,82 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
+                Log.Error("Error in UpdateClientState.", ex);
             }
         }
 
         private void OnAway(object? sender, EventArgs e)
         {
-            if (SessionState.Instance != null && sender is ToolStripMenuItem menuItem)
+            try
             {
-                SessionState.Instance.ExplicitAway = !SessionState.Instance.ExplicitAway;
-
-                menuItem.Checked = SessionState.Instance.ExplicitAway; //Toggle the explicit away state.
-
-                var persistedState = LocalUserApplicationData.LoadFromDisk(Constants.AppName, new PersistedState());
-
-                if (persistedState.Users.TryGetValue(SessionState.Instance.Username, out var persistedUserState) == false)
+                if (SessionState.Instance != null && sender is ToolStripMenuItem menuItem)
                 {
-                    //Add a default state if its not already present.
-                    persistedUserState = new();
-                    persistedState.Users.Add(SessionState.Instance.Username, persistedUserState);
-                }
+                    SessionState.Instance.ExplicitAway = !SessionState.Instance.ExplicitAway;
 
-                persistedUserState.ExplicitAway = SessionState.Instance.ExplicitAway;
-                LocalUserApplicationData.SaveToDisk(Constants.AppName, persistedState);
+                    menuItem.Checked = SessionState.Instance.ExplicitAway; //Toggle the explicit away state.
+
+                    var persistedState = LocalUserApplicationData.LoadFromDisk(Constants.AppName, new PersistedState());
+
+                    if (persistedState.Users.TryGetValue(SessionState.Instance.Username, out var persistedUserState) == false)
+                    {
+                        //Add a default state if its not already present.
+                        persistedUserState = new();
+                        persistedState.Users.Add(SessionState.Instance.Username, persistedUserState);
+                    }
+
+                    persistedUserState.ExplicitAway = SessionState.Instance.ExplicitAway;
+                    LocalUserApplicationData.SaveToDisk(Constants.AppName, persistedState);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error in OnAway.", ex);
             }
         }
 
         private void OnLogin(object? sender, EventArgs e)
         {
-            Login();
+            try
+            {
+                Login();
+
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error in OnLogin.", ex);
+            }
         }
 
         private void OnLogout(object? sender, EventArgs e)
         {
-            Task.Run(() => SessionState.Instance?.Client?.Disconnect());
-            Thread.Sleep(10);
-            UpdateClientState(ScOnlineStatus.Offline);
-            SessionState.Instance = null;
+            try
+            {
+                Task.Run(() => SessionState.Instance?.Client?.Disconnect());
+                Thread.Sleep(10);
+                UpdateClientState(ScOnlineStatus.Offline);
+                SessionState.Instance = null;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error in OnLogout.", ex);
+            }
         }
 
         private void OnExit(object? sender, EventArgs e)
         {
-            Task.Run(() => SessionState.Instance?.Client?.Disconnect());
+            try
+            {
+                Task.Run(() => SessionState.Instance?.Client?.Disconnect());
 
-            _formHome?.Close();
-            _trayIcon.Visible = false;
-            SessionState.Instance = null;
-            Application.Exit();
+                _formHome?.Close();
+                _trayIcon.Visible = false;
+                SessionState.Instance = null;
+                Application.Exit();
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error in OnExit.", ex);
+            }
         }
     }
 }

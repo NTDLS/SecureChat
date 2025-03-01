@@ -2,7 +2,7 @@
 
 namespace SecureChat.Library.ReliableMessages
 {
-    public class InitializeBaselineCryptography
+    public class InitializeServerClientCryptography
         : IRmNotification
     {
     }
