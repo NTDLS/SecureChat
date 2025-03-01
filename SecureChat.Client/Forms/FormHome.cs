@@ -90,7 +90,12 @@ namespace SecureChat.Client.Forms
 
             treeViewAcquaintances.Nodes.Clear();
 
-            var rootNode = new TreeNode(SessionState.Instance.DisplayName);
+            var rootName = SessionState.Instance.DisplayName;
+            if (string.IsNullOrEmpty(SessionState.Instance.Status) == false)
+            {
+                rootName += $" - {SessionState.Instance.Status}";
+            }
+            var rootNode = new TreeNode(rootName);
 
             if (SessionState.Instance.ExplicitAway)
             {
@@ -107,10 +112,16 @@ namespace SecureChat.Client.Forms
 
             foreach (var acquaintance in acquaintances)
             {
-                var node = new TreeNode(acquaintance.DisplayName)
+                var childName = acquaintance.DisplayName;
+                if (string.IsNullOrEmpty(acquaintance.Status) == false)
                 {
-                    ImageKey = acquaintance.Status,
-                    SelectedImageKey = acquaintance.Status
+                    childName += $" - {acquaintance.Status}";
+                }
+
+                var node = new TreeNode(childName)
+                {
+                    ImageKey = acquaintance.State,
+                    SelectedImageKey = acquaintance.State
                 };
 
                 rootNode.Nodes.Add(node);

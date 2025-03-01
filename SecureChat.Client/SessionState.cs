@@ -10,6 +10,10 @@ namespace SecureChat.Client
         public RmClient Client { get; set; }
         public string Username { get; set; }
         public string DisplayName { get; set; }
+        /// <summary>
+        /// User defined status text.
+        /// </summary>
+        public string Status { get; set; } = string.Empty;
         public bool ExplicitAway { get; set; }
 
         public ScOnlineStatus ConnectionState { get; set; } = ScOnlineStatus.Offline;

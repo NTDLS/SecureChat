@@ -3,6 +3,7 @@ SELECT
 	A.DisplayName,
 	Ac.IsAccepted,
 	A.LastSeen,
+	A.State,
 	A.Status
 FROM
 	Acquaintance as Ac
@@ -18,6 +19,7 @@ SELECT
 	A.DisplayName,
 	Ac.IsAccepted,
 	A.LastSeen,
+	A.State,
 	A.Status
 FROM
 	Acquaintance as Ac
