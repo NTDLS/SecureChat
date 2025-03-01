@@ -88,7 +88,10 @@ namespace SecureChat.Client.Forms
 
                             if (o.Result.IsSuccess)
                             {
-                                _loginResult = new LoginResult(client, o.Result.Username.EnsureNotNull(), o.Result.DisplayName.EnsureNotNull());
+                                _loginResult = new LoginResult(client,
+                                    o.Result.AccountId.EnsureNotNull(),
+                                    o.Result.Username.EnsureNotNull(),
+                                    o.Result.DisplayName.EnsureNotNull());
                             }
 
                             return o.Result.IsSuccess;

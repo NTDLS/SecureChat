@@ -11,6 +11,7 @@ namespace SecureChat.Client
         public static SessionState? Instance;
 
         public RmClient Client { get; set; }
+        public Guid AccountId { get; set; }
         public string Username { get; set; }
         public string DisplayName { get; set; }
         /// <summary>
@@ -21,11 +22,12 @@ namespace SecureChat.Client
 
         public ScOnlineStatus ConnectionState { get; set; } = ScOnlineStatus.Offline;
 
-        public SessionState(RmClient client, string username, string displayName)
+        public SessionState(RmClient client, Guid accountId, string username, string displayName)
         {
             Client = client;
             Username = username;
             DisplayName = displayName;
+            AccountId = accountId;
         }
     }
 }

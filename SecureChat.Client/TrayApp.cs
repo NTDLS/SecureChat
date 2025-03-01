@@ -101,7 +101,7 @@ namespace SecureChat.Client
                         if (loginResult != null)
                         {
                             var persistedState = LocalUserApplicationData.LoadFromDisk(Constants.AppName, new PersistedState());
-                            SessionState.Instance = new SessionState(loginResult.Client, loginResult.Username, loginResult.DisplayName);
+                            SessionState.Instance = new SessionState(loginResult.Client, loginResult.AccountId, loginResult.Username, loginResult.DisplayName);
                             loginResult.Client.OnDisconnected += RmClient_OnDisconnected;
                             loginResult.Client.OnException += Client_OnException;
 
