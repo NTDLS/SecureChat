@@ -3,6 +3,8 @@
     public static class Constants
     {
         public const string AppName = "SecureChat";
+        public const string DefaultServerAddress = "127.0.0.1";
+        public const string DefaultServerPort = "13265";
 
         public enum ScOnlineStatus
         {

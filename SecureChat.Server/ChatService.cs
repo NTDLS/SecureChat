@@ -1,11 +1,6 @@
-﻿using NTDLS.ReliableMessaging;
+﻿using Microsoft.Extensions.Configuration;
+using NTDLS.ReliableMessaging;
 using Serilog;
-using Serilog.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static SecureChat.Library.Constants;
 
 namespace SecureChat.Server
@@ -13,6 +8,7 @@ namespace SecureChat.Server
     internal class ChatService
     {
         private readonly RmServer _rmServer;
+        private readonly IConfiguration _configuration;
 
         public delegate void OnLogEvent(ChatService server, ScErrorLevel errorLevel, string message, Exception? ex = null);
 
@@ -21,22 +17,36 @@ namespace SecureChat.Server
         /// </summary>
         public event OnLogEvent? OnLog;
 
-        public ChatService()
+        public ChatService(IConfiguration configuration)
         {
+            _configuration = configuration;
             _rmServer = new RmServer();
-            _rmServer.OnException += _rmServer_OnException;
+
+            _rmServer.OnException += (RmContext? context, Exception ex, IRmPayload? payload) =>
+                OnLog?.Invoke(this, ScErrorLevel.Error, "Reliable messaging exception.", ex);
+
             //_rmServer.OnDisconnected += RmServer_OnDisconnected;
 
-            _rmServer.AddHandler(new QueryHandlers(this));
+            _rmServer.AddHandler(new QueryHandlers(configuration, this));
         }
 
         internal void InvokeOnLog(ScErrorLevel errorLevel, string message)
             => OnLog?.Invoke(this, errorLevel, message);
 
-        private void _rmServer_OnException(RmContext? context, Exception ex, IRmPayload? payload)
+        public void Start()
         {
-            OnLog?.Invoke(this, ScErrorLevel.Error, "Reliable messaging exception.", ex);
+            var listenPort = _configuration.GetValue<int>("ListenPort");
+
+            Log.Verbose($"Starting service on port: {listenPort:n0}.");
+            _rmServer.Start(listenPort);
+            Log.Verbose("Message started.");
         }
 
+        public void Stop()
+        {
+            Log.Verbose("Stopping service.");
+            _rmServer.Stop();
+            Log.Verbose("Message stopped.");
+        }
     }
 }

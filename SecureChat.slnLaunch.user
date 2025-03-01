@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "SecureChat.Server\\SecureChat.Server.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "SecureChat.Client\\SecureChat.Client.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

@@ -1,6 +1,4 @@
-﻿using SecureChat.Client.Forms;
-
-namespace SecureChat.Client
+﻿namespace SecureChat.Client
 {
     static class VoiceChat
     {

@@ -8,10 +8,10 @@ namespace SecureChat.Library.Messages
         public string Username { get; set; }
         public string PasswordHash { get; set; }
 
-        public LoginQuery(string username, string password)
+        public LoginQuery(string username, string passwordHash)
         {
             Username = username;
-            PasswordHash = password;
+            PasswordHash = passwordHash;
         }
 
     }

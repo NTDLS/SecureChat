@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
-using NTDLS.SqliteDapperWrapper;
 using Serilog;
+using Topshelf;
 
 namespace SecureChat.Server
 {
@@ -16,10 +16,6 @@ namespace SecureChat.Server
                 .ReadFrom.Configuration(configuration)
                 .CreateLogger();
 
-            var sqliteConnection = configuration.GetValue<string>("AppSettings:SQLiteConnection");
-
-            var factory = new ManagedDataStorageFactory($"Data Source={sqliteConnection}");
-
             HostFactory.Run(x =>
             {
                 x.StartAutomatically();
@@ -29,17 +25,17 @@ namespace SecureChat.Server
                     rc.RestartService(1);
                 });
 
-                x.Service<QueuingService>(s =>
+                x.Service<ChatService>(s =>
                 {
-                    s.ConstructUsing(hostSettings => new QueuingService());
+                    s.ConstructUsing(hostSettings => new ChatService(configuration));
                     s.WhenStarted(tc => tc.Start());
                     s.WhenStopped(tc => tc.Stop());
                 });
                 x.RunAsLocalSystem();
 
-                x.SetDescription("A high-performance and reliable persistent message queue designed for efficient inter-process communication, task queuing, load balancing, and data buffering over TCP/IP.");
-                x.SetDisplayName("CatMQ Message Queuing");
-                x.SetServiceName("CatMQService");
+                x.SetDescription("Server for end-to-end encryption chat.");
+                x.SetDisplayName("Secure Chat Server");
+                x.SetServiceName("SecureChatServer");
             });
         }
     }

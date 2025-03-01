@@ -1,15 +1,15 @@
-﻿using SecureChat.Library;
+﻿using SecureChat.Client.Forms;
+using SecureChat.Library;
 using static SecureChat.Library.Constants;
 
 namespace SecureChat.Client
 {
     class TrayApp : ApplicationContext
     {
-        private NotifyIcon _trayIcon;
+        private readonly NotifyIcon _trayIcon;
 
         public TrayApp()
         {
-
             _trayIcon = new NotifyIcon
             {
                 Icon = Icon.ExtractIcon(Application.ExecutablePath, 0, 16),
@@ -22,11 +22,13 @@ namespace SecureChat.Client
             //_trayIcon.BalloonTipText = "Hello from the system tray!";
             //_trayIcon.ShowBalloonTip(3000);
 
-            SetTrayIcon(ScOnlineStatus.Online);
+            //SetTrayIcon(ScOnlineStatus.Online);
 
             _trayIcon.ContextMenuStrip.Items.Add("Exit", null, OnExit);
-        }
 
+            using var formLogin = new FormLogin();
+            formLogin.ShowDialog();
+        }
 
         static Icon LoadIconFromResources(byte[] iconData)
         {

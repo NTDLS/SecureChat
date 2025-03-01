@@ -36,13 +36,17 @@
             pictureBoxLogo = new PictureBox();
             buttonLogin = new Button();
             buttonCancel = new Button();
+            textBoxServer = new TextBox();
+            labelServer = new Label();
+            labelPort = new Label();
+            textBoxPort = new TextBox();
             ((System.ComponentModel.ISupportInitialize)pictureBoxLogo).BeginInit();
             SuspendLayout();
             // 
             // labelUsername
             // 
             labelUsername.AutoSize = true;
-            labelUsername.Location = new Point(98, 13);
+            labelUsername.Location = new Point(100, 57);
             labelUsername.Name = "labelUsername";
             labelUsername.Size = new Size(60, 15);
             labelUsername.TabIndex = 0;
@@ -50,15 +54,15 @@
             // 
             // textBoxUsername
             // 
-            textBoxUsername.Location = new Point(98, 31);
+            textBoxUsername.Location = new Point(100, 75);
             textBoxUsername.Name = "textBoxUsername";
-            textBoxUsername.Size = new Size(175, 23);
+            textBoxUsername.Size = new Size(197, 23);
             textBoxUsername.TabIndex = 1;
             // 
             // labelPassword
             // 
             labelPassword.AutoSize = true;
-            labelPassword.Location = new Point(98, 62);
+            labelPassword.Location = new Point(100, 105);
             labelPassword.Name = "labelPassword";
             labelPassword.Size = new Size(57, 15);
             labelPassword.TabIndex = 2;
@@ -66,11 +70,11 @@
             // 
             // textBoxPassword
             // 
-            textBoxPassword.Location = new Point(98, 80);
+            textBoxPassword.Location = new Point(100, 123);
             textBoxPassword.Name = "textBoxPassword";
             textBoxPassword.PasswordChar = '*';
-            textBoxPassword.Size = new Size(175, 23);
-            textBoxPassword.TabIndex = 3;
+            textBoxPassword.Size = new Size(197, 23);
+            textBoxPassword.TabIndex = 2;
             // 
             // pictureBoxLogo
             // 
@@ -84,27 +88,65 @@
             // 
             // buttonLogin
             // 
-            buttonLogin.Location = new Point(117, 118);
+            buttonLogin.Location = new Point(119, 152);
             buttonLogin.Name = "buttonLogin";
             buttonLogin.Size = new Size(75, 23);
-            buttonLogin.TabIndex = 5;
+            buttonLogin.TabIndex = 3;
             buttonLogin.Text = "Login";
             buttonLogin.UseVisualStyleBackColor = true;
+            buttonLogin.Click += ButtonLogin_Click;
             // 
             // buttonCancel
             // 
-            buttonCancel.Location = new Point(198, 118);
+            buttonCancel.Location = new Point(200, 152);
             buttonCancel.Name = "buttonCancel";
             buttonCancel.Size = new Size(75, 23);
-            buttonCancel.TabIndex = 6;
+            buttonCancel.TabIndex = 4;
             buttonCancel.Text = "Cancel";
             buttonCancel.UseVisualStyleBackColor = true;
+            buttonCancel.Click += ButtonCancel_Click;
+            // 
+            // textBoxServer
+            // 
+            textBoxServer.Location = new Point(100, 27);
+            textBoxServer.Name = "textBoxServer";
+            textBoxServer.Size = new Size(136, 23);
+            textBoxServer.TabIndex = 5;
+            // 
+            // labelServer
+            // 
+            labelServer.AutoSize = true;
+            labelServer.Location = new Point(100, 9);
+            labelServer.Name = "labelServer";
+            labelServer.Size = new Size(39, 15);
+            labelServer.TabIndex = 7;
+            labelServer.Text = "Server";
+            // 
+            // labelPort
+            // 
+            labelPort.AutoSize = true;
+            labelPort.Location = new Point(242, 9);
+            labelPort.Name = "labelPort";
+            labelPort.Size = new Size(29, 15);
+            labelPort.TabIndex = 8;
+            labelPort.Text = "Port";
+            // 
+            // textBoxPort
+            // 
+            textBoxPort.Location = new Point(242, 27);
+            textBoxPort.Name = "textBoxPort";
+            textBoxPort.Size = new Size(55, 23);
+            textBoxPort.TabIndex = 6;
             // 
             // FormLogin
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(288, 151);
+            ClientSize = new Size(309, 186);
+            Controls.Add(textBoxPort);
+            Controls.Add(labelPort);
+            Controls.Add(textBoxServer);
+            Controls.Add(labelServer);
             Controls.Add(buttonCancel);
             Controls.Add(buttonLogin);
             Controls.Add(pictureBoxLogo);
@@ -117,6 +159,7 @@
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "FormLogin";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "SecureChat";
             ((System.ComponentModel.ISupportInitialize)pictureBoxLogo).EndInit();
             ResumeLayout(false);
@@ -132,5 +175,9 @@
         private PictureBox pictureBoxLogo;
         private Button buttonLogin;
         private Button buttonCancel;
+        private TextBox textBoxServer;
+        private Label labelServer;
+        private Label labelPort;
+        private TextBox textBoxPort;
     }
 }
