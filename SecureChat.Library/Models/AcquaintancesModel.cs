@@ -2,7 +2,7 @@
 {
     public class AcquaintancesModel
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string DisplayName { get; set; } = string.Empty;
         /// <summary>
         /// Online, Offline or Away

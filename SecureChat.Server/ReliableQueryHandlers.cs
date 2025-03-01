@@ -98,7 +98,7 @@ namespace SecureChat.Server
                     }) ?? throw new Exception("Invalid username or password.");
 
                 session.SetAccountId(login.Id);
-                return new LoginQueryReply(login.Username.EnsureNotNull(), login.DisplayName.EnsureNotNull());
+                return new LoginQueryReply(login.Id.EnsureNotNull(), login.Username.EnsureNotNull(), login.DisplayName.EnsureNotNull());
             }
             catch (Exception ex)
             {

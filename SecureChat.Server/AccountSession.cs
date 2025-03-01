@@ -8,7 +8,7 @@ namespace SecureChat.Server
     internal class AccountSession
     {
         public Guid ConnectionId { get; private set; }
-        public int? AccountId { get; private set; } = null;
+        public Guid? AccountId { get; private set; } = null;
         public ServerClientCryptographyProvider ServerClientCryptographyProvider { get; set; }
 
         public AccountSession(Guid connectionId, ServerClientCryptographyProvider serverClientCryptographyProvider)
@@ -17,7 +17,7 @@ namespace SecureChat.Server
             ServerClientCryptographyProvider = serverClientCryptographyProvider;
         }
 
-        public void SetAccountId(int accountId)
+        public void SetAccountId(Guid accountId)
         {
             AccountId = accountId;
         }
