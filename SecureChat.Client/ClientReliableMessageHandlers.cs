@@ -17,7 +17,7 @@ namespace SecureChat.Client
         {
         }
 
-        public InitiateEndToEndCryptographyReply ExchangePublicKeyQuery(RmContext context, InitiateEndToEndCryptography param)
+        public InitiateEndToEndCryptographyReply InitiateEndToEndCryptography(RmContext context, InitiateEndToEndCryptography param)
         {
             try
             {
