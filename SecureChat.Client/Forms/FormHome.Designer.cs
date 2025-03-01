@@ -34,21 +34,22 @@
             // 
             // treeViewAcquaintances
             // 
-            treeViewAcquaintances.Location = new Point(12, 12);
+            treeViewAcquaintances.Dock = DockStyle.Fill;
+            treeViewAcquaintances.Location = new Point(10, 10);
             treeViewAcquaintances.Name = "treeViewAcquaintances";
-            treeViewAcquaintances.Size = new Size(286, 535);
+            treeViewAcquaintances.Size = new Size(265, 488);
             treeViewAcquaintances.TabIndex = 0;
             // 
             // FormHome
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(310, 559);
+            ClientSize = new Size(285, 508);
             Controls.Add(treeViewAcquaintances);
-            FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             Name = "FormHome";
+            Padding = new Padding(10);
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Secure Chat";
             ResumeLayout(false);

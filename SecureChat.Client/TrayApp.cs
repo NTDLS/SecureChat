@@ -43,6 +43,12 @@ namespace SecureChat.Client
                 if (_formHome != null)
                 {
                     _formHome.Show();
+
+                    if (_formHome.WindowState == FormWindowState.Minimized)
+                    {
+                        _formHome.WindowState = FormWindowState.Normal;
+                    }
+
                     _formHome.BringToFront();
                     _formHome.Activate();
                     _formHome.Focus();
