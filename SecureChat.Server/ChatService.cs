@@ -15,6 +15,7 @@ namespace SecureChat.Server
         private readonly IConfiguration _configuration;
         private readonly Dictionary<Guid, AccountSession> _sessions = new();
         public delegate void OnLogEvent(ChatService server, ScErrorLevel errorLevel, string message, Exception? ex = null);
+        public RmServer RmServer { get => _rmServer; }
         public event OnLogEvent? OnLog;
 
         public ChatService(IConfiguration configuration)
@@ -27,7 +28,7 @@ namespace SecureChat.Server
 
             _rmServer.OnDisconnected += RmServer_OnDisconnected;
 
-            _rmServer.AddHandler(new ReliableQueryHandlers(configuration, this));
+            _rmServer.AddHandler(new ServerReliableMessageHandlers(configuration, this));
         }
 
         internal void InvokeOnLog(ScErrorLevel errorLevel, string message)
@@ -64,10 +65,22 @@ namespace SecureChat.Server
             _sessions.Remove(connectionId);
         }
 
-        public AccountSession? GetSession(Guid connectionId)
+        public AccountSession? GetSessionByConnectionId(Guid connectionId)
         {
             _sessions.TryGetValue(connectionId, out var session);
             return session;
+        }
+
+        public AccountSession? GetSessionByAccountId(Guid accountId)
+        {
+            foreach (var session in _sessions)
+            {
+                if (session.Value.AccountId == accountId)
+                {
+                    return session.Value;
+                }
+            }
+            return null;
         }
     }
 }

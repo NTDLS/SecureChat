@@ -23,7 +23,7 @@ namespace SecureChat.Library
 
         public static PublicPrivateKeyPair GeneratePublicPrivateKeyPair()
         {
-            using var rsa = RSA.Create(4096);
+            using var rsa = RSA.Create(Constants.RsaKeySize);
             return new PublicPrivateKeyPair(rsa.ExportSubjectPublicKeyInfo(), rsa.ExportPkcs8PrivateKey());
         }
 
@@ -32,11 +32,11 @@ namespace SecureChat.Library
         /// </summary>
         public static byte[] AesEncryptBytes(byte[] data, byte[] publicKey)
         {
-            using RSA rsa = RSA.Create(4096);
+            using RSA rsa = RSA.Create(Constants.RsaKeySize);
             rsa.ImportSubjectPublicKeyInfo(publicKey, out _);
 
             using Aes aes = Aes.Create();
-            aes.KeySize = 256;
+            aes.KeySize = Constants.AesKeySize;
             aes.GenerateKey();
             aes.GenerateIV();
 
@@ -62,7 +62,7 @@ namespace SecureChat.Library
         /// </summary>
         public static byte[] AesDecryptBytes(byte[] encryptedData, byte[] privateKey)
         {
-            using RSA rsa = RSA.Create(4096);
+            using RSA rsa = RSA.Create(Constants.RsaKeySize);
             rsa.ImportPkcs8PrivateKey(privateKey, out _);
 
             //Extract the encrypted AES key length.

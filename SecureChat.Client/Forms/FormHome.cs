@@ -1,4 +1,5 @@
-﻿using NTDLS.WinFormsHelpers;
+﻿using NTDLS.SecureKeyExchange;
+using NTDLS.WinFormsHelpers;
 using SecureChat.Client.Properties;
 using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
@@ -20,9 +21,43 @@ namespace SecureChat.Client.Forms
             _treeImages.Images.Add(Constants.ScOnlineStatus.Away.ToString(), Imaging.LoadIconFromResources(Resources.Away16));
 
             treeViewAcquaintances.ImageList = _treeImages;
+            treeViewAcquaintances.NodeMouseDoubleClick += TreeViewAcquaintances_NodeMouseDoubleClick;
 
             Shown += FormHome_Shown;
             FormClosing += FormHome_FormClosing;
+        }
+
+        private void TreeViewAcquaintances_NodeMouseDoubleClick(object? sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Node?.Tag is AcquaintancesModel acquaintancesModel)
+            {
+                Negotiate(acquaintancesModel.Id);
+            }
+        }
+
+        private void Negotiate(Guid accountId)
+        {
+            if (SessionState.Instance == null)
+            {
+                this.InvokeClose(DialogResult.Cancel);
+                return;
+            }
+
+            var compoundNegotiator = new CompoundNegotiator();
+            var negotiationToken = compoundNegotiator.GenerateNegotiationToken((int)(Math.Ceiling(Constants.EndToEndKeySize / 128.0)));
+
+            //The first thing we do when we get a connection is start a new key exchange process.
+            var queryRequestKeyExchangeReply = SessionState.Instance.Client.Query(
+                new InitiateEndToEndCryptography(accountId, negotiationToken)).ContinueWith(o =>
+                {
+                    return o.Result;
+                }).Result;
+
+            //We received a reply to the secure key exchange, apply it.
+            compoundNegotiator.ApplyNegotiationResponseToken(queryRequestKeyExchangeReply.NegotiationToken);
+
+            //TODO: this is the NASCCL encryption key we will use for all user communication (but not control messages).
+            Console.WriteLine($"SharedSecret: {Crypto.ComputeSha256Hash(compoundNegotiator.SharedSecret)}");
         }
 
         private void FormHome_FormClosing(object? sender, FormClosingEventArgs e)
@@ -120,6 +155,7 @@ namespace SecureChat.Client.Forms
 
                 var node = new TreeNode(childName)
                 {
+                    Tag = acquaintance,
                     ImageKey = acquaintance.State,
                     SelectedImageKey = acquaintance.State
                 };

@@ -12,20 +12,41 @@ namespace SecureChat.Server
     /// <summary>
     /// Reliable query and notification handler for client-server communication.
     /// </summary>
-    internal class ReliableQueryHandlers
+    internal class ServerReliableMessageHandlers
         : IRmMessageHandler
     {
         private readonly ChatService _chatService;
         private readonly IConfiguration _configuration;
         private readonly ManagedDataStorageFactory _dbFactory;
 
-        public ReliableQueryHandlers(IConfiguration configuration, ChatService chatService)
+        public ServerReliableMessageHandlers(IConfiguration configuration, ChatService chatService)
         {
             _configuration = configuration;
             _chatService = chatService;
 
             var sqliteConnection = _configuration.GetValue<string>("SQLiteConnection");
             _dbFactory = new ManagedDataStorageFactory($"Data Source={sqliteConnection}");
+        }
+
+        /// <summary>
+        /// A client is telling the server that it would like to establish end-to-end encryption with another client.
+        /// </summary>
+        public InitiateEndToEndCryptographyReply ExchangePublicKeyQuery(RmContext context, InitiateEndToEndCryptography param)
+        {
+            try
+            {
+                //Find the session for the requested account (if they are logged in).
+                var requestedSession = _chatService.GetSessionByAccountId(param.AccountId)
+                    ?? throw new Exception("Remote session not found.");
+
+                //Relay the query to the requested session and reply to the requester with the other clients reply.
+                //This can be found in: ClientReliableMessageHandlers
+                return _chatService.RmServer.Query(requestedSession.ConnectionId, param).Result;
+            }
+            catch (Exception ex)
+            {
+                return new InitiateEndToEndCryptographyReply(ex.GetBaseException());
+            }
         }
 
         /// <summary>
@@ -39,7 +60,7 @@ namespace SecureChat.Server
                 if (context.GetCryptographyProvider() != null)
                     throw new Exception("Cryptography has already been initialized.");
 
-                var session = _chatService.GetSession(context.ConnectionId);
+                var session = _chatService.GetSessionByConnectionId(context.ConnectionId);
                 if (session != null)
                 {
                     context.SetCryptographyProvider(session.ServerClientCryptographyProvider);
@@ -82,7 +103,7 @@ namespace SecureChat.Server
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Login cannot be attempted until cryptography has been initialized.");
 
-                var session = _chatService.GetSession(context.ConnectionId)
+                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
                     ?? throw new Exception("Session not found.");
 
                 if (session.AccountId != null)
@@ -113,7 +134,7 @@ namespace SecureChat.Server
         {
             try
             {
-                var session = _chatService.GetSession(context.ConnectionId)
+                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
                     ?? throw new Exception("Session not found.");
 
                 var acquaintances = _dbFactory.Query<AcquaintancesModel>(@"SqlQueries\GetAcquaintances.sql",

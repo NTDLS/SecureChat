@@ -100,11 +100,13 @@ namespace SecureChat.Client
                         var loginResult = _formLogin.DoLogin();
                         if (loginResult != null)
                         {
-                            var persistedState = LocalUserApplicationData.LoadFromDisk(Constants.AppName, new PersistedState());
-                            SessionState.Instance = new SessionState(loginResult.Client, loginResult.AccountId, loginResult.Username, loginResult.DisplayName);
                             loginResult.Client.OnDisconnected += RmClient_OnDisconnected;
                             loginResult.Client.OnException += Client_OnException;
+                            loginResult.Client.AddHandler(new ClientReliableMessageHandlers());
 
+                            SessionState.Instance = new SessionState(loginResult.Client, loginResult.AccountId, loginResult.Username, loginResult.DisplayName);
+
+                            var persistedState = LocalUserApplicationData.LoadFromDisk(Constants.AppName, new PersistedState());
                             if (persistedState.Users.TryGetValue(loginResult.Username, out var persistedUserState) == false)
                             {
                                 persistedUserState = new();
