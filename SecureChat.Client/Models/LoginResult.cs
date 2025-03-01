@@ -1,15 +1,15 @@
-﻿namespace SecureChat.Client.Models
+﻿using NTDLS.ReliableMessaging;
+
+namespace SecureChat.Client.Models
 {
     internal class LoginResult
     {
-        public string ServerAddress { get; set; }
-        public string DisplayName { get; set; }
-        public int ServerPort { get; set; }
+        public RmClient Client { get; private set; }
+        public string DisplayName { get; private set; }
 
-        public LoginResult(string serverAddress, int serverPort, string displayName)
+        public LoginResult(RmClient client, string displayName)
         {
-            ServerAddress = serverAddress;
-            ServerPort = serverPort;
+            Client = client;
             DisplayName = displayName;
         }
     }

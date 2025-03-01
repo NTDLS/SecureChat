@@ -1,6 +1,6 @@
 ﻿using NTDLS.ReliableMessaging;
 
-namespace SecureChat.Library.Messages
+namespace SecureChat.Library.ReliableMessages
 {
     public class LoginQuery
         : IRmQuery<LoginQueryReply>
@@ -13,7 +13,6 @@ namespace SecureChat.Library.Messages
             Username = username;
             PasswordHash = passwordHash;
         }
-
     }
 
     public class LoginQueryReply

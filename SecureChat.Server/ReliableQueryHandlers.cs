@@ -1,19 +1,19 @@
 ﻿using Microsoft.Extensions.Configuration;
 using NTDLS.ReliableMessaging;
 using NTDLS.SqliteDapperWrapper;
-using SecureChat.Library.Messages;
+using SecureChat.Library.ReliableMessages;
 using SecureChat.Server.Models;
 
 namespace SecureChat.Server
 {
-    internal class QueryHandlers
+    internal class ReliableQueryHandlers
         : IRmMessageHandler
     {
         private readonly ChatService _chatService;
         private readonly IConfiguration _configuration;
         private readonly ManagedDataStorageFactory _dbFactory;
 
-        public QueryHandlers(IConfiguration configuration, ChatService chatService)
+        public ReliableQueryHandlers(IConfiguration configuration, ChatService chatService)
         {
             _configuration = configuration;
             _chatService = chatService;
@@ -37,6 +37,8 @@ namespace SecureChat.Server
                     return new LoginQueryReply(new Exception("Invalid username or password."));
                 }
 
+                _chatService.RegisterSession(context.ConnectionId, login.Id);
+
                 return new LoginQueryReply(true)
                 {
                     DisplayName = login.DisplayName
@@ -45,6 +47,29 @@ namespace SecureChat.Server
             catch (Exception ex)
             {
                 return new LoginQueryReply(ex.GetBaseException());
+            }
+        }
+
+        public GetAcquaintancesQueryReply GetAcquaintancesQuery(RmContext context, GetAcquaintancesQuery param)
+        {
+            try
+            {
+                var session = _chatService.GetSession(context.ConnectionId);
+                if (session != null)
+                {
+                    var acquaintances = _dbFactory.Query<AcquaintancesModel>(@"SqlQueries\GetAcquaintances.sql",
+                        new
+                        {
+                            AccountId = session.AccountId,
+                        }).ToList();
+
+                    return new GetAcquaintancesQueryReply(acquaintances);
+                }
+                return new GetAcquaintancesQueryReply(new Exception("Session not found."));
+            }
+            catch (Exception ex)
+            {
+                return new GetAcquaintancesQueryReply(ex.GetBaseException());
             }
         }
     }

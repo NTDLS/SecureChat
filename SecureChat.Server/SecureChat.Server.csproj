@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="SqlQueries\GetAcquaintances.sql" />
     <EmbeddedResource Include="SqlQueries\Login.sql" />
   </ItemGroup>
 

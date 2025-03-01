@@ -3,7 +3,7 @@ using NTDLS.ReliableMessaging;
 using NTDLS.WinFormsHelpers;
 using SecureChat.Client.Models;
 using SecureChat.Library;
-using SecureChat.Library.Messages;
+using SecureChat.Library.ReliableMessages;
 
 namespace SecureChat.Client.Forms
 {
@@ -65,13 +65,16 @@ namespace SecureChat.Client.Forms
 
                             if (o.Result.IsSuccess)
                             {
-                                _loginResult = new LoginResult(serverAddress, serverPort, o.Result.DisplayName.EnsureNotNull());
+                                _loginResult = new LoginResult(client, o.Result.DisplayName.EnsureNotNull());
                             }
 
                             return o.Result.IsSuccess;
                         }).Result;
 
-                        client.Disconnect();
+                        if (!isSuccess)
+                        {
+                            client.Disconnect();
+                        }
 
                         this.InvokeClose(isSuccess ? DialogResult.OK : DialogResult.Cancel);
                     }

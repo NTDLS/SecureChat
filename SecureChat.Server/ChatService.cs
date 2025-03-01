@@ -9,12 +9,8 @@ namespace SecureChat.Server
     {
         private readonly RmServer _rmServer;
         private readonly IConfiguration _configuration;
-
+        private readonly Dictionary<Guid, AccountSession> _sessions = new();
         public delegate void OnLogEvent(ChatService server, ScErrorLevel errorLevel, string message, Exception? ex = null);
-
-        /// <summary>
-        /// Event used to notify of server exceptions.
-        /// </summary>
         public event OnLogEvent? OnLog;
 
         public ChatService(IConfiguration configuration)
@@ -25,13 +21,18 @@ namespace SecureChat.Server
             _rmServer.OnException += (RmContext? context, Exception ex, IRmPayload? payload) =>
                 OnLog?.Invoke(this, ScErrorLevel.Error, "Reliable messaging exception.", ex);
 
-            //_rmServer.OnDisconnected += RmServer_OnDisconnected;
+            _rmServer.OnDisconnected += RmServer_OnDisconnected;
 
-            _rmServer.AddHandler(new QueryHandlers(configuration, this));
+            _rmServer.AddHandler(new ReliableQueryHandlers(configuration, this));
         }
 
         internal void InvokeOnLog(ScErrorLevel errorLevel, string message)
             => OnLog?.Invoke(this, errorLevel, message);
+
+        private void RmServer_OnDisconnected(RmContext context)
+        {
+            DeregisterSession(context.ConnectionId);
+        }
 
         public void Start()
         {
@@ -47,6 +48,22 @@ namespace SecureChat.Server
             Log.Verbose("Stopping service.");
             _rmServer.Stop();
             Log.Verbose("Message stopped.");
+        }
+
+        public void RegisterSession(Guid connectionId, int accountId)
+        {
+            _sessions.Add(connectionId, new AccountSession(connectionId, accountId));
+        }
+
+        public void DeregisterSession(Guid connectionId)
+        {
+            _sessions.Remove(connectionId);
+        }
+
+        public AccountSession? GetSession(Guid connectionId)
+        {
+            _sessions.TryGetValue(connectionId, out var session);
+            return session;
         }
     }
 }

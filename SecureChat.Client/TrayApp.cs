@@ -78,15 +78,13 @@ namespace SecureChat.Client
                         var loginResult = _formLogin.DoLogin();
                         if (loginResult != null)
                         {
-                            _rmClient = new RmClient();
-                            _rmClient.Connect(loginResult.ServerAddress, loginResult.ServerPort);
+                            _rmClient = loginResult.Client;
                             _rmClient.OnDisconnected += RmClient_OnDisconnected;
 
-                            //_trayIcon.BalloonTipTitle = "Connection Failure";
-                            //_trayIcon.BalloonTipText = $"Welcome back {loginResult.DisplayName}, you are now logged in!";
-                            //_trayIcon.ShowBalloonTip(3000);                    
-
                             UpdateClientState(ScOnlineStatus.Online);
+
+                            _trayIcon.BalloonTipText = $"Welcome back {loginResult.DisplayName}, you are now logged in.";
+                            _trayIcon.ShowBalloonTip(3000);                    
                         }
                     }
                     _formLogin = null;
