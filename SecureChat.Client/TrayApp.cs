@@ -103,7 +103,11 @@ namespace SecureChat.Client
                             loginResult.Client.OnException += Client_OnException;
                             loginResult.Client.AddHandler(new ClientReliableMessageHandlers());
 
-                            SessionState.Instance = new SessionState(_trayIcon, new FormHome(), loginResult.Client, loginResult.AccountId, loginResult.Username, loginResult.DisplayName);
+                            var formHome = new FormHome();
+                            formHome.CreateControl(); //Force the window handle to be created before the form is shown,
+                            var handle = formHome.Handle; // Accessing the Handle property forces handle creation
+
+                            SessionState.Instance = new SessionState(_trayIcon, formHome, loginResult.Client, loginResult.AccountId, loginResult.Username, loginResult.DisplayName);
 
                             var persistedState = LocalUserApplicationData.LoadFromDisk(Constants.AppName, new PersistedState());
                             if (persistedState.Users.TryGetValue(loginResult.Username, out var persistedUserState) == false)

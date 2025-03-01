@@ -37,9 +37,9 @@ namespace SecureChat.Client
             AccountId = accountId;
         }
 
-        public ActiveChat AddActiveChat(Guid connectionId, Guid accountId, byte[] sharedSecret)
+        public ActiveChat AddActiveChat(Guid connectionId, Guid accountId, string displayName, byte[] sharedSecret)
         {
-            var activeChat = new ActiveChat(connectionId, accountId, sharedSecret);
+            var activeChat = new ActiveChat(connectionId, accountId, displayName, sharedSecret);
             ActiveChats.Add(activeChat);
             return activeChat;
         }

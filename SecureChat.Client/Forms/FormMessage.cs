@@ -10,8 +10,9 @@ namespace SecureChat.Client.Forms
         {
             InitializeComponent();
 
+
             _activeChat = activeChat;
-            richTextBoxMessages.AppendText($"Chat started with {activeChat.AccountId}.\r\n\r\n");
+            richTextBoxMessages.AppendText($"Chat started with {activeChat.DisplayName} at {DateTime.Now}.\r\n\r\n");
         }
 
         public void AppendMessageLine(string message)
@@ -26,8 +27,12 @@ namespace SecureChat.Client.Forms
 
         private void ButtonSend_Click(object sender, EventArgs e)
         {
+            AppendMessageLine($"{_activeChat.DisplayName}: {textBoxMessage.Text}");
+
             SessionState.Instance?.Client.Notify(new ExchangePeerToPeerMessage(
                 _activeChat.ConnectionId, _activeChat.AccountId, SessionState.Instance.DisplayName, textBoxMessage.Text));
+
+            textBoxMessage.Clear();
         }
     }
 }

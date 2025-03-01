@@ -54,7 +54,7 @@ namespace SecureChat.Client
                 //TODO: this is the NASCCL encryption key we will use for all user communication (but not control messages).
                 Console.WriteLine($"SharedSecret: {Crypto.ComputeSha256Hash(compoundNegotiator.SharedSecret)}");
 
-                var activeChat = SessionState.Instance.AddActiveChat(param.PeerConnectionId, param.AccountId, compoundNegotiator.SharedSecret);
+                var activeChat = SessionState.Instance.AddActiveChat(param.PeerConnectionId, param.AccountId, param.DisplayName, compoundNegotiator.SharedSecret);
 
                 SessionState.Instance.FormHome.Invoke(() =>
                 {

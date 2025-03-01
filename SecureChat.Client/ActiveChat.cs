@@ -7,12 +7,14 @@ namespace SecureChat.Client
         public byte[] SharedSecret { get; set; }
         public FormMessage? Form { get; set; }
         public Guid AccountId { get; set; }
+        public string DisplayName { get; set; }
         public Guid ConnectionId { get; set; }
 
-        public ActiveChat(Guid connectionId, Guid accountId, byte[] sharedSecret)
+        public ActiveChat(Guid connectionId, Guid accountId, string displayName, byte[] sharedSecret)
         {
             ConnectionId = connectionId;
             AccountId = accountId;
+            DisplayName = displayName;
             SharedSecret = sharedSecret;
         }
     }
