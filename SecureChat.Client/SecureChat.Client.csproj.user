@@ -8,5 +8,8 @@
     <Compile Update="Forms\FormLogin.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\FormMessage.cs">
+      <SubType>Form</SubType>
+    </Compile>
   </ItemGroup>
 </Project>

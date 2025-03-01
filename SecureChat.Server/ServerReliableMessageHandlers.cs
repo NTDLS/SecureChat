@@ -29,6 +29,24 @@ namespace SecureChat.Server
         }
 
         /// <summary>
+        /// A client is sending a message to another client.
+        /// </summary>
+        public void ExchangePeerToPeerMessage(RmContext context, ExchangePeerToPeerMessage notification)
+        {
+            try
+            {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Message cannot be routed until cryptography has been initialized.");
+
+                _chatService.RmServer.Notify(notification.ConnectionId, notification);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Failed to route peer-to-peer message.", ex);
+            }
+        }
+
+        /// <summary>
         /// A client is telling the server that it would like to establish end-to-end encryption with another client.
         /// </summary>
         public InitiateEndToEndCryptographyReply ExchangePublicKeyQuery(RmContext context, InitiateEndToEndCryptography param)
@@ -39,9 +57,17 @@ namespace SecureChat.Server
                 var requestedSession = _chatService.GetSessionByAccountId(param.AccountId)
                     ?? throw new Exception("Remote session not found.");
 
+                //Send the ConnectionId to the other peer.
+                param.PeerConnectionId = context.ConnectionId;
+
                 //Relay the query to the requested session and reply to the requester with the other clients reply.
                 //This can be found in: ClientReliableMessageHandlers
-                return _chatService.RmServer.Query(requestedSession.ConnectionId, param).Result;
+                var reply = _chatService.RmServer.Query(requestedSession.ConnectionId, param).Result;
+
+                //Reply with the ConnectionId to the requested peer.
+                reply.PeerConnectionId = requestedSession.ConnectionId;
+
+                return reply;
             }
             catch (Exception ex)
             {

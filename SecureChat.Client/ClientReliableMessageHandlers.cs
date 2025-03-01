@@ -1,7 +1,9 @@
 ﻿using NTDLS.ReliableMessaging;
 using NTDLS.SecureKeyExchange;
+using SecureChat.Client.Forms;
 using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
+using Serilog;
 
 namespace SecureChat.Client
 {
@@ -11,16 +13,39 @@ namespace SecureChat.Client
     internal class ClientReliableMessageHandlers
         : IRmMessageHandler
     {
-        //private readonly IConfiguration _configuration;
-
         public ClientReliableMessageHandlers()
         {
+        }
+
+        public void ExchangePeerToPeerMessage(RmContext context, ExchangePeerToPeerMessage notification)
+        {
+            try
+            {
+                if (SessionState.Instance == null)
+                    throw new Exception("The local connection is not established.");
+
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Message cannot be receive until cryptography has been initialized.");
+
+                var activeChat = SessionState.Instance.ActiveChats.FirstOrDefault(o => o.AccountId == notification.AccountId);
+
+                activeChat?.Form?.AppendMessageLine($"{notification.DisplayName}: {notification.Message}");
+
+                Console.WriteLine($"Received: {notification.Message}");
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Failed to handle peer-to-peer message.", ex);
+            }
         }
 
         public InitiateEndToEndCryptographyReply InitiateEndToEndCryptography(RmContext context, InitiateEndToEndCryptography param)
         {
             try
             {
+                if (SessionState.Instance == null)
+                    throw new Exception("The local connection is not established.");
+
                 var compoundNegotiator = new CompoundNegotiator();
 
                 //Apply the diffie-hellman negotiation token.
@@ -28,6 +53,15 @@ namespace SecureChat.Client
 
                 //TODO: this is the NASCCL encryption key we will use for all user communication (but not control messages).
                 Console.WriteLine($"SharedSecret: {Crypto.ComputeSha256Hash(compoundNegotiator.SharedSecret)}");
+
+                var activeChat = SessionState.Instance.AddActiveChat(param.PeerConnectionId, param.AccountId, compoundNegotiator.SharedSecret);
+
+                SessionState.Instance.FormHome.Invoke(() =>
+                {
+                    //We have to create the form on the main window thread.
+                    activeChat.Form = new FormMessage(activeChat);
+                    activeChat.Form.Show();
+                });
 
                 //Reply with the applied negotiation token so that the requester can arrive at the same shared secret.
                 return new InitiateEndToEndCryptographyReply(negotiationReplyToken);

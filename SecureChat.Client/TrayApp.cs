@@ -12,7 +12,6 @@ namespace SecureChat.Client
     class TrayApp : ApplicationContext
     {
         private readonly NotifyIcon _trayIcon;
-        private FormHome? _formHome;
         private FormLogin? _formLogin;
 
         public TrayApp()
@@ -51,26 +50,26 @@ namespace SecureChat.Client
                 }
                 else
                 {
-                    if (_formHome != null)
+                    if (SessionState.Instance.FormHome != null)
                     {
-                        _formHome.Show();
+                        SessionState.Instance.FormHome.Show();
 
-                        if (_formHome.WindowState == FormWindowState.Minimized)
+                        if (SessionState.Instance.FormHome.WindowState == FormWindowState.Minimized)
                         {
-                            _formHome.WindowState = FormWindowState.Normal;
+                            SessionState.Instance.FormHome.WindowState = FormWindowState.Normal;
                         }
 
-                        _formHome.BringToFront();
-                        _formHome.Activate();
-                        _formHome.Focus();
+                        SessionState.Instance.FormHome.BringToFront();
+                        SessionState.Instance.FormHome.Activate();
+                        SessionState.Instance.FormHome.Focus();
                     }
                     else
                     {
-                        using (_formHome = new FormHome())
-                        {
-                            _formHome.ShowDialog();
-                        }
-                        _formHome = null;
+                        //using (SessionState.Instance.FormHome = new FormHome())
+                        //{
+                        //SessionState.Instance.FormHome.ShowDialog();
+                        //}
+                        //SessionState.Instance.FormHome = null;
                     }
                 }
             }
@@ -104,7 +103,7 @@ namespace SecureChat.Client
                             loginResult.Client.OnException += Client_OnException;
                             loginResult.Client.AddHandler(new ClientReliableMessageHandlers());
 
-                            SessionState.Instance = new SessionState(loginResult.Client, loginResult.AccountId, loginResult.Username, loginResult.DisplayName);
+                            SessionState.Instance = new SessionState(_trayIcon, new FormHome(), loginResult.Client, loginResult.AccountId, loginResult.Username, loginResult.DisplayName);
 
                             var persistedState = LocalUserApplicationData.LoadFromDisk(Constants.AppName, new PersistedState());
                             if (persistedState.Users.TryGetValue(loginResult.Username, out var persistedUserState) == false)
@@ -287,7 +286,7 @@ namespace SecureChat.Client
             {
                 Task.Run(() => SessionState.Instance?.Client?.Disconnect());
 
-                _formHome?.Close();
+                SessionState.Instance?.FormHome?.Close();
                 _trayIcon.Visible = false;
                 SessionState.Instance = null;
                 Application.Exit();
