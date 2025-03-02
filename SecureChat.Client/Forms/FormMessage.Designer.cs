@@ -95,7 +95,9 @@
             Controls.Add(splitContainer1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "FormMessage";
+            Opacity = 0.9D;
             Padding = new Padding(10);
+            SizeGripStyle = SizeGripStyle.Show;
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Secure Chat";
             splitContainer1.Panel1.ResumeLayout(false);

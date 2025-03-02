@@ -170,6 +170,12 @@ namespace SecureChat.Server
                         PasswordHash = param.PasswordHash
                     }) ?? throw new Exception("Invalid username or password.");
 
+                _dbFactory.Execute(@"SqlQueries\UpdateAccountLastSeen.sql", new
+                {
+                    AccountId = login.Id,
+                    LastSeen = DateTime.UtcNow
+                });
+
                 session.SetAccountId(login.Id);
 
                 return new LoginQueryReply(
@@ -199,6 +205,12 @@ namespace SecureChat.Server
                     {
                         AccountId = session.AccountId,
                     }).ToList();
+
+                _dbFactory.Execute(@"SqlQueries\UpdateAccountLastSeen.sql", new
+                {
+                    AccountId = session.AccountId,
+                    LastSeen = DateTime.UtcNow
+                });
 
                 return new GetAcquaintancesQueryReply(acquaintances);
             }

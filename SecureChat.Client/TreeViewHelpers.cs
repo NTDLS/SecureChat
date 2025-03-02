@@ -1,4 +1,6 @@
-﻿using SecureChat.Server.Models;
+﻿using SecureChat.Library;
+using SecureChat.Server.Models;
+using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client
 {
@@ -12,11 +14,28 @@ namespace SecureChat.Client
                 childName += $" - {acquaintance.Status}";
             }
 
+            var state = Enum.Parse<ScOnlineState>(acquaintance.State);
+
+            if (acquaintance.LastSeen == null)
+            {
+                //The acquaintance has never been online.
+                state = ScOnlineState.Offline;
+            }
+            else if (state == ScOnlineState.Online || state == ScOnlineState.Away)
+            {
+                //If the acquaintance is "online" or "Away" but was last seen a "long time ago" then show them as offline.
+                if ((DateTime.UtcNow - acquaintance.LastSeen.Value).TotalSeconds > ScConstants.DefaultAutoAwayIdleSeconds)
+                {
+                    state = ScOnlineState.Offline;
+                }
+            }
+
             var node = new TreeNode(childName)
             {
                 Tag = acquaintance,
-                ImageKey = acquaintance.State,
-                SelectedImageKey = acquaintance.State
+                ImageKey = state.ToString(),
+                SelectedImageKey = state.ToString(),
+                ToolTipText = state.ToString()
             };
 
             parentNode.Nodes.Add(node);
@@ -41,7 +60,7 @@ namespace SecureChat.Client
             if (parentNode == null)
                 throw new ArgumentNullException(nameof(parentNode));
 
-            List<TreeNode> childNodes = new List<TreeNode>();
+            var childNodes = new List<TreeNode>();
 
             foreach (TreeNode node in parentNode.Nodes)
             {

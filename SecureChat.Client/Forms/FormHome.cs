@@ -4,7 +4,6 @@ using SecureChat.Client.Properties;
 using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
 using SecureChat.Server.Models;
-using System.Windows.Forms;
 using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client.Forms
@@ -12,6 +11,7 @@ namespace SecureChat.Client.Forms
     public partial class FormHome : Form
     {
         private readonly ImageList _treeImages = new();
+        private readonly System.Windows.Forms.ToolTip _treeToolTip = new();
 
         public FormHome()
         {
@@ -25,6 +25,14 @@ namespace SecureChat.Client.Forms
             treeViewAcquaintances.ImageList = _treeImages;
             treeViewAcquaintances.NodeMouseDoubleClick += TreeViewAcquaintances_NodeMouseDoubleClick;
 
+            treeViewAcquaintances.NodeMouseHover += TreeViewAcquaintances_NodeMouseHover;
+
+            // Set up the delays for the ToolTip.
+            _treeToolTip.InitialDelay = 500; // Time in milliseconds before the tooltip appears
+            _treeToolTip.ReshowDelay = 500;   // Time in milliseconds before subsequent tooltips appear
+            _treeToolTip.AutoPopDelay = 2500; // Time in milliseconds the tooltip remains visible
+            _treeToolTip.ShowAlways = false;   // Display the tooltip even when the form is not active
+
             var timer = new System.Windows.Forms.Timer();
             timer.Interval = 10000;
             timer.Tick += Timer_Tick;
@@ -32,6 +40,14 @@ namespace SecureChat.Client.Forms
 
             Shown += FormHome_Shown;
             FormClosing += FormHome_FormClosing;
+        }
+
+        private void TreeViewAcquaintances_NodeMouseHover(object? sender, TreeNodeMouseHoverEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(e.Node?.ToolTipText))
+            {
+                _treeToolTip.SetToolTip(treeViewAcquaintances, e.Node.ToolTipText);
+            }
         }
 
         private void Timer_Tick(object? sender, EventArgs e)
