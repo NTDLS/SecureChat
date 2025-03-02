@@ -180,13 +180,13 @@ namespace SecureChat.Client.Forms
 
             if (SessionState.Instance.ExplicitAway)
             {
-                rootNode.ImageKey = ScConstants.ScOnlineState.Online.ToString();
-                rootNode.SelectedImageKey = ScConstants.ScOnlineState.Online.ToString();
+                rootNode.ImageKey = ScOnlineState.Online.ToString();
+                rootNode.SelectedImageKey = ScOnlineState.Online.ToString();
             }
             else
             {
-                rootNode.ImageKey = ScConstants.ScOnlineState.Away.ToString();
-                rootNode.SelectedImageKey = ScConstants.ScOnlineState.Away.ToString();
+                rootNode.ImageKey = ScOnlineState.Away.ToString();
+                rootNode.SelectedImageKey = ScOnlineState.Away.ToString();
             }
 
             treeViewAcquaintances.Nodes.Add(rootNode);
