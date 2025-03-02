@@ -7,9 +7,9 @@ namespace SecureChat.Client
     /// <summary>
     /// Used to store state information about the logged in session.
     /// </summary>
-    internal class SessionState
+    internal class LocalSession
     {
-        public static SessionState? Instance;
+        public static LocalSession? Current;
 
         public RmClient Client { get; set; }
         public Guid AccountId { get; set; }
@@ -27,7 +27,7 @@ namespace SecureChat.Client
 
         public ScOnlineState ConnectionState { get; set; } = ScOnlineState.Offline;
 
-        public SessionState(NotifyIcon trayIcon, FormHome formHome, RmClient client, Guid accountId, string username, string displayName)
+        public LocalSession(NotifyIcon trayIcon, FormHome formHome, RmClient client, Guid accountId, string username, string displayName)
         {
             FormHome = formHome;
             TrayIcon = trayIcon;

@@ -40,6 +40,7 @@
             connectionToolStripMenuItem = new ToolStripMenuItem();
             terminateToolStripMenuItem = new ToolStripMenuItem();
             propertiesToolStripMenuItem = new ToolStripMenuItem();
+            imageToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -119,6 +120,7 @@
             // 
             // attachFileToolStripMenuItem
             // 
+            attachFileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { imageToolStripMenuItem });
             attachFileToolStripMenuItem.Name = "attachFileToolStripMenuItem";
             attachFileToolStripMenuItem.Size = new Size(180, 22);
             attachFileToolStripMenuItem.Text = "Attach File";
@@ -133,15 +135,22 @@
             // terminateToolStripMenuItem
             // 
             terminateToolStripMenuItem.Name = "terminateToolStripMenuItem";
-            terminateToolStripMenuItem.Size = new Size(180, 22);
+            terminateToolStripMenuItem.Size = new Size(127, 22);
             terminateToolStripMenuItem.Text = "Terminate";
             terminateToolStripMenuItem.Click += TerminateToolStripMenuItem_Click;
             // 
             // propertiesToolStripMenuItem
             // 
             propertiesToolStripMenuItem.Name = "propertiesToolStripMenuItem";
-            propertiesToolStripMenuItem.Size = new Size(180, 22);
+            propertiesToolStripMenuItem.Size = new Size(127, 22);
             propertiesToolStripMenuItem.Text = "Properties";
+            // 
+            // imageToolStripMenuItem
+            // 
+            imageToolStripMenuItem.Name = "imageToolStripMenuItem";
+            imageToolStripMenuItem.Size = new Size(180, 22);
+            imageToolStripMenuItem.Text = "Image";
+            imageToolStripMenuItem.Click += ImageToolStripMenuItem_Click;
             // 
             // FormMessage
             // 
@@ -182,5 +191,6 @@
         private ToolStripMenuItem connectionToolStripMenuItem;
         private ToolStripMenuItem terminateToolStripMenuItem;
         private ToolStripMenuItem propertiesToolStripMenuItem;
+        private ToolStripMenuItem imageToolStripMenuItem;
     }
 }

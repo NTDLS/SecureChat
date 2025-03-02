@@ -47,42 +47,42 @@ namespace SecureChat.Client.Forms
 
         public TreeNode? GetRootNode()
         {
-            if (SessionState.Instance != null)
+            if (LocalSession.Current != null)
             {
                 if (treeViewAcquaintances.Nodes.Count > 0)
                 {
                     TreeNode existingRootNode = treeViewAcquaintances.Nodes[0];
 
-                    if (SessionState.Instance.ExplicitAway)
+                    if (LocalSession.Current.ExplicitAway)
                     {
                         existingRootNode.ImageKey = ScOnlineState.Away.ToString();
                         existingRootNode.SelectedImageKey = ScOnlineState.Away.ToString();
                     }
                     else
                     {
-                        existingRootNode.ImageKey = SessionState.Instance.ConnectionState.ToString();
-                        existingRootNode.SelectedImageKey = SessionState.Instance.ConnectionState.ToString();
+                        existingRootNode.ImageKey = LocalSession.Current.ConnectionState.ToString();
+                        existingRootNode.SelectedImageKey = LocalSession.Current.ConnectionState.ToString();
                     }
 
                     return existingRootNode;
                 }
 
-                var rootName = SessionState.Instance.DisplayName;
-                if (string.IsNullOrEmpty(SessionState.Instance.Status) == false)
+                var rootName = LocalSession.Current.DisplayName;
+                if (string.IsNullOrEmpty(LocalSession.Current.Status) == false)
                 {
-                    rootName += $" - {SessionState.Instance.Status}";
+                    rootName += $" - {LocalSession.Current.Status}";
                 }
                 var rootNode = new TreeNode(rootName);
 
-                if (SessionState.Instance.ExplicitAway)
+                if (LocalSession.Current.ExplicitAway)
                 {
                     rootNode.ImageKey = ScOnlineState.Away.ToString();
                     rootNode.SelectedImageKey = ScOnlineState.Away.ToString();
                 }
                 else
                 {
-                    rootNode.ImageKey = SessionState.Instance.ConnectionState.ToString();
-                    rootNode.SelectedImageKey = SessionState.Instance.ConnectionState.ToString();
+                    rootNode.ImageKey = LocalSession.Current.ConnectionState.ToString();
+                    rootNode.SelectedImageKey = LocalSession.Current.ConnectionState.ToString();
                 }
 
                 treeViewAcquaintances.Nodes.Add(rootNode);
@@ -114,25 +114,25 @@ namespace SecureChat.Client.Forms
 
         private void Timer_Tick(object? sender, EventArgs e)
         {
-            if (SessionState.Instance != null)
+            if (LocalSession.Current != null)
             {
                 DeltaRepopulate();
 
                 var idleTime = Interop.GetIdleTime();
                 if (idleTime.TotalSeconds >= ScConstants.DefaultAutoAwayIdleSeconds)
                 {
-                    SessionState.Instance.Client.Notify(new UpdateAccountStatus(
-                            SessionState.Instance.AccountId,
+                    LocalSession.Current.Client.Notify(new UpdateAccountStatus(
+                            LocalSession.Current.AccountId,
                             ScOnlineState.Away,
-                            SessionState.Instance.Status
+                            LocalSession.Current.Status
                         ));
                 }
                 else
                 {
-                    SessionState.Instance.Client.Notify(new UpdateAccountStatus(
-                            SessionState.Instance.AccountId,
-                            SessionState.Instance.ExplicitAway ? ScOnlineState.Away : ScOnlineState.Online,
-                            SessionState.Instance.Status
+                    LocalSession.Current.Client.Notify(new UpdateAccountStatus(
+                            LocalSession.Current.AccountId,
+                            LocalSession.Current.ExplicitAway ? ScOnlineState.Away : ScOnlineState.Online,
+                            LocalSession.Current.Status
                         ));
                 }
             }
@@ -149,22 +149,22 @@ namespace SecureChat.Client.Forms
                 }
 
                 //Start the key exchange process then popup the chat window.
-                if (SessionState.Instance == null)
+                if (LocalSession.Current == null)
                 {
                     this.InvokeMessageBox("Local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
                     this.InvokeClose(DialogResult.No);
                     return;
                 }
 
-                var activeChat = SessionState.Instance.GetActiveChatByAccountId(acquaintancesModel.Id);
+                var activeChat = LocalSession.Current.GetActiveChatByAccountId(acquaintancesModel.Id);
                 if (activeChat == null)
                 {
                     var compoundNegotiator = new CompoundNegotiator();
                     var negotiationToken = compoundNegotiator.GenerateNegotiationToken((int)(Math.Ceiling(ScConstants.EndToEndKeySize / 128.0)));
 
                     //The first thing we do when we get a connection is start a new key exchange process.
-                    var queryRequestKeyExchangeReply = SessionState.Instance.Client.Query(
-                        new InitiateEndToEndCryptography(SessionState.Instance.AccountId, acquaintancesModel.Id, SessionState.Instance.DisplayName, negotiationToken))
+                    var queryRequestKeyExchangeReply = LocalSession.Current.Client.Query(
+                        new InitiateEndToEndCryptography(LocalSession.Current.AccountId, acquaintancesModel.Id, LocalSession.Current.DisplayName, negotiationToken))
                         .ContinueWith(o =>
                         {
                             if (!o.IsFaulted && o.Result.IsSuccess)
@@ -182,7 +182,7 @@ namespace SecureChat.Client.Forms
                         //TODO: this is the NASCCL encryption key we will use for all user communication (but not control messages).
                         //Console.WriteLine($"SharedSecret: {Crypto.ComputeSha256Hash(compoundNegotiator.SharedSecret)}");
 
-                        activeChat = SessionState.Instance.AddActiveChat(
+                        activeChat = LocalSession.Current.AddActiveChat(
                             queryRequestKeyExchangeReply.PeerConnectionId, acquaintancesModel.Id, acquaintancesModel.DisplayName, compoundNegotiator.SharedSecret);
 
                         activeChat.Form = new FormMessage(activeChat);
@@ -205,7 +205,7 @@ namespace SecureChat.Client.Forms
 
         private void FormHome_FormClosing(object? sender, FormClosingEventArgs e)
         {
-            if (SessionState.Instance != null)
+            if (LocalSession.Current != null)
             {
                 e.Cancel = true;
                 Hide();
@@ -218,7 +218,7 @@ namespace SecureChat.Client.Forms
 
         private void Repopulate()
         {
-            if (SessionState.Instance == null)
+            if (LocalSession.Current == null)
             {
                 this.InvokeMessageBox("Local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
                 this.InvokeClose(DialogResult.No);
@@ -229,7 +229,7 @@ namespace SecureChat.Client.Forms
             {
                 try
                 {
-                    SessionState.Instance.Client.Query(new GetAcquaintancesQuery()).ContinueWith(o =>
+                    LocalSession.Current.Client.Query(new GetAcquaintancesQuery()).ContinueWith(o =>
                     {
                         if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
                         {
@@ -253,7 +253,7 @@ namespace SecureChat.Client.Forms
 
         private void PopulateTree(List<AcquaintanceModel> acquaintances)
         {
-            if (SessionState.Instance == null)
+            if (LocalSession.Current == null)
             {
                 this.InvokeMessageBox("Local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
                 this.InvokeClose(DialogResult.No);
@@ -283,7 +283,7 @@ namespace SecureChat.Client.Forms
 
         private void DeltaRepopulate()
         {
-            if (SessionState.Instance == null)
+            if (LocalSession.Current == null)
             {
                 this.InvokeMessageBox("Local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
                 this.InvokeClose(DialogResult.No);
@@ -294,7 +294,7 @@ namespace SecureChat.Client.Forms
             {
                 try
                 {
-                    SessionState.Instance.Client.Query(new GetAcquaintancesQuery()).ContinueWith(o =>
+                    LocalSession.Current.Client.Query(new GetAcquaintancesQuery()).ContinueWith(o =>
                     {
                         if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
                         {
@@ -318,7 +318,7 @@ namespace SecureChat.Client.Forms
 
         private void DeltaRepopulateTree(List<AcquaintanceModel> acquaintances)
         {
-            if (SessionState.Instance == null)
+            if (LocalSession.Current == null)
             {
                 this.InvokeMessageBox("Local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
                 this.InvokeClose(DialogResult.No);

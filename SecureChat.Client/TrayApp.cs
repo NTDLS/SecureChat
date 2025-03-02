@@ -45,24 +45,24 @@ namespace SecureChat.Client
         {
             try
             {
-                if (SessionState.Instance?.Client == null)
+                if (LocalSession.Current?.Client == null)
                 {
                     Login();
                 }
                 else
                 {
-                    if (SessionState.Instance.FormHome != null)
+                    if (LocalSession.Current.FormHome != null)
                     {
-                        SessionState.Instance.FormHome.Show();
+                        LocalSession.Current.FormHome.Show();
 
-                        if (SessionState.Instance.FormHome.WindowState == FormWindowState.Minimized)
+                        if (LocalSession.Current.FormHome.WindowState == FormWindowState.Minimized)
                         {
-                            SessionState.Instance.FormHome.WindowState = FormWindowState.Normal;
+                            LocalSession.Current.FormHome.WindowState = FormWindowState.Normal;
                         }
 
-                        SessionState.Instance.FormHome.BringToFront();
-                        SessionState.Instance.FormHome.Activate();
-                        SessionState.Instance.FormHome.Focus();
+                        LocalSession.Current.FormHome.BringToFront();
+                        LocalSession.Current.FormHome.Activate();
+                        LocalSession.Current.FormHome.Focus();
                     }
                     else
                     {
@@ -84,7 +84,7 @@ namespace SecureChat.Client
         {
             try
             {
-                SessionState.Instance = null;
+                LocalSession.Current = null;
 
                 if (_formLogin != null)
                 {
@@ -123,7 +123,7 @@ namespace SecureChat.Client
                                 UpdateClientState(ScOnlineState.Online);
                             }
 
-                            SessionState.Instance = new SessionState(_trayIcon,
+                            LocalSession.Current = new LocalSession(_trayIcon,
                                 formHome,
                                 loginResult.Client,
                                 loginResult.AccountId,
@@ -172,13 +172,13 @@ namespace SecureChat.Client
         {
             try
             {
-                if (state == SessionState.Instance?.ConnectionState)
+                if (state == LocalSession.Current?.ConnectionState)
                 {
                     return;
                 }
-                if (SessionState.Instance != null)
+                if (LocalSession.Current != null)
                 {
-                    SessionState.Instance.ConnectionState = state;
+                    LocalSession.Current.ConnectionState = state;
                 }
 
                 _trayIcon.ContextMenuStrip.EnsureNotNull();
@@ -241,24 +241,24 @@ namespace SecureChat.Client
         {
             try
             {
-                if (SessionState.Instance != null && sender is ToolStripMenuItem menuItem)
+                if (LocalSession.Current != null && sender is ToolStripMenuItem menuItem)
                 {
-                    SessionState.Instance.ExplicitAway = !SessionState.Instance.ExplicitAway;
+                    LocalSession.Current.ExplicitAway = !LocalSession.Current.ExplicitAway;
 
-                    menuItem.Checked = SessionState.Instance.ExplicitAway; //Toggle the explicit away state.
+                    menuItem.Checked = LocalSession.Current.ExplicitAway; //Toggle the explicit away state.
 
                     UpdateClientState(menuItem.Checked ? ScOnlineState.Away : ScOnlineState.Online);
 
                     var persistedState = LocalUserApplicationData.LoadFromDisk(ScConstants.AppName, new PersistedState());
 
-                    if (persistedState.Users.TryGetValue(SessionState.Instance.Username, out var persistedUserState) == false)
+                    if (persistedState.Users.TryGetValue(LocalSession.Current.Username, out var persistedUserState) == false)
                     {
                         //Add a default state if its not already present.
                         persistedUserState = new();
-                        persistedState.Users.Add(SessionState.Instance.Username, persistedUserState);
+                        persistedState.Users.Add(LocalSession.Current.Username, persistedUserState);
                     }
 
-                    persistedUserState.ExplicitAway = SessionState.Instance.ExplicitAway;
+                    persistedUserState.ExplicitAway = LocalSession.Current.ExplicitAway;
                     LocalUserApplicationData.SaveToDisk(ScConstants.AppName, persistedState);
                 }
             }
@@ -285,10 +285,10 @@ namespace SecureChat.Client
         {
             try
             {
-                Task.Run(() => SessionState.Instance?.Client?.Disconnect());
+                Task.Run(() => LocalSession.Current?.Client?.Disconnect());
                 Thread.Sleep(10);
                 UpdateClientState(ScOnlineState.Offline);
-                SessionState.Instance = null;
+                LocalSession.Current = null;
             }
             catch (Exception ex)
             {
@@ -300,11 +300,11 @@ namespace SecureChat.Client
         {
             try
             {
-                Task.Run(() => SessionState.Instance?.Client?.Disconnect());
+                Task.Run(() => LocalSession.Current?.Client?.Disconnect());
 
-                SessionState.Instance?.FormHome?.Close();
+                LocalSession.Current?.FormHome?.Close();
                 _trayIcon.Visible = false;
-                SessionState.Instance = null;
+                LocalSession.Current = null;
                 Application.Exit();
             }
             catch (Exception ex)

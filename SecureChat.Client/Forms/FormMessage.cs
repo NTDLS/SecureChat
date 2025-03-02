@@ -1,9 +1,11 @@
-﻿namespace SecureChat.Client.Forms
+﻿using System.Text;
+using System.Windows.Forms;
+
+namespace SecureChat.Client.Forms
 {
     public partial class FormMessage : Form
     {
         private readonly ActiveChat _activeChat;
-        private bool _allowClose = false;
 
         private DateTime? _lastMessageReceived;
 
@@ -37,36 +39,32 @@
 
         private void FormMessage_FormClosing(object? sender, FormClosingEventArgs e)
         {
-            if (_allowClose)
+            if (LocalSession.Current == null || _activeChat.IsTerminated)
             {
                 return; //Close the dialog.
             }
-            if (SessionState.Instance != null)
-            {
-                e.Cancel = true;
-                Hide();
-            }
+
+            e.Cancel = true;
+            Hide();
         }
 
         private void Timer_Tick(object? sender, EventArgs e)
         {
+            if (LocalSession.Current == null)
+            {
+                return;
+            }
+            if (_activeChat.IsTerminated)
+            {
+                return;
+            }
+
             if (_lastMessageReceived != null)
             {
                 if ((DateTime.Now - (DateTime)_lastMessageReceived).TotalSeconds > 60)
                 {
-                    lock (richTextBoxMessages)
-                    {
-                        richTextBoxMessages.SelectionStart = richTextBoxMessages.TextLength;
-                        richTextBoxMessages.SelectionLength = 0;
-
-                        richTextBoxMessages.SelectionColor = Color.Gray;
-                        richTextBoxMessages.SelectionFont = new Font(richTextBoxMessages.Font, FontStyle.Italic);
-                        richTextBoxMessages.AppendText($"Last message received {_lastMessageReceived}.\r\n");
-                        richTextBoxMessages.SelectionFont = richTextBoxMessages.Font;
-                        richTextBoxMessages.ScrollToCaret();
-
-                        _lastMessageReceived = null;
-                    }
+                    AppendSystemMessageLine(Color.Gray, $"Last message received {_lastMessageReceived}.");
+                    _lastMessageReceived = null;
                 }
             }
         }
@@ -90,6 +88,29 @@
             }
         }
 
+        public void AppendSystemMessageLine(Color color, string message)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(AppendSystemMessageLine, [color, message]);
+                return;
+            }
+
+            lock (richTextBoxMessages)
+            {
+                richTextBoxMessages.SelectionStart = richTextBoxMessages.TextLength;
+                richTextBoxMessages.SelectionLength = 0;
+
+                richTextBoxMessages.SelectionColor = Color.Gray;
+                richTextBoxMessages.SelectionFont = new Font(richTextBoxMessages.Font, FontStyle.Italic);
+                richTextBoxMessages.AppendText($"{message}\r\n");
+                richTextBoxMessages.SelectionFont = richTextBoxMessages.Font;
+                richTextBoxMessages.ScrollToCaret();
+
+                _lastMessageReceived = null;
+            }
+        }
+
         public void AppendMessageLine(Color color, string message)
         {
             if (InvokeRequired)
@@ -110,11 +131,11 @@
             }
         }
 
-        public void AppendReceivedMessageFrom(Color color, string fromName, string plainText)
+        public void AppendReceivedMessageLine(Color color, string fromName, string plainText)
         {
             if (InvokeRequired)
             {
-                Invoke(AppendReceivedMessageFrom, [color, fromName, plainText]);
+                Invoke(AppendReceivedMessageLine, [color, fromName, plainText]);
                 return;
             }
 
@@ -136,9 +157,15 @@
 
         private void ButtonSend_Click(object? sender, EventArgs e)
         {
-            if (SessionState.Instance == null)
+            if (LocalSession.Current == null)
             {
-                Close();
+                AppendMessageLine(Color.Red, "Not connected.");
+                return;
+            }
+
+            if (_activeChat.IsTerminated)
+            {
+                AppendMessageLine(Color.Red, "Chat has ended.");
                 return;
             }
 
@@ -147,7 +174,7 @@
 
             if (_activeChat.SendMessage(text))
             {
-                AppendReceivedMessageFrom(Color.Blue, SessionState.Instance.DisplayName, text);
+                AppendReceivedMessageLine(Color.Blue, LocalSession.Current.DisplayName, text);
             }
             else
             {
@@ -159,8 +186,21 @@
 
         private void TerminateToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            _activeChat.Terminate();
         }
 
         #endregion
+
+        private void ImageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.gif";
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    //InsertImageIntoRichTextBox(openFileDialog.FileName);
+                }
+            }
+        }
     }
 }

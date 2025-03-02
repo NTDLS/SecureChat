@@ -7,10 +7,12 @@ namespace SecureChat.Client
 {
     internal class ActiveChat
     {
+        public bool IsTerminated { get; private set; } = false;
+
         public FormMessage? Form { get; set; }
-        public Guid AccountId { get; set; }
-        public string DisplayName { get; set; }
-        public Guid ConnectionId { get; set; }
+        public Guid AccountId { get; private set; }
+        public string DisplayName { get; private set; }
+        public Guid ConnectionId { get; private set; }
         private readonly CryptoStream _streamCryptography;
 
         public ActiveChat(Guid connectionId, Guid accountId, string displayName, byte[] sharedSecret)
@@ -41,15 +43,36 @@ namespace SecureChat.Client
             }
         }
 
+        public void Terminate()
+        {
+            if (IsTerminated)
+            {
+                return;
+            }
+            IsTerminated = true;
+            LocalSession.Current?.Client.Notify(new TerminateChat(ConnectionId, LocalSession.Current.AccountId));
+            Form?.AppendSystemMessageLine(Color.Red, $"The chat ended at {DateTime.Now}.");
+        }
+
         public void ReceiveMessage(byte[] cipherText)
         {
-            Form?.AppendReceivedMessageFrom(Color.DarkRed, DisplayName, Decrypt(cipherText));
+            if (IsTerminated)
+            {
+                return;
+            }
+
+            Form?.AppendReceivedMessageLine(Color.DarkRed, DisplayName, Decrypt(cipherText));
         }
 
         public bool SendMessage(string plaintText)
         {
-            return SessionState.Instance?.Client.Query(new ExchangePeerToPeerQuery(
-                    ConnectionId, SessionState.Instance.AccountId, Encrypt(plaintText))).ContinueWith(o =>
+            if (IsTerminated)
+            {
+                return false;
+            }
+
+            return LocalSession.Current?.Client.Query(new ExchangePeerToPeerQuery(
+                    ConnectionId, LocalSession.Current.AccountId, Encrypt(plaintText))).ContinueWith(o =>
                     {
                         if (!o.IsFaulted && o.Result.IsSuccess)
                         {

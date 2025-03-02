@@ -17,17 +17,38 @@ namespace SecureChat.Client
         {
         }
 
-        public ExchangePeerToPeerQueryReply ExchangePeerToPeerQuery(RmContext context, ExchangePeerToPeerQuery param)
+        public void TerminateChat(RmContext context, TerminateChat param)
         {
             try
             {
-                if (SessionState.Instance == null)
+                if (LocalSession.Current == null)
                     throw new Exception("Local connection is not established.");
 
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Message cannot be receive until cryptography has been initialized.");
 
-                var activeChat = SessionState.Instance.ActiveChats.FirstOrDefault(o => o.AccountId == param.MessageFromAccountId)
+                var activeChat = LocalSession.Current.ActiveChats.FirstOrDefault(o => o.AccountId == param.AccountId)
+                    ?? throw new Exception("Chat session was not found.");
+
+                activeChat?.Terminate();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        public ExchangePeerToPeerQueryReply ExchangePeerToPeerQuery(RmContext context, ExchangePeerToPeerQuery param)
+        {
+            try
+            {
+                if (LocalSession.Current == null)
+                    throw new Exception("Local connection is not established.");
+
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Message cannot be receive until cryptography has been initialized.");
+
+                var activeChat = LocalSession.Current.ActiveChats.FirstOrDefault(o => o.AccountId == param.MessageFromAccountId)
                     ?? throw new Exception("Chat session was not found.");
 
                 activeChat?.ReceiveMessage(param.CipherText);
@@ -45,7 +66,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (SessionState.Instance == null)
+                if (LocalSession.Current == null)
                     throw new Exception("Local connection is not established.");
 
                 var compoundNegotiator = new CompoundNegotiator();
@@ -56,9 +77,9 @@ namespace SecureChat.Client
                 //TODO: this is the NASCCL encryption key we will use for all user communication (but not control messages).
                 //Console.WriteLine($"SharedSecret: {Crypto.ComputeSha256Hash(compoundNegotiator.SharedSecret)}");
 
-                var activeChat = SessionState.Instance.AddActiveChat(param.PeerConnectionId, param.SourceAccountId, param.DisplayName, compoundNegotiator.SharedSecret);
+                var activeChat = LocalSession.Current.AddActiveChat(param.PeerConnectionId, param.SourceAccountId, param.DisplayName, compoundNegotiator.SharedSecret);
 
-                SessionState.Instance.FormHome.Invoke(() =>
+                LocalSession.Current.FormHome.Invoke(() =>
                 {
                     //We have to create the form on the main window thread.
                     activeChat.Form = new FormMessage(activeChat);

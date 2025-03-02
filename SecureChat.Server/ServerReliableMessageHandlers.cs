@@ -26,6 +26,25 @@ namespace SecureChat.Server
         }
 
         /// <summary>
+        /// A client is letting the server know that they are terminating the chat.
+        /// Relay the message to the other client.
+        /// </summary>
+        public void TerminateChat(RmContext context, TerminateChat param)
+        {
+            try
+            {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+                _chatService.RmServer.Notify(param.ConnectionId, param);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
         /// A client is updating the server about their state/status.
         /// </summary>
         public void UpdateAccountStatus(RmContext context, UpdateAccountStatus param)
