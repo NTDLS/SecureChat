@@ -51,7 +51,20 @@ namespace SecureChat.Client.Forms
             {
                 if (treeViewAcquaintances.Nodes.Count > 0)
                 {
-                    return treeViewAcquaintances.Nodes[0];
+                    TreeNode existingRootNode = treeViewAcquaintances.Nodes[0];
+
+                    if (SessionState.Instance.ExplicitAway)
+                    {
+                        existingRootNode.ImageKey = ScOnlineState.Away.ToString();
+                        existingRootNode.SelectedImageKey = ScOnlineState.Away.ToString();
+                    }
+                    else
+                    {
+                        existingRootNode.ImageKey = SessionState.Instance.ConnectionState.ToString();
+                        existingRootNode.SelectedImageKey = SessionState.Instance.ConnectionState.ToString();
+                    }
+
+                    return existingRootNode;
                 }
 
                 var rootName = SessionState.Instance.DisplayName;
@@ -63,13 +76,13 @@ namespace SecureChat.Client.Forms
 
                 if (SessionState.Instance.ExplicitAway)
                 {
-                    rootNode.ImageKey = ScOnlineState.Online.ToString();
-                    rootNode.SelectedImageKey = ScOnlineState.Online.ToString();
+                    rootNode.ImageKey = ScOnlineState.Away.ToString();
+                    rootNode.SelectedImageKey = ScOnlineState.Away.ToString();
                 }
                 else
                 {
-                    rootNode.ImageKey = ScOnlineState.Away.ToString();
-                    rootNode.SelectedImageKey = ScOnlineState.Away.ToString();
+                    rootNode.ImageKey = SessionState.Instance.ConnectionState.ToString();
+                    rootNode.SelectedImageKey = SessionState.Instance.ConnectionState.ToString();
                 }
 
                 treeViewAcquaintances.Nodes.Add(rootNode);
@@ -129,11 +142,18 @@ namespace SecureChat.Client.Forms
         {
             if (e.Node?.Tag is AcquaintanceModel acquaintancesModel)
             {
-                //Start the key exchange process then popup the chat window.
+                if (e.Node.ImageKey.Equals(ScOnlineState.Offline.ToString(), StringComparison.CurrentCultureIgnoreCase))
+                {
+                    this.InvokeMessageBox("The selected acquaintance is not online.", ScConstants.AppName, MessageBoxButtons.OK);
+                    return;
+                }
 
+                //Start the key exchange process then popup the chat window.
                 if (SessionState.Instance == null)
                 {
-                    throw new Exception("The local connection is not established.");
+                    this.InvokeMessageBox("The local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
+                    this.InvokeClose(DialogResult.No);
+                    return;
                 }
 
                 var activeChat = SessionState.Instance.GetActiveChatByAccountId(acquaintancesModel.Id);
@@ -170,7 +190,7 @@ namespace SecureChat.Client.Forms
                     }
                     else
                     {
-                        MessageBox.Show("Could not connect to the selected acquaintance.", ScConstants.AppName, MessageBoxButtons.OK);
+                        this.InvokeMessageBox("Could not connect to the selected acquaintance.", ScConstants.AppName, MessageBoxButtons.OK);
                     }
                 }
                 else if (activeChat.Form != null)
@@ -200,7 +220,8 @@ namespace SecureChat.Client.Forms
         {
             if (SessionState.Instance == null)
             {
-                this.InvokeClose(DialogResult.Cancel);
+                this.InvokeMessageBox("The local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
+                this.InvokeClose(DialogResult.No);
                 return;
             }
 
@@ -234,7 +255,8 @@ namespace SecureChat.Client.Forms
         {
             if (SessionState.Instance == null)
             {
-                this.InvokeClose(DialogResult.Cancel);
+                this.InvokeMessageBox("The local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
+                this.InvokeClose(DialogResult.No);
                 return;
             }
 
@@ -263,7 +285,8 @@ namespace SecureChat.Client.Forms
         {
             if (SessionState.Instance == null)
             {
-                this.InvokeClose(DialogResult.Cancel);
+                this.InvokeMessageBox("The local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
+                this.InvokeClose(DialogResult.No);
                 return;
             }
 
@@ -297,7 +320,8 @@ namespace SecureChat.Client.Forms
         {
             if (SessionState.Instance == null)
             {
-                this.InvokeClose(DialogResult.Cancel);
+                this.InvokeMessageBox("The local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
+                this.InvokeClose(DialogResult.No);
                 return;
             }
 
