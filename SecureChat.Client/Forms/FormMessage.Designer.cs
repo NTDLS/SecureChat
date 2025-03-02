@@ -95,7 +95,7 @@
             Controls.Add(splitContainer1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "FormMessage";
-            Opacity = 0.9D;
+            Opacity = 0.95D;
             Padding = new Padding(10);
             SizeGripStyle = SizeGripStyle.Show;
             StartPosition = FormStartPosition.CenterScreen;

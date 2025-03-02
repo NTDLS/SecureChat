@@ -98,20 +98,31 @@ namespace SecureChat.Client.Forms
                         new InitiateEndToEndCryptography(SessionState.Instance.AccountId, acquaintancesModel.Id, SessionState.Instance.DisplayName, negotiationToken))
                         .ContinueWith(o =>
                         {
-                            return o.Result;
+                            if (!o.IsFaulted && o.Result.IsSuccess)
+                            {
+                                return o.Result;
+                            }
+                            return null;
                         }).Result;
 
-                    //We received a reply to the secure key exchange, apply it.
-                    compoundNegotiator.ApplyNegotiationResponseToken(queryRequestKeyExchangeReply.NegotiationToken);
+                    if (queryRequestKeyExchangeReply != null)
+                    {
+                        //We received a reply to the secure key exchange, apply it.
+                        compoundNegotiator.ApplyNegotiationResponseToken(queryRequestKeyExchangeReply.NegotiationToken);
 
-                    //TODO: this is the NASCCL encryption key we will use for all user communication (but not control messages).
-                    //Console.WriteLine($"SharedSecret: {Crypto.ComputeSha256Hash(compoundNegotiator.SharedSecret)}");
+                        //TODO: this is the NASCCL encryption key we will use for all user communication (but not control messages).
+                        //Console.WriteLine($"SharedSecret: {Crypto.ComputeSha256Hash(compoundNegotiator.SharedSecret)}");
 
-                    activeChat = SessionState.Instance.AddActiveChat(
-                        queryRequestKeyExchangeReply.PeerConnectionId, acquaintancesModel.Id, acquaintancesModel.DisplayName, compoundNegotiator.SharedSecret);
+                        activeChat = SessionState.Instance.AddActiveChat(
+                            queryRequestKeyExchangeReply.PeerConnectionId, acquaintancesModel.Id, acquaintancesModel.DisplayName, compoundNegotiator.SharedSecret);
 
-                    activeChat.Form = new FormMessage(activeChat);
-                    activeChat.Form.Show();
+                        activeChat.Form = new FormMessage(activeChat);
+                        activeChat.Form.Show();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Could not connect to the selected acquaintance.", ScConstants.AppName, MessageBoxButtons.OK);
+                    }
                 }
                 else if (activeChat.Form != null)
                 {
@@ -276,9 +287,12 @@ namespace SecureChat.Client.Forms
                     var matchingAcquaintance = acquaintances.FirstOrDefault(o => o.Id == acquaintancesModel.Id);
                     if (matchingAcquaintance != null)
                     {
+                        var state = TreeViewHelpers.GetAcquaintanceState(matchingAcquaintance);
+
                         //Update tree node if it is in the fresh acquaintance list.
-                        node.ImageKey = matchingAcquaintance.State;
-                        node.SelectedImageKey = matchingAcquaintance.State;
+                        node.ImageKey = state.ToString();
+                        node.SelectedImageKey = state.ToString();
+                        node.ToolTipText = state.ToString();
                     }
                     else
                     {

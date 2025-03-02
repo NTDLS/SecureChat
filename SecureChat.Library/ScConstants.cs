@@ -2,7 +2,7 @@
 {
     public static class ScConstants
     {
-        public const string AppName = "SecureChat";
+        public const string AppName = "Secure Chat";
         public const string DefaultServerAddress = "127.0.0.1";
         public const int DefaultServerPort = 13265;
         public const int DefaultAutoAwayIdleSeconds = 600;

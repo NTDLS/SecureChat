@@ -53,7 +53,7 @@ namespace SecureChat.Client.Forms
             Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             Name = "FormHome";
-            Opacity = 0.9D;
+            Opacity = 0.95D;
             Padding = new Padding(10);
             SizeGripStyle = SizeGripStyle.Show;
             StartPosition = FormStartPosition.CenterScreen;

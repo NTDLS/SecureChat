@@ -14,6 +14,21 @@ namespace SecureChat.Client
                 childName += $" - {acquaintance.Status}";
             }
 
+            var state = GetAcquaintanceState(acquaintance);
+
+            var node = new TreeNode(childName)
+            {
+                Tag = acquaintance,
+                ImageKey = state.ToString(),
+                SelectedImageKey = state.ToString(),
+                ToolTipText = state.ToString()
+            };
+
+            parentNode.Nodes.Add(node);
+        }
+
+        public static ScOnlineState GetAcquaintanceState(AcquaintanceModel acquaintance)
+        {
             var state = Enum.Parse<ScOnlineState>(acquaintance.State);
 
             if (acquaintance.LastSeen == null)
@@ -30,15 +45,7 @@ namespace SecureChat.Client
                 }
             }
 
-            var node = new TreeNode(childName)
-            {
-                Tag = acquaintance,
-                ImageKey = state.ToString(),
-                SelectedImageKey = state.ToString(),
-                ToolTipText = state.ToString()
-            };
-
-            parentNode.Nodes.Add(node);
+            return state;
         }
 
         public static TreeNode? FindNodeByAccountId(TreeNode parentNode, Guid accountId)
