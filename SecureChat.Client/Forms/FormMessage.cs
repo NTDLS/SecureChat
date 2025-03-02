@@ -17,6 +17,9 @@ namespace SecureChat.Client.Forms
             FormClosing += FormMessage_FormClosing;
             Load += FormMessage_Load;
 
+            Activated += FormMessage_Activated;
+            Deactivate += FormMessage_Deactivate;
+
             textBoxMessage.KeyDown += TextBoxMessage_KeyDown;
 
             var timer = new System.Windows.Forms.Timer();
@@ -25,6 +28,16 @@ namespace SecureChat.Client.Forms
             timer.Enabled = true;
 
             AppendSystemMessageLine($"Chat with {_activeChat.DisplayName} started at {DateTime.Now}.");
+        }
+
+        private void FormMessage_Deactivate(object? sender, EventArgs e)
+        {
+            Opacity = 0.8;
+        }
+
+        private void FormMessage_Activated(object? sender, EventArgs e)
+        {
+            Opacity = 1;
         }
 
         private void FormMessage_Load(object? sender, EventArgs e)
@@ -88,20 +101,29 @@ namespace SecureChat.Client.Forms
             }
         }
 
-        public void AppendSystemMessageLine(string message, Color? color = null)
+        #region Append Flow Controls.
+
+        private void AppendFlowControl(FlowLayoutPanel control)
         {
             if (InvokeRequired)
             {
-                Invoke(AppendSystemMessageLine, [message, color]);
+                Invoke(AppendFlowControl, [control]);
                 return;
             }
-
             lock (flowPanel)
             {
-                var control = new FlowControlSystemText(message, color);
                 flowPanel.Controls.Add(control);
+                while (flowPanel.Controls.Count > 100)
+                {
+                    flowPanel.Controls.RemoveAt(0);
+                }
                 flowPanel.ScrollControlIntoView(control);
             }
+        }
+
+        public void AppendSystemMessageLine(string message, Color? color = null)
+        {
+            AppendFlowControl(new FlowControlSystemText(message, color));
         }
 
         public void AppendMessageLine(string message, Color? color = null)
@@ -113,29 +135,17 @@ namespace SecureChat.Client.Forms
             }
             lock (flowPanel)
             {
-                var control = new FlowControlSystemText(message, color);
-                flowPanel.Controls.Add(control);
-                flowPanel.ScrollControlIntoView(control);
+                AppendFlowControl(new FlowControlSystemText(message, color));
             }
         }
 
         public void AppendReceivedMessageLine(string fromName, string plainText, Color? color = null)
         {
-            if (InvokeRequired)
-            {
-                Invoke(AppendReceivedMessageLine, [fromName, plainText, color]);
-                return;
-            }
-
             _lastMessageReceived = DateTime.Now;
-
-            lock (flowPanel)
-            {
-                var control = new FlowControlTextMessage(fromName, plainText, color);
-                flowPanel.Controls.Add(control);
-                flowPanel.ScrollControlIntoView(control);
-            }
+            AppendFlowControl(new FlowControlTextMessage(fromName, plainText, color));
         }
+
+        #endregion
 
         private void ButtonSend_Click(object? sender, EventArgs e)
         {
@@ -175,21 +185,18 @@ namespace SecureChat.Client.Forms
             _activeChat.Terminate();
         }
 
-        #endregion
-
         private void ImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            using OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.gif";
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                openFileDialog.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.gif";
-                if (openFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    byte[] imageBytes = File.ReadAllBytes(openFileDialog.FileName);
+                byte[] imageBytes = File.ReadAllBytes(openFileDialog.FileName);
 
-                    var chatMessage = new FlowControlImage(imageBytes);
-                    flowPanel.Controls.Add(chatMessage);
-                }
+                AppendFlowControl(new FlowControlImage(imageBytes));
             }
         }
+
+        #endregion
     }
 }
