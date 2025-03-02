@@ -246,6 +246,8 @@ namespace SecureChat.Client
 
                     menuItem.Checked = SessionState.Instance.ExplicitAway; //Toggle the explicit away state.
 
+                    UpdateClientState(menuItem.Checked ? ScOnlineState.Away : ScOnlineState.Online);
+
                     var persistedState = LocalUserApplicationData.LoadFromDisk(ScConstants.AppName, new PersistedState());
 
                     if (persistedState.Users.TryGetValue(SessionState.Instance.Username, out var persistedUserState) == false)
