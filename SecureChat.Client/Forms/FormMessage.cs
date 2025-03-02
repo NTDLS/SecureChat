@@ -117,6 +117,12 @@ namespace SecureChat.Client.Forms
 
             _lastMessageReceived = DateTime.Now;
 
+            if (!Visible)
+            {
+                this.WindowState = FormWindowState.Minimized;
+                this.Show();
+            }
+
             AppendReceivedMessageFrom(Color.DarkRed, _activeChat.DisplayName, _activeChat.Decrypt(cipherText));
         }
 

@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using NTDLS.Helpers;
 using NTDLS.ReliableMessaging;
-using NTDLS.SqliteDapperWrapper;
 using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
-using SecureChat.Server.Models;
 using Serilog;
 
 namespace SecureChat.Server
@@ -17,15 +15,13 @@ namespace SecureChat.Server
     {
         private readonly ChatService _chatService;
         private readonly IConfiguration _configuration;
-        private readonly ManagedDataStorageFactory _dbFactory;
+        private readonly DatabaseRepository _dbRepository;
 
         public ServerReliableMessageHandlers(IConfiguration configuration, ChatService chatService)
         {
             _configuration = configuration;
             _chatService = chatService;
-
-            var sqliteConnection = _configuration.GetValue<string>("SQLiteConnection");
-            _dbFactory = new ManagedDataStorageFactory($"Data Source={sqliteConnection}");
+            _dbRepository = new DatabaseRepository(configuration);
         }
 
         /// <summary>
@@ -38,14 +34,7 @@ namespace SecureChat.Server
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Cryptography has not been initialized.");
 
-                _dbFactory.Execute(@"SqlQueries\UpdateAccountStatus.sql",
-                    new
-                    {
-                        AccountId = param.AccountId,
-                        State = param.State.ToString(),
-                        Status = param.Status ?? string.Empty,
-                        LastSeen = DateTime.UtcNow
-                    });
+                _dbRepository.UpdateAccountStatus(param.AccountId, param.State, param.Status);
             }
             catch (Exception ex)
             {
@@ -163,18 +152,8 @@ namespace SecureChat.Server
                     throw new Exception("Session is already logged in.");
                 }
 
-                var login = _dbFactory.QueryFirst<LoginModel>(@"SqlQueries\Login.sql",
-                    new
-                    {
-                        Username = param.Username,
-                        PasswordHash = param.PasswordHash
-                    }) ?? throw new Exception("Invalid username or password.");
-
-                _dbFactory.Execute(@"SqlQueries\UpdateAccountLastSeen.sql", new
-                {
-                    AccountId = login.Id,
-                    LastSeen = DateTime.UtcNow
-                });
+                var login = _dbRepository.Login(param.Username, param.PasswordHash, param.ExplicitAway)
+                    ?? throw new Exception("Invalid username or password.");
 
                 session.SetAccountId(login.Id);
 
@@ -200,17 +179,7 @@ namespace SecureChat.Server
                 var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
                     ?? throw new Exception("Session not found.");
 
-                var acquaintances = _dbFactory.Query<AcquaintanceModel>(@"SqlQueries\GetAcquaintances.sql",
-                    new
-                    {
-                        AccountId = session.AccountId,
-                    }).ToList();
-
-                _dbFactory.Execute(@"SqlQueries\UpdateAccountLastSeen.sql", new
-                {
-                    AccountId = session.AccountId,
-                    LastSeen = DateTime.UtcNow
-                });
+                var acquaintances = _dbRepository.GetAcquaintances(session.AccountId.EnsureNotNull());
 
                 return new GetAcquaintancesQueryReply(acquaintances);
             }

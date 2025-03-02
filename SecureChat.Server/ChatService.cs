@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using NTDLS.ReliableMessaging;
-using NTDLS.SqliteDapperWrapper;
 using SecureChat.Library;
 using Serilog;
 using static SecureChat.Library.ScConstants;
@@ -14,9 +13,10 @@ namespace SecureChat.Server
     {
         private readonly RmServer _rmServer;
         private readonly IConfiguration _configuration;
-        private readonly ManagedDataStorageFactory _dbFactory;
+        private readonly DatabaseRepository _dbRepository;
         private readonly Dictionary<Guid, AccountSession> _sessions = new();
         public delegate void OnLogEvent(ChatService server, ScErrorLevel errorLevel, string message, Exception? ex = null);
+
         public RmServer RmServer { get => _rmServer; }
         public event OnLogEvent? OnLog;
 
@@ -32,8 +32,7 @@ namespace SecureChat.Server
 
             _rmServer.AddHandler(new ServerReliableMessageHandlers(configuration, this));
 
-            var sqliteConnection = _configuration.GetValue<string>("SQLiteConnection");
-            _dbFactory = new ManagedDataStorageFactory($"Data Source={sqliteConnection}");
+            _dbRepository = new DatabaseRepository(configuration);
         }
 
         internal void InvokeOnLog(ScErrorLevel errorLevel, string message)
@@ -45,13 +44,9 @@ namespace SecureChat.Server
 
             DeregisterSession(context.ConnectionId);
 
-            if (session != null)
+            if (session != null && session.AccountId != null)
             {
-                _dbFactory.Execute(@"SqlQueries\UpdateAccountState.sql", new
-                {
-                    AccountId = session.AccountId,
-                    State = ScConstants.ScOnlineState.Offline.ToString()
-                });
+                _dbRepository.UpdateAccountState(session.AccountId.Value, ScOnlineState.Offline);
             }
         }
 
