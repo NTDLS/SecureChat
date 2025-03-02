@@ -11,7 +11,7 @@ namespace SecureChat.Client.Forms
     public partial class FormHome : Form
     {
         private readonly ImageList _treeImages = new();
-        private readonly System.Windows.Forms.ToolTip _treeToolTip = new();
+        private readonly ToolTip _treeToolTip = new();
 
         public FormHome()
         {
@@ -40,6 +40,55 @@ namespace SecureChat.Client.Forms
 
             Shown += FormHome_Shown;
             FormClosing += FormHome_FormClosing;
+            Load += FormHome_Load;
+
+            GetRootNode();
+        }
+
+        public TreeNode? GetRootNode()
+        {
+            if (SessionState.Instance != null)
+            {
+                if (treeViewAcquaintances.Nodes.Count > 0)
+                {
+                    return treeViewAcquaintances.Nodes[0];
+                }
+
+                var rootName = SessionState.Instance.DisplayName;
+                if (string.IsNullOrEmpty(SessionState.Instance.Status) == false)
+                {
+                    rootName += $" - {SessionState.Instance.Status}";
+                }
+                var rootNode = new TreeNode(rootName);
+
+                if (SessionState.Instance.ExplicitAway)
+                {
+                    rootNode.ImageKey = ScOnlineState.Online.ToString();
+                    rootNode.SelectedImageKey = ScOnlineState.Online.ToString();
+                }
+                else
+                {
+                    rootNode.ImageKey = ScOnlineState.Away.ToString();
+                    rootNode.SelectedImageKey = ScOnlineState.Away.ToString();
+                }
+
+                treeViewAcquaintances.Nodes.Add(rootNode);
+
+                return rootNode;
+            }
+            return null;
+        }
+
+        private void FormHome_Load(object? sender, EventArgs e)
+        {
+            Repopulate();
+
+            var currentScreen = Screen.FromPoint(Cursor.Position);
+            int offsetY = 10; // Distance above the taskbar
+            int offsetX = 10; // Distance from the right of the screen.
+            int x = currentScreen.WorkingArea.Right - this.Width - offsetX;
+            int y = currentScreen.WorkingArea.Bottom - this.Height - offsetY;
+            Location = new Point(x, y);
         }
 
         private void TreeViewAcquaintances_NodeMouseHover(object? sender, TreeNodeMouseHoverEventArgs e)
@@ -145,7 +194,6 @@ namespace SecureChat.Client.Forms
 
         private void FormHome_Shown(object? sender, EventArgs e)
         {
-            Repopulate();
         }
 
         private void Repopulate()
@@ -198,34 +246,17 @@ namespace SecureChat.Client.Forms
 
             treeViewAcquaintances.Nodes.Clear();
 
-            var rootName = SessionState.Instance.DisplayName;
-            if (string.IsNullOrEmpty(SessionState.Instance.Status) == false)
+            var rootNode = GetRootNode();
+            if (rootNode != null)
             {
-                rootName += $" - {SessionState.Instance.Status}";
+                foreach (var acquaintance in acquaintances)
+                {
+                    TreeViewHelpers.AddAcquaintanceNode(rootNode, acquaintance);
+                }
+
+                TreeViewHelpers.SortChildNodes(rootNode);
+                rootNode.Expand();
             }
-            var rootNode = new TreeNode(rootName);
-
-            if (SessionState.Instance.ExplicitAway)
-            {
-                rootNode.ImageKey = ScOnlineState.Online.ToString();
-                rootNode.SelectedImageKey = ScOnlineState.Online.ToString();
-            }
-            else
-            {
-                rootNode.ImageKey = ScOnlineState.Away.ToString();
-                rootNode.SelectedImageKey = ScOnlineState.Away.ToString();
-            }
-
-            treeViewAcquaintances.Nodes.Add(rootNode);
-
-            foreach (var acquaintance in acquaintances)
-            {
-                TreeViewHelpers.AddAcquaintanceNode(rootNode, acquaintance);
-            }
-
-            TreeViewHelpers.SortChildNodes(rootNode);
-
-            rootNode.Expand();
         }
 
         private void DeltaRepopulate()
@@ -276,49 +307,57 @@ namespace SecureChat.Client.Forms
                 return;
             }
 
-            var rootNode = treeViewAcquaintances.Nodes[0];
-
-            var nodesToRemove = new List<TreeNode>();
-
-            foreach (TreeNode node in rootNode.Nodes)
+            if (treeViewAcquaintances.Nodes.Count == 0)
             {
-                if (node?.Tag is AcquaintanceModel acquaintancesModel)
-                {
-                    var matchingAcquaintance = acquaintances.FirstOrDefault(o => o.Id == acquaintancesModel.Id);
-                    if (matchingAcquaintance != null)
-                    {
-                        var state = TreeViewHelpers.GetAcquaintanceState(matchingAcquaintance);
+                return;
+            }
 
-                        //Update tree node if it is in the fresh acquaintance list.
-                        node.ImageKey = state.ToString();
-                        node.SelectedImageKey = state.ToString();
-                        node.ToolTipText = state.ToString();
-                    }
-                    else
+            var rootNode = GetRootNode();
+            if (rootNode != null)
+            {
+                var nodesToRemove = new List<TreeNode>();
+
+                foreach (TreeNode node in rootNode.Nodes)
+                {
+                    if (node?.Tag is AcquaintanceModel acquaintancesModel)
                     {
-                        //Queue node for removal if it is missing from the fresh acquaintance list.
-                        nodesToRemove.Add(node);
+                        var matchingAcquaintance = acquaintances.FirstOrDefault(o => o.Id == acquaintancesModel.Id);
+                        if (matchingAcquaintance != null)
+                        {
+                            var state = TreeViewHelpers.GetAcquaintanceState(matchingAcquaintance);
+
+                            //Update tree node if it is in the fresh acquaintance list.
+                            node.ImageKey = state.ToString();
+                            node.SelectedImageKey = state.ToString();
+                            node.ToolTipText = state.ToString();
+                        }
+                        else
+                        {
+                            //Queue node for removal if it is missing from the fresh acquaintance list.
+                            nodesToRemove.Add(node);
+                        }
                     }
                 }
-            }
 
-            //Remove nodes queued for deletion.
-            foreach (var node in nodesToRemove)
-            {
-                rootNode.Nodes.Remove(node);
-            }
-
-            //Add tree nodes for acquaintances that are in the fresh list but missing from the tree.
-            foreach (var acquaintance in acquaintances)
-            {
-                var existingNode = TreeViewHelpers.FindNodeByAccountId(rootNode, acquaintance.Id);
-                if (existingNode == null)
+                //Remove nodes queued for deletion.
+                foreach (var node in nodesToRemove)
                 {
-                    TreeViewHelpers.AddAcquaintanceNode(rootNode, acquaintance);
+                    rootNode.Nodes.Remove(node);
                 }
-            }
 
-            TreeViewHelpers.SortChildNodes(rootNode);
+                //Add tree nodes for acquaintances that are in the fresh list but missing from the tree.
+                foreach (var acquaintance in acquaintances)
+                {
+                    var existingNode = TreeViewHelpers.FindNodeByAccountId(rootNode, acquaintance.Id);
+                    if (existingNode == null)
+                    {
+                        TreeViewHelpers.AddAcquaintanceNode(rootNode, acquaintance);
+                    }
+                }
+
+                TreeViewHelpers.SortChildNodes(rootNode);
+                rootNode.Expand();
+            }
         }
     }
 }

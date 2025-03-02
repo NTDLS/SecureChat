@@ -16,6 +16,7 @@ namespace SecureChat.Client.Forms
             richTextBoxMessages.AppendText($"Chat started with {activeChat.DisplayName} at {DateTime.Now}.\r\n\r\n");
 
             FormClosing += FormMessage_FormClosing;
+            Load += FormMessage_Load;
 
             textBoxMessage.KeyDown += TextBoxMessage_KeyDown;
 
@@ -23,6 +24,16 @@ namespace SecureChat.Client.Forms
             timer.Interval = 5000;
             timer.Tick += Timer_Tick;
             timer.Enabled = true;
+        }
+
+        private void FormMessage_Load(object? sender, EventArgs e)
+        {
+            var currentScreen = Screen.FromPoint(Cursor.Position);
+            int offsetY = 10; // Distance above the taskbar
+            int offsetX = 10; // Distance from the right of the screen.
+            int x = currentScreen.WorkingArea.Right - this.Width - offsetX;
+            int y = currentScreen.WorkingArea.Bottom - this.Height - offsetY;
+            Location = new Point(x, y);
         }
 
         private void FormMessage_FormClosing(object? sender, FormClosingEventArgs e)
