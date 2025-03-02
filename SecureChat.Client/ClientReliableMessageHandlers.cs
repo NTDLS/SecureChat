@@ -16,7 +16,7 @@ namespace SecureChat.Client
         {
         }
 
-        public void ExchangePeerToPeerMessage(RmContext context, ExchangePeerToPeerMessage param)
+        public ExchangePeerToPeerQueryReply ExchangePeerToPeerQuery(RmContext context, ExchangePeerToPeerQuery param)
         {
             try
             {
@@ -29,10 +29,13 @@ namespace SecureChat.Client
                 var activeChat = SessionState.Instance.ActiveChats.FirstOrDefault(o => o.AccountId == param.MessageFromAccountId);
 
                 activeChat?.Form?.AppendReceivedMessage(param.CipherText);
+
+                return new ExchangePeerToPeerQueryReply();
             }
             catch (Exception ex)
             {
                 Log.Error("Failed to handle peer-to-peer message.", ex);
+                return new ExchangePeerToPeerQueryReply(ex);
             }
         }
 

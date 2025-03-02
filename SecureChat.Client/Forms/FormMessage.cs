@@ -1,4 +1,5 @@
 ﻿using SecureChat.Library.ReliableMessages;
+using System.Drawing;
 
 namespace SecureChat.Client.Forms
 {
@@ -76,20 +77,23 @@ namespace SecureChat.Client.Forms
             }
         }
 
-        public void AppendMessageLine(string message)
+        public void AppendMessageLine(Color color, string message)
         {
             if (InvokeRequired)
             {
-                Invoke(AppendMessageLine, message);
+                Invoke(AppendMessageLine, [color, message]);
                 return;
             }
             lock (richTextBoxMessages)
             {
-                richTextBoxMessages.SelectionStart = richTextBoxMessages.TextLength;
-                richTextBoxMessages.SelectionLength = 0;
-                richTextBoxMessages.AppendText($"{message}\r\n");
-                richTextBoxMessages.ScrollToCaret();
+                lock (richTextBoxMessages)
+                {
+                    richTextBoxMessages.SelectionStart = richTextBoxMessages.TextLength;
+                    richTextBoxMessages.SelectionLength = 0;
 
+                    richTextBoxMessages.SelectionColor = color;
+                    richTextBoxMessages.AppendText($"{message}\r\n");
+                }
             }
         }
 
@@ -103,16 +107,29 @@ namespace SecureChat.Client.Forms
 
             _lastMessageReceived = DateTime.Now;
 
+            AppendReceivedMessageFrom(Color.DarkRed, _activeChat.DisplayName, _activeChat.Decrypt(cipherText));
+        }
+
+        public void AppendReceivedMessageFrom(Color color, string fromName, string plainText)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(AppendReceivedMessageFrom, [color, fromName, plainText]);
+                return;
+            }
+
+            _lastMessageReceived = DateTime.Now;
+
             lock (richTextBoxMessages)
             {
                 richTextBoxMessages.SelectionStart = richTextBoxMessages.TextLength;
                 richTextBoxMessages.SelectionLength = 0;
 
-                richTextBoxMessages.SelectionColor = Color.Red;
-                richTextBoxMessages.AppendText($"{_activeChat.DisplayName}: ");
+                richTextBoxMessages.SelectionColor = color;
+                richTextBoxMessages.AppendText($"{fromName}: ");
 
                 richTextBoxMessages.SelectionColor = richTextBoxMessages.ForeColor;
-                richTextBoxMessages.AppendText($"{_activeChat.Decrypt(cipherText)}\r\n");
+                richTextBoxMessages.AppendText($"{plainText}\r\n");
                 richTextBoxMessages.ScrollToCaret();
             }
         }
@@ -125,23 +142,22 @@ namespace SecureChat.Client.Forms
                 return;
             }
 
-            lock (richTextBoxMessages)
-            {
-                richTextBoxMessages.SelectionStart = richTextBoxMessages.TextLength;
-                richTextBoxMessages.SelectionLength = 0;
-
-                richTextBoxMessages.SelectionColor = Color.Blue;
-                richTextBoxMessages.AppendText($"{SessionState.Instance.DisplayName}: ");
-
-                richTextBoxMessages.SelectionColor = richTextBoxMessages.ForeColor;
-                richTextBoxMessages.AppendText($"{textBoxMessage.Text}\r\n");
-                richTextBoxMessages.ScrollToCaret();
-            }
-
-            SessionState.Instance?.Client.Notify(new ExchangePeerToPeerMessage(
-                    _activeChat.ConnectionId, SessionState.Instance.AccountId, _activeChat.Encrypt(textBoxMessage.Text)));
-
+            string text = textBoxMessage.Text;
             textBoxMessage.Clear();
+
+            SessionState.Instance?.Client.Query(new ExchangePeerToPeerQuery(
+                    _activeChat.ConnectionId, SessionState.Instance.AccountId, _activeChat.Encrypt(text))).ContinueWith(o =>
+                    {
+                        if (o.Result.IsSuccess)
+                        {
+                            AppendReceivedMessageFrom(Color.Blue, SessionState.Instance.DisplayName, text);
+                        }
+                        else
+                        {
+                            AppendMessageLine(Color.Red, "Failed to send message.");
+                        }
+                    });
+
         }
     }
 }

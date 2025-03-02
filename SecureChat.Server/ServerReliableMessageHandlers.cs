@@ -56,18 +56,19 @@ namespace SecureChat.Server
         /// <summary>
         /// A client is sending a message to another client.
         /// </summary>
-        public void ExchangePeerToPeerMessage(RmContext context, ExchangePeerToPeerMessage param)
+        public ExchangePeerToPeerQueryReply ExchangePeerToPeerQuery(RmContext context, ExchangePeerToPeerQuery param)
         {
             try
             {
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Cryptography has not been initialized.");
 
-                _chatService.RmServer.Notify(param.ConnectionId, param);
+                return _chatService.RmServer.Query(param.ConnectionId, param).Result;
             }
             catch (Exception ex)
             {
                 Log.Error("Failed to route peer-to-peer message.", ex);
+                return new ExchangePeerToPeerQueryReply(ex);
             }
         }
 
