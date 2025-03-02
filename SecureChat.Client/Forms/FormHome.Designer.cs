@@ -37,8 +37,10 @@ namespace SecureChat.Client.Forms
             // treeViewAcquaintances
             // 
             treeViewAcquaintances.Dock = DockStyle.Fill;
+            treeViewAcquaintances.HotTracking = true;
             treeViewAcquaintances.Location = new Point(10, 10);
             treeViewAcquaintances.Name = "treeViewAcquaintances";
+            treeViewAcquaintances.ShowRootLines = false;
             treeViewAcquaintances.Size = new Size(265, 488);
             treeViewAcquaintances.TabIndex = 0;
             // 
