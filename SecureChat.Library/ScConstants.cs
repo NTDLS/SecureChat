@@ -9,6 +9,7 @@
         public const int EndToEndKeySize = 4096;
         public const int RsaKeySize = 4096;
         public const int AesKeySize = 256;
+        public const int DefaultMaxMessages = 100;
 
         public enum ScOnlineState
         {

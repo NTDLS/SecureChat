@@ -1,4 +1,5 @@
 ﻿using SecureChat.Client.Controls;
+using SecureChat.Library;
 
 namespace SecureChat.Client.Forms
 {
@@ -113,10 +114,11 @@ namespace SecureChat.Client.Forms
                 Invoke(AppendFlowControl, [control]);
                 return;
             }
+
             lock (flowPanel)
             {
                 flowPanel.Controls.Add(control);
-                while (flowPanel.Controls.Count > 100)
+                while (flowPanel.Controls.Count > ScConstants.DefaultMaxMessages)
                 {
                     flowPanel.Controls.RemoveAt(0);
                 }
