@@ -10,6 +10,9 @@ namespace SecureChat.Client.Forms
 
         internal FormMessage(ActiveChat activeChat)
         {
+            //TODO: We need to handle server disconnection:
+            //  LocalSession.Current.Client.IsConnected
+
             InitializeComponent();
 
             _activeChat = activeChat;
@@ -32,7 +35,7 @@ namespace SecureChat.Client.Forms
 
         private void FormMessage_Deactivate(object? sender, EventArgs e)
         {
-            Opacity = 0.8;
+            Opacity = 0.95;
         }
 
         private void FormMessage_Activated(object? sender, EventArgs e)

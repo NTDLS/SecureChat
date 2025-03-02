@@ -15,6 +15,9 @@ namespace SecureChat.Client.Forms
 
         public FormHome()
         {
+            //TODO: We need to handle server disconnection:
+            //  LocalSession.Current.Client.IsConnected
+
             InitializeComponent();
 
             _treeImages.ColorDepth = ColorDepth.Depth32Bit;
@@ -114,7 +117,7 @@ namespace SecureChat.Client.Forms
 
         private void Timer_Tick(object? sender, EventArgs e)
         {
-            if (LocalSession.Current != null)
+            if (LocalSession.Current != null && LocalSession.Current.Client.IsConnected)
             {
                 DeltaRepopulate();
 
