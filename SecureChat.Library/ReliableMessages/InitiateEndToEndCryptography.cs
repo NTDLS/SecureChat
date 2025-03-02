@@ -6,9 +6,14 @@ namespace SecureChat.Library.ReliableMessages
         : IRmQuery<InitiateEndToEndCryptographyReply>
     {
         /// <summary>
+        /// The AccountId that is requesting the chat.
+        /// </summary>
+        public Guid SourceAccountId { get; set; }
+
+        /// <summary>
         /// The AccountId that we need to tell the server to route the messages to.
         /// </summary>
-        public Guid AccountId { get; set; }
+        public Guid TargetAccountId { get; set; }
         public string DisplayName { get; set; }
         public byte[] NegotiationToken { get; set; }
 
@@ -18,9 +23,10 @@ namespace SecureChat.Library.ReliableMessages
         /// </summary>
         public Guid PeerConnectionId { get; set; }
 
-        public InitiateEndToEndCryptography(Guid accountId, string displayName, byte[] negotiationToken)
+        public InitiateEndToEndCryptography(Guid sourceAccountId, Guid targetAccountId, string displayName, byte[] negotiationToken)
         {
-            AccountId = accountId;
+            SourceAccountId = sourceAccountId;
+            TargetAccountId = targetAccountId;
             DisplayName = displayName;
             NegotiationToken = negotiationToken;
         }

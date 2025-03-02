@@ -1,7 +1,6 @@
 ﻿using NTDLS.ReliableMessaging;
 using NTDLS.SecureKeyExchange;
 using SecureChat.Client.Forms;
-using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
 
@@ -27,11 +26,9 @@ namespace SecureChat.Client
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Message cannot be receive until cryptography has been initialized.");
 
-                var activeChat = SessionState.Instance.ActiveChats.FirstOrDefault(o => o.AccountId == notification.AccountId);
+                var activeChat = SessionState.Instance.ActiveChats.FirstOrDefault(o => o.AccountId == notification.MessageFromAccountId);
 
-                activeChat?.Form?.AppendMessageLine($"{notification.DisplayName}: {notification.Message}");
-
-                Console.WriteLine($"Received: {notification.Message}");
+                activeChat?.Form?.AppendReceivedMessage(notification.CipherText);
             }
             catch (Exception ex)
             {
@@ -52,9 +49,9 @@ namespace SecureChat.Client
                 var negotiationReplyToken = compoundNegotiator.ApplyNegotiationToken(param.NegotiationToken);
 
                 //TODO: this is the NASCCL encryption key we will use for all user communication (but not control messages).
-                Console.WriteLine($"SharedSecret: {Crypto.ComputeSha256Hash(compoundNegotiator.SharedSecret)}");
+                //Console.WriteLine($"SharedSecret: {Crypto.ComputeSha256Hash(compoundNegotiator.SharedSecret)}");
 
-                var activeChat = SessionState.Instance.AddActiveChat(param.PeerConnectionId, param.AccountId, param.DisplayName, compoundNegotiator.SharedSecret);
+                var activeChat = SessionState.Instance.AddActiveChat(param.PeerConnectionId, param.SourceAccountId, param.DisplayName, compoundNegotiator.SharedSecret);
 
                 SessionState.Instance.FormHome.Invoke(() =>
                 {

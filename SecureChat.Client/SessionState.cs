@@ -43,5 +43,17 @@ namespace SecureChat.Client
             ActiveChats.Add(activeChat);
             return activeChat;
         }
+
+        public ActiveChat? GetActiveChatByAccountId(Guid accountId)
+        {
+            foreach (var activeChat in ActiveChats)
+            {
+                if (activeChat.AccountId == accountId)
+                {
+                    return activeChat;
+                }
+            }
+            return null;
+        }
     }
 }

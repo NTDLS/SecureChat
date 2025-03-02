@@ -51,27 +51,39 @@ namespace SecureChat.Client.Forms
                     throw new Exception("The local connection is not established.");
                 }
 
-                var compoundNegotiator = new CompoundNegotiator();
-                var negotiationToken = compoundNegotiator.GenerateNegotiationToken((int)(Math.Ceiling(Constants.EndToEndKeySize / 128.0)));
+                var activeChat = SessionState.Instance.GetActiveChatByAccountId(acquaintancesModel.Id);
+                if (activeChat == null)
+                {
+                    var compoundNegotiator = new CompoundNegotiator();
+                    var negotiationToken = compoundNegotiator.GenerateNegotiationToken((int)(Math.Ceiling(Constants.EndToEndKeySize / 128.0)));
 
-                //The first thing we do when we get a connection is start a new key exchange process.
-                var queryRequestKeyExchangeReply = SessionState.Instance.Client.Query(
-                    new InitiateEndToEndCryptography(acquaintancesModel.Id, SessionState.Instance.DisplayName, negotiationToken)).ContinueWith(o =>
-                    {
-                        return o.Result;
-                    }).Result;
+                    //The first thing we do when we get a connection is start a new key exchange process.
+                    var queryRequestKeyExchangeReply = SessionState.Instance.Client.Query(
+                        new InitiateEndToEndCryptography(SessionState.Instance.AccountId, acquaintancesModel.Id, SessionState.Instance.DisplayName, negotiationToken))
+                        .ContinueWith(o =>
+                        {
+                            return o.Result;
+                        }).Result;
 
-                //We received a reply to the secure key exchange, apply it.
-                compoundNegotiator.ApplyNegotiationResponseToken(queryRequestKeyExchangeReply.NegotiationToken);
+                    //We received a reply to the secure key exchange, apply it.
+                    compoundNegotiator.ApplyNegotiationResponseToken(queryRequestKeyExchangeReply.NegotiationToken);
 
-                //TODO: this is the NASCCL encryption key we will use for all user communication (but not control messages).
-                Console.WriteLine($"SharedSecret: {Crypto.ComputeSha256Hash(compoundNegotiator.SharedSecret)}");
+                    //TODO: this is the NASCCL encryption key we will use for all user communication (but not control messages).
+                    //Console.WriteLine($"SharedSecret: {Crypto.ComputeSha256Hash(compoundNegotiator.SharedSecret)}");
 
-                var activeChat = SessionState.Instance.AddActiveChat(
-                    queryRequestKeyExchangeReply.PeerConnectionId, acquaintancesModel.Id, acquaintancesModel.DisplayName, compoundNegotiator.SharedSecret);
+                    activeChat = SessionState.Instance.AddActiveChat(
+                        queryRequestKeyExchangeReply.PeerConnectionId, acquaintancesModel.Id, acquaintancesModel.DisplayName, compoundNegotiator.SharedSecret);
 
-                activeChat.Form = new FormMessage(activeChat);
-                activeChat.Form.Show();
+                    activeChat.Form = new FormMessage(activeChat);
+                    activeChat.Form.Show();
+                }
+                else if (activeChat.Form != null)
+                {
+                    activeChat.Form.Show();
+                    activeChat.Form.BringToFront();
+                    activeChat.Form.Activate();
+                    activeChat.Form.Focus();
+                }
             }
         }
 
