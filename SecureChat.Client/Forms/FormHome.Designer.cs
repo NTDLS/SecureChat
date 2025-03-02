@@ -1,4 +1,6 @@
-﻿namespace SecureChat.Client.Forms
+﻿using SecureChat.Client.Controls;
+
+namespace SecureChat.Client.Forms
 {
     partial class FormHome
     {
@@ -29,7 +31,7 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormHome));
-            treeViewAcquaintances = new TreeView();
+            treeViewAcquaintances = new DoubleBufferedTreeView();
             SuspendLayout();
             // 
             // treeViewAcquaintances
@@ -57,6 +59,6 @@
 
         #endregion
 
-        private TreeView treeViewAcquaintances;
+        private DoubleBufferedTreeView treeViewAcquaintances;
     }
 }

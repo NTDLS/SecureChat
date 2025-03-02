@@ -17,7 +17,7 @@ namespace SecureChat.Library.ReliableMessages
         public bool IsSuccess { get; set; }
         public string? ErrorMessage { get; set; }
 
-        public List<AcquaintancesModel> Acquaintances { get; set; } = new();
+        public List<AcquaintanceModel> Acquaintances { get; set; } = new();
 
         public GetAcquaintancesQueryReply(Exception exception)
         {
@@ -25,7 +25,7 @@ namespace SecureChat.Library.ReliableMessages
             ErrorMessage = exception.GetBaseException().Message;
         }
 
-        public GetAcquaintancesQueryReply(List<AcquaintancesModel> acquaintances)
+        public GetAcquaintancesQueryReply(List<AcquaintanceModel> acquaintances)
         {
             Acquaintances = acquaintances;
             IsSuccess = true;

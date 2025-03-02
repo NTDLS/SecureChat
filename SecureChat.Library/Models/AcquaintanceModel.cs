@@ -1,6 +1,6 @@
 ﻿namespace SecureChat.Server.Models
 {
-    public class AcquaintancesModel
+    public class AcquaintanceModel
     {
         public Guid Id { get; set; }
         public string DisplayName { get; set; } = string.Empty;

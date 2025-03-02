@@ -194,7 +194,7 @@ namespace SecureChat.Server
                 var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
                     ?? throw new Exception("Session not found.");
 
-                var acquaintances = _dbFactory.Query<AcquaintancesModel>(@"SqlQueries\GetAcquaintances.sql",
+                var acquaintances = _dbFactory.Query<AcquaintanceModel>(@"SqlQueries\GetAcquaintances.sql",
                     new
                     {
                         AccountId = session.AccountId,

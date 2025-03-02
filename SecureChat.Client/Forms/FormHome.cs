@@ -4,6 +4,7 @@ using SecureChat.Client.Properties;
 using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
 using SecureChat.Server.Models;
+using System.Windows.Forms;
 using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client.Forms
@@ -37,7 +38,7 @@ namespace SecureChat.Client.Forms
         {
             if (SessionState.Instance != null)
             {
-                //Instead of Repopulate(), do a delta merge of acquaintances.
+                DeltaRepopulate();
 
                 var idleTime = Interop.GetIdleTime();
                 if (idleTime.TotalSeconds >= ScConstants.DefaultAutoAwayIdleSeconds)
@@ -61,7 +62,7 @@ namespace SecureChat.Client.Forms
 
         private void TreeViewAcquaintances_NodeMouseDoubleClick(object? sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Node?.Tag is AcquaintancesModel acquaintancesModel)
+            if (e.Node?.Tag is AcquaintanceModel acquaintancesModel)
             {
                 //Start the key exchange process then popup the chat window.
 
@@ -152,10 +153,9 @@ namespace SecureChat.Client.Forms
                     this.InvokeMessageBox(ex.GetBaseException().Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                 }
             });
-
         }
 
-        private void PopulateTree(List<AcquaintancesModel> acquaintances)
+        private void PopulateTree(List<AcquaintanceModel> acquaintances)
         {
             if (SessionState.Instance == null)
             {
@@ -193,23 +193,102 @@ namespace SecureChat.Client.Forms
 
             foreach (var acquaintance in acquaintances)
             {
-                var childName = acquaintance.DisplayName;
-                if (string.IsNullOrEmpty(acquaintance.Status) == false)
-                {
-                    childName += $" - {acquaintance.Status}";
-                }
-
-                var node = new TreeNode(childName)
-                {
-                    Tag = acquaintance,
-                    ImageKey = acquaintance.State,
-                    SelectedImageKey = acquaintance.State
-                };
-
-                rootNode.Nodes.Add(node);
+                TreeViewHelpers.AddAcquaintanceNode(rootNode, acquaintance);
             }
 
+            TreeViewHelpers.SortChildNodes(rootNode);
+
             rootNode.Expand();
+        }
+
+        private void DeltaRepopulate()
+        {
+            if (SessionState.Instance == null)
+            {
+                this.InvokeClose(DialogResult.Cancel);
+                return;
+            }
+
+            Task.Run(() =>
+            {
+                try
+                {
+                    SessionState.Instance.Client.Query(new GetAcquaintancesQuery()).ContinueWith(o =>
+                    {
+                        if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
+                        {
+                            throw new Exception(o.Result.ErrorMessage);
+                        }
+
+                        if (o.Result.IsSuccess)
+                        {
+                            DeltaRepopulateTree(o.Result.Acquaintances);
+                        }
+
+                        return o.Result.IsSuccess;
+                    });
+                }
+                catch (Exception ex)
+                {
+                    this.InvokeMessageBox(ex.GetBaseException().Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                }
+            });
+        }
+
+        private void DeltaRepopulateTree(List<AcquaintanceModel> acquaintances)
+        {
+            if (SessionState.Instance == null)
+            {
+                this.InvokeClose(DialogResult.Cancel);
+                return;
+            }
+
+            if (InvokeRequired)
+            {
+                Invoke(DeltaRepopulateTree, acquaintances);
+                return;
+            }
+
+            var rootNode = treeViewAcquaintances.Nodes[0];
+
+            var nodesToRemove = new List<TreeNode>();
+
+            foreach (TreeNode node in rootNode.Nodes)
+            {
+                if (node?.Tag is AcquaintanceModel acquaintancesModel)
+                {
+                    var matchingAcquaintance = acquaintances.FirstOrDefault(o => o.Id == acquaintancesModel.Id);
+                    if (matchingAcquaintance != null)
+                    {
+                        //Update tree node if it is in the fresh acquaintance list.
+                        node.ImageKey = matchingAcquaintance.State;
+                        node.SelectedImageKey = matchingAcquaintance.State;
+                    }
+                    else
+                    {
+                        //Queue node for removal if it is missing from the fresh acquaintance list.
+                        nodesToRemove.Add(node);
+                    }
+                }
+            }
+
+            //Remove nodes queued for deletion.
+            foreach (var node in nodesToRemove)
+            {
+                rootNode.Nodes.Remove(node);
+            }
+
+            //Add tree nodes for acquaintances that are in the fresh list but missing from the tree.
+            foreach (var acquaintance in acquaintances)
+            {
+                var existingNode = TreeViewHelpers.FindNodeByAccountId(rootNode, acquaintance.Id);
+                if (existingNode == null)
+                {
+                    TreeViewHelpers.AddAcquaintanceNode(rootNode, acquaintance);
+                }
+            }
+
+            TreeViewHelpers.SortChildNodes(rootNode);
         }
     }
 }
