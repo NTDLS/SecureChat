@@ -17,8 +17,8 @@ namespace SecureChat.Client.Forms
         {
             InitializeComponent();
 
-            textBoxServer.Text = Constants.DefaultServerAddress;
-            textBoxPort.Text = $"{Constants.DefaultServerPort:n0}";
+            textBoxServer.Text = ScConstants.DefaultServerAddress;
+            textBoxPort.Text = $"{ScConstants.DefaultServerPort:n0}";
 
             AcceptButton = buttonLogin;
             CancelButton = buttonCancel;
@@ -52,7 +52,7 @@ namespace SecureChat.Client.Forms
                 var serverAddress = textBoxServer.GetAndValidateText("A server IP address or host name is required.");
                 var serverPort = textBoxPort.GetAndValidateNumeric(1, 65535, "A port number is required between [min] and [max].");
 
-                var progressForm = new ProgressForm(Constants.AppName, "Logging in...");
+                var progressForm = new ProgressForm(ScConstants.AppName, "Logging in...");
 
                 progressForm.Execute(() =>
                 {
@@ -62,7 +62,7 @@ namespace SecureChat.Client.Forms
 
                         var clientConfiguration = new RmConfiguration()
                         {
-                            //We leave asynchronous notifications disabled for the sake or initializing cryptgraphy.
+                            //We leave asynchronous notifications disabled for the sake or initializing cryptography.
                             AsynchronousNotifications = false
                         };
                         var client = new RmClient(clientConfiguration);
@@ -79,7 +79,15 @@ namespace SecureChat.Client.Forms
                         client.Notify(new InitializeServerClientCryptography());
                         client.SetCryptographyProvider(new ServerClientCryptographyProvider(remotePublicKey, keyPair.PrivateRsaKey));
 
-                        var isSuccess = client.Query(new LoginQuery(username, passwordHash)).ContinueWith(o =>
+                        var persisted = LocalUserApplicationData.LoadFromDisk(ScConstants.AppName, new PersistedState());
+
+                        bool explicitAway = false;
+                        if (persisted.Users.TryGetValue(username, out var userPersist))
+                        {
+                            explicitAway = userPersist.ExplicitAway;
+                        }
+
+                        var isSuccess = client.Query(new LoginQuery(username, passwordHash, explicitAway)).ContinueWith(o =>
                         {
                             if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
                             {
@@ -91,7 +99,9 @@ namespace SecureChat.Client.Forms
                                 _loginResult = new LoginResult(client,
                                     o.Result.AccountId.EnsureNotNull(),
                                     o.Result.Username.EnsureNotNull(),
-                                    o.Result.DisplayName.EnsureNotNull());
+                                    o.Result.DisplayName.EnsureNotNull(),
+                                    o.Result.Status.EnsureNotNull()
+                                    );
                             }
 
                             return o.Result.IsSuccess;
@@ -107,25 +117,18 @@ namespace SecureChat.Client.Forms
                         {
                             client.Configuration.AsynchronousNotifications = true;
 
-                            var persisted = LocalUserApplicationData.LoadFromDisk(Constants.AppName, new PersistedState());
-
                             if (persisted.Users.ContainsKey(username) == false)
                             {
-                                persisted.Users.Add(username,
-                                new PersistedUserState()
-                                {
-                                    ExplicitAway = false
-                                });
+                                persisted.Users.Add(username, new PersistedUserState());
                             }
-
-                            LocalUserApplicationData.SaveToDisk(Constants.AppName, persisted);
+                            LocalUserApplicationData.SaveToDisk(ScConstants.AppName, persisted);
                         }
 
                         this.InvokeClose(isSuccess ? DialogResult.OK : DialogResult.Cancel);
                     }
                     catch (Exception ex)
                     {
-                        progressForm.MessageBox(ex.GetBaseException().Message, Constants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                        progressForm.MessageBox(ex.GetBaseException().Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                     }
                 });
             }

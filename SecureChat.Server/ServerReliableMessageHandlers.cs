@@ -29,16 +29,41 @@ namespace SecureChat.Server
         }
 
         /// <summary>
-        /// A client is sending a message to another client.
+        /// A client is updating the server about their state/status.
         /// </summary>
-        public void ExchangePeerToPeerMessage(RmContext context, ExchangePeerToPeerMessage notification)
+        public void UpdateAccountStatus(RmContext context, UpdateAccountStatus param)
         {
             try
             {
                 if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Message cannot be routed until cryptography has been initialized.");
+                    throw new Exception("Cryptography has not been initialized.");
 
-                _chatService.RmServer.Notify(notification.ConnectionId, notification);
+                _dbFactory.Execute(@"SqlQueries\UpdateAccountStatus.sql",
+                    new
+                    {
+                        AccountId = param.AccountId,
+                        State = param.State.ToString(),
+                        Status = param.Status ?? string.Empty,
+                        LastSeen = DateTime.UtcNow
+                    });
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Failed to route peer-to-peer message.", ex);
+            }
+        }
+
+        /// <summary>
+        /// A client is sending a message to another client.
+        /// </summary>
+        public void ExchangePeerToPeerMessage(RmContext context, ExchangePeerToPeerMessage param)
+        {
+            try
+            {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+                _chatService.RmServer.Notify(param.ConnectionId, param);
             }
             catch (Exception ex)
             {
@@ -127,7 +152,7 @@ namespace SecureChat.Server
             try
             {
                 if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Login cannot be attempted until cryptography has been initialized.");
+                    throw new Exception("Cryptography has not been initialized.");
 
                 var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
                     ?? throw new Exception("Session not found.");
@@ -145,7 +170,12 @@ namespace SecureChat.Server
                     }) ?? throw new Exception("Invalid username or password.");
 
                 session.SetAccountId(login.Id);
-                return new LoginQueryReply(login.Id.EnsureNotNull(), login.Username.EnsureNotNull(), login.DisplayName.EnsureNotNull());
+
+                return new LoginQueryReply(
+                    login.Id.EnsureNotNull(),
+                    login.Username.EnsureNotNull(),
+                    login.DisplayName.EnsureNotNull(),
+                    login.Status ?? string.Empty);
             }
             catch (Exception ex)
             {

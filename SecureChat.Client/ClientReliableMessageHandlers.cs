@@ -16,7 +16,7 @@ namespace SecureChat.Client
         {
         }
 
-        public void ExchangePeerToPeerMessage(RmContext context, ExchangePeerToPeerMessage notification)
+        public void ExchangePeerToPeerMessage(RmContext context, ExchangePeerToPeerMessage param)
         {
             try
             {
@@ -26,9 +26,9 @@ namespace SecureChat.Client
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Message cannot be receive until cryptography has been initialized.");
 
-                var activeChat = SessionState.Instance.ActiveChats.FirstOrDefault(o => o.AccountId == notification.MessageFromAccountId);
+                var activeChat = SessionState.Instance.ActiveChats.FirstOrDefault(o => o.AccountId == param.MessageFromAccountId);
 
-                activeChat?.Form?.AppendReceivedMessage(notification.CipherText);
+                activeChat?.Form?.AppendReceivedMessage(param.CipherText);
             }
             catch (Exception ex)
             {

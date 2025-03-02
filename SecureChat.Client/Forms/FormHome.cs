@@ -4,6 +4,7 @@ using SecureChat.Client.Properties;
 using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
 using SecureChat.Server.Models;
+using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client.Forms
 {
@@ -16,15 +17,15 @@ namespace SecureChat.Client.Forms
             InitializeComponent();
 
             _treeImages.ColorDepth = ColorDepth.Depth32Bit;
-            _treeImages.Images.Add(Constants.ScOnlineStatus.Offline.ToString(), Imaging.LoadIconFromResources(Resources.Offline16));
-            _treeImages.Images.Add(Constants.ScOnlineStatus.Online.ToString(), Imaging.LoadIconFromResources(Resources.Online16));
-            _treeImages.Images.Add(Constants.ScOnlineStatus.Away.ToString(), Imaging.LoadIconFromResources(Resources.Away16));
+            _treeImages.Images.Add(ScConstants.ScOnlineState.Offline.ToString(), Imaging.LoadIconFromResources(Resources.Offline16));
+            _treeImages.Images.Add(ScConstants.ScOnlineState.Online.ToString(), Imaging.LoadIconFromResources(Resources.Online16));
+            _treeImages.Images.Add(ScConstants.ScOnlineState.Away.ToString(), Imaging.LoadIconFromResources(Resources.Away16));
 
             treeViewAcquaintances.ImageList = _treeImages;
             treeViewAcquaintances.NodeMouseDoubleClick += TreeViewAcquaintances_NodeMouseDoubleClick;
 
             var timer = new System.Windows.Forms.Timer();
-            timer.Interval = 5000;
+            timer.Interval = 10000;
             timer.Tick += Timer_Tick;
             timer.Enabled = true;
 
@@ -37,6 +38,24 @@ namespace SecureChat.Client.Forms
             if (SessionState.Instance != null)
             {
                 //Instead of Repopulate(), do a delta merge of acquaintances.
+
+                var idleTime = Interop.GetIdleTime();
+                if (idleTime.TotalSeconds >= ScConstants.DefaultAutoAwayIdleSeconds)
+                {
+                    SessionState.Instance.Client.Notify(new UpdateAccountStatus(
+                            SessionState.Instance.AccountId,
+                            ScOnlineState.Away,
+                            SessionState.Instance.Status
+                        ));
+                }
+                else
+                {
+                    SessionState.Instance.Client.Notify(new UpdateAccountStatus(
+                            SessionState.Instance.AccountId,
+                            SessionState.Instance.ExplicitAway ? ScOnlineState.Away : ScOnlineState.Online,
+                            SessionState.Instance.Status
+                        ));
+                }
             }
         }
 
@@ -55,7 +74,7 @@ namespace SecureChat.Client.Forms
                 if (activeChat == null)
                 {
                     var compoundNegotiator = new CompoundNegotiator();
-                    var negotiationToken = compoundNegotiator.GenerateNegotiationToken((int)(Math.Ceiling(Constants.EndToEndKeySize / 128.0)));
+                    var negotiationToken = compoundNegotiator.GenerateNegotiationToken((int)(Math.Ceiling(ScConstants.EndToEndKeySize / 128.0)));
 
                     //The first thing we do when we get a connection is start a new key exchange process.
                     var queryRequestKeyExchangeReply = SessionState.Instance.Client.Query(
@@ -130,7 +149,7 @@ namespace SecureChat.Client.Forms
                 }
                 catch (Exception ex)
                 {
-                    this.InvokeMessageBox(ex.GetBaseException().Message, Constants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                    this.InvokeMessageBox(ex.GetBaseException().Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                 }
             });
 
@@ -161,13 +180,13 @@ namespace SecureChat.Client.Forms
 
             if (SessionState.Instance.ExplicitAway)
             {
-                rootNode.ImageKey = Constants.ScOnlineStatus.Online.ToString();
-                rootNode.SelectedImageKey = Constants.ScOnlineStatus.Online.ToString();
+                rootNode.ImageKey = ScConstants.ScOnlineState.Online.ToString();
+                rootNode.SelectedImageKey = ScConstants.ScOnlineState.Online.ToString();
             }
             else
             {
-                rootNode.ImageKey = Constants.ScOnlineStatus.Away.ToString();
-                rootNode.SelectedImageKey = Constants.ScOnlineStatus.Away.ToString();
+                rootNode.ImageKey = ScConstants.ScOnlineState.Away.ToString();
+                rootNode.SelectedImageKey = ScConstants.ScOnlineState.Away.ToString();
             }
 
             treeViewAcquaintances.Nodes.Add(rootNode);

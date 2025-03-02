@@ -5,7 +5,7 @@ using SecureChat.Client.Forms;
 using SecureChat.Client.Properties;
 using SecureChat.Library;
 using Serilog;
-using static SecureChat.Library.Constants;
+using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client
 {
@@ -21,7 +21,7 @@ namespace SecureChat.Client
                 _trayIcon = new NotifyIcon
                 {
                     Icon = Icon.ExtractIcon(Application.ExecutablePath, 0, 16),
-                    Text = Constants.AppName,
+                    Text = ScConstants.AppName,
                     Visible = true,
                     ContextMenuStrip = new ContextMenuStrip()
                 };
@@ -107,9 +107,7 @@ namespace SecureChat.Client
                             formHome.CreateControl(); //Force the window handle to be created before the form is shown,
                             var handle = formHome.Handle; // Accessing the Handle property forces handle creation
 
-                            SessionState.Instance = new SessionState(_trayIcon, formHome, loginResult.Client, loginResult.AccountId, loginResult.Username, loginResult.DisplayName);
-
-                            var persistedState = LocalUserApplicationData.LoadFromDisk(Constants.AppName, new PersistedState());
+                            var persistedState = LocalUserApplicationData.LoadFromDisk(ScConstants.AppName, new PersistedState());
                             if (persistedState.Users.TryGetValue(loginResult.Username, out var persistedUserState) == false)
                             {
                                 persistedUserState = new();
@@ -117,12 +115,23 @@ namespace SecureChat.Client
 
                             if (persistedUserState.ExplicitAway)
                             {
-                                UpdateClientState(ScOnlineStatus.Away);
+                                UpdateClientState(ScOnlineState.Away);
                             }
                             else
                             {
-                                UpdateClientState(ScOnlineStatus.Online);
+                                UpdateClientState(ScOnlineState.Online);
                             }
+
+                            SessionState.Instance = new SessionState(_trayIcon,
+                                formHome,
+                                loginResult.Client,
+                                loginResult.AccountId,
+                                loginResult.Username,
+                                loginResult.DisplayName)
+                            {
+                                Status = loginResult.Status,
+                                ExplicitAway = persistedUserState.ExplicitAway
+                            };
 
                             _trayIcon.BalloonTipText = $"Welcome back {loginResult.DisplayName}, you are now logged in.";
                             _trayIcon.ShowBalloonTip(3000);
@@ -150,7 +159,7 @@ namespace SecureChat.Client
         {
             try
             {
-                UpdateClientState(ScOnlineStatus.Offline);
+                UpdateClientState(ScOnlineState.Offline);
             }
             catch (Exception ex)
             {
@@ -158,7 +167,7 @@ namespace SecureChat.Client
             }
         }
 
-        void UpdateClientState(ScOnlineStatus state)
+        void UpdateClientState(ScOnlineState state)
         {
             try
             {
@@ -183,7 +192,7 @@ namespace SecureChat.Client
 
                 switch (state)
                 {
-                    case ScOnlineStatus.Online:
+                    case ScOnlineState.Online:
                         {
                             _trayIcon.Icon = Imaging.LoadIconFromResources(Resources.Online16);
                             var awayItem = new ToolStripMenuItem("Away", null, OnAway)
@@ -194,7 +203,7 @@ namespace SecureChat.Client
                             _trayIcon.ContextMenuStrip.Items.Add("Logout", null, OnLogout);
                         }
                         break;
-                    case ScOnlineStatus.Offline:
+                    case ScOnlineState.Offline:
                         {
                             _trayIcon.Icon = Imaging.LoadIconFromResources(Resources.Offline16);
                             _trayIcon.ContextMenuStrip.Items.Add("Login", null, OnLogin);
@@ -203,7 +212,7 @@ namespace SecureChat.Client
                             _trayIcon.ShowBalloonTip(3000);
                         }
                         break;
-                    case ScOnlineStatus.Away:
+                    case ScOnlineState.Away:
                         {
                             _trayIcon.Icon = Imaging.LoadIconFromResources(Resources.Away16);
                             var awayItem = new ToolStripMenuItem("Away", null, OnAway)
@@ -237,7 +246,7 @@ namespace SecureChat.Client
 
                     menuItem.Checked = SessionState.Instance.ExplicitAway; //Toggle the explicit away state.
 
-                    var persistedState = LocalUserApplicationData.LoadFromDisk(Constants.AppName, new PersistedState());
+                    var persistedState = LocalUserApplicationData.LoadFromDisk(ScConstants.AppName, new PersistedState());
 
                     if (persistedState.Users.TryGetValue(SessionState.Instance.Username, out var persistedUserState) == false)
                     {
@@ -247,7 +256,7 @@ namespace SecureChat.Client
                     }
 
                     persistedUserState.ExplicitAway = SessionState.Instance.ExplicitAway;
-                    LocalUserApplicationData.SaveToDisk(Constants.AppName, persistedState);
+                    LocalUserApplicationData.SaveToDisk(ScConstants.AppName, persistedState);
                 }
             }
             catch (Exception ex)
@@ -275,7 +284,7 @@ namespace SecureChat.Client
             {
                 Task.Run(() => SessionState.Instance?.Client?.Disconnect());
                 Thread.Sleep(10);
-                UpdateClientState(ScOnlineStatus.Offline);
+                UpdateClientState(ScOnlineState.Offline);
                 SessionState.Instance = null;
             }
             catch (Exception ex)

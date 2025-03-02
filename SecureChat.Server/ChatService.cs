@@ -2,7 +2,7 @@
 using NTDLS.ReliableMessaging;
 using SecureChat.Library;
 using Serilog;
-using static SecureChat.Library.Constants;
+using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Server
 {

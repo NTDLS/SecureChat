@@ -1,6 +1,6 @@
 ﻿using NTDLS.ReliableMessaging;
 using SecureChat.Client.Forms;
-using static SecureChat.Library.Constants;
+using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client
 {
@@ -25,7 +25,7 @@ namespace SecureChat.Client
         public string Status { get; set; } = string.Empty;
         public bool ExplicitAway { get; set; }
 
-        public ScOnlineStatus ConnectionState { get; set; } = ScOnlineStatus.Offline;
+        public ScOnlineState ConnectionState { get; set; } = ScOnlineState.Offline;
 
         public SessionState(NotifyIcon trayIcon, FormHome formHome, RmClient client, Guid accountId, string username, string displayName)
         {

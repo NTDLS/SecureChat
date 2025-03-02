@@ -1,7 +1,8 @@
 SELECT
 	Id,
 	Username,
-	DisplayName
+	DisplayName,
+	Status
 FROM
 	Account
 WHERE
