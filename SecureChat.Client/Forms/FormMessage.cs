@@ -1,10 +1,9 @@
-﻿using SecureChat.Library.ReliableMessages;
-
-namespace SecureChat.Client.Forms
+﻿namespace SecureChat.Client.Forms
 {
     public partial class FormMessage : Form
     {
         private readonly ActiveChat _activeChat;
+        private bool _allowClose = false;
 
         private DateTime? _lastMessageReceived;
 
@@ -38,6 +37,10 @@ namespace SecureChat.Client.Forms
 
         private void FormMessage_FormClosing(object? sender, FormClosingEventArgs e)
         {
+            if (_allowClose)
+            {
+                return; //Close the dialog.
+            }
             if (SessionState.Instance != null)
             {
                 e.Cancel = true;
@@ -107,25 +110,6 @@ namespace SecureChat.Client.Forms
             }
         }
 
-        public void AppendReceivedMessage(byte[] cipherText)
-        {
-            if (InvokeRequired)
-            {
-                Invoke(AppendReceivedMessage, cipherText);
-                return;
-            }
-
-            _lastMessageReceived = DateTime.Now;
-
-            if (!Visible)
-            {
-                this.WindowState = FormWindowState.Minimized;
-                this.Show();
-            }
-
-            AppendReceivedMessageFrom(Color.DarkRed, _activeChat.DisplayName, _activeChat.Decrypt(cipherText));
-        }
-
         public void AppendReceivedMessageFrom(Color color, string fromName, string plainText)
         {
             if (InvokeRequired)
@@ -161,19 +145,22 @@ namespace SecureChat.Client.Forms
             string text = textBoxMessage.Text;
             textBoxMessage.Clear();
 
-            SessionState.Instance?.Client.Query(new ExchangePeerToPeerQuery(
-                    _activeChat.ConnectionId, SessionState.Instance.AccountId, _activeChat.Encrypt(text))).ContinueWith(o =>
-                    {
-                        if (o.Result.IsSuccess)
-                        {
-                            AppendReceivedMessageFrom(Color.Blue, SessionState.Instance.DisplayName, text);
-                        }
-                        else
-                        {
-                            AppendMessageLine(Color.Red, "Failed to send message.");
-                        }
-                    });
-
+            if (_activeChat.SendMessage(text))
+            {
+                AppendReceivedMessageFrom(Color.Blue, SessionState.Instance.DisplayName, text);
+            }
+            else
+            {
+                AppendMessageLine(Color.Red, "Failed to send message.");
+            }
         }
+
+        #region Toolbar Menu
+
+        private void TerminateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+        }
+
+        #endregion
     }
 }

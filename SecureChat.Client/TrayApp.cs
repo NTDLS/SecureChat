@@ -5,6 +5,7 @@ using SecureChat.Client.Forms;
 using SecureChat.Client.Properties;
 using SecureChat.Library;
 using Serilog;
+using System.Diagnostics;
 using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client
@@ -35,7 +36,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Fatal("Error in TrayApp.", ex);
+                Log.Fatal($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 throw;
             }
         }
@@ -75,7 +76,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error("Error in TrayIcon_MouseDoubleClick.", ex);
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
 
@@ -142,7 +143,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error("Error in Login.", ex);
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 _trayIcon.BalloonTipTitle = "Login Failure";
                 _trayIcon.BalloonTipText = $"An error has occurred during the connection process.";
                 _trayIcon.ShowBalloonTip(3000);
@@ -152,7 +153,7 @@ namespace SecureChat.Client
 
         private void Client_OnException(RmContext? context, Exception ex, IRmPayload? payload)
         {
-            Log.Error("Reliable messaging exception.", ex);
+            Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
         }
 
         private void RmClient_OnDisconnected(RmContext context)
@@ -163,7 +164,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error("Error in RmClient_OnDisconnected.", ex);
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
 
@@ -232,7 +233,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error("Error in UpdateClientState.", ex);
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
 
@@ -263,7 +264,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error("Error in OnAway.", ex);
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
 
@@ -276,7 +277,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error("Error in OnLogin.", ex);
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
 
@@ -291,7 +292,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error("Error in OnLogout.", ex);
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
 
@@ -308,7 +309,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error("Error in OnExit.", ex);
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
     }

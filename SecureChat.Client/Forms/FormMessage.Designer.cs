@@ -36,10 +36,10 @@
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
             exportToolStripMenuItem = new ToolStripMenuItem();
+            attachFileToolStripMenuItem = new ToolStripMenuItem();
             connectionToolStripMenuItem = new ToolStripMenuItem();
             terminateToolStripMenuItem = new ToolStripMenuItem();
             propertiesToolStripMenuItem = new ToolStripMenuItem();
-            attachFileToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -117,6 +117,12 @@
             exportToolStripMenuItem.Size = new Size(180, 22);
             exportToolStripMenuItem.Text = "Export";
             // 
+            // attachFileToolStripMenuItem
+            // 
+            attachFileToolStripMenuItem.Name = "attachFileToolStripMenuItem";
+            attachFileToolStripMenuItem.Size = new Size(180, 22);
+            attachFileToolStripMenuItem.Text = "Attach File";
+            // 
             // connectionToolStripMenuItem
             // 
             connectionToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { terminateToolStripMenuItem, propertiesToolStripMenuItem });
@@ -129,18 +135,13 @@
             terminateToolStripMenuItem.Name = "terminateToolStripMenuItem";
             terminateToolStripMenuItem.Size = new Size(180, 22);
             terminateToolStripMenuItem.Text = "Terminate";
+            terminateToolStripMenuItem.Click += TerminateToolStripMenuItem_Click;
             // 
             // propertiesToolStripMenuItem
             // 
             propertiesToolStripMenuItem.Name = "propertiesToolStripMenuItem";
             propertiesToolStripMenuItem.Size = new Size(180, 22);
             propertiesToolStripMenuItem.Text = "Properties";
-            // 
-            // attachFileToolStripMenuItem
-            // 
-            attachFileToolStripMenuItem.Name = "attachFileToolStripMenuItem";
-            attachFileToolStripMenuItem.Size = new Size(180, 22);
-            attachFileToolStripMenuItem.Text = "Attach File";
             // 
             // FormMessage
             // 

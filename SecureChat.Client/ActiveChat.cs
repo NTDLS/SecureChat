@@ -1,5 +1,6 @@
 ﻿using NTDLS.NASCCL;
 using SecureChat.Client.Forms;
+using SecureChat.Library.ReliableMessages;
 using System.Text;
 
 namespace SecureChat.Client
@@ -20,24 +21,42 @@ namespace SecureChat.Client
             DisplayName = displayName;
         }
 
-        public string Decrypt(byte[] cypherText)
+        private string Decrypt(byte[] cipherText)
         {
             lock (_streamCryptography)
             {
-                var plainTextBytes = _streamCryptography.Cipher(cypherText);
+                var plainTextBytes = _streamCryptography.Cipher(cipherText);
                 _streamCryptography.ResetStream();
                 return Encoding.UTF8.GetString(plainTextBytes);
             }
         }
 
-        public byte[] Encrypt(string plainText)
+        private byte[] Encrypt(string plainText)
         {
             lock (_streamCryptography)
             {
-                var cypherText = _streamCryptography.Cipher(plainText);
+                var cipherText = _streamCryptography.Cipher(plainText);
                 _streamCryptography.ResetStream();
-                return cypherText;
+                return cipherText;
             }
+        }
+
+        public void ReceiveMessage(byte[] cipherText)
+        {
+            Form?.AppendReceivedMessageFrom(Color.DarkRed, DisplayName, Decrypt(cipherText));
+        }
+
+        public bool SendMessage(string plaintText)
+        {
+            return SessionState.Instance?.Client.Query(new ExchangePeerToPeerQuery(
+                    ConnectionId, SessionState.Instance.AccountId, Encrypt(plaintText))).ContinueWith(o =>
+                    {
+                        if (!o.IsFaulted && o.Result.IsSuccess)
+                        {
+                            return true;
+                        }
+                        return false;
+                    }).Result ?? false;
         }
     }
 }

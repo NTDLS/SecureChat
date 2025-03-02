@@ -4,6 +4,7 @@ using NTDLS.ReliableMessaging;
 using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
+using System.Diagnostics;
 
 namespace SecureChat.Server
 {
@@ -38,7 +39,7 @@ namespace SecureChat.Server
             }
             catch (Exception ex)
             {
-                Log.Error("Failed to route peer-to-peer message.", ex);
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
 
@@ -56,7 +57,7 @@ namespace SecureChat.Server
             }
             catch (Exception ex)
             {
-                Log.Error("Failed to route peer-to-peer message.", ex);
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 return new ExchangePeerToPeerQueryReply(ex);
             }
         }
@@ -109,7 +110,7 @@ namespace SecureChat.Server
             }
             catch (Exception ex)
             {
-                Log.Error("Failed to apply client-server cryptography.", ex);
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
 

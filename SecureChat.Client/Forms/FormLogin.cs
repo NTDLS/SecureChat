@@ -6,6 +6,7 @@ using SecureChat.Client.Models;
 using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
+using System.Diagnostics;
 
 namespace SecureChat.Client.Forms
 {
@@ -140,7 +141,7 @@ namespace SecureChat.Client.Forms
 
         private void Client_OnException(RmContext? context, Exception ex, IRmPayload? payload)
         {
-            Log.Error("Reliable messaging exception.", ex);
+            Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
         }
 
         private void ButtonCancel_Click(object sender, EventArgs e)

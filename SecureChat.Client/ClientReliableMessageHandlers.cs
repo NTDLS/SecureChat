@@ -3,6 +3,7 @@ using NTDLS.SecureKeyExchange;
 using SecureChat.Client.Forms;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
+using System.Diagnostics;
 
 namespace SecureChat.Client
 {
@@ -21,20 +22,21 @@ namespace SecureChat.Client
             try
             {
                 if (SessionState.Instance == null)
-                    throw new Exception("The local connection is not established.");
+                    throw new Exception("Local connection is not established.");
 
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Message cannot be receive until cryptography has been initialized.");
 
-                var activeChat = SessionState.Instance.ActiveChats.FirstOrDefault(o => o.AccountId == param.MessageFromAccountId);
+                var activeChat = SessionState.Instance.ActiveChats.FirstOrDefault(o => o.AccountId == param.MessageFromAccountId)
+                    ?? throw new Exception("Chat session was not found.");
 
-                activeChat?.Form?.AppendReceivedMessage(param.CipherText);
+                activeChat?.ReceiveMessage(param.CipherText);
 
                 return new ExchangePeerToPeerQueryReply();
             }
             catch (Exception ex)
             {
-                Log.Error("Failed to handle peer-to-peer message.", ex);
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 return new ExchangePeerToPeerQueryReply(ex);
             }
         }
@@ -44,7 +46,7 @@ namespace SecureChat.Client
             try
             {
                 if (SessionState.Instance == null)
-                    throw new Exception("The local connection is not established.");
+                    throw new Exception("Local connection is not established.");
 
                 var compoundNegotiator = new CompoundNegotiator();
 
@@ -68,6 +70,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 return new InitiateEndToEndCryptographyReply(ex.GetBaseException());
             }
         }

@@ -151,7 +151,7 @@ namespace SecureChat.Client.Forms
                 //Start the key exchange process then popup the chat window.
                 if (SessionState.Instance == null)
                 {
-                    this.InvokeMessageBox("The local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
+                    this.InvokeMessageBox("Local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
                     this.InvokeClose(DialogResult.No);
                     return;
                 }
@@ -220,7 +220,7 @@ namespace SecureChat.Client.Forms
         {
             if (SessionState.Instance == null)
             {
-                this.InvokeMessageBox("The local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
+                this.InvokeMessageBox("Local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
                 this.InvokeClose(DialogResult.No);
                 return;
             }
@@ -255,7 +255,7 @@ namespace SecureChat.Client.Forms
         {
             if (SessionState.Instance == null)
             {
-                this.InvokeMessageBox("The local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
+                this.InvokeMessageBox("Local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
                 this.InvokeClose(DialogResult.No);
                 return;
             }
@@ -285,7 +285,7 @@ namespace SecureChat.Client.Forms
         {
             if (SessionState.Instance == null)
             {
-                this.InvokeMessageBox("The local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
+                this.InvokeMessageBox("Local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
                 this.InvokeClose(DialogResult.No);
                 return;
             }
@@ -320,7 +320,7 @@ namespace SecureChat.Client.Forms
         {
             if (SessionState.Instance == null)
             {
-                this.InvokeMessageBox("The local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
+                this.InvokeMessageBox("Local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
                 this.InvokeClose(DialogResult.No);
                 return;
             }
