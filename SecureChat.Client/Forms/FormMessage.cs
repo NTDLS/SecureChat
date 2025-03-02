@@ -1,5 +1,4 @@
 ﻿using SecureChat.Library.ReliableMessages;
-using System.Drawing;
 
 namespace SecureChat.Client.Forms
 {

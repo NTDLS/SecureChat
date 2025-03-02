@@ -17,9 +17,9 @@ namespace SecureChat.Client.Forms
             InitializeComponent();
 
             _treeImages.ColorDepth = ColorDepth.Depth32Bit;
-            _treeImages.Images.Add(ScConstants.ScOnlineState.Offline.ToString(), Imaging.LoadIconFromResources(Resources.Offline16));
-            _treeImages.Images.Add(ScConstants.ScOnlineState.Online.ToString(), Imaging.LoadIconFromResources(Resources.Online16));
-            _treeImages.Images.Add(ScConstants.ScOnlineState.Away.ToString(), Imaging.LoadIconFromResources(Resources.Away16));
+            _treeImages.Images.Add(ScOnlineState.Offline.ToString(), Imaging.LoadIconFromResources(Resources.Offline16));
+            _treeImages.Images.Add(ScOnlineState.Online.ToString(), Imaging.LoadIconFromResources(Resources.Online16));
+            _treeImages.Images.Add(ScOnlineState.Away.ToString(), Imaging.LoadIconFromResources(Resources.Away16));
 
             treeViewAcquaintances.ImageList = _treeImages;
             treeViewAcquaintances.NodeMouseDoubleClick += TreeViewAcquaintances_NodeMouseDoubleClick;
