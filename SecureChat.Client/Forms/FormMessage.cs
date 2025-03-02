@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Windows.Forms;
+﻿using SecureChat.Client.Controls;
 
 namespace SecureChat.Client.Forms
 {
@@ -14,7 +13,6 @@ namespace SecureChat.Client.Forms
             InitializeComponent();
 
             _activeChat = activeChat;
-            richTextBoxMessages.AppendText($"Chat started with {activeChat.DisplayName} at {DateTime.Now}.\r\n\r\n");
 
             FormClosing += FormMessage_FormClosing;
             Load += FormMessage_Load;
@@ -25,6 +23,8 @@ namespace SecureChat.Client.Forms
             timer.Interval = 5000;
             timer.Tick += Timer_Tick;
             timer.Enabled = true;
+
+            AppendSystemMessageLine($"Chat with {_activeChat.DisplayName} started at {DateTime.Now}.");
         }
 
         private void FormMessage_Load(object? sender, EventArgs e)
@@ -63,7 +63,7 @@ namespace SecureChat.Client.Forms
             {
                 if ((DateTime.Now - (DateTime)_lastMessageReceived).TotalSeconds > 60)
                 {
-                    AppendSystemMessageLine(Color.Gray, $"Last message received {_lastMessageReceived}.");
+                    AppendSystemMessageLine($"Last message received {_lastMessageReceived}.");
                     _lastMessageReceived = null;
                 }
             }
@@ -88,70 +88,52 @@ namespace SecureChat.Client.Forms
             }
         }
 
-        public void AppendSystemMessageLine(Color color, string message)
+        public void AppendSystemMessageLine(string message, Color? color = null)
         {
             if (InvokeRequired)
             {
-                Invoke(AppendSystemMessageLine, [color, message]);
+                Invoke(AppendSystemMessageLine, [message, color]);
                 return;
             }
 
-            lock (richTextBoxMessages)
+            lock (flowPanel)
             {
-                richTextBoxMessages.SelectionStart = richTextBoxMessages.TextLength;
-                richTextBoxMessages.SelectionLength = 0;
-
-                richTextBoxMessages.SelectionColor = Color.Gray;
-                richTextBoxMessages.SelectionFont = new Font(richTextBoxMessages.Font, FontStyle.Italic);
-                richTextBoxMessages.AppendText($"{message}\r\n");
-                richTextBoxMessages.SelectionFont = richTextBoxMessages.Font;
-                richTextBoxMessages.ScrollToCaret();
-
-                _lastMessageReceived = null;
+                var control = new FlowControlSystemText(message, color);
+                flowPanel.Controls.Add(control);
+                flowPanel.ScrollControlIntoView(control);
             }
         }
 
-        public void AppendMessageLine(Color color, string message)
+        public void AppendMessageLine(string message, Color? color = null)
         {
             if (InvokeRequired)
             {
-                Invoke(AppendMessageLine, [color, message]);
+                Invoke(AppendMessageLine, [message, color]);
                 return;
             }
-            lock (richTextBoxMessages)
+            lock (flowPanel)
             {
-                lock (richTextBoxMessages)
-                {
-                    richTextBoxMessages.SelectionStart = richTextBoxMessages.TextLength;
-                    richTextBoxMessages.SelectionLength = 0;
-
-                    richTextBoxMessages.SelectionColor = color;
-                    richTextBoxMessages.AppendText($"{message}\r\n");
-                }
+                var control = new FlowControlSystemText(message, color);
+                flowPanel.Controls.Add(control);
+                flowPanel.ScrollControlIntoView(control);
             }
         }
 
-        public void AppendReceivedMessageLine(Color color, string fromName, string plainText)
+        public void AppendReceivedMessageLine(string fromName, string plainText, Color? color = null)
         {
             if (InvokeRequired)
             {
-                Invoke(AppendReceivedMessageLine, [color, fromName, plainText]);
+                Invoke(AppendReceivedMessageLine, [fromName, plainText, color]);
                 return;
             }
 
             _lastMessageReceived = DateTime.Now;
 
-            lock (richTextBoxMessages)
+            lock (flowPanel)
             {
-                richTextBoxMessages.SelectionStart = richTextBoxMessages.TextLength;
-                richTextBoxMessages.SelectionLength = 0;
-
-                richTextBoxMessages.SelectionColor = color;
-                richTextBoxMessages.AppendText($"{fromName}: ");
-
-                richTextBoxMessages.SelectionColor = richTextBoxMessages.ForeColor;
-                richTextBoxMessages.AppendText($"{plainText}\r\n");
-                richTextBoxMessages.ScrollToCaret();
+                var control = new FlowControlTextMessage(fromName, plainText, color);
+                flowPanel.Controls.Add(control);
+                flowPanel.ScrollControlIntoView(control);
             }
         }
 
@@ -159,26 +141,30 @@ namespace SecureChat.Client.Forms
         {
             if (LocalSession.Current == null)
             {
-                AppendMessageLine(Color.Red, "Not connected.");
+                AppendMessageLine("Not connected.", Color.Red);
                 return;
             }
 
             if (_activeChat.IsTerminated)
             {
-                AppendMessageLine(Color.Red, "Chat has ended.");
+                AppendMessageLine("Chat has ended.", Color.Red);
                 return;
             }
 
             string text = textBoxMessage.Text;
+            if (text.Trim().Length == 0)
+            {
+                return;
+            }
             textBoxMessage.Clear();
 
             if (_activeChat.SendMessage(text))
             {
-                AppendReceivedMessageLine(Color.Blue, LocalSession.Current.DisplayName, text);
+                AppendReceivedMessageLine(LocalSession.Current.DisplayName, text, Color.Blue);
             }
             else
             {
-                AppendMessageLine(Color.Red, "Failed to send message.");
+                AppendMessageLine("Failed to send message.", Color.Red);
             }
         }
 
@@ -198,7 +184,10 @@ namespace SecureChat.Client.Forms
                 openFileDialog.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.gif";
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    //InsertImageIntoRichTextBox(openFileDialog.FileName);
+                    byte[] imageBytes = File.ReadAllBytes(openFileDialog.FileName);
+
+                    var chatMessage = new FlowControlImage(imageBytes);
+                    flowPanel.Controls.Add(chatMessage);
                 }
             }
         }

@@ -8,7 +8,6 @@ namespace SecureChat.Client
     internal class ActiveChat
     {
         public bool IsTerminated { get; private set; } = false;
-
         public FormMessage? Form { get; set; }
         public Guid AccountId { get; private set; }
         public string DisplayName { get; private set; }
@@ -51,7 +50,7 @@ namespace SecureChat.Client
             }
             IsTerminated = true;
             LocalSession.Current?.Client.Notify(new TerminateChat(ConnectionId, LocalSession.Current.AccountId));
-            Form?.AppendSystemMessageLine(Color.Red, $"The chat ended at {DateTime.Now}.");
+            Form?.AppendSystemMessageLine($"Chat ended at {DateTime.Now}.", Color.Red);
         }
 
         public void ReceiveMessage(byte[] cipherText)
@@ -61,7 +60,7 @@ namespace SecureChat.Client
                 return;
             }
 
-            Form?.AppendReceivedMessageLine(Color.DarkRed, DisplayName, Decrypt(cipherText));
+            Form?.AppendReceivedMessageLine(DisplayName, Decrypt(cipherText), Color.DarkRed);
         }
 
         public bool SendMessage(string plaintText)

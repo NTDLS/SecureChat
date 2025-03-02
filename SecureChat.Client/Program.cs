@@ -18,7 +18,7 @@ namespace SecureChat.Client
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new TrayApp()); // No visible form!
+            Application.Run(new TrayApp());
         }
 
         /*

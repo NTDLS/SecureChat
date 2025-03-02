@@ -25,7 +25,14 @@ namespace SecureChat.Client.Forms
             CancelButton = buttonCancel;
 
 #if DEBUG
-            textBoxUsername.Text = "_nop";
+            if (Debugger.IsAttached)
+            {
+                textBoxUsername.Text = "_nop";
+            }
+            else
+            {
+                textBoxUsername.Text = "wana";
+            }
             textBoxPassword.Text = "password";
 #endif
         }

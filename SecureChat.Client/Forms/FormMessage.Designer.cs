@@ -29,33 +29,24 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMessage));
-            richTextBoxMessages = new RichTextBox();
             splitContainer1 = new SplitContainer();
+            flowPanel = new FlowLayoutPanel();
             textBoxMessage = new TextBox();
             buttonSend = new Button();
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
             exportToolStripMenuItem = new ToolStripMenuItem();
             attachFileToolStripMenuItem = new ToolStripMenuItem();
+            imageToolStripMenuItem = new ToolStripMenuItem();
             connectionToolStripMenuItem = new ToolStripMenuItem();
             terminateToolStripMenuItem = new ToolStripMenuItem();
             propertiesToolStripMenuItem = new ToolStripMenuItem();
-            imageToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
             splitContainer1.SuspendLayout();
             menuStrip1.SuspendLayout();
             SuspendLayout();
-            // 
-            // richTextBoxMessages
-            // 
-            richTextBoxMessages.Dock = DockStyle.Fill;
-            richTextBoxMessages.Location = new Point(0, 0);
-            richTextBoxMessages.Name = "richTextBoxMessages";
-            richTextBoxMessages.Size = new Size(525, 385);
-            richTextBoxMessages.TabIndex = 0;
-            richTextBoxMessages.Text = "";
             // 
             // splitContainer1
             // 
@@ -66,7 +57,7 @@
             // 
             // splitContainer1.Panel1
             // 
-            splitContainer1.Panel1.Controls.Add(richTextBoxMessages);
+            splitContainer1.Panel1.Controls.Add(flowPanel);
             // 
             // splitContainer1.Panel2
             // 
@@ -75,6 +66,18 @@
             splitContainer1.Size = new Size(525, 437);
             splitContainer1.SplitterDistance = 385;
             splitContainer1.TabIndex = 2;
+            // 
+            // flowPanel
+            // 
+            flowPanel.AutoScroll = true;
+            flowPanel.AutoSize = true;
+            flowPanel.Dock = DockStyle.Fill;
+            flowPanel.FlowDirection = FlowDirection.TopDown;
+            flowPanel.Location = new Point(0, 0);
+            flowPanel.Name = "flowPanel";
+            flowPanel.Size = new Size(525, 385);
+            flowPanel.TabIndex = 1;
+            flowPanel.WrapContents = false;
             // 
             // textBoxMessage
             // 
@@ -115,15 +118,22 @@
             // exportToolStripMenuItem
             // 
             exportToolStripMenuItem.Name = "exportToolStripMenuItem";
-            exportToolStripMenuItem.Size = new Size(180, 22);
+            exportToolStripMenuItem.Size = new Size(130, 22);
             exportToolStripMenuItem.Text = "Export";
             // 
             // attachFileToolStripMenuItem
             // 
             attachFileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { imageToolStripMenuItem });
             attachFileToolStripMenuItem.Name = "attachFileToolStripMenuItem";
-            attachFileToolStripMenuItem.Size = new Size(180, 22);
+            attachFileToolStripMenuItem.Size = new Size(130, 22);
             attachFileToolStripMenuItem.Text = "Attach File";
+            // 
+            // imageToolStripMenuItem
+            // 
+            imageToolStripMenuItem.Name = "imageToolStripMenuItem";
+            imageToolStripMenuItem.Size = new Size(107, 22);
+            imageToolStripMenuItem.Text = "Image";
+            imageToolStripMenuItem.Click += ImageToolStripMenuItem_Click;
             // 
             // connectionToolStripMenuItem
             // 
@@ -145,13 +155,6 @@
             propertiesToolStripMenuItem.Size = new Size(127, 22);
             propertiesToolStripMenuItem.Text = "Properties";
             // 
-            // imageToolStripMenuItem
-            // 
-            imageToolStripMenuItem.Name = "imageToolStripMenuItem";
-            imageToolStripMenuItem.Size = new Size(180, 22);
-            imageToolStripMenuItem.Text = "Image";
-            imageToolStripMenuItem.Click += ImageToolStripMenuItem_Click;
-            // 
             // FormMessage
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -168,6 +171,7 @@
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Secure Chat";
             splitContainer1.Panel1.ResumeLayout(false);
+            splitContainer1.Panel1.PerformLayout();
             splitContainer1.Panel2.ResumeLayout(false);
             splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
@@ -179,8 +183,6 @@
         }
 
         #endregion
-
-        private RichTextBox richTextBoxMessages;
         private SplitContainer splitContainer1;
         private TextBox textBoxMessage;
         private Button buttonSend;
@@ -192,5 +194,6 @@
         private ToolStripMenuItem terminateToolStripMenuItem;
         private ToolStripMenuItem propertiesToolStripMenuItem;
         private ToolStripMenuItem imageToolStripMenuItem;
+        private FlowLayoutPanel flowPanel;
     }
 }
