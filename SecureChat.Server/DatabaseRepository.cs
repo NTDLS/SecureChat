@@ -15,6 +15,19 @@ namespace SecureChat.Server
             _dbFactory = new ManagedDataStorageFactory($"Data Source={sqliteConnection}");
         }
 
+        public void CreateAccount(string username, string displayName, string passwordHash)
+        {
+            _dbFactory.Execute(@"SqlQueries\CreateAccount.sql",
+                new
+                {
+                    Id = Guid.NewGuid(),
+                    @Username = username,
+                    DisplayName = displayName,
+                    PasswordHash = passwordHash,
+                    LastSeen = DateTime.UtcNow
+                });
+        }
+
         public void UpdateAccountLastSeen(Guid accountId)
         {
             _dbFactory.Ephemeral(o => UpdateAccountLastSeen(o, accountId));

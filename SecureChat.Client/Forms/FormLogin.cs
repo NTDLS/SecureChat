@@ -148,7 +148,12 @@ namespace SecureChat.Client.Forms
         private void LinkLabelCreateAccount_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             using var form = new FormCreateAccount();
-            form.ShowDialog();
+            var username = form.CreateAccount();
+            if (username != null)
+            {
+                textBoxUsername.Text = username;
+                textBoxPassword.Focus();
+            }
         }
     }
 }

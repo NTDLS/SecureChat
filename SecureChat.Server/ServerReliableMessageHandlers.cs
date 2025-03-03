@@ -25,6 +25,24 @@ namespace SecureChat.Server
             _dbRepository = new DatabaseRepository(configuration);
         }
 
+        public CreateAccountQueryReply CreateAccountQuery(RmContext context, CreateAccountQuery param)
+        {
+            try
+            {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+                _dbRepository.CreateAccount(param.Username, param.DisplayName, param.PasswordHash);
+
+                return new CreateAccountQueryReply();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                return new CreateAccountQueryReply(ex);
+            }
+        }
+
         /// <summary>
         /// The client is beginning to transmit a file. Relay it to the appropriate client.
         /// </summary>
@@ -64,9 +82,6 @@ namespace SecureChat.Server
         /// <summary>
         /// The client has finished transmitting a file. Relay it to the appropriate client.
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="param"></param>
-        /// <returns></returns>
         public FileTransmissionEndReply FileTransmissionEnd(RmContext context, FileTransmissionEnd param)
         {
             try

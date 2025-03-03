@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="SqlQueries\GetAcquaintances.sql" />
+    <EmbeddedResource Include="SqlQueries\CreateAccount.sql" />
     <EmbeddedResource Include="SqlQueries\UpdateAccountLastSeen.sql" />
     <EmbeddedResource Include="SqlQueries\UpdateAccountState.sql" />
     <EmbeddedResource Include="SqlQueries\UpdateAccountStatus.sql" />

@@ -10,6 +10,8 @@ namespace SecureChat.Client.Forms
 {
     public partial class FormCreateAccount : Form
     {
+        private string _username = string.Empty;
+
         public FormCreateAccount()
         {
             InitializeComponent();
@@ -17,12 +19,24 @@ namespace SecureChat.Client.Forms
             FormClosing += FormCreateAccount_FormClosing;
         }
 
+        internal string? CreateAccount()
+        {
+            if (ShowDialog() == DialogResult.OK && !string.IsNullOrEmpty(_username))
+            {
+                return _username;
+            }
+            return null;
+        }
+
         private void FormCreateAccount_FormClosing(object? sender, FormClosingEventArgs e)
         {
-            if (MessageBox.Show("Are you sure you want to cancel.",
-                ScConstants.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+            if (string.IsNullOrEmpty(_username))
             {
-                e.Cancel = true;
+                if (MessageBox.Show("Are you sure you want to cancel.",
+                    ScConstants.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                {
+                    e.Cancel = true;
+                }
             }
         }
 
@@ -53,7 +67,7 @@ namespace SecureChat.Client.Forms
 
                 var passwordHash = Crypto.ComputeSha256Hash(password);
 
-                var progressForm = new ProgressForm(ScConstants.AppName, "Logging in...");
+                var progressForm = new ProgressForm(ScConstants.AppName, "Creating account...");
 
                 progressForm.Execute(() =>
                 {
@@ -84,6 +98,8 @@ namespace SecureChat.Client.Forms
                         }).Result;
 
                         client.Disconnect();
+
+                        _username = isSuccess ? username : string.Empty;
 
                         this.InvokeClose(isSuccess ? DialogResult.OK : DialogResult.Cancel);
                     }
