@@ -46,10 +46,10 @@ namespace SecureChat.Client.Forms
                 var password = textBoxPassword.GetAndValidateText("A password is required.");
                 var confirmPassword = textBoxPassword.GetAndValidateText("A confirm password is required.");
 
-                if(password != confirmPassword)
+                if (password != confirmPassword)
                 {
                     throw new Exception("Passwords do not match.");
-                }   
+                }
 
                 var passwordHash = Crypto.ComputeSha256Hash(password);
 
