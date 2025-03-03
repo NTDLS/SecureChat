@@ -6,19 +6,19 @@ namespace SecureChat.Client
 {
     public static class TreeViewHelpers
     {
-        public static void AddAcquaintanceNode(TreeNode parentNode, AcquaintanceModel acquaintance)
+        public static void AddContactNode(TreeNode parentNode, ContactModel contact)
         {
-            var childName = acquaintance.DisplayName;
-            if (string.IsNullOrEmpty(acquaintance.Status) == false)
+            var childName = contact.DisplayName;
+            if (string.IsNullOrEmpty(contact.Status) == false)
             {
-                childName += $" - {acquaintance.Status}";
+                childName += $" - {contact.Status}";
             }
 
-            var state = GetAcquaintanceState(acquaintance);
+            var state = GetContactState(contact);
 
             var node = new TreeNode(childName)
             {
-                Tag = acquaintance,
+                Tag = contact,
                 ImageKey = state.ToString(),
                 SelectedImageKey = state.ToString(),
                 ToolTipText = state.ToString()
@@ -27,24 +27,24 @@ namespace SecureChat.Client
             parentNode.Nodes.Add(node);
         }
 
-        public static ScOnlineState GetAcquaintanceState(AcquaintanceModel acquaintance)
+        public static ScOnlineState GetContactState(ContactModel contact)
         {
-            var state = Enum.Parse<ScOnlineState>(acquaintance.State);
+            var state = Enum.Parse<ScOnlineState>(contact.State);
 
-            if (acquaintance.IsAccepted == false)
+            if (contact.IsAccepted == false)
             {
                 return ScOnlineState.Pending;
             }
 
-            if (acquaintance.LastSeen == null)
+            if (contact.LastSeen == null)
             {
-                //The acquaintance has never been online.
+                //The contact has never been online.
                 state = ScOnlineState.Offline;
             }
             else if (state == ScOnlineState.Online || state == ScOnlineState.Away)
             {
-                //If the acquaintance is "online" or "Away" but was last seen a "long time ago" then show them as offline.
-                if ((DateTime.UtcNow - acquaintance.LastSeen.Value).TotalSeconds > ScConstants.OfflineLastSeenSeconds)
+                //If the contact is "online" or "Away" but was last seen a "long time ago" then show them as offline.
+                if ((DateTime.UtcNow - contact.LastSeen.Value).TotalSeconds > ScConstants.OfflineLastSeenSeconds)
                 {
                     state = ScOnlineState.Offline;
                 }
@@ -57,7 +57,7 @@ namespace SecureChat.Client
         {
             foreach (TreeNode node in parentNode.Nodes)
             {
-                if (node?.Tag is AcquaintanceModel acquaintancesModel && acquaintancesModel.Id == accountId)
+                if (node?.Tag is ContactModel contactsModel && contactsModel.Id == accountId)
                 {
                     return node;
                 }

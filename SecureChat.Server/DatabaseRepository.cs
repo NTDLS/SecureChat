@@ -116,11 +116,11 @@ namespace SecureChat.Server
             });
         }
 
-        public List<AcquaintanceModel> GetAcquaintances(Guid accountId)
+        public List<ContactModel> GetContacts(Guid accountId)
         {
             return _dbFactory.Ephemeral(o =>
             {
-                var acquaintances = o.Query<AcquaintanceModel>(@"SqlQueries\GetAcquaintances.sql",
+                var contacts = o.Query<ContactModel>(@"SqlQueries\GetContacts.sql",
                     new
                     {
                         AccountId = accountId,
@@ -128,7 +128,7 @@ namespace SecureChat.Server
 
                 UpdateAccountLastSeen(o, accountId);
 
-                return acquaintances;
+                return contacts;
             });
         }
     }

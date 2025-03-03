@@ -6,7 +6,7 @@ SELECT
 	A.State,
 	A.Status
 FROM
-	Acquaintance as Ac
+	Contact as Ac
 INNER JOIN Account as A
 	ON A.Id = Ac.SourceAccountId
 WHERE
@@ -22,7 +22,7 @@ SELECT
 	A.State,
 	A.Status
 FROM
-	Acquaintance as Ac
+	Contact as Ac
 INNER JOIN Account as A
 	ON A.Id = Ac.TargetAccountId	
 WHERE

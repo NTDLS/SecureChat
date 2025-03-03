@@ -26,10 +26,10 @@ namespace SecureChat.Client.Forms
             _treeImages.Images.Add(ScOnlineState.Away.ToString(), Imaging.LoadIconFromResources(Resources.Away16));
             _treeImages.Images.Add(ScOnlineState.Pending.ToString(), Imaging.LoadIconFromResources(Resources.Pending16));
 
-            treeViewAcquaintances.ImageList = _treeImages;
-            treeViewAcquaintances.NodeMouseDoubleClick += TreeViewAcquaintances_NodeMouseDoubleClick;
+            treeViewContacts.ImageList = _treeImages;
+            treeViewContacts.NodeMouseDoubleClick += TreeViewContacts_NodeMouseDoubleClick;
 
-            treeViewAcquaintances.NodeMouseHover += TreeViewAcquaintances_NodeMouseHover;
+            treeViewContacts.NodeMouseHover += TreeViewContacts_NodeMouseHover;
 
             // Set up the delays for the ToolTip.
             _treeToolTip.InitialDelay = 500; // Time in milliseconds before the tooltip appears
@@ -52,9 +52,9 @@ namespace SecureChat.Client.Forms
         {
             if (LocalSession.Current != null)
             {
-                if (treeViewAcquaintances.Nodes.Count > 0)
+                if (treeViewContacts.Nodes.Count > 0)
                 {
-                    TreeNode existingRootNode = treeViewAcquaintances.Nodes[0];
+                    TreeNode existingRootNode = treeViewContacts.Nodes[0];
 
                     if (LocalSession.Current.ExplicitAway)
                     {
@@ -88,7 +88,7 @@ namespace SecureChat.Client.Forms
                     rootNode.SelectedImageKey = LocalSession.Current.ConnectionState.ToString();
                 }
 
-                treeViewAcquaintances.Nodes.Add(rootNode);
+                treeViewContacts.Nodes.Add(rootNode);
 
                 return rootNode;
             }
@@ -107,11 +107,11 @@ namespace SecureChat.Client.Forms
             Location = new Point(x, y);
         }
 
-        private void TreeViewAcquaintances_NodeMouseHover(object? sender, TreeNodeMouseHoverEventArgs e)
+        private void TreeViewContacts_NodeMouseHover(object? sender, TreeNodeMouseHoverEventArgs e)
         {
             if (!string.IsNullOrEmpty(e.Node?.ToolTipText))
             {
-                _treeToolTip.SetToolTip(treeViewAcquaintances, e.Node.ToolTipText);
+                _treeToolTip.SetToolTip(treeViewContacts, e.Node.ToolTipText);
             }
         }
 
@@ -141,19 +141,19 @@ namespace SecureChat.Client.Forms
             }
         }
 
-        private void TreeViewAcquaintances_NodeMouseDoubleClick(object? sender, TreeNodeMouseClickEventArgs e)
+        private void TreeViewContacts_NodeMouseDoubleClick(object? sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Node?.Tag is AcquaintanceModel acquaintancesModel)
+            if (e.Node?.Tag is ContactModel contactsModel)
             {
-                if (acquaintancesModel.IsAccepted == false)
+                if (contactsModel.IsAccepted == false)
                 {
-                    this.InvokeMessageBox("You cannot interact with this acquaintance until they have accepted your request.", ScConstants.AppName, MessageBoxButtons.OK);
+                    this.InvokeMessageBox("You cannot interact with this contact until they have accepted your request.", ScConstants.AppName, MessageBoxButtons.OK);
                     return;
                 }
 
                 if (e.Node.ImageKey.Equals(ScOnlineState.Offline.ToString(), StringComparison.CurrentCultureIgnoreCase))
                 {
-                    this.InvokeMessageBox("The selected acquaintance is not online.", ScConstants.AppName, MessageBoxButtons.OK);
+                    this.InvokeMessageBox("The selected contact is not online.", ScConstants.AppName, MessageBoxButtons.OK);
                     return;
                 }
 
@@ -165,7 +165,7 @@ namespace SecureChat.Client.Forms
                     return;
                 }
 
-                var activeChat = LocalSession.Current.GetActiveChatByAccountId(acquaintancesModel.Id);
+                var activeChat = LocalSession.Current.GetActiveChatByAccountId(contactsModel.Id);
                 if (activeChat == null)
                 {
                     var compoundNegotiator = new CompoundNegotiator();
@@ -173,7 +173,7 @@ namespace SecureChat.Client.Forms
 
                     //The first thing we do when we get a connection is start a new key exchange process.
                     var queryRequestKeyExchangeReply = LocalSession.Current.Client.Query(
-                        new InitiateEndToEndCryptography(LocalSession.Current.AccountId, acquaintancesModel.Id, LocalSession.Current.DisplayName, negotiationToken))
+                        new InitiateEndToEndCryptography(LocalSession.Current.AccountId, contactsModel.Id, LocalSession.Current.DisplayName, negotiationToken))
                         .ContinueWith(o =>
                         {
                             if (!o.IsFaulted && o.Result.IsSuccess)
@@ -192,14 +192,14 @@ namespace SecureChat.Client.Forms
                         //Console.WriteLine($"SharedSecret: {Crypto.ComputeSha256Hash(compoundNegotiator.SharedSecret)}");
 
                         activeChat = LocalSession.Current.AddActiveChat(
-                            queryRequestKeyExchangeReply.PeerConnectionId, acquaintancesModel.Id, acquaintancesModel.DisplayName, compoundNegotiator.SharedSecret);
+                            queryRequestKeyExchangeReply.PeerConnectionId, contactsModel.Id, contactsModel.DisplayName, compoundNegotiator.SharedSecret);
 
                         activeChat.Form = new FormMessage(activeChat);
                         activeChat.Form.Show();
                     }
                     else
                     {
-                        this.InvokeMessageBox("Could not connect to the selected acquaintance.", ScConstants.AppName, MessageBoxButtons.OK);
+                        this.InvokeMessageBox("Could not connect to the selected contact.", ScConstants.AppName, MessageBoxButtons.OK);
                     }
                 }
                 else if (activeChat.Form != null)
@@ -234,7 +234,7 @@ namespace SecureChat.Client.Forms
             {
                 try
                 {
-                    LocalSession.Current.Client.Query(new GetAcquaintancesQuery()).ContinueWith(o =>
+                    LocalSession.Current.Client.Query(new GetContactsQuery()).ContinueWith(o =>
                     {
                         if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
                         {
@@ -243,7 +243,7 @@ namespace SecureChat.Client.Forms
 
                         if (o.Result.IsSuccess)
                         {
-                            PopulateTree(o.Result.Acquaintances);
+                            PopulateTree(o.Result.Contacts);
                         }
 
                         return o.Result.IsSuccess;
@@ -256,7 +256,7 @@ namespace SecureChat.Client.Forms
             });
         }
 
-        private void PopulateTree(List<AcquaintanceModel> acquaintances)
+        private void PopulateTree(List<ContactModel> contacts)
         {
             if (LocalSession.Current == null)
             {
@@ -267,33 +267,33 @@ namespace SecureChat.Client.Forms
 
             if (InvokeRequired)
             {
-                Invoke(PopulateTree, acquaintances);
+                Invoke(PopulateTree, contacts);
                 return;
             }
 
-            treeViewAcquaintances.Nodes.Clear();
+            treeViewContacts.Nodes.Clear();
 
             var rootNode = GetRootNode();
             if (rootNode != null)
             {
-                foreach (var acquaintance in acquaintances.Where(o => o.IsAccepted == true))
+                foreach (var contact in contacts.Where(o => o.IsAccepted == true))
                 {
-                    TreeViewHelpers.AddAcquaintanceNode(rootNode, acquaintance);
+                    TreeViewHelpers.AddContactNode(rootNode, contact);
                 }
 
                 TreeViewHelpers.SortChildNodes(rootNode);
                 rootNode.Expand();
 
-                if (acquaintances.Any(o => o.IsAccepted == false))
+                if (contacts.Any(o => o.IsAccepted == false))
                 {
                     var requestedRootNode = new TreeNode("Requested");
                     requestedRootNode.ImageKey = ScOnlineState.Pending.ToString();
                     requestedRootNode.SelectedImageKey = ScOnlineState.Pending.ToString();
                     rootNode.Nodes.Add(requestedRootNode);
 
-                    foreach (var acquaintance in acquaintances.Where(o => o.IsAccepted == false))
+                    foreach (var contact in contacts.Where(o => o.IsAccepted == false))
                     {
-                        TreeViewHelpers.AddAcquaintanceNode(requestedRootNode, acquaintance);
+                        TreeViewHelpers.AddContactNode(requestedRootNode, contact);
                     }
                     requestedRootNode.Expand();
                 }
@@ -313,7 +313,7 @@ namespace SecureChat.Client.Forms
             {
                 try
                 {
-                    LocalSession.Current.Client.Query(new GetAcquaintancesQuery()).ContinueWith(o =>
+                    LocalSession.Current.Client.Query(new GetContactsQuery()).ContinueWith(o =>
                     {
                         if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
                         {
@@ -322,7 +322,7 @@ namespace SecureChat.Client.Forms
 
                         if (o.Result.IsSuccess)
                         {
-                            DeltaRepopulateTree(o.Result.Acquaintances);
+                            DeltaRepopulateTree(o.Result.Contacts);
                         }
 
                         return o.Result.IsSuccess;
@@ -335,7 +335,7 @@ namespace SecureChat.Client.Forms
             });
         }
 
-        private void DeltaRepopulateTree(List<AcquaintanceModel> acquaintances)
+        private void DeltaRepopulateTree(List<ContactModel> contacts)
         {
             if (LocalSession.Current == null)
             {
@@ -346,11 +346,11 @@ namespace SecureChat.Client.Forms
 
             if (InvokeRequired)
             {
-                Invoke(DeltaRepopulateTree, acquaintances);
+                Invoke(DeltaRepopulateTree, contacts);
                 return;
             }
 
-            if (treeViewAcquaintances.Nodes.Count == 0)
+            if (treeViewContacts.Nodes.Count == 0)
             {
                 return;
             }
@@ -362,21 +362,21 @@ namespace SecureChat.Client.Forms
 
                 foreach (TreeNode node in rootNode.Nodes)
                 {
-                    if (node?.Tag is AcquaintanceModel acquaintancesModel)
+                    if (node?.Tag is ContactModel contactsModel)
                     {
-                        var matchingAcquaintance = acquaintances.FirstOrDefault(o => o.Id == acquaintancesModel.Id);
-                        if (matchingAcquaintance != null)
+                        var matchingContact = contacts.FirstOrDefault(o => o.Id == contactsModel.Id);
+                        if (matchingContact != null)
                         {
-                            var state = TreeViewHelpers.GetAcquaintanceState(matchingAcquaintance);
+                            var state = TreeViewHelpers.GetContactState(matchingContact);
 
-                            //Update tree node if it is in the fresh acquaintance list.
+                            //Update tree node if it is in the fresh contact list.
                             node.ImageKey = state.ToString();
                             node.SelectedImageKey = state.ToString();
                             node.ToolTipText = state.ToString();
                         }
                         else
                         {
-                            //Queue node for removal if it is missing from the fresh acquaintance list.
+                            //Queue node for removal if it is missing from the fresh contact list.
                             nodesToRemove.Add(node);
                         }
                     }
@@ -388,13 +388,13 @@ namespace SecureChat.Client.Forms
                     rootNode.Nodes.Remove(node);
                 }
 
-                //Add tree nodes for acquaintances that are in the fresh list but missing from the tree.
-                foreach (var acquaintance in acquaintances)
+                //Add tree nodes for contacts that are in the fresh list but missing from the tree.
+                foreach (var contact in contacts)
                 {
-                    var existingNode = TreeViewHelpers.FindNodeByAccountId(rootNode, acquaintance.Id);
+                    var existingNode = TreeViewHelpers.FindNodeByAccountId(rootNode, contact.Id);
                     if (existingNode == null)
                     {
-                        TreeViewHelpers.AddAcquaintanceNode(rootNode, acquaintance);
+                        TreeViewHelpers.AddContactNode(rootNode, contact);
                     }
                 }
 

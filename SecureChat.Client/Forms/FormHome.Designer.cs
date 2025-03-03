@@ -31,25 +31,25 @@ namespace SecureChat.Client.Forms
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormHome));
-            treeViewAcquaintances = new DoubleBufferedTreeView();
+            treeViewContacts = new DoubleBufferedTreeView();
             SuspendLayout();
             // 
-            // treeViewAcquaintances
+            // treeViewContacts
             // 
-            treeViewAcquaintances.Dock = DockStyle.Fill;
-            treeViewAcquaintances.HotTracking = true;
-            treeViewAcquaintances.Location = new Point(5, 5);
-            treeViewAcquaintances.Name = "treeViewAcquaintances";
-            treeViewAcquaintances.ShowRootLines = false;
-            treeViewAcquaintances.Size = new Size(275, 498);
-            treeViewAcquaintances.TabIndex = 0;
+            treeViewContacts.Dock = DockStyle.Fill;
+            treeViewContacts.HotTracking = true;
+            treeViewContacts.Location = new Point(5, 5);
+            treeViewContacts.Name = "treeViewContacts";
+            treeViewContacts.ShowRootLines = false;
+            treeViewContacts.Size = new Size(275, 498);
+            treeViewContacts.TabIndex = 0;
             // 
             // FormHome
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(285, 508);
-            Controls.Add(treeViewAcquaintances);
+            Controls.Add(treeViewContacts);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             Name = "FormHome";
@@ -63,6 +63,6 @@ namespace SecureChat.Client.Forms
 
         #endregion
 
-        private DoubleBufferedTreeView treeViewAcquaintances;
+        private DoubleBufferedTreeView treeViewContacts;
     }
 }

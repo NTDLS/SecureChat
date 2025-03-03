@@ -23,7 +23,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="SqlQueries\GetAccountIdByUserName.sql" />
-    <EmbeddedResource Include="SqlQueries\GetAcquaintances.sql" />
+    <EmbeddedResource Include="SqlQueries\GetContacts.sql" />
     <EmbeddedResource Include="SqlQueries\CreateAccount.sql" />
     <EmbeddedResource Include="SqlQueries\GetAccountIdByDisplayName.sql" />
     <EmbeddedResource Include="SqlQueries\UpdateAccountLastSeen.sql" />

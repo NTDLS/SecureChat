@@ -263,22 +263,22 @@ namespace SecureChat.Server
         }
 
         /// <summary>
-        /// Client is requesting a list of acquaintances for their account.
+        /// Client is requesting a list of contacts for their account.
         /// </summary>
-        public GetAcquaintancesQueryReply GetAcquaintancesQuery(RmContext context, GetAcquaintancesQuery param)
+        public GetContactsQueryReply GetContactsQuery(RmContext context, GetContactsQuery param)
         {
             try
             {
                 var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
                     ?? throw new Exception("Session not found.");
 
-                var acquaintances = _dbRepository.GetAcquaintances(session.AccountId.EnsureNotNull());
+                var contacts = _dbRepository.GetContacts(session.AccountId.EnsureNotNull());
 
-                return new GetAcquaintancesQueryReply(acquaintances);
+                return new GetContactsQueryReply(contacts);
             }
             catch (Exception ex)
             {
-                return new GetAcquaintancesQueryReply(ex.GetBaseException());
+                return new GetContactsQueryReply(ex.GetBaseException());
             }
         }
     }
