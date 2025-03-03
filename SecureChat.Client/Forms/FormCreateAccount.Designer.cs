@@ -46,7 +46,7 @@
             buttonCreate.Location = new Point(98, 221);
             buttonCreate.Name = "buttonCreate";
             buttonCreate.Size = new Size(75, 23);
-            buttonCreate.TabIndex = 0;
+            buttonCreate.TabIndex = 4;
             buttonCreate.Text = "Create";
             buttonCreate.UseVisualStyleBackColor = true;
             buttonCreate.Click += ButtonCreate_Click;
@@ -56,7 +56,7 @@
             buttonCancel.Location = new Point(179, 221);
             buttonCancel.Name = "buttonCancel";
             buttonCancel.Size = new Size(75, 23);
-            buttonCancel.TabIndex = 1;
+            buttonCancel.TabIndex = 5;
             buttonCancel.Text = "Cancel";
             buttonCancel.UseVisualStyleBackColor = true;
             buttonCancel.Click += ButtonCancel_Click;
@@ -93,28 +93,28 @@
             textBoxUsername.Location = new Point(12, 40);
             textBoxUsername.Name = "textBoxUsername";
             textBoxUsername.Size = new Size(242, 23);
-            textBoxUsername.TabIndex = 5;
+            textBoxUsername.TabIndex = 0;
             // 
             // textBoxDisplayName
             // 
             textBoxDisplayName.Location = new Point(12, 85);
             textBoxDisplayName.Name = "textBoxDisplayName";
             textBoxDisplayName.Size = new Size(242, 23);
-            textBoxDisplayName.TabIndex = 6;
+            textBoxDisplayName.TabIndex = 1;
             // 
             // textBoxPassword
             // 
             textBoxPassword.Location = new Point(12, 146);
             textBoxPassword.Name = "textBoxPassword";
             textBoxPassword.Size = new Size(242, 23);
-            textBoxPassword.TabIndex = 7;
+            textBoxPassword.TabIndex = 2;
             // 
             // textBoxConfirmPassword
             // 
             textBoxConfirmPassword.Location = new Point(12, 191);
             textBoxConfirmPassword.Name = "textBoxConfirmPassword";
             textBoxConfirmPassword.Size = new Size(242, 23);
-            textBoxConfirmPassword.TabIndex = 8;
+            textBoxConfirmPassword.TabIndex = 3;
             // 
             // labelConfirmPassword
             // 

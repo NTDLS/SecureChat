@@ -79,6 +79,8 @@ namespace SecureChat.Client.Forms
                         bool explicitAway = false;
                         if (settings.Users.TryGetValue(username, out var userPersist))
                         {
+                            //If the user has an explicit away state, send it to the server at
+                            //  login so the server can update the user's status appropriately.
                             explicitAway = userPersist.ExplicitAway;
                         }
 
@@ -89,7 +91,7 @@ namespace SecureChat.Client.Forms
                                 throw new Exception(o.Result.ErrorMessage);
                             }
 
-                            if (o.Result.IsSuccess)
+                            if (!o.IsFaulted && o.Result.IsSuccess)
                             {
                                 _loginResult = new LoginResult(client,
                                     o.Result.AccountId.EnsureNotNull(),
@@ -99,7 +101,7 @@ namespace SecureChat.Client.Forms
                                     );
                             }
 
-                            return o.Result.IsSuccess;
+                            return !o.IsFaulted && o.Result.IsSuccess;
                         }).Result;
 
                         client.OnException -= Client_OnException;
