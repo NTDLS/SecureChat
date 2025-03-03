@@ -187,8 +187,9 @@ namespace SecureChat.Server
 
             foreach (var account in accounts)
             {
-                if (account.IsAccepted)
+                if (account.IsAccepted == false)
                 {
+                    account.Status = ""; //We do not show status for pending contacts.
                     account.State = ScOnlineState.Pending.ToString();
                 }
                 else if (account.LastSeen == null || (DateTime.UtcNow - account.LastSeen.Value).TotalSeconds > ScConstants.OfflineLastSeenSeconds)

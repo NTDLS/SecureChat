@@ -43,6 +43,8 @@ namespace SecureChat.Client.Forms
                                 {
                                     dataGridViewAccounts.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "Remove";
                                 });
+
+                                LocalSession.Current.FormHome.Repopulate();
                             }
                         });
                     }
@@ -58,6 +60,7 @@ namespace SecureChat.Client.Forms
                                 {
                                     dataGridViewAccounts.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "Invite";
                                 });
+                                LocalSession.Current.FormHome.Repopulate();
                             }
                         });
 

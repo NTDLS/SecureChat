@@ -38,7 +38,7 @@ namespace SecureChat.Server
                 var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
                     ?? throw new Exception("Session not found.");
 
-                _dbRepository.AcceptContactInvite(session.AccountId.EnsureNotNull(), param.AccountId);
+                _dbRepository.AcceptContactInvite(param.AccountId, session.AccountId.EnsureNotNull());
 
                 return new AcceptContactInviteReply();
             }

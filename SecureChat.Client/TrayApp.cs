@@ -11,6 +11,7 @@ namespace SecureChat.Client
 {
     class TrayApp : ApplicationContext
     {
+        private bool _applicationClosing = false;
         private readonly NotifyIcon _trayIcon;
         private FormLogin? _formLogin;
 
@@ -163,6 +164,10 @@ namespace SecureChat.Client
 
         private void RmClient_OnDisconnected(RmContext context)
         {
+            if (_applicationClosing)
+            {
+                return;
+            }
             try
             {
                 UpdateClientState(ScOnlineState.Offline);
@@ -178,6 +183,10 @@ namespace SecureChat.Client
         {
             try
             {
+                if (_applicationClosing)
+                {
+                    return;
+                }
                 if (state == LocalSession.Current?.ConnectionState)
                 {
                     return;
@@ -340,6 +349,8 @@ namespace SecureChat.Client
 
         private void OnExit(object? sender, EventArgs e)
         {
+            _applicationClosing = true;
+
             try
             {
                 Task.Run(() => LocalSession.Current?.Client?.Disconnect());

@@ -51,7 +51,6 @@ namespace SecureChat.Client.Forms
             GetRootNode();
         }
 
-
         private void RemoveContact(ContactModel contact)
         {
             if (contact.IsAccepted)
@@ -62,7 +61,7 @@ namespace SecureChat.Client.Forms
                     return;
                 }
             }
-            else if (contact.IsAccepted)
+            else if (contact.IsAccepted == false)
             {
                 if (MessageBox.Show("Are you sure you want to remove this contact request?",
                     ScConstants.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
@@ -86,7 +85,7 @@ namespace SecureChat.Client.Forms
 
                             if (!o.IsFaulted && o.Result.IsSuccess)
                             {
-                                DeltaRepopulate();
+                                Repopulate();
                             }
                         });
                     }
@@ -121,7 +120,7 @@ namespace SecureChat.Client.Forms
 
                             if (!o.IsFaulted && o.Result.IsSuccess)
                             {
-                                DeltaRepopulate();
+                                Repopulate();
                             }
                         });
                     }
@@ -183,7 +182,7 @@ namespace SecureChat.Client.Forms
 
         private void FormHome_Load(object? sender, EventArgs e)
         {
-            DeltaRepopulate();
+            Repopulate();
 
             var currentScreen = Screen.FromPoint(Cursor.Position);
             int offsetY = 10; // Distance above the taskbar
@@ -197,7 +196,7 @@ namespace SecureChat.Client.Forms
         {
             if (LocalSession.Current != null && LocalSession.Current.Client.IsConnected)
             {
-                DeltaRepopulate();
+                Repopulate();
 
                 var idleTime = Interop.GetIdleTime();
                 if (idleTime.TotalSeconds >= Settings.Instance.AutoAwayIdleSeconds)
@@ -223,7 +222,15 @@ namespace SecureChat.Client.Forms
         {
             if (e.Button == MouseButtons.Right && e.Node?.Tag is ContactModel contact)
             {
-                if (contact.IsAccepted == false)
+                if (contact.IsAccepted == false && contact.RequestedByMe == true)
+                {
+                    var contextMenu = new ContextMenuStrip();
+
+                    contextMenu.Items.Add(new ToolStripMenuItem("Remove", null, (s, ev) => RemoveContact(contact)));
+
+                    contextMenu.Show(treeViewContacts, e.Location);
+                }
+                else if (contact.IsAccepted == false && contact.RequestedByMe == false)
                 {
                     var contextMenu = new ContextMenuStrip();
 
@@ -336,7 +343,7 @@ namespace SecureChat.Client.Forms
             }
         }
 
-        private void DeltaRepopulate()
+        public void Repopulate()
         {
             if (LocalSession.Current == null)
             {
@@ -435,11 +442,11 @@ namespace SecureChat.Client.Forms
 
                 #endregion
 
-                #region Pending contacts.
+                #region Outgoing contact invites.
 
                 var requestedRootNode = TreeViewHelpers.FindNonContactNodeByText(treeViewContacts, "Requested");
 
-                if (contacts.Any(o => o.IsAccepted == false))
+                if (contacts.Any(o => o.IsAccepted == false && o.RequestedByMe == true))
                 {
                     if (requestedRootNode == null)
                     {
@@ -484,6 +491,59 @@ namespace SecureChat.Client.Forms
                 else if (requestedRootNode != null)
                 {
                     treeViewContacts.Nodes.Remove(requestedRootNode);
+                }
+
+                #endregion
+
+                #region Incoming contact invites.
+
+                var invitesRootNode = TreeViewHelpers.FindNonContactNodeByText(treeViewContacts, "Invites");
+
+                if (contacts.Any(o => o.IsAccepted == false && o.RequestedByMe == false))
+                {
+                    if (invitesRootNode == null)
+                    {
+                        invitesRootNode = new TreeNode("Requested");
+                        invitesRootNode.ImageKey = ScOnlineState.Pending.ToString();
+                        invitesRootNode.SelectedImageKey = ScOnlineState.Pending.ToString();
+                        treeViewContacts.Nodes.Add(invitesRootNode);
+                    }
+
+                    foreach (TreeNode node in invitesRootNode.Nodes)
+                    {
+                        if (node?.Tag is ContactModel contactsModel)
+                        {
+                            var matchingContact = contacts.FirstOrDefault(o => o.IsAccepted == false && o.Id == contactsModel.Id);
+                            if (matchingContact == null)
+                            {
+                                //Queue node for removal if it is missing from the fresh contact list.
+                                nodesToRemove.Add(node);
+                            }
+                        }
+                    }
+
+                    //Remove nodes queued for deletion.
+                    foreach (var node in nodesToRemove)
+                    {
+                        invitesRootNode.Nodes.Remove(node);
+                    }
+                    nodesToRemove.Clear();
+
+                    foreach (var contact in contacts.Where(o => o.IsAccepted == false))
+                    {
+                        var existingNode = TreeViewHelpers.FindNodeByAccountId(invitesRootNode, contact.Id);
+                        if (existingNode == null)
+                        {
+                            TreeViewHelpers.AddContactNode(invitesRootNode, contact);
+                        }
+                    }
+
+                    TreeViewHelpers.SortChildNodes(invitesRootNode);
+                    invitesRootNode.Expand();
+                }
+                else if (invitesRootNode != null)
+                {
+                    treeViewContacts.Nodes.Remove(invitesRootNode);
                 }
 
                 #endregion

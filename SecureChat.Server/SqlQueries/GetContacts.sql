@@ -4,7 +4,25 @@ SELECT
 	Ac.IsAccepted,
 	A.LastSeen,
 	A.State,
-	A.Status
+	A.Status,
+	1 as RequestedByMe
+FROM
+	Contact as Ac
+INNER JOIN Account as A
+	ON A.Id = Ac.TargetAccountId	
+WHERE
+	Ac.SourceAccountId = @AccountId
+
+UNION
+
+SELECT
+	A.Id,
+	A.DisplayName,
+	Ac.IsAccepted,
+	A.LastSeen,
+	A.State,
+	A.Status,
+	0 as RequestedByMe
 FROM
 	Contact as Ac
 INNER JOIN Account as A
@@ -12,18 +30,3 @@ INNER JOIN Account as A
 WHERE
 	Ac.TargetAccountId = @AccountId
 	
-UNION
-	
-SELECT
-	A.Id,
-	A.DisplayName,
-	Ac.IsAccepted,
-	A.LastSeen,
-	A.State,
-	A.Status
-FROM
-	Contact as Ac
-INNER JOIN Account as A
-	ON A.Id = Ac.TargetAccountId	
-WHERE
-	Ac.SourceAccountId = @AccountId

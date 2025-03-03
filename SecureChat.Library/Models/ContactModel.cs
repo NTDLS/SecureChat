@@ -13,6 +13,7 @@
         /// </summary>
         public string Status { get; set; } = string.Empty;
         public bool IsAccepted { get; set; }
+        public bool RequestedByMe { get; set; }
         public DateTime? LastSeen { get; set; }
     }
 }
