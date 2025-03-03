@@ -63,27 +63,18 @@ namespace SecureChat.Client.Forms
                     try
                     {
                         var keyPair = Crypto.GeneratePublicPrivateKeyPair();
-
-                        var clientConfiguration = new RmConfiguration()
-                        {
-                            //We leave asynchronous notifications disabled for the sake or initializing cryptography.
-                            AsynchronousNotifications = false
-                        };
-                        var client = new RmClient(clientConfiguration);
+                        var client = new RmClient();
+                        client.OnException += Client_OnException;
                         client.Connect(settings.ServerAddress, settings.ServerPort);
 
-                        client.OnException += Client_OnException;
-
                         //Send our public key to the server and wait on a reply of their public key.
-                        var remotePublicKey = client.Query(new ExchangePublicKeyQuery(keyPair.PublicRsaKey)).ContinueWith(o =>
-                        {
-                            return o.Result.PublicRsaKey;
-                        }).Result;
+                        var remotePublicKey = client.Query(new ExchangePublicKeyQuery(keyPair.PublicRsaKey))
+                            .ContinueWith(o => o.Result.PublicRsaKey).Result;
 
                         client.Notify(new InitializeServerClientCryptography());
                         client.SetCryptographyProvider(new ServerClientCryptographyProvider(remotePublicKey, keyPair.PrivateRsaKey));
 
-                        Thread.Sleep(500);
+                        Thread.Sleep(1000); //Give the server a moment to initialize the cryptography.
 
                         bool explicitAway = false;
                         if (settings.Users.TryGetValue(username, out var userPersist))
@@ -119,8 +110,6 @@ namespace SecureChat.Client.Forms
                         }
                         else
                         {
-                            client.Configuration.AsynchronousNotifications = true;
-
                             if (settings.Users.ContainsKey(username) == false)
                             {
                                 settings.Users.Add(username, new PersistedUserState());
