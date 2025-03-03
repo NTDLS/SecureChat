@@ -48,6 +48,7 @@ namespace SecureChat.Library.ReliableMessages
 
         public LoginQueryReply()
         {
+            IsSuccess = false;
             AccountId = Guid.Empty;
             DisplayName = string.Empty;
             Status = string.Empty;

@@ -1,8 +1,6 @@
-﻿using NTDLS.Helpers;
-using NTDLS.Persistence;
+﻿using NTDLS.Persistence;
 using NTDLS.ReliableMessaging;
 using NTDLS.WinFormsHelpers;
-using SecureChat.Client.Models;
 using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
@@ -10,52 +8,51 @@ using System.Diagnostics;
 
 namespace SecureChat.Client.Forms
 {
-    public partial class FormLogin : Form
+    public partial class FormCreateAccount : Form
     {
-        private LoginResult? _loginResult;
-
-        public FormLogin()
+        public FormCreateAccount()
         {
             InitializeComponent();
 
-            AcceptButton = buttonLogin;
-            CancelButton = buttonCancel;
-
-#if DEBUG
-            if (Debugger.IsAttached)
-            {
-                textBoxUsername.Text = "_nop";
-            }
-            else
-            {
-                textBoxUsername.Text = "wana";
-            }
-            textBoxPassword.Text = "password";
-#endif
+            FormClosing += FormCreateAccount_FormClosing;
         }
 
-        /// <summary>
-        /// Prompts the user for login credentials and returns NULL on cancel or a connected reliable messaging client on success.
-        /// </summary>
-        internal LoginResult? DoLogin()
+        private void FormCreateAccount_FormClosing(object? sender, FormClosingEventArgs e)
         {
-            if (ShowDialog() == DialogResult.OK && _loginResult != null)
+            if (MessageBox.Show("Are you sure you want to cancel.",
+                ScConstants.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
             {
-                return _loginResult;
+                e.Cancel = true;
             }
-            return null;
         }
 
-        private void ButtonLogin_Click(object sender, EventArgs e)
+        private void ButtonCancel_Click(object sender, EventArgs e)
         {
-            _loginResult = null;
+            if (MessageBox.Show("Are you sure you want to cancel.",
+                ScConstants.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                this.InvokeClose(DialogResult.Cancel);
+            }
+        }
 
+        private void ButtonCreate_Click(object sender, EventArgs e)
+        {
             try
             {
                 var settings = LocalUserApplicationData.LoadFromDisk(ScConstants.AppName, new PersistedSettings());
 
                 var username = textBoxUsername.GetAndValidateText("A username is required.");
-                var passwordHash = Crypto.ComputeSha256Hash(textBoxPassword.Text);
+                var displayName = textBoxDisplayName.GetAndValidateText("A display name is required.");
+                var password = textBoxPassword.GetAndValidateText("A password is required.");
+                var confirmPassword = textBoxPassword.GetAndValidateText("A confirm password is required.");
+
+                if(password != confirmPassword)
+                {
+                    throw new Exception("Passwords do not match.");
+                }   
+
+                var passwordHash = Crypto.ComputeSha256Hash(password);
+
                 var progressForm = new ProgressForm(ScConstants.AppName, "Logging in...");
 
                 progressForm.Execute(() =>
@@ -83,50 +80,17 @@ namespace SecureChat.Client.Forms
                         client.Notify(new InitializeServerClientCryptography());
                         client.SetCryptographyProvider(new ServerClientCryptographyProvider(remotePublicKey, keyPair.PrivateRsaKey));
 
-                        Thread.Sleep(500);
-
-                        bool explicitAway = false;
-                        if (settings.Users.TryGetValue(username, out var userPersist))
-                        {
-                            explicitAway = userPersist.ExplicitAway;
-                        }
-
-                        var isSuccess = client.Query(new LoginQuery(username, passwordHash, explicitAway)).ContinueWith(o =>
+                        var isSuccess = client.Query(new CreateAccountQuery(username, displayName, passwordHash)).ContinueWith(o =>
                         {
                             if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
                             {
                                 throw new Exception(o.Result.ErrorMessage);
                             }
 
-                            if (o.Result.IsSuccess)
-                            {
-                                _loginResult = new LoginResult(client,
-                                    o.Result.AccountId.EnsureNotNull(),
-                                    o.Result.Username.EnsureNotNull(),
-                                    o.Result.DisplayName.EnsureNotNull(),
-                                    o.Result.Status.EnsureNotNull()
-                                    );
-                            }
-
-                            return o.Result.IsSuccess;
+                            return !o.IsFaulted && o.Result.IsSuccess;
                         }).Result;
 
-                        client.OnException -= Client_OnException;
-
-                        if (!isSuccess)
-                        {
-                            client.Disconnect();
-                        }
-                        else
-                        {
-                            client.Configuration.AsynchronousNotifications = true;
-
-                            if (settings.Users.ContainsKey(username) == false)
-                            {
-                                settings.Users.Add(username, new PersistedUserState());
-                            }
-                            LocalUserApplicationData.SaveToDisk(ScConstants.AppName, settings);
-                        }
+                        client.Disconnect();
 
                         this.InvokeClose(isSuccess ? DialogResult.OK : DialogResult.Cancel);
                     }
@@ -147,17 +111,6 @@ namespace SecureChat.Client.Forms
         {
             Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-
-        private void ButtonCancel_Click(object sender, EventArgs e)
-        {
-            this.InvokeClose(DialogResult.Cancel);
-        }
-
-        private void LinkLabelCreateAccount_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            using var form = new FormCreateAccount();
-            form.ShowDialog();
         }
     }
 }

@@ -36,17 +36,14 @@
             pictureBoxLogo = new PictureBox();
             buttonLogin = new Button();
             buttonCancel = new Button();
-            textBoxServer = new TextBox();
-            labelServer = new Label();
-            labelPort = new Label();
-            textBoxPort = new TextBox();
+            linkLabelCreateAccount = new LinkLabel();
             ((System.ComponentModel.ISupportInitialize)pictureBoxLogo).BeginInit();
             SuspendLayout();
             // 
             // labelUsername
             // 
             labelUsername.AutoSize = true;
-            labelUsername.Location = new Point(100, 57);
+            labelUsername.Location = new Point(100, 13);
             labelUsername.Name = "labelUsername";
             labelUsername.Size = new Size(60, 15);
             labelUsername.TabIndex = 0;
@@ -54,7 +51,7 @@
             // 
             // textBoxUsername
             // 
-            textBoxUsername.Location = new Point(100, 75);
+            textBoxUsername.Location = new Point(100, 31);
             textBoxUsername.Name = "textBoxUsername";
             textBoxUsername.Size = new Size(197, 23);
             textBoxUsername.TabIndex = 1;
@@ -62,7 +59,7 @@
             // labelPassword
             // 
             labelPassword.AutoSize = true;
-            labelPassword.Location = new Point(100, 105);
+            labelPassword.Location = new Point(100, 61);
             labelPassword.Name = "labelPassword";
             labelPassword.Size = new Size(57, 15);
             labelPassword.TabIndex = 2;
@@ -70,7 +67,7 @@
             // 
             // textBoxPassword
             // 
-            textBoxPassword.Location = new Point(100, 123);
+            textBoxPassword.Location = new Point(100, 79);
             textBoxPassword.Name = "textBoxPassword";
             textBoxPassword.PasswordChar = '*';
             textBoxPassword.Size = new Size(197, 23);
@@ -88,7 +85,7 @@
             // 
             // buttonLogin
             // 
-            buttonLogin.Location = new Point(119, 152);
+            buttonLogin.Location = new Point(141, 130);
             buttonLogin.Name = "buttonLogin";
             buttonLogin.Size = new Size(75, 23);
             buttonLogin.TabIndex = 3;
@@ -98,7 +95,7 @@
             // 
             // buttonCancel
             // 
-            buttonCancel.Location = new Point(200, 152);
+            buttonCancel.Location = new Point(222, 130);
             buttonCancel.Name = "buttonCancel";
             buttonCancel.Size = new Size(75, 23);
             buttonCancel.TabIndex = 4;
@@ -106,47 +103,23 @@
             buttonCancel.UseVisualStyleBackColor = true;
             buttonCancel.Click += ButtonCancel_Click;
             // 
-            // textBoxServer
+            // linkLabelCreateAccount
             // 
-            textBoxServer.Location = new Point(100, 27);
-            textBoxServer.Name = "textBoxServer";
-            textBoxServer.Size = new Size(136, 23);
-            textBoxServer.TabIndex = 5;
-            // 
-            // labelServer
-            // 
-            labelServer.AutoSize = true;
-            labelServer.Location = new Point(100, 9);
-            labelServer.Name = "labelServer";
-            labelServer.Size = new Size(39, 15);
-            labelServer.TabIndex = 7;
-            labelServer.Text = "Server";
-            // 
-            // labelPort
-            // 
-            labelPort.AutoSize = true;
-            labelPort.Location = new Point(242, 9);
-            labelPort.Name = "labelPort";
-            labelPort.Size = new Size(29, 15);
-            labelPort.TabIndex = 8;
-            labelPort.Text = "Port";
-            // 
-            // textBoxPort
-            // 
-            textBoxPort.Location = new Point(242, 27);
-            textBoxPort.Name = "textBoxPort";
-            textBoxPort.Size = new Size(55, 23);
-            textBoxPort.TabIndex = 6;
+            linkLabelCreateAccount.AutoSize = true;
+            linkLabelCreateAccount.Location = new Point(100, 105);
+            linkLabelCreateAccount.Name = "linkLabelCreateAccount";
+            linkLabelCreateAccount.Size = new Size(194, 15);
+            linkLabelCreateAccount.TabIndex = 9;
+            linkLabelCreateAccount.TabStop = true;
+            linkLabelCreateAccount.Text = "Don't have an account? Create one.";
+            linkLabelCreateAccount.LinkClicked += LinkLabelCreateAccount_LinkClicked;
             // 
             // FormLogin
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(309, 186);
-            Controls.Add(textBoxPort);
-            Controls.Add(labelPort);
-            Controls.Add(textBoxServer);
-            Controls.Add(labelServer);
+            ClientSize = new Size(309, 161);
+            Controls.Add(linkLabelCreateAccount);
             Controls.Add(buttonCancel);
             Controls.Add(buttonLogin);
             Controls.Add(pictureBoxLogo);
@@ -175,9 +148,6 @@
         private PictureBox pictureBoxLogo;
         private Button buttonLogin;
         private Button buttonCancel;
-        private TextBox textBoxServer;
-        private Label labelServer;
-        private Label labelPort;
-        private TextBox textBoxPort;
+        private LinkLabel linkLabelCreateAccount;
     }
 }

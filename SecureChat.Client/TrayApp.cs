@@ -108,8 +108,8 @@ namespace SecureChat.Client
                             formHome.CreateControl(); //Force the window handle to be created before the form is shown,
                             var handle = formHome.Handle; // Accessing the Handle property forces handle creation
 
-                            var persistedState = LocalUserApplicationData.LoadFromDisk(ScConstants.AppName, new PersistedState());
-                            if (persistedState.Users.TryGetValue(loginResult.Username, out var persistedUserState) == false)
+                            var settings = LocalUserApplicationData.LoadFromDisk(ScConstants.AppName, new PersistedSettings());
+                            if (settings.Users.TryGetValue(loginResult.Username, out var persistedUserState) == false)
                             {
                                 persistedUserState = new();
                             }
@@ -249,17 +249,17 @@ namespace SecureChat.Client
 
                     UpdateClientState(menuItem.Checked ? ScOnlineState.Away : ScOnlineState.Online);
 
-                    var persistedState = LocalUserApplicationData.LoadFromDisk(ScConstants.AppName, new PersistedState());
+                    var settings = LocalUserApplicationData.LoadFromDisk(ScConstants.AppName, new PersistedSettings());
 
-                    if (persistedState.Users.TryGetValue(LocalSession.Current.Username, out var persistedUserState) == false)
+                    if (settings.Users.TryGetValue(LocalSession.Current.Username, out var persistedUserState) == false)
                     {
                         //Add a default state if its not already present.
                         persistedUserState = new();
-                        persistedState.Users.Add(LocalSession.Current.Username, persistedUserState);
+                        settings.Users.Add(LocalSession.Current.Username, persistedUserState);
                     }
 
                     persistedUserState.ExplicitAway = LocalSession.Current.ExplicitAway;
-                    LocalUserApplicationData.SaveToDisk(ScConstants.AppName, persistedState);
+                    LocalUserApplicationData.SaveToDisk(ScConstants.AppName, settings);
                 }
             }
             catch (Exception ex)

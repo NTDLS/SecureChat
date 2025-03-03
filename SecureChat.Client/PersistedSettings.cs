@@ -1,10 +1,15 @@
-﻿namespace SecureChat.Client
+﻿using SecureChat.Library;
+
+namespace SecureChat.Client
 {
     /// <summary>
     /// State that is saved to disk.
     /// </summary>
-    internal class PersistedState
+    internal class PersistedSettings
     {
+        public string ServerAddress { get; set; } = ScConstants.DefaultServerAddress;
+        public int ServerPort { get; set; } = ScConstants.DefaultServerPort;
+
         /// <summary>
         /// Per user state that is saved to disk.
         /// </summary>
