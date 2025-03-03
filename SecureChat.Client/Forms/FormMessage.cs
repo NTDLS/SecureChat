@@ -1,4 +1,5 @@
-﻿using SecureChat.Client.Controls;
+﻿using NTDLS.Helpers;
+using SecureChat.Client.Controls;
 using SecureChat.Library;
 
 namespace SecureChat.Client.Forms
@@ -6,7 +7,7 @@ namespace SecureChat.Client.Forms
     public partial class FormMessage : Form
     {
         private readonly ActiveChat _activeChat;
-
+        private readonly string[] allowedFileTypes = { "bmp", "jpg", "jpeg", "png", "gif" };
         private DateTime? _lastMessageReceived;
 
         internal FormMessage(ActiveChat activeChat)
@@ -107,7 +108,7 @@ namespace SecureChat.Client.Forms
 
         #region Append Flow Controls.
 
-        private void AppendFlowControl(FlowLayoutPanel control)
+        public void AppendFlowControl(FlowLayoutPanel control)
         {
             if (InvokeRequired)
             {
@@ -196,9 +197,26 @@ namespace SecureChat.Client.Forms
             openFileDialog.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.gif";
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                byte[] imageBytes = File.ReadAllBytes(openFileDialog.FileName);
+                var fileExtension = Path.GetExtension(openFileDialog.FileName).ToLower();
 
-                AppendFlowControl(new FlowControlImage(imageBytes));
+                if (!allowedFileTypes.Contains(fileExtension.Substring(1)))
+                {
+                    AppendSystemMessageLine($"Unsupported file type: {fileExtension}.", Color.Red);
+                    return;
+                }
+
+                long fileSize = (new FileInfo(openFileDialog.FileName)).Length;
+
+                if (fileSize > ScConstants.DefaultMaxFileTransmissionSize)
+                {
+                    AppendSystemMessageLine($"File is too large {Formatters.FileSize(fileSize)}, max size is {Formatters.FileSize(ScConstants.DefaultMaxFileTransmissionSize)}.", Color.Red);
+                }
+                else if (fileSize > 0)
+                {
+                    var imageBytes = File.ReadAllBytes(openFileDialog.FileName);
+
+                    Task.Run(() => _activeChat.TransmitFile(openFileDialog.FileName, imageBytes));
+                }
             }
         }
 

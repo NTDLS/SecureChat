@@ -1,5 +1,7 @@
 ﻿using NTDLS.NASCCL;
+using SecureChat.Client.Controls;
 using SecureChat.Client.Forms;
+using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
 using System.Text;
 
@@ -13,6 +15,7 @@ namespace SecureChat.Client
         public string DisplayName { get; private set; }
         public Guid ConnectionId { get; private set; }
         private readonly CryptoStream _streamCryptography;
+        public Dictionary<Guid, FileReceiveBuffer> FileReceiveBuffers { get; set; } = new();
 
         public ActiveChat(Guid connectionId, Guid accountId, string displayName, byte[] sharedSecret)
         {
@@ -22,7 +25,7 @@ namespace SecureChat.Client
             DisplayName = displayName;
         }
 
-        private string Decrypt(byte[] cipherText)
+        public string DecryptString(byte[] cipherText)
         {
             lock (_streamCryptography)
             {
@@ -32,11 +35,21 @@ namespace SecureChat.Client
             }
         }
 
-        private byte[] Encrypt(string plainText)
+        public byte[] EncryptString(string plainText)
         {
             lock (_streamCryptography)
             {
                 var cipherText = _streamCryptography.Cipher(plainText);
+                _streamCryptography.ResetStream();
+                return cipherText;
+            }
+        }
+
+        public byte[] Cipher(byte[] bytes)
+        {
+            lock (_streamCryptography)
+            {
+                var cipherText = _streamCryptography.Cipher(bytes);
                 _streamCryptography.ResetStream();
                 return cipherText;
             }
@@ -53,6 +66,16 @@ namespace SecureChat.Client
             Form?.AppendSystemMessageLine($"Chat ended at {DateTime.Now}.", Color.Red);
         }
 
+        public void ReceiveImage(byte[] imageBytes)
+        {
+            if (IsTerminated)
+            {
+                return;
+            }
+
+            Form?.AppendFlowControl(new FlowControlImage(imageBytes));
+        }
+
         public void ReceiveMessage(byte[] cipherText)
         {
             if (IsTerminated)
@@ -60,7 +83,7 @@ namespace SecureChat.Client
                 return;
             }
 
-            Form?.AppendReceivedMessageLine(DisplayName, Decrypt(cipherText), Color.DarkRed);
+            Form?.AppendReceivedMessageLine(DisplayName, DecryptString(cipherText), Color.DarkRed);
         }
 
         public bool SendMessage(string plaintText)
@@ -71,7 +94,7 @@ namespace SecureChat.Client
             }
 
             return LocalSession.Current?.Client.Query(new ExchangePeerToPeerQuery(
-                    ConnectionId, LocalSession.Current.AccountId, Encrypt(plaintText))).ContinueWith(o =>
+                    ConnectionId, LocalSession.Current.AccountId, EncryptString(plaintText))).ContinueWith(o =>
                     {
                         if (!o.IsFaulted && o.Result.IsSuccess)
                         {
@@ -79,6 +102,45 @@ namespace SecureChat.Client
                         }
                         return false;
                     }).Result ?? false;
+        }
+
+        public void TransmitFile(string fileName, byte[] fileBytes)
+        {
+            var fileId = Guid.NewGuid();
+
+            LocalSession.Current?.Client.Notify(new FileTransmissionBegin(ConnectionId, LocalSession.Current.AccountId, fileId, fileName, fileBytes.Length));
+
+            using (MemoryStream memoryStream = new MemoryStream(fileBytes))
+            {
+                var buffer = new byte[ScConstants.DefaultFileTransmissionChunkSize];
+
+                int bytesRead;
+
+                while ((bytesRead = memoryStream.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    var chunkToSend = buffer; // Default: Full buffer
+                    if (bytesRead < buffer.Length) // Handle last partial chunk
+                    {
+                        chunkToSend = new byte[bytesRead];
+                        Array.Copy(buffer, chunkToSend, bytesRead);
+                    }
+
+                    LocalSession.Current?.Client.Notify(new FileTransmissionChunk(ConnectionId, LocalSession.Current.AccountId, fileId, Cipher(chunkToSend)));
+                }
+            }
+
+            LocalSession.Current?.Client.Query(new FileTransmissionEnd(ConnectionId, LocalSession.Current.AccountId, fileId)).ContinueWith(o =>
+            {
+                if (!o.IsFaulted && o.Result.IsSuccess)
+                {
+                    //Only show the image locally if the file was successfully transmitted.
+                    Form?.AppendFlowControl(new FlowControlImage(fileBytes));
+                }
+                else
+                {
+                    Form?.AppendSystemMessageLine($"Failed to transmit file.", Color.Red);
+                }
+            });
         }
     }
 }

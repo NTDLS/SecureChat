@@ -17,6 +17,98 @@ namespace SecureChat.Client
         {
         }
 
+        /// <summary>
+        /// The client is beginning to transmit a file.
+        /// </summary>
+        public void FileTransmissionBegin(RmContext context, FileTransmissionBegin param)
+        {
+            try
+            {
+                if (LocalSession.Current == null)
+                    throw new Exception("Local connection is not established.");
+
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+                var activeChat = LocalSession.Current.ActiveChats.FirstOrDefault(o => o.AccountId == param.AccountId)
+                    ?? throw new Exception("Chat session was not found.");
+
+                activeChat.FileReceiveBuffers.Add(param.FileId, new FileReceiveBuffer(param.FileId, param.FileName, param.FileSize));
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// The client transmitting a file chunk.
+        /// </summary>
+        public void FileTransmissionChunk(RmContext context, FileTransmissionChunk param)
+        {
+            try
+            {
+                if (LocalSession.Current == null)
+                    throw new Exception("Local connection is not established.");
+
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+                var activeChat = LocalSession.Current.ActiveChats.FirstOrDefault(o => o.AccountId == param.AccountId)
+                    ?? throw new Exception("Chat session was not found.");
+
+                if (activeChat.FileReceiveBuffers.TryGetValue(param.FileId, out var buffer))
+                {
+                    buffer.AppendData(activeChat.Cipher(param.Bytes));
+                }
+                else
+                {
+                    throw new Exception("File buffer not found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// The client has finished transmitting a file.
+        /// </summary>
+        public FileTransmissionEndReply FileTransmissionEnd(RmContext context, FileTransmissionEnd param)
+        {
+            try
+            {
+                if (LocalSession.Current == null)
+                    throw new Exception("Local connection is not established.");
+
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+                var activeChat = LocalSession.Current.ActiveChats.FirstOrDefault(o => o.AccountId == param.AccountId)
+                    ?? throw new Exception("Chat session was not found.");
+
+                if (activeChat.FileReceiveBuffers.TryGetValue(param.FileId, out var buffer))
+                {
+                    var imageBytes = buffer.GetFileBytes();
+                    activeChat.ReceiveImage(imageBytes);
+                    buffer.Dispose();
+                    activeChat.FileReceiveBuffers.Remove(param.FileId);
+                }
+                else
+                {
+                    throw new Exception("File buffer not found.");
+                }
+
+                return new FileTransmissionEndReply();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                return new FileTransmissionEndReply(ex);
+            }
+        }
+
         public void TerminateChat(RmContext context, TerminateChat param)
         {
             try
@@ -25,7 +117,7 @@ namespace SecureChat.Client
                     throw new Exception("Local connection is not established.");
 
                 if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Message cannot be receive until cryptography has been initialized.");
+                    throw new Exception("Cryptography has not been initialized.");
 
                 var activeChat = LocalSession.Current.ActiveChats.FirstOrDefault(o => o.AccountId == param.AccountId)
                     ?? throw new Exception("Chat session was not found.");
@@ -46,7 +138,7 @@ namespace SecureChat.Client
                     throw new Exception("Local connection is not established.");
 
                 if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Message cannot be receive until cryptography has been initialized.");
+                    throw new Exception("Cryptography has not been initialized.");
 
                 var activeChat = LocalSession.Current.ActiveChats.FirstOrDefault(o => o.AccountId == param.MessageFromAccountId)
                     ?? throw new Exception("Chat session was not found.");

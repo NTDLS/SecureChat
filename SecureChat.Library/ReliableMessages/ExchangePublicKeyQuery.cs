@@ -6,6 +6,7 @@ namespace SecureChat.Library.ReliableMessages
         : IRmQuery<ExchangePublicKeyQueryReply>
     {
         public byte[] PublicRsaKey { get; set; }
+
         public ExchangePublicKeyQuery(byte[] publicRsaKey)
         {
             PublicRsaKey = publicRsaKey;

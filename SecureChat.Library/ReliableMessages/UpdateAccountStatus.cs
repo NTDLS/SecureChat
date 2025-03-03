@@ -11,7 +11,6 @@ namespace SecureChat.Library.ReliableMessages
         /// User supplied status text.
         /// </summary>
         public string Status { get; set; }
-        public Guid ConnectionId { get; set; }
         public Guid AccountId { get; set; }
 
         public UpdateAccountStatus(Guid accountId, ScOnlineState state, string status)

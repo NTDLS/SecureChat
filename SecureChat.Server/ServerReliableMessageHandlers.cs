@@ -26,6 +26,64 @@ namespace SecureChat.Server
         }
 
         /// <summary>
+        /// The client is beginning to transmit a file. Relay it to the appropriate client.
+        /// </summary>
+        public void FileTransmissionBegin(RmContext context, FileTransmissionBegin param)
+        {
+            try
+            {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+                _chatService.RmServer.Notify(param.ConnectionId, param);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// The client transmitting a file chunk. Relay it to the appropriate client.
+        /// </summary>
+        public void FileTransmissionChunk(RmContext context, FileTransmissionChunk param)
+        {
+            try
+            {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+                _chatService.RmServer.Notify(param.ConnectionId, param);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// The client has finished transmitting a file. Relay it to the appropriate client.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public FileTransmissionEndReply FileTransmissionEnd(RmContext context, FileTransmissionEnd param)
+        {
+            try
+            {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+                return _chatService.RmServer.Query(param.ConnectionId, param).Result;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                return new FileTransmissionEndReply(ex);
+            }
+        }
+
+        /// <summary>
         /// A client is letting the server know that they are terminating the chat.
         /// Relay the message to the other client.
         /// </summary>
