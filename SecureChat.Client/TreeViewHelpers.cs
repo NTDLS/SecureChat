@@ -39,7 +39,7 @@ namespace SecureChat.Client
             else if (state == ScOnlineState.Online || state == ScOnlineState.Away)
             {
                 //If the acquaintance is "online" or "Away" but was last seen a "long time ago" then show them as offline.
-                if ((DateTime.UtcNow - acquaintance.LastSeen.Value).TotalSeconds > ScConstants.DefaultAutoAwayIdleSeconds)
+                if ((DateTime.UtcNow - acquaintance.LastSeen.Value).TotalSeconds > ScConstants.OfflineLastSeenSeconds)
                 {
                     state = ScOnlineState.Offline;
                 }

@@ -1,5 +1,4 @@
 ﻿using NTDLS.Helpers;
-using NTDLS.Persistence;
 using NTDLS.ReliableMessaging;
 using NTDLS.WinFormsHelpers;
 using SecureChat.Client.Models;
@@ -52,8 +51,6 @@ namespace SecureChat.Client.Forms
 
             try
             {
-                var settings = LocalUserApplicationData.LoadFromDisk(ScConstants.AppName, new PersistedSettings());
-
                 var username = textBoxUsername.GetAndValidateText("A username is required.");
                 var passwordHash = Crypto.ComputeSha256Hash(textBoxPassword.Text);
                 var progressForm = new ProgressForm(ScConstants.AppName, "Logging in...");
@@ -65,7 +62,7 @@ namespace SecureChat.Client.Forms
                         var keyPair = Crypto.GeneratePublicPrivateKeyPair();
                         var client = new RmClient();
                         client.OnException += Client_OnException;
-                        client.Connect(settings.ServerAddress, settings.ServerPort);
+                        client.Connect(Settings.Instance.ServerAddress, Settings.Instance.ServerPort);
 
                         //Send our public key to the server and wait on a reply of their public key.
                         var remotePublicKey = client.Query(new ExchangePublicKeyQuery(keyPair.PublicRsaKey))
@@ -77,7 +74,7 @@ namespace SecureChat.Client.Forms
                         Thread.Sleep(1000); //Give the server a moment to initialize the cryptography.
 
                         bool explicitAway = false;
-                        if (settings.Users.TryGetValue(username, out var userPersist))
+                        if (Settings.Instance.Users.TryGetValue(username, out var userPersist))
                         {
                             //If the user has an explicit away state, send it to the server at
                             //  login so the server can update the user's status appropriately.
@@ -112,11 +109,11 @@ namespace SecureChat.Client.Forms
                         }
                         else
                         {
-                            if (settings.Users.ContainsKey(username) == false)
+                            if (Settings.Instance.Users.ContainsKey(username) == false)
                             {
-                                settings.Users.Add(username, new PersistedUserState());
+                                Settings.Instance.Users.Add(username, new PersistedUserState());
+                                Settings.Save();
                             }
-                            LocalUserApplicationData.SaveToDisk(ScConstants.AppName, settings);
                         }
 
                         this.InvokeClose(isSuccess ? DialogResult.OK : DialogResult.Cancel);

@@ -1,6 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using NTDLS.Persistence;
-using SecureChat.Library;
 using Serilog;
 
 namespace SecureChat.Client
@@ -19,8 +17,7 @@ namespace SecureChat.Client
                 .CreateLogger();
 
             //Create a default persisted state if one does not exist.
-            var settings = LocalUserApplicationData.LoadFromDisk(ScConstants.AppName, new PersistedSettings());
-            LocalUserApplicationData.SaveToDisk(ScConstants.AppName, settings);
+            Settings.Save();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

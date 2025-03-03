@@ -1,6 +1,5 @@
 ﻿using NTDLS.Helpers;
 using SecureChat.Client.Controls;
-using SecureChat.Library;
 
 namespace SecureChat.Client.Forms
 {
@@ -119,7 +118,7 @@ namespace SecureChat.Client.Forms
             lock (flowPanel)
             {
                 flowPanel.Controls.Add(control);
-                while (flowPanel.Controls.Count > ScConstants.DefaultMaxMessages)
+                while (flowPanel.Controls.Count > Settings.Instance.MaxMessages)
                 {
                     flowPanel.Controls.RemoveAt(0);
                 }
@@ -207,9 +206,9 @@ namespace SecureChat.Client.Forms
 
                 long fileSize = (new FileInfo(openFileDialog.FileName)).Length;
 
-                if (fileSize > ScConstants.DefaultMaxFileTransmissionSize)
+                if (fileSize > Settings.Instance.MaxFileTransmissionSize)
                 {
-                    AppendSystemMessageLine($"File is too large {Formatters.FileSize(fileSize)}, max size is {Formatters.FileSize(ScConstants.DefaultMaxFileTransmissionSize)}.", Color.Red);
+                    AppendSystemMessageLine($"File is too large {Formatters.FileSize(fileSize)}, max size is {Formatters.FileSize(Settings.Instance.MaxFileTransmissionSize)}.", Color.Red);
                 }
                 else if (fileSize > 0)
                 {

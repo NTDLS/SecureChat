@@ -1,5 +1,4 @@
-﻿using NTDLS.Persistence;
-using NTDLS.ReliableMessaging;
+﻿using NTDLS.ReliableMessaging;
 using NTDLS.WinFormsHelpers;
 using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
@@ -53,8 +52,6 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                var settings = LocalUserApplicationData.LoadFromDisk(ScConstants.AppName, new PersistedSettings());
-
                 var username = textBoxUsername.GetAndValidateText("A username is required.");
                 var displayName = textBoxDisplayName.GetAndValidateText("A display name is required.");
                 var password = textBoxPassword.GetAndValidateText("A password is required.");
@@ -76,7 +73,7 @@ namespace SecureChat.Client.Forms
                         var keyPair = Crypto.GeneratePublicPrivateKeyPair();
                         var client = new RmClient();
                         client.OnException += Client_OnException;
-                        client.Connect(settings.ServerAddress, settings.ServerPort);
+                        client.Connect(Settings.Instance.ServerAddress, Settings.Instance.ServerPort);
 
                         //Send our public key to the server and wait on a reply of their public key.
                         var remotePublicKey = client.Query(new ExchangePublicKeyQuery(keyPair.PublicRsaKey))

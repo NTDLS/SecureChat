@@ -1,7 +1,6 @@
 ﻿using NTDLS.NASCCL;
 using SecureChat.Client.Controls;
 using SecureChat.Client.Forms;
-using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
 using System.Text;
 
@@ -112,7 +111,7 @@ namespace SecureChat.Client
 
             using (MemoryStream memoryStream = new MemoryStream(fileBytes))
             {
-                var buffer = new byte[ScConstants.DefaultFileTransmissionChunkSize];
+                var buffer = new byte[Settings.Instance.FileTransmissionChunkSize];
 
                 int bytesRead;
 

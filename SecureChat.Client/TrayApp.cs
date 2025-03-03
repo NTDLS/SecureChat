@@ -1,5 +1,4 @@
 ﻿using NTDLS.Helpers;
-using NTDLS.Persistence;
 using NTDLS.ReliableMessaging;
 using SecureChat.Client.Forms;
 using SecureChat.Client.Properties;
@@ -108,8 +107,7 @@ namespace SecureChat.Client
                             formHome.CreateControl(); //Force the window handle to be created before the form is shown,
                             var handle = formHome.Handle; // Accessing the Handle property forces handle creation
 
-                            var settings = LocalUserApplicationData.LoadFromDisk(ScConstants.AppName, new PersistedSettings());
-                            if (settings.Users.TryGetValue(loginResult.Username, out var persistedUserState) == false)
+                            if (Settings.Instance.Users.TryGetValue(loginResult.Username, out var persistedUserState) == false)
                             {
                                 persistedUserState = new();
                             }
@@ -249,17 +247,15 @@ namespace SecureChat.Client
 
                     UpdateClientState(menuItem.Checked ? ScOnlineState.Away : ScOnlineState.Online);
 
-                    var settings = LocalUserApplicationData.LoadFromDisk(ScConstants.AppName, new PersistedSettings());
-
-                    if (settings.Users.TryGetValue(LocalSession.Current.Username, out var persistedUserState) == false)
+                    if (Settings.Instance.Users.TryGetValue(LocalSession.Current.Username, out var persistedUserState) == false)
                     {
                         //Add a default state if its not already present.
                         persistedUserState = new();
-                        settings.Users.Add(LocalSession.Current.Username, persistedUserState);
+                        Settings.Instance.Users.Add(LocalSession.Current.Username, persistedUserState);
                     }
 
                     persistedUserState.ExplicitAway = LocalSession.Current.ExplicitAway;
-                    LocalUserApplicationData.SaveToDisk(ScConstants.AppName, settings);
+                    Settings.Save();
                 }
             }
             catch (Exception ex)

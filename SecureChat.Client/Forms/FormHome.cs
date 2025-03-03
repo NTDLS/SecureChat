@@ -122,7 +122,7 @@ namespace SecureChat.Client.Forms
                 DeltaRepopulate();
 
                 var idleTime = Interop.GetIdleTime();
-                if (idleTime.TotalSeconds >= ScConstants.DefaultAutoAwayIdleSeconds)
+                if (idleTime.TotalSeconds >= Settings.Instance.AutoAwayIdleSeconds)
                 {
                     LocalSession.Current.Client.Notify(new UpdateAccountStatus(
                             LocalSession.Current.AccountId,

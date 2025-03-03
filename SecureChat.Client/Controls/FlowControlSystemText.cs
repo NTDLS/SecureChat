@@ -14,7 +14,7 @@
                 Text = message,
                 AutoSize = true,
                 ForeColor = color ?? Color.Gray,
-                Font = ConstantFonts.Italic,
+                Font = Fonts.Instance.Italic,
                 Padding = new Padding(0)
             };
             Controls.Add(lblMessage);

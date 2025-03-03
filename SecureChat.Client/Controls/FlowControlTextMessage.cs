@@ -14,7 +14,7 @@
                 Text = displayName,
                 AutoSize = true,
                 ForeColor = color ?? Color.Black,
-                Font = ConstantFonts.Bold,
+                Font = Fonts.Instance.Bold,
                 //BackColor = Color.Gray,
                 Padding = new Padding(0),
                 Margin = new Padding(0)
@@ -26,7 +26,7 @@
                 Text = message,
                 AutoSize = true,
                 ForeColor = Color.Black,
-                Font = ConstantFonts.Regular,
+                Font = Fonts.Instance.Regular,
                 //BackColor = Color.LightGray,
                 Padding = new Padding(0),
                 Margin = new Padding(0)
