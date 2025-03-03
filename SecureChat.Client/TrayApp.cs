@@ -21,7 +21,7 @@ namespace SecureChat.Client
             {
                 _trayIcon = new NotifyIcon
                 {
-                    Icon = Icon.ExtractIcon(Application.ExecutablePath, 0, 16),
+                    Icon = Imaging.LoadIconFromResources(Resources.Offline16),
                     Text = ScConstants.AppName,
                     Visible = true,
                     ContextMenuStrip = new ContextMenuStrip()
@@ -136,6 +136,7 @@ namespace SecureChat.Client
                                 loginResult.DisplayName)
                             {
                                 Status = loginResult.Status,
+                                State = persistedUserState.ExplicitAway ? ScOnlineState.Away : ScOnlineState.Online,
                                 ExplicitAway = persistedUserState.ExplicitAway
                             };
 
@@ -187,14 +188,16 @@ namespace SecureChat.Client
                 {
                     return;
                 }
-                if (state == LocalSession.Current?.ConnectionState)
+                if (state == LocalSession.Current?.State)
                 {
                     return;
                 }
                 if (LocalSession.Current != null)
                 {
-                    LocalSession.Current.ConnectionState = state;
+                    LocalSession.Current.State = state;
+                    LocalSession.Current.FormHome.Repopulate();
                 }
+
 
                 _trayIcon.ContextMenuStrip.EnsureNotNull();
 

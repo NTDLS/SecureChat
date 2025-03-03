@@ -25,7 +25,7 @@ namespace SecureChat.Client
         public string Status { get; set; } = string.Empty;
         public bool ExplicitAway { get; set; }
 
-        public ScOnlineState ConnectionState { get; set; } = ScOnlineState.Offline;
+        public ScOnlineState State { get; set; } = ScOnlineState.Offline;
 
         public LocalSession(NotifyIcon trayIcon, FormHome formHome, RmClient client, Guid accountId, string username, string displayName)
         {

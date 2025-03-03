@@ -148,8 +148,8 @@ namespace SecureChat.Client.Forms
                     }
                     else
                     {
-                        existingRootNode.ImageKey = LocalSession.Current.ConnectionState.ToString();
-                        existingRootNode.SelectedImageKey = LocalSession.Current.ConnectionState.ToString();
+                        existingRootNode.ImageKey = LocalSession.Current.State.ToString();
+                        existingRootNode.SelectedImageKey = LocalSession.Current.State.ToString();
                     }
 
                     return existingRootNode;
@@ -169,8 +169,8 @@ namespace SecureChat.Client.Forms
                 }
                 else
                 {
-                    rootNode.ImageKey = LocalSession.Current.ConnectionState.ToString();
-                    rootNode.SelectedImageKey = LocalSession.Current.ConnectionState.ToString();
+                    rootNode.ImageKey = LocalSession.Current.State.ToString();
+                    rootNode.SelectedImageKey = LocalSession.Current.State.ToString();
                 }
 
                 treeViewContacts.Nodes.Add(rootNode);
@@ -343,11 +343,24 @@ namespace SecureChat.Client.Forms
             }
         }
 
+        private readonly Lock _repopulateLock = new();
+        private bool _repopulateInProgress;
+
         public void Repopulate()
         {
-            if (LocalSession.Current == null)
+            lock (_repopulateLock)
             {
-                this.InvokeMessageBox("Local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
+                if(_repopulateInProgress)
+                {
+                    return;
+                }
+                _repopulateInProgress = true;
+            }
+
+            if (LocalSession.Current == null || LocalSession.Current.Client.IsConnected == false)
+            {
+                _repopulateInProgress = false;
+                LocalSession.Current = null;
                 this.InvokeClose(DialogResult.No);
                 return;
             }
@@ -358,22 +371,30 @@ namespace SecureChat.Client.Forms
                 {
                     LocalSession.Current.Client.Query(new GetContactsQuery()).ContinueWith(o =>
                     {
-                        if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
+                        try
                         {
-                            throw new Exception(o.Result.ErrorMessage);
-                        }
+                            if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
+                            {
+                                throw new Exception(o.Result.ErrorMessage);
+                            }
 
-                        if (!o.IsFaulted && o.Result.IsSuccess)
+                            if (!o.IsFaulted && o.Result.IsSuccess)
+                            {
+                                DeltaRepopulateTree(o.Result.Contacts);
+                            }
+
+                            return !o.IsFaulted && o.Result.IsSuccess;
+                        }
+                        finally
                         {
-                            DeltaRepopulateTree(o.Result.Contacts);
+                            _repopulateInProgress = false;
                         }
-
-                        return !o.IsFaulted && o.Result.IsSuccess;
                     });
                 }
                 catch (Exception ex)
                 {
                     this.InvokeMessageBox(ex.GetBaseException().Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                    _repopulateInProgress = false;
                 }
             });
         }
@@ -556,7 +577,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                using var formAboutOnExit = new FormAbout(true);
+                using var formAboutOnExit = new FormAbout(false);
                 formAboutOnExit.ShowDialog();
             }
             catch (Exception ex)
