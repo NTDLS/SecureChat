@@ -99,7 +99,7 @@ namespace SecureChat.Client.Forms
                                     o.Result.AccountId.EnsureNotNull(),
                                     o.Result.Username.EnsureNotNull(),
                                     o.Result.DisplayName.EnsureNotNull(),
-                                    o.Result.Status.EnsureNotNull()
+                                    o.Result.ProfileJson.EnsureNotNull()
                                     );
                             }
 

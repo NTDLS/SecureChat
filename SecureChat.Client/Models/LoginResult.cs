@@ -1,4 +1,6 @@
 ﻿using NTDLS.ReliableMessaging;
+using SecureChat.Library;
+using System.Text.Json;
 
 namespace SecureChat.Client.Models
 {
@@ -10,15 +12,25 @@ namespace SecureChat.Client.Models
         public Guid AccountId { get; set; }
         public RmClient Client { get; private set; }
         public string DisplayName { get; private set; }
-        public string Status { get; private set; }
         public string Username { get; private set; }
+        public string ProfileJson { get; set; } = string.Empty;
 
-        public LoginResult(RmClient client, Guid accountId, string username, string displayName, string status)
+        private AccountProfile? _profile = null;
+        public AccountProfile Profile
+        {
+            get
+            {
+                _profile ??= JsonSerializer.Deserialize<AccountProfile>(ProfileJson) ?? new AccountProfile();
+                return _profile;
+            }
+        }
+
+        public LoginResult(RmClient client, Guid accountId, string username, string displayName, string profileJson)
         {
             AccountId = accountId;
             Client = client;
             DisplayName = displayName;
-            Status = status;
+            ProfileJson = profileJson;
             Username = username;
         }
     }

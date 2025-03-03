@@ -7,9 +7,9 @@ namespace SecureChat.Client
         public static void AddContactNode(TreeNode parentNode, ContactModel contact)
         {
             var childName = contact.DisplayName;
-            if (string.IsNullOrEmpty(contact.Status) == false)
+            if (string.IsNullOrEmpty(contact.Profile.Tagline) == false)
             {
-                childName += $" - {contact.Status}";
+                childName += $" - {contact.Profile.Tagline}";
             }
 
             var node = new TreeNode(childName)

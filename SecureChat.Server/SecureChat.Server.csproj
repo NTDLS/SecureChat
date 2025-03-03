@@ -32,7 +32,6 @@
     <EmbeddedResource Include="SqlQueries\AccountSearch.sql" />
     <EmbeddedResource Include="SqlQueries\UpdateAccountLastSeen.sql" />
     <EmbeddedResource Include="SqlQueries\UpdateAccountState.sql" />
-    <EmbeddedResource Include="SqlQueries\UpdateAccountStatus.sql" />
     <EmbeddedResource Include="SqlQueries\Login.sql" />
   </ItemGroup>
 

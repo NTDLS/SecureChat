@@ -219,14 +219,14 @@ namespace SecureChat.Server
         /// <summary>
         /// A client is updating the server about their state/status.
         /// </summary>
-        public void UpdateAccountStatus(RmContext context, UpdateAccountStatus param)
+        public void UpdateAccountState(RmContext context, UpdateAccountState param)
         {
             try
             {
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Cryptography has not been initialized.");
 
-                _dbRepository.UpdateAccountStatus(param.AccountId, param.State, param.Status);
+                _dbRepository.UpdateAccountState(param.AccountId, param.State);
             }
             catch (Exception ex)
             {
@@ -353,7 +353,7 @@ namespace SecureChat.Server
                     login.Id.EnsureNotNull(),
                     login.Username.EnsureNotNull(),
                     login.DisplayName.EnsureNotNull(),
-                    login.Status ?? string.Empty);
+                    login.ProfileJson ?? string.Empty);
             }
             catch (Exception ex)
             {

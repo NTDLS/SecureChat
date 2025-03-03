@@ -145,20 +145,22 @@ namespace SecureChat.Client.Forms
                     {
                         existingRootNode.ImageKey = ScOnlineState.Away.ToString();
                         existingRootNode.SelectedImageKey = ScOnlineState.Away.ToString();
+                        existingRootNode.ToolTipText = ScOnlineState.Away.ToString();
                     }
                     else
                     {
                         existingRootNode.ImageKey = LocalSession.Current.State.ToString();
                         existingRootNode.SelectedImageKey = LocalSession.Current.State.ToString();
+                        existingRootNode.ToolTipText = LocalSession.Current.State.ToString();
                     }
 
                     return existingRootNode;
                 }
 
                 var rootName = LocalSession.Current.DisplayName;
-                if (string.IsNullOrEmpty(LocalSession.Current.Status) == false)
+                if (string.IsNullOrEmpty(LocalSession.Current.Profile.Tagline) == false)
                 {
-                    rootName += $" - {LocalSession.Current.Status}";
+                    rootName += $" - {LocalSession.Current.Profile.Tagline}";
                 }
                 var rootNode = new TreeNode(rootName);
 
@@ -166,11 +168,13 @@ namespace SecureChat.Client.Forms
                 {
                     rootNode.ImageKey = ScOnlineState.Away.ToString();
                     rootNode.SelectedImageKey = ScOnlineState.Away.ToString();
+                    rootNode.ToolTipText = ScOnlineState.Away.ToString();
                 }
                 else
                 {
                     rootNode.ImageKey = LocalSession.Current.State.ToString();
                     rootNode.SelectedImageKey = LocalSession.Current.State.ToString();
+                    rootNode.ToolTipText = LocalSession.Current.State.ToString();
                 }
 
                 treeViewContacts.Nodes.Add(rootNode);
@@ -201,19 +205,15 @@ namespace SecureChat.Client.Forms
                 var idleTime = Interop.GetIdleTime();
                 if (idleTime.TotalSeconds >= Settings.Instance.AutoAwayIdleSeconds)
                 {
-                    LocalSession.Current.Client.Notify(new UpdateAccountStatus(
+                    LocalSession.Current.Client.Notify(new UpdateAccountState(
                             LocalSession.Current.AccountId,
-                            ScOnlineState.Away,
-                            LocalSession.Current.Status
-                        ));
+                            ScOnlineState.Away));
                 }
                 else
                 {
-                    LocalSession.Current.Client.Notify(new UpdateAccountStatus(
+                    LocalSession.Current.Client.Notify(new UpdateAccountState(
                             LocalSession.Current.AccountId,
-                            LocalSession.Current.ExplicitAway ? ScOnlineState.Away : ScOnlineState.Online,
-                            LocalSession.Current.Status
-                        ));
+                            LocalSession.Current.ExplicitAway ? ScOnlineState.Away : ScOnlineState.Online));
                 }
             }
         }
@@ -350,7 +350,7 @@ namespace SecureChat.Client.Forms
         {
             lock (_repopulateLock)
             {
-                if(_repopulateInProgress)
+                if (_repopulateInProgress)
                 {
                     return;
                 }

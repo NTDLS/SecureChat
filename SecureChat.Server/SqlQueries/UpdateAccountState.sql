@@ -1,6 +1,7 @@
 UPDATE
 	Account
 SET
-	State = @State
+	State = @State,
+	LastSeen = @LastSeen
 WHERE
 	Id = @AccountId

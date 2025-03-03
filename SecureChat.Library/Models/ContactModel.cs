@@ -1,4 +1,6 @@
-﻿namespace SecureChat.Library.Models
+﻿using System.Text.Json;
+
+namespace SecureChat.Library.Models
 {
     public class ContactModel
     {
@@ -8,12 +10,24 @@
         /// Online, Offline or Away
         /// </summary>
         public string State { get; set; } = "Offline";
+
         /// <summary>
-        /// Status text set by user.
+        /// Json containing the user's profile information deserialize into an AccountProfile object.
         /// </summary>
-        public string Status { get; set; } = string.Empty;
+        public string ProfileJson { get; set; } = string.Empty;
         public bool IsAccepted { get; set; }
         public bool RequestedByMe { get; set; }
         public DateTime? LastSeen { get; set; }
+
+        private AccountProfile? _profile = null;
+        public AccountProfile Profile
+        {
+            get
+            {
+                _profile ??= JsonSerializer.Deserialize<AccountProfile>(ProfileJson) ?? new AccountProfile();
+                return _profile;
+            }
+        }
+
     }
 }

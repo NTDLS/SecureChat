@@ -2,7 +2,7 @@ SELECT
 	Id,
 	Username,
 	DisplayName,
-	Status
+	ProfileJson
 FROM
 	Account
 WHERE

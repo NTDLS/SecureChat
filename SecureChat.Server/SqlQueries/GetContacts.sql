@@ -4,7 +4,7 @@ SELECT
 	Ac.IsAccepted,
 	A.LastSeen,
 	A.State,
-	A.Status,
+	A.ProfileJson,
 	1 as RequestedByMe
 FROM
 	Contact as Ac
@@ -21,7 +21,7 @@ SELECT
 	Ac.IsAccepted,
 	A.LastSeen,
 	A.State,
-	A.Status,
+	A.ProfileJson,
 	0 as RequestedByMe
 FROM
 	Contact as Ac

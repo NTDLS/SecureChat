@@ -135,7 +135,7 @@ namespace SecureChat.Client
                                 loginResult.Username,
                                 loginResult.DisplayName)
                             {
-                                Status = loginResult.Status,
+                                Profile = loginResult.Profile,
                                 State = persistedUserState.ExplicitAway ? ScOnlineState.Away : ScOnlineState.Online,
                                 ExplicitAway = persistedUserState.ExplicitAway
                             };

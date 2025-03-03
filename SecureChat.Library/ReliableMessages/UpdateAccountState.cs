@@ -3,21 +3,17 @@ using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Library.ReliableMessages
 {
-    public class UpdateAccountStatus
+    public class UpdateAccountState
         : IRmNotification
     {
         public ScOnlineState State { get; set; }
-        /// <summary>
-        /// User supplied status text.
-        /// </summary>
-        public string Status { get; set; }
+
         public Guid AccountId { get; set; }
 
-        public UpdateAccountStatus(Guid accountId, ScOnlineState state, string status)
+        public UpdateAccountState(Guid accountId, ScOnlineState state)
         {
             AccountId = accountId;
             State = state;
-            Status = status;
         }
     }
 }

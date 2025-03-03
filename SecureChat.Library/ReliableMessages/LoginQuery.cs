@@ -23,7 +23,7 @@ namespace SecureChat.Library.ReliableMessages
         public bool IsSuccess { get; set; }
         public Guid AccountId { get; set; }
         public string DisplayName { get; set; }
-        public string Status { get; set; }
+        public string ProfileJson { get; set; }
         public string Username { get; set; }
         public string? ErrorMessage { get; set; }
 
@@ -33,16 +33,16 @@ namespace SecureChat.Library.ReliableMessages
             DisplayName = string.Empty;
             ErrorMessage = exception.GetBaseException().Message;
             IsSuccess = false;
-            Status = string.Empty;
+            ProfileJson = string.Empty;
             Username = string.Empty;
         }
 
-        public LoginQueryReply(Guid accountId, string username, string displayName, string status)
+        public LoginQueryReply(Guid accountId, string username, string displayName, string profileJson)
         {
             AccountId = accountId;
             DisplayName = displayName;
             IsSuccess = true;
-            Status = status;
+            ProfileJson = profileJson;
             Username = username;
         }
 
@@ -51,7 +51,7 @@ namespace SecureChat.Library.ReliableMessages
             IsSuccess = false;
             AccountId = Guid.Empty;
             DisplayName = string.Empty;
-            Status = string.Empty;
+            ProfileJson = string.Empty;
             Username = string.Empty;
         }
     }

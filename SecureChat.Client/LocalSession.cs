@@ -1,5 +1,6 @@
 ﻿using NTDLS.ReliableMessaging;
 using SecureChat.Client.Forms;
+using SecureChat.Library;
 using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client
@@ -18,11 +19,7 @@ namespace SecureChat.Client
         public List<ActiveChat> ActiveChats { get; set; } = new();
         public NotifyIcon TrayIcon { get; set; }
         public FormHome FormHome { get; set; }
-
-        /// <summary>
-        /// User defined status text.
-        /// </summary>
-        public string Status { get; set; } = string.Empty;
+        public AccountProfile Profile { get; set; } = new();
         public bool ExplicitAway { get; set; }
 
         public ScOnlineState State { get; set; } = ScOnlineState.Offline;

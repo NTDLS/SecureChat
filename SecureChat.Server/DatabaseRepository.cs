@@ -59,11 +59,13 @@ namespace SecureChat.Server
 
         public void UpdateAccountState(ManagedDataStorageInstance instance, Guid accountId, ScOnlineState state)
         {
-            instance.Execute(@"SqlQueries\UpdateAccountState.sql", new
-            {
-                AccountId = accountId,
-                State = state.ToString()
-            });
+            _dbFactory.Execute(@"SqlQueries\UpdateAccountState.sql",
+                new
+                {
+                    AccountId = accountId,
+                    State = state.ToString(),
+                    LastSeen = DateTime.UtcNow
+                });
         }
 
         public List<AccountSearchModel> AcceptContactInvite(Guid sourceAccountId, Guid targetAccountId)
@@ -137,18 +139,6 @@ namespace SecureChat.Server
                 });
         }
 
-        public void UpdateAccountStatus(Guid accountId, ScOnlineState state, string? status)
-        {
-            _dbFactory.Execute(@"SqlQueries\UpdateAccountStatus.sql",
-                new
-                {
-                    AccountId = accountId,
-                    State = state.ToString(),
-                    Status = status ?? string.Empty,
-                    LastSeen = DateTime.UtcNow
-                });
-        }
-
         public LoginModel? Login(string username, string passwordHash, bool explicitAway)
         {
             return _dbFactory.Ephemeral<LoginModel?>(o =>
@@ -189,7 +179,7 @@ namespace SecureChat.Server
             {
                 if (account.IsAccepted == false)
                 {
-                    account.Status = ""; //We do not show status for pending contacts.
+                    account.ProfileJson = ""; //We do not show profile for pending contacts.
                     account.State = ScOnlineState.Pending.ToString();
                 }
                 else if (account.LastSeen == null || (DateTime.UtcNow - account.LastSeen.Value).TotalSeconds > ScConstants.OfflineLastSeenSeconds)
