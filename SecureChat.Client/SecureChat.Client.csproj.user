@@ -11,6 +11,9 @@
     <Compile Update="Forms\FormHome.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\FormImageViewer.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\FormLogin.cs">
       <SubType>Form</SubType>
     </Compile>
