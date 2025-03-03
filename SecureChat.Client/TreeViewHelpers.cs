@@ -1,6 +1,4 @@
-﻿using SecureChat.Library;
-using SecureChat.Server.Models;
-using static SecureChat.Library.ScConstants;
+﻿using SecureChat.Library.Models;
 
 namespace SecureChat.Client
 {
@@ -14,50 +12,46 @@ namespace SecureChat.Client
                 childName += $" - {contact.Status}";
             }
 
-            var state = GetContactState(contact);
-
             var node = new TreeNode(childName)
             {
                 Tag = contact,
-                ImageKey = state.ToString(),
-                SelectedImageKey = state.ToString(),
-                ToolTipText = state.ToString()
+                ImageKey = contact.State.ToString(),
+                SelectedImageKey = contact.State.ToString(),
+                ToolTipText = contact.State.ToString()
             };
 
             parentNode.Nodes.Add(node);
-        }
-
-        public static ScOnlineState GetContactState(ContactModel contact)
-        {
-            var state = Enum.Parse<ScOnlineState>(contact.State);
-
-            if (contact.IsAccepted == false)
-            {
-                return ScOnlineState.Pending;
-            }
-
-            if (contact.LastSeen == null)
-            {
-                //The contact has never been online.
-                state = ScOnlineState.Offline;
-            }
-            else if (state == ScOnlineState.Online || state == ScOnlineState.Away)
-            {
-                //If the contact is "online" or "Away" but was last seen a "long time ago" then show them as offline.
-                if ((DateTime.UtcNow - contact.LastSeen.Value).TotalSeconds > ScConstants.OfflineLastSeenSeconds)
-                {
-                    state = ScOnlineState.Offline;
-                }
-            }
-
-            return state;
         }
 
         public static TreeNode? FindNodeByAccountId(TreeNode parentNode, Guid accountId)
         {
             foreach (TreeNode node in parentNode.Nodes)
             {
-                if (node?.Tag is ContactModel contactsModel && contactsModel.Id == accountId)
+                if (node.Tag is ContactModel contactsModel && contactsModel.Id == accountId)
+                {
+                    return node;
+                }
+            }
+            return null;
+        }
+
+        public static TreeNode? FindNonContactNodeByText(TreeView treeView, string text)
+        {
+            foreach (TreeNode node in treeView.Nodes)
+            {
+                if (node.Tag is not ContactModel && node.Text == text)
+                {
+                    return node;
+                }
+            }
+            return null;
+        }
+
+        public static TreeNode? FindNonContactNodeByText(TreeNode parentNode, string text)
+        {
+            foreach (TreeNode node in parentNode.Nodes)
+            {
+                if (node.Tag is not ContactModel && node.Text == text)
                 {
                     return node;
                 }

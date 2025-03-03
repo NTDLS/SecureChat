@@ -22,10 +22,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="SqlQueries\AcceptContactInvite.sql" />
+    <EmbeddedResource Include="SqlQueries\RemoveContact.sql" />
+    <EmbeddedResource Include="SqlQueries\AddContactInvite.sql" />
     <EmbeddedResource Include="SqlQueries\GetAccountIdByUserName.sql" />
     <EmbeddedResource Include="SqlQueries\GetContacts.sql" />
     <EmbeddedResource Include="SqlQueries\CreateAccount.sql" />
     <EmbeddedResource Include="SqlQueries\GetAccountIdByDisplayName.sql" />
+    <EmbeddedResource Include="SqlQueries\AccountSearch.sql" />
     <EmbeddedResource Include="SqlQueries\UpdateAccountLastSeen.sql" />
     <EmbeddedResource Include="SqlQueries\UpdateAccountState.sql" />
     <EmbeddedResource Include="SqlQueries\UpdateAccountStatus.sql" />

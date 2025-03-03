@@ -25,6 +25,105 @@ namespace SecureChat.Server
             _dbRepository = new DatabaseRepository(configuration);
         }
 
+        /// <summary>
+        /// Client is accepting a contact invite request.
+        /// </summary>
+        public AcceptContactInviteReply AcceptContactInvite(RmContext context, AcceptContactInvite param)
+        {
+            try
+            {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
+                    ?? throw new Exception("Session not found.");
+
+                _dbRepository.AcceptContactInvite(session.AccountId.EnsureNotNull(), param.AccountId);
+
+                return new AcceptContactInviteReply();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                return new AcceptContactInviteReply(ex);
+            }
+        }
+
+        /// <summary>
+        /// Client is sending a request to remove a contact
+        /// </summary>
+        public RemoveContactQueryReply RemoveContactQuery(RmContext context, RemoveContactQuery param)
+        {
+            try
+            {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
+                    ?? throw new Exception("Session not found.");
+
+                _dbRepository.RemoveContact(session.AccountId.EnsureNotNull(), param.AccountId);
+
+                return new RemoveContactQueryReply();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                return new RemoveContactQueryReply(ex);
+            }
+        }
+
+        /// <summary>
+        /// Client is sending a request to invite another contact.
+        /// </summary>
+        public InviteContactQueryReply InviteContactQuery(RmContext context, InviteContactQuery param)
+        {
+            try
+            {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
+                    ?? throw new Exception("Session not found.");
+
+                _dbRepository.AddContactInvite(session.AccountId.EnsureNotNull(), param.AccountId);
+
+                return new InviteContactQueryReply();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                return new InviteContactQueryReply(ex);
+            }
+        }
+
+        /// <summary>
+        /// The client is searching for a contact, likely to add them as a contact.
+        /// </summary>
+        public AccountSearchQueryReply AccountSearchQuery(RmContext context, AccountSearchQuery param)
+        {
+            try
+            {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
+                    ?? throw new Exception("Session not found.");
+
+                var accounts = _dbRepository.AccountSearch(session.AccountId.EnsureNotNull(), param.DisplayName);
+
+                return new AccountSearchQueryReply(accounts);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                return new AccountSearchQueryReply(ex);
+            }
+        }
+
+        /// <summary>
+        /// A client is requesting to create a new account.
+        /// </summary>
         public CreateAccountQueryReply CreateAccountQuery(RmContext context, CreateAccountQuery param)
         {
             try

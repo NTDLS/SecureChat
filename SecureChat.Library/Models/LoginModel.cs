@@ -1,4 +1,4 @@
-﻿namespace SecureChat.Server.Models
+﻿namespace SecureChat.Library.Models
 {
     public class LoginModel
     {

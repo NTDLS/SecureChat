@@ -2,8 +2,10 @@
 using NTDLS.WinFormsHelpers;
 using SecureChat.Client.Properties;
 using SecureChat.Library;
+using SecureChat.Library.Models;
 using SecureChat.Library.ReliableMessages;
-using SecureChat.Server.Models;
+using Serilog;
+using System.Diagnostics;
 using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client.Forms
@@ -28,6 +30,7 @@ namespace SecureChat.Client.Forms
 
             treeViewContacts.ImageList = _treeImages;
             treeViewContacts.NodeMouseDoubleClick += TreeViewContacts_NodeMouseDoubleClick;
+            treeViewContacts.NodeMouseClick += TreeViewContacts_NodeMouseClick;
 
             treeViewContacts.NodeMouseHover += TreeViewContacts_NodeMouseHover;
 
@@ -47,6 +50,89 @@ namespace SecureChat.Client.Forms
 
             GetRootNode();
         }
+
+
+        private void RemoveContact(ContactModel contact)
+        {
+            if (contact.IsAccepted)
+            {
+                if (MessageBox.Show("Are you sure you want to remove this contact?",
+                    ScConstants.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                {
+                    return;
+                }
+            }
+            else if (contact.IsAccepted)
+            {
+                if (MessageBox.Show("Are you sure you want to remove this contact request?",
+                    ScConstants.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                {
+                    return;
+                }
+            }
+
+            Task.Run(() =>
+            {
+                if (LocalSession.Current != null)
+                {
+                    try
+                    {
+                        LocalSession.Current.Client.Query(new RemoveContactQuery(contact.Id)).ContinueWith(o =>
+                        {
+                            if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
+                            {
+                                throw new Exception(o.Result.ErrorMessage);
+                            }
+
+                            if (!o.IsFaulted && o.Result.IsSuccess)
+                            {
+                                DeltaRepopulate();
+                            }
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        this.InvokeMessageBox(ex.GetBaseException().Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                    }
+                }
+            });
+        }
+
+        private void AcceptInvite(ContactModel contact)
+        {
+            if (MessageBox.Show("Are you sure you want to accept this contact request?",
+                ScConstants.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+            {
+                return;
+            }
+
+            Task.Run(() =>
+            {
+                if (LocalSession.Current != null)
+                {
+                    try
+                    {
+                        LocalSession.Current.Client.Query(new AcceptContactInvite(contact.Id)).ContinueWith(o =>
+                        {
+                            if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
+                            {
+                                throw new Exception(o.Result.ErrorMessage);
+                            }
+
+                            if (!o.IsFaulted && o.Result.IsSuccess)
+                            {
+                                DeltaRepopulate();
+                            }
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        this.InvokeMessageBox(ex.GetBaseException().Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                    }
+                }
+            });
+        }
+
 
         public TreeNode? GetRootNode()
         {
@@ -97,7 +183,7 @@ namespace SecureChat.Client.Forms
 
         private void FormHome_Load(object? sender, EventArgs e)
         {
-            Repopulate();
+            DeltaRepopulate();
 
             var currentScreen = Screen.FromPoint(Cursor.Position);
             int offsetY = 10; // Distance above the taskbar
@@ -105,14 +191,6 @@ namespace SecureChat.Client.Forms
             int x = currentScreen.WorkingArea.Right - this.Width - offsetX;
             int y = currentScreen.WorkingArea.Bottom - this.Height - offsetY;
             Location = new Point(x, y);
-        }
-
-        private void TreeViewContacts_NodeMouseHover(object? sender, TreeNodeMouseHoverEventArgs e)
-        {
-            if (!string.IsNullOrEmpty(e.Node?.ToolTipText))
-            {
-                _treeToolTip.SetToolTip(treeViewContacts, e.Node.ToolTipText);
-            }
         }
 
         private void Timer_Tick(object? sender, EventArgs e)
@@ -141,8 +219,45 @@ namespace SecureChat.Client.Forms
             }
         }
 
+        private void TreeViewContacts_NodeMouseClick(object? sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right && e.Node?.Tag is ContactModel contact)
+            {
+                if (contact.IsAccepted == false)
+                {
+                    var contextMenu = new ContextMenuStrip();
+
+                    contextMenu.Items.Add(new ToolStripMenuItem("Accept", null, (s, ev) => AcceptInvite(contact)));
+                    contextMenu.Items.Add(new ToolStripMenuItem("Remove", null, (s, ev) => RemoveContact(contact)));
+
+                    contextMenu.Show(treeViewContacts, e.Location);
+                }
+                else if (contact.IsAccepted == true)
+                {
+                    var contextMenu = new ContextMenuStrip();
+
+                    contextMenu.Items.Add(new ToolStripMenuItem("Remove", null, (s, ev) => RemoveContact(contact)));
+
+                    contextMenu.Show(treeViewContacts, e.Location);
+                }
+            }
+        }
+
+        private void TreeViewContacts_NodeMouseHover(object? sender, TreeNodeMouseHoverEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(e.Node?.ToolTipText))
+            {
+                _treeToolTip.SetToolTip(treeViewContacts, e.Node.ToolTipText);
+            }
+        }
+
         private void TreeViewContacts_NodeMouseDoubleClick(object? sender, TreeNodeMouseClickEventArgs e)
         {
+            if (e.Button != MouseButtons.Left)
+            {
+                return;
+            }
+
             if (e.Node?.Tag is ContactModel contactsModel)
             {
                 if (contactsModel.IsAccepted == false)
@@ -221,85 +336,6 @@ namespace SecureChat.Client.Forms
             }
         }
 
-        private void Repopulate()
-        {
-            if (LocalSession.Current == null)
-            {
-                this.InvokeMessageBox("Local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
-                this.InvokeClose(DialogResult.No);
-                return;
-            }
-
-            Task.Run(() =>
-            {
-                try
-                {
-                    LocalSession.Current.Client.Query(new GetContactsQuery()).ContinueWith(o =>
-                    {
-                        if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
-                        {
-                            throw new Exception(o.Result.ErrorMessage);
-                        }
-
-                        if (o.Result.IsSuccess)
-                        {
-                            PopulateTree(o.Result.Contacts);
-                        }
-
-                        return o.Result.IsSuccess;
-                    });
-                }
-                catch (Exception ex)
-                {
-                    this.InvokeMessageBox(ex.GetBaseException().Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-                }
-            });
-        }
-
-        private void PopulateTree(List<ContactModel> contacts)
-        {
-            if (LocalSession.Current == null)
-            {
-                this.InvokeMessageBox("Local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
-                this.InvokeClose(DialogResult.No);
-                return;
-            }
-
-            if (InvokeRequired)
-            {
-                Invoke(PopulateTree, contacts);
-                return;
-            }
-
-            treeViewContacts.Nodes.Clear();
-
-            var rootNode = GetRootNode();
-            if (rootNode != null)
-            {
-                foreach (var contact in contacts.Where(o => o.IsAccepted == true))
-                {
-                    TreeViewHelpers.AddContactNode(rootNode, contact);
-                }
-
-                TreeViewHelpers.SortChildNodes(rootNode);
-                rootNode.Expand();
-
-                if (contacts.Any(o => o.IsAccepted == false))
-                {
-                    var requestedRootNode = new TreeNode("Requested");
-                    requestedRootNode.ImageKey = ScOnlineState.Pending.ToString();
-                    requestedRootNode.SelectedImageKey = ScOnlineState.Pending.ToString();
-                    rootNode.Nodes.Add(requestedRootNode);
-
-                    foreach (var contact in contacts.Where(o => o.IsAccepted == false))
-                    {
-                        TreeViewHelpers.AddContactNode(requestedRootNode, contact);
-                    }
-                    requestedRootNode.Expand();
-                }
-            }
-        }
-
         private void DeltaRepopulate()
         {
             if (LocalSession.Current == null)
@@ -320,12 +356,12 @@ namespace SecureChat.Client.Forms
                             throw new Exception(o.Result.ErrorMessage);
                         }
 
-                        if (o.Result.IsSuccess)
+                        if (!o.IsFaulted && o.Result.IsSuccess)
                         {
                             DeltaRepopulateTree(o.Result.Contacts);
                         }
 
-                        return o.Result.IsSuccess;
+                        return !o.IsFaulted && o.Result.IsSuccess;
                     });
                 }
                 catch (Exception ex)
@@ -350,29 +386,24 @@ namespace SecureChat.Client.Forms
                 return;
             }
 
-            if (treeViewContacts.Nodes.Count == 0)
-            {
-                return;
-            }
-
             var rootNode = GetRootNode();
             if (rootNode != null)
             {
                 var nodesToRemove = new List<TreeNode>();
 
+                #region Accepted contacts.
+
                 foreach (TreeNode node in rootNode.Nodes)
                 {
                     if (node?.Tag is ContactModel contactsModel)
                     {
-                        var matchingContact = contacts.FirstOrDefault(o => o.Id == contactsModel.Id);
+                        var matchingContact = contacts.FirstOrDefault(o => o.IsAccepted == true && o.Id == contactsModel.Id);
                         if (matchingContact != null)
                         {
-                            var state = TreeViewHelpers.GetContactState(matchingContact);
-
                             //Update tree node if it is in the fresh contact list.
-                            node.ImageKey = state.ToString();
-                            node.SelectedImageKey = state.ToString();
-                            node.ToolTipText = state.ToString();
+                            node.ImageKey = matchingContact.State.ToString();
+                            node.SelectedImageKey = matchingContact.State.ToString();
+                            node.ToolTipText = matchingContact.State.ToString();
                         }
                         else
                         {
@@ -387,9 +418,10 @@ namespace SecureChat.Client.Forms
                 {
                     rootNode.Nodes.Remove(node);
                 }
+                nodesToRemove.Clear();
 
                 //Add tree nodes for contacts that are in the fresh list but missing from the tree.
-                foreach (var contact in contacts)
+                foreach (var contact in contacts.Where(o => o.IsAccepted == true))
                 {
                     var existingNode = TreeViewHelpers.FindNodeByAccountId(rootNode, contact.Id);
                     if (existingNode == null)
@@ -400,7 +432,104 @@ namespace SecureChat.Client.Forms
 
                 TreeViewHelpers.SortChildNodes(rootNode);
                 rootNode.Expand();
+
+                #endregion
+
+                #region Pending contacts.
+
+                var requestedRootNode = TreeViewHelpers.FindNonContactNodeByText(treeViewContacts, "Requested");
+
+                if (contacts.Any(o => o.IsAccepted == false))
+                {
+                    if (requestedRootNode == null)
+                    {
+                        requestedRootNode = new TreeNode("Requested");
+                        requestedRootNode.ImageKey = ScOnlineState.Pending.ToString();
+                        requestedRootNode.SelectedImageKey = ScOnlineState.Pending.ToString();
+                        treeViewContacts.Nodes.Add(requestedRootNode);
+                    }
+
+                    foreach (TreeNode node in requestedRootNode.Nodes)
+                    {
+                        if (node?.Tag is ContactModel contactsModel)
+                        {
+                            var matchingContact = contacts.FirstOrDefault(o => o.IsAccepted == false && o.Id == contactsModel.Id);
+                            if (matchingContact == null)
+                            {
+                                //Queue node for removal if it is missing from the fresh contact list.
+                                nodesToRemove.Add(node);
+                            }
+                        }
+                    }
+
+                    //Remove nodes queued for deletion.
+                    foreach (var node in nodesToRemove)
+                    {
+                        requestedRootNode.Nodes.Remove(node);
+                    }
+                    nodesToRemove.Clear();
+
+                    foreach (var contact in contacts.Where(o => o.IsAccepted == false))
+                    {
+                        var existingNode = TreeViewHelpers.FindNodeByAccountId(requestedRootNode, contact.Id);
+                        if (existingNode == null)
+                        {
+                            TreeViewHelpers.AddContactNode(requestedRootNode, contact);
+                        }
+                    }
+
+                    TreeViewHelpers.SortChildNodes(requestedRootNode);
+                    requestedRootNode.Expand();
+                }
+                else if (requestedRootNode != null)
+                {
+                    treeViewContacts.Nodes.Remove(requestedRootNode);
+                }
+
+                #endregion
             }
         }
+
+        #region Toolbar clicks.
+
+        private void AboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                using var formAboutOnExit = new FormAbout(true);
+                formAboutOnExit.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void SearchToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var formAccountSearch = new FormAccountSearch();
+                formAccountSearch.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void CloseToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
+
+        }
+
+        private void LogoutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+        }
+
+        #endregion
     }
 }

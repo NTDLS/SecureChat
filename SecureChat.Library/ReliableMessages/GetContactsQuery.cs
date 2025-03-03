@@ -1,5 +1,5 @@
 ﻿using NTDLS.ReliableMessaging;
-using SecureChat.Server.Models;
+using SecureChat.Library.Models;
 
 namespace SecureChat.Library.ReliableMessages
 {

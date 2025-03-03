@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using NTDLS.SqliteDapperWrapper;
-using SecureChat.Server.Models;
+using SecureChat.Library;
+using SecureChat.Library.Models;
 using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Server
@@ -65,6 +66,59 @@ namespace SecureChat.Server
             });
         }
 
+        public List<AccountSearchModel> AcceptContactInvite(Guid sourceAccountId, Guid targetAccountId)
+        {
+            return _dbFactory.Query<AccountSearchModel>(@"SqlQueries\AcceptContactInvite.sql",
+                new
+                {
+                    SourceAccountId = sourceAccountId,
+                    TargetAccountId = targetAccountId
+                }).ToList();
+        }
+
+        public List<AccountSearchModel> RemoveContact(Guid sourceAccountId, Guid targetAccountId)
+        {
+            return _dbFactory.Query<AccountSearchModel>(@"SqlQueries\RemoveContact.sql",
+                new
+                {
+                    SourceAccountId = sourceAccountId,
+                    TargetAccountId = targetAccountId
+                }).ToList();
+        }
+
+        public List<AccountSearchModel> AddContactInvite(Guid sourceAccountId, Guid targetAccountId)
+        {
+            string[] ids = [sourceAccountId.ToString(), targetAccountId.ToString()];
+
+            return _dbFactory.Query<AccountSearchModel>(@"SqlQueries\AddContactInvite.sql",
+                new
+                {
+                    SourceAccountId = sourceAccountId,
+                    TargetAccountId = targetAccountId,
+                    ContactHash = Crypto.ComputeSha256Hash(string.Join(",", ids.OrderBy(o => o)))
+                }).ToList();
+        }
+
+        public List<AccountSearchModel> AccountSearch(Guid accountId, string displayName)
+        {
+            var accounts = _dbFactory.Query<AccountSearchModel>(@"SqlQueries\AccountSearch.sql",
+                new
+                {
+                    AccountId = accountId,
+                    DisplayName = displayName
+                }).ToList();
+
+            foreach (var account in accounts)
+            {
+                if (account.LastSeen == null || (DateTime.UtcNow - account.LastSeen.Value).TotalSeconds > ScConstants.OfflineLastSeenSeconds)
+                {
+                    account.State = ScOnlineState.Offline.ToString();
+                }
+            }
+
+            return accounts;
+        }
+
         public Guid? GetAccountIdByUserName(string username)
         {
             return _dbFactory.QuerySingleOrDefault<Guid?>(@"SqlQueries\GetAccountIdByUserName.sql",
@@ -118,7 +172,7 @@ namespace SecureChat.Server
 
         public List<ContactModel> GetContacts(Guid accountId)
         {
-            return _dbFactory.Ephemeral(o =>
+            var accounts = _dbFactory.Ephemeral(o =>
             {
                 var contacts = o.Query<ContactModel>(@"SqlQueries\GetContacts.sql",
                     new
@@ -130,6 +184,20 @@ namespace SecureChat.Server
 
                 return contacts;
             });
+
+            foreach (var account in accounts)
+            {
+                if (account.IsAccepted)
+                {
+                    account.State = ScOnlineState.Pending.ToString();
+                }
+                else if (account.LastSeen == null || (DateTime.UtcNow - account.LastSeen.Value).TotalSeconds > ScConstants.OfflineLastSeenSeconds)
+                {
+                    account.State = ScOnlineState.Offline.ToString();
+                }
+            }
+
+            return accounts;
         }
     }
 }

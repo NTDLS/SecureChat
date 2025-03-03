@@ -32,17 +32,84 @@ namespace SecureChat.Client.Forms
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormHome));
             treeViewContacts = new DoubleBufferedTreeView();
+            menuStrip1 = new MenuStrip();
+            fileToolStripMenuItem = new ToolStripMenuItem();
+            closeToolStripMenuItem = new ToolStripMenuItem();
+            logoutToolStripMenuItem = new ToolStripMenuItem();
+            contactsToolStripMenuItem = new ToolStripMenuItem();
+            searchToolStripMenuItem = new ToolStripMenuItem();
+            helpToolStripMenuItem = new ToolStripMenuItem();
+            aboutToolStripMenuItem = new ToolStripMenuItem();
+            menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
             // treeViewContacts
             // 
             treeViewContacts.Dock = DockStyle.Fill;
             treeViewContacts.HotTracking = true;
-            treeViewContacts.Location = new Point(5, 5);
+            treeViewContacts.Location = new Point(5, 29);
             treeViewContacts.Name = "treeViewContacts";
             treeViewContacts.ShowRootLines = false;
-            treeViewContacts.Size = new Size(275, 498);
+            treeViewContacts.Size = new Size(275, 474);
             treeViewContacts.TabIndex = 0;
+            // 
+            // menuStrip1
+            // 
+            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, contactsToolStripMenuItem, helpToolStripMenuItem });
+            menuStrip1.Location = new Point(5, 5);
+            menuStrip1.Name = "menuStrip1";
+            menuStrip1.Size = new Size(275, 24);
+            menuStrip1.TabIndex = 1;
+            menuStrip1.Text = "menuStrip1";
+            // 
+            // fileToolStripMenuItem
+            // 
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { closeToolStripMenuItem, logoutToolStripMenuItem });
+            fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            fileToolStripMenuItem.Size = new Size(37, 20);
+            fileToolStripMenuItem.Text = "File";
+            // 
+            // closeToolStripMenuItem
+            // 
+            closeToolStripMenuItem.Name = "closeToolStripMenuItem";
+            closeToolStripMenuItem.Size = new Size(180, 22);
+            closeToolStripMenuItem.Text = "Close";
+            closeToolStripMenuItem.Click += CloseToolStripMenuItem_Click;
+            // 
+            // logoutToolStripMenuItem
+            // 
+            logoutToolStripMenuItem.Name = "logoutToolStripMenuItem";
+            logoutToolStripMenuItem.Size = new Size(180, 22);
+            logoutToolStripMenuItem.Text = "Logout";
+            logoutToolStripMenuItem.Click += LogoutToolStripMenuItem_Click;
+            // 
+            // contactsToolStripMenuItem
+            // 
+            contactsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { searchToolStripMenuItem });
+            contactsToolStripMenuItem.Name = "contactsToolStripMenuItem";
+            contactsToolStripMenuItem.Size = new Size(66, 20);
+            contactsToolStripMenuItem.Text = "Contacts";
+            // 
+            // searchToolStripMenuItem
+            // 
+            searchToolStripMenuItem.Name = "searchToolStripMenuItem";
+            searchToolStripMenuItem.Size = new Size(180, 22);
+            searchToolStripMenuItem.Text = "Search";
+            searchToolStripMenuItem.Click += SearchToolStripMenuItem_Click;
+            // 
+            // helpToolStripMenuItem
+            // 
+            helpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { aboutToolStripMenuItem });
+            helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            helpToolStripMenuItem.Size = new Size(44, 20);
+            helpToolStripMenuItem.Text = "Help";
+            // 
+            // aboutToolStripMenuItem
+            // 
+            aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            aboutToolStripMenuItem.Size = new Size(180, 22);
+            aboutToolStripMenuItem.Text = "About";
+            aboutToolStripMenuItem.Click += AboutToolStripMenuItem_Click;
             // 
             // FormHome
             // 
@@ -50,7 +117,9 @@ namespace SecureChat.Client.Forms
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(285, 508);
             Controls.Add(treeViewContacts);
+            Controls.Add(menuStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");
+            MainMenuStrip = menuStrip1;
             MaximizeBox = false;
             Name = "FormHome";
             Opacity = 0.95D;
@@ -58,11 +127,22 @@ namespace SecureChat.Client.Forms
             SizeGripStyle = SizeGripStyle.Show;
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Secure Chat";
+            menuStrip1.ResumeLayout(false);
+            menuStrip1.PerformLayout();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
 
         private DoubleBufferedTreeView treeViewContacts;
+        private MenuStrip menuStrip1;
+        private ToolStripMenuItem fileToolStripMenuItem;
+        private ToolStripMenuItem closeToolStripMenuItem;
+        private ToolStripMenuItem logoutToolStripMenuItem;
+        private ToolStripMenuItem contactsToolStripMenuItem;
+        private ToolStripMenuItem searchToolStripMenuItem;
+        private ToolStripMenuItem helpToolStripMenuItem;
+        private ToolStripMenuItem aboutToolStripMenuItem;
     }
 }
