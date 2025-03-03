@@ -6,7 +6,7 @@
         public const int EndToEndKeySize = 4096;
         public const int RsaKeySize = 4096;
         public const int AesKeySize = 256;
-        public const int OfflineLastSeenSeconds = 600;
+        public const int OfflineLastSeenSeconds = 60;
         public const int MinPasswordLength = 8;
 
         public enum ScOnlineState
