@@ -95,5 +95,42 @@ namespace SecureChat.Library
 
             return decryptedData;
         }
+
+        public static bool IsPasswordComplex(string password, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+
+            if (string.IsNullOrEmpty(password.Trim()))
+            {
+                errorMessage = "Password cannot be empty.";
+                return false;
+            }
+
+            if (password.Length < ScConstants.MinPasswordLength)
+            {
+                errorMessage = $"Password must be at least {ScConstants.MinPasswordLength:n0} characters long.";
+                return false;
+            }
+
+            if (!password.Any(char.IsUpper))
+            {
+                errorMessage = "Password must contain at least one uppercase letter.";
+                return false;
+            }
+
+            if (!password.Any(char.IsLower))
+            {
+                errorMessage = "Password must contain at least one lowercase letter.";
+                return false;
+            }
+
+            if (!password.Any(char.IsDigit))
+            {
+                errorMessage = "Password must contain at least one digit.";
+                return false;
+            }
+
+            return true;
+        }
     }
 }

@@ -41,11 +41,7 @@ namespace SecureChat.Client.Forms
 
         private void ButtonCancel_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show("Are you sure you want to cancel.",
-                ScConstants.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-            {
-                this.InvokeClose(DialogResult.Cancel);
-            }
+            this.InvokeClose(DialogResult.Cancel);
         }
 
         private void ButtonCreate_Click(object sender, EventArgs e)
@@ -57,19 +53,25 @@ namespace SecureChat.Client.Forms
                 var password = textBoxPassword.GetAndValidateText("A password is required.");
                 var confirmPassword = textBoxPassword.GetAndValidateText("A confirm password is required.");
 
+                if (!Crypto.IsPasswordComplex(password, out var errorMessage))
+                {
+                    throw new Exception(errorMessage);
+                }
+
                 if (password != confirmPassword)
                 {
                     throw new Exception("Passwords do not match.");
                 }
 
                 var passwordHash = Crypto.ComputeSha256Hash(password);
-
-                var progressForm = new ProgressForm(ScConstants.AppName, "Creating account...");
+                var progressForm = new ProgressForm(ScConstants.AppName, "Please wait...");
 
                 progressForm.Execute(() =>
                 {
                     try
                     {
+                        progressForm.SetHeaderText("Negotiating cryptography...");
+
                         var keyPair = Crypto.GeneratePublicPrivateKeyPair();
                         var client = new RmClient();
                         client.OnException += Client_OnException;
@@ -83,6 +85,9 @@ namespace SecureChat.Client.Forms
                         client.SetCryptographyProvider(new ServerClientCryptographyProvider(remotePublicKey, keyPair.PrivateRsaKey));
 
                         Thread.Sleep(1000); //Give the server a moment to initialize the cryptography.
+
+                        progressForm.SetHeaderText("Creating account...");
+                        Thread.Sleep(250); //For aesthetics.
 
                         var isSuccess = client.Query(new CreateAccountQuery(username, displayName, passwordHash)).ContinueWith(o =>
                         {

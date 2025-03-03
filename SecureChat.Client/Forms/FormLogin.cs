@@ -53,12 +53,14 @@ namespace SecureChat.Client.Forms
             {
                 var username = textBoxUsername.GetAndValidateText("A username is required.");
                 var passwordHash = Crypto.ComputeSha256Hash(textBoxPassword.Text);
-                var progressForm = new ProgressForm(ScConstants.AppName, "Logging in...");
+                var progressForm = new ProgressForm(ScConstants.AppName, "Please wait...");
 
                 progressForm.Execute(() =>
                 {
                     try
                     {
+                        progressForm.SetHeaderText("Negotiating cryptography...");
+
                         var keyPair = Crypto.GeneratePublicPrivateKeyPair();
                         var client = new RmClient();
                         client.OnException += Client_OnException;
@@ -80,6 +82,9 @@ namespace SecureChat.Client.Forms
                             //  login so the server can update the user's status appropriately.
                             explicitAway = userPersist.ExplicitAway;
                         }
+
+                        progressForm.SetHeaderText("Logging in...");
+                        Thread.Sleep(250); //For aesthetics.
 
                         var isSuccess = client.Query(new LoginQuery(username, passwordHash, explicitAway)).ContinueWith(o =>
                         {

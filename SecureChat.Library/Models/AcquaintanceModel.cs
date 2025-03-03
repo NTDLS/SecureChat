@@ -12,7 +12,7 @@
         /// Status text set by user.
         /// </summary>
         public string Status { get; set; } = string.Empty;
-        public int IsAccepted { get; set; }
+        public bool IsAccepted { get; set; }
         public DateTime? LastSeen { get; set; }
     }
 }

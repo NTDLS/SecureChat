@@ -17,6 +17,15 @@ namespace SecureChat.Server
 
         public void CreateAccount(string username, string displayName, string passwordHash)
         {
+            if (GetAccountIdByUserName(username) != null)
+            {
+                throw new Exception("Username is already in use by another account.");
+            }
+            if (GetAccountIdByDisplayName(displayName) != null)
+            {
+                throw new Exception("Display name is already in use by another account.");
+            }
+
             _dbFactory.Execute(@"SqlQueries\CreateAccount.sql",
                 new
                 {
@@ -54,6 +63,24 @@ namespace SecureChat.Server
                 AccountId = accountId,
                 State = state.ToString()
             });
+        }
+
+        public Guid? GetAccountIdByUserName(string username)
+        {
+            return _dbFactory.QuerySingleOrDefault<Guid?>(@"SqlQueries\GetAccountIdByUserName.sql",
+                new
+                {
+                    Username = username
+                });
+        }
+
+        public Guid? GetAccountIdByDisplayName(string displayName)
+        {
+            return _dbFactory.QuerySingleOrDefault<Guid?>(@"SqlQueries\GetAccountIdByDisplayName.sql",
+                new
+                {
+                    DisplayName = displayName
+                });
         }
 
         public void UpdateAccountStatus(Guid accountId, ScOnlineState state, string? status)

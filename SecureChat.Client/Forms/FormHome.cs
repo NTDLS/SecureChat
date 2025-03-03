@@ -24,6 +24,7 @@ namespace SecureChat.Client.Forms
             _treeImages.Images.Add(ScOnlineState.Offline.ToString(), Imaging.LoadIconFromResources(Resources.Offline16));
             _treeImages.Images.Add(ScOnlineState.Online.ToString(), Imaging.LoadIconFromResources(Resources.Online16));
             _treeImages.Images.Add(ScOnlineState.Away.ToString(), Imaging.LoadIconFromResources(Resources.Away16));
+            _treeImages.Images.Add(ScOnlineState.Pending.ToString(), Imaging.LoadIconFromResources(Resources.Pending16));
 
             treeViewAcquaintances.ImageList = _treeImages;
             treeViewAcquaintances.NodeMouseDoubleClick += TreeViewAcquaintances_NodeMouseDoubleClick;
@@ -41,7 +42,6 @@ namespace SecureChat.Client.Forms
             timer.Tick += Timer_Tick;
             timer.Enabled = true;
 
-            Shown += FormHome_Shown;
             FormClosing += FormHome_FormClosing;
             Load += FormHome_Load;
 
@@ -145,6 +145,12 @@ namespace SecureChat.Client.Forms
         {
             if (e.Node?.Tag is AcquaintanceModel acquaintancesModel)
             {
+                if (acquaintancesModel.IsAccepted == false)
+                {
+                    this.InvokeMessageBox("You cannot interact with this acquaintance until they have accepted your request.", ScConstants.AppName, MessageBoxButtons.OK);
+                    return;
+                }
+
                 if (e.Node.ImageKey.Equals(ScOnlineState.Offline.ToString(), StringComparison.CurrentCultureIgnoreCase))
                 {
                     this.InvokeMessageBox("The selected acquaintance is not online.", ScConstants.AppName, MessageBoxButtons.OK);
@@ -215,10 +221,6 @@ namespace SecureChat.Client.Forms
             }
         }
 
-        private void FormHome_Shown(object? sender, EventArgs e)
-        {
-        }
-
         private void Repopulate()
         {
             if (LocalSession.Current == null)
@@ -274,13 +276,27 @@ namespace SecureChat.Client.Forms
             var rootNode = GetRootNode();
             if (rootNode != null)
             {
-                foreach (var acquaintance in acquaintances)
+                foreach (var acquaintance in acquaintances.Where(o => o.IsAccepted == true))
                 {
                     TreeViewHelpers.AddAcquaintanceNode(rootNode, acquaintance);
                 }
 
                 TreeViewHelpers.SortChildNodes(rootNode);
                 rootNode.Expand();
+
+                if (acquaintances.Any(o => o.IsAccepted == false))
+                {
+                    var requestedRootNode = new TreeNode("Requested");
+                    requestedRootNode.ImageKey = ScOnlineState.Pending.ToString();
+                    requestedRootNode.SelectedImageKey = ScOnlineState.Pending.ToString();
+                    rootNode.Nodes.Add(requestedRootNode);
+
+                    foreach (var acquaintance in acquaintances.Where(o => o.IsAccepted == false))
+                    {
+                        TreeViewHelpers.AddAcquaintanceNode(requestedRootNode, acquaintance);
+                    }
+                    requestedRootNode.Expand();
+                }
             }
         }
 

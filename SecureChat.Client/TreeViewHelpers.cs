@@ -31,6 +31,11 @@ namespace SecureChat.Client
         {
             var state = Enum.Parse<ScOnlineState>(acquaintance.State);
 
+            if (acquaintance.IsAccepted == false)
+            {
+                return ScOnlineState.Pending;
+            }
+
             if (acquaintance.LastSeen == null)
             {
                 //The acquaintance has never been online.
