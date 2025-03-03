@@ -10,11 +10,10 @@
 
             _image = image;
 
-            Resize += OnResize; // Attach resize event
+            Resize += OnResize;
 
             pictureBoxImage.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxImage.Dock = DockStyle.Fill;
-
             pictureBoxImage.Image = image;
 
             Width = image.Width < 800 ? image.Width + 20 : 800;
