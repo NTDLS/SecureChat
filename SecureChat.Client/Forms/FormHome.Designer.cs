@@ -38,10 +38,10 @@ namespace SecureChat.Client.Forms
             // 
             treeViewAcquaintances.Dock = DockStyle.Fill;
             treeViewAcquaintances.HotTracking = true;
-            treeViewAcquaintances.Location = new Point(10, 10);
+            treeViewAcquaintances.Location = new Point(5, 5);
             treeViewAcquaintances.Name = "treeViewAcquaintances";
             treeViewAcquaintances.ShowRootLines = false;
-            treeViewAcquaintances.Size = new Size(265, 488);
+            treeViewAcquaintances.Size = new Size(275, 498);
             treeViewAcquaintances.TabIndex = 0;
             // 
             // FormHome
@@ -54,7 +54,7 @@ namespace SecureChat.Client.Forms
             MaximizeBox = false;
             Name = "FormHome";
             Opacity = 0.95D;
-            Padding = new Padding(10);
+            Padding = new Padding(5);
             SizeGripStyle = SizeGripStyle.Show;
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Secure Chat";

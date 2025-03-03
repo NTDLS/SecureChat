@@ -51,7 +51,7 @@
             // splitContainer1
             // 
             splitContainer1.Dock = DockStyle.Fill;
-            splitContainer1.Location = new Point(10, 24);
+            splitContainer1.Location = new Point(5, 24);
             splitContainer1.Name = "splitContainer1";
             splitContainer1.Orientation = Orientation.Horizontal;
             // 
@@ -63,8 +63,8 @@
             // 
             splitContainer1.Panel2.Controls.Add(textBoxMessage);
             splitContainer1.Panel2.Controls.Add(buttonSend);
-            splitContainer1.Size = new Size(525, 437);
-            splitContainer1.SplitterDistance = 385;
+            splitContainer1.Size = new Size(535, 442);
+            splitContainer1.SplitterDistance = 389;
             splitContainer1.TabIndex = 2;
             // 
             // flowPanel
@@ -75,7 +75,7 @@
             flowPanel.FlowDirection = FlowDirection.TopDown;
             flowPanel.Location = new Point(0, 0);
             flowPanel.Name = "flowPanel";
-            flowPanel.Size = new Size(525, 385);
+            flowPanel.Size = new Size(535, 389);
             flowPanel.TabIndex = 1;
             flowPanel.WrapContents = false;
             // 
@@ -85,15 +85,15 @@
             textBoxMessage.Location = new Point(0, 0);
             textBoxMessage.Multiline = true;
             textBoxMessage.Name = "textBoxMessage";
-            textBoxMessage.Size = new Size(450, 48);
+            textBoxMessage.Size = new Size(460, 49);
             textBoxMessage.TabIndex = 3;
             // 
             // buttonSend
             // 
             buttonSend.Dock = DockStyle.Right;
-            buttonSend.Location = new Point(450, 0);
+            buttonSend.Location = new Point(460, 0);
             buttonSend.Name = "buttonSend";
-            buttonSend.Size = new Size(75, 48);
+            buttonSend.Size = new Size(75, 49);
             buttonSend.TabIndex = 2;
             buttonSend.Text = "Send";
             buttonSend.UseVisualStyleBackColor = true;
@@ -102,9 +102,9 @@
             // menuStrip1
             // 
             menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, connectionToolStripMenuItem });
-            menuStrip1.Location = new Point(10, 0);
+            menuStrip1.Location = new Point(5, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(525, 24);
+            menuStrip1.Size = new Size(535, 24);
             menuStrip1.TabIndex = 3;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -166,7 +166,7 @@
             MainMenuStrip = menuStrip1;
             Name = "FormMessage";
             Opacity = 0.95D;
-            Padding = new Padding(10, 0, 10, 10);
+            Padding = new Padding(5, 0, 5, 5);
             SizeGripStyle = SizeGripStyle.Show;
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Secure Chat";
