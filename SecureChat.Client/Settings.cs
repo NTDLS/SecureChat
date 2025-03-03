@@ -30,7 +30,7 @@ namespace SecureChat.Client
 
         public string ServerAddress { get; set; } = "127.0.0.1";
         public string Font { get; set; } = "Cascadia Mono SemiLight";
-        public int FontSize { get; set; } = 10;
+        public float FontSize { get; set; } = 10.0f;
         public int ServerPort { get; set; } = 13265;
         public int AutoAwayIdleSeconds { get; set; } = 600;
         public int MaxMessages { get; set; } = 100;

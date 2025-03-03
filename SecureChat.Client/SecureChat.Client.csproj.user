@@ -8,6 +8,9 @@
     <Compile Update="Controls\DoubleBufferedTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Update="Forms\FormAbout.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\FormCreateAccount.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -21,6 +24,9 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\FormMessage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\FormSettings.cs">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>

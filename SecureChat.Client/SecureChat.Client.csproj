@@ -8,6 +8,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>Logo.ico</ApplicationIcon>
     <AssemblyName>SecureChat</AssemblyName>
+
+    <Company>NetworkDLS</Company>
+    <Copyright>Copyright © 2025 NetworkDLS</Copyright>
+    <Version>0.0.1</Version>
+    <Authors>NetworkDLS</Authors>
   </PropertyGroup>
 
   <ItemGroup>
