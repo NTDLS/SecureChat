@@ -14,6 +14,7 @@ namespace SecureChat.Client
         private bool _applicationClosing = false;
         private readonly NotifyIcon _trayIcon;
         private FormLogin? _formLogin;
+        private System.Windows.Forms.Timer? _firstShownTimer = new();
 
         public TrayApp()
         {
@@ -29,20 +30,32 @@ namespace SecureChat.Client
 
                 _trayIcon.MouseDoubleClick += TrayIcon_MouseDoubleClick;
 
-                _trayIcon.ContextMenuStrip.Items.Add("Login", null, OnLogin);
-                _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
                 _trayIcon.ContextMenuStrip.Items.Add("About", null, OnAbout);
+                _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
                 _trayIcon.ContextMenuStrip.Items.Add("Settings", null, OnSettings);
                 _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+                _trayIcon.ContextMenuStrip.Items.Add("Login", null, OnLogin);
                 _trayIcon.ContextMenuStrip.Items.Add("Exit", null, OnExit);
 
-                Login();
+                _firstShownTimer.Interval = 250;
+                _firstShownTimer.Tick += Timer_Tick;
+                _firstShownTimer.Enabled = true;
             }
             catch (Exception ex)
             {
                 Log.Fatal($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 throw;
+            }
+        }
+
+        private void Timer_Tick(object? sender, EventArgs e)
+        {
+            if (_firstShownTimer != null)
+            {
+                _firstShownTimer.Enabled = false;
+                _firstShownTimer.Dispose();
+                Login();
             }
         }
 
@@ -198,7 +211,6 @@ namespace SecureChat.Client
                     LocalSession.Current.FormHome.Repopulate();
                 }
 
-
                 _trayIcon.ContextMenuStrip.EnsureNotNull();
 
                 if (_trayIcon.ContextMenuStrip.InvokeRequired)
@@ -218,15 +230,25 @@ namespace SecureChat.Client
                             {
                                 Checked = false
                             };
+                            _trayIcon.ContextMenuStrip.Items.Add("About", null, OnAbout);
+                            _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
                             _trayIcon.ContextMenuStrip.Items.Add(awayItem);
+                            _trayIcon.ContextMenuStrip.Items.Add("Profile", null, OnProfile);
+                            _trayIcon.ContextMenuStrip.Items.Add("Settings", null, OnSettings);
                             _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
                             _trayIcon.ContextMenuStrip.Items.Add("Logout", null, OnLogout);
+                            _trayIcon.ContextMenuStrip.Items.Add("Exit", null, OnExit);
                         }
                         break;
                     case ScOnlineState.Offline:
                         {
                             _trayIcon.Icon = Imaging.LoadIconFromResources(Resources.Offline16);
+                            _trayIcon.ContextMenuStrip.Items.Add("About", null, OnAbout);
+                            _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+                            _trayIcon.ContextMenuStrip.Items.Add("Settings", null, OnSettings);
+                            _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
                             _trayIcon.ContextMenuStrip.Items.Add("Login", null, OnLogin);
+                            _trayIcon.ContextMenuStrip.Items.Add("Exit", null, OnExit);
 
                             _trayIcon.BalloonTipText = $"You have been disconnected.";
                             _trayIcon.ShowBalloonTip(3000);
@@ -239,21 +261,19 @@ namespace SecureChat.Client
                             {
                                 Checked = true
                             };
+                            _trayIcon.ContextMenuStrip.Items.Add("About", null, OnAbout);
+                            _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
                             _trayIcon.ContextMenuStrip.Items.Add(awayItem);
+                            _trayIcon.ContextMenuStrip.Items.Add("Profile", null, OnProfile);
+                            _trayIcon.ContextMenuStrip.Items.Add("Settings", null, OnSettings);
                             _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
                             _trayIcon.ContextMenuStrip.Items.Add("Logout", null, OnLogout);
+                            _trayIcon.ContextMenuStrip.Items.Add("Exit", null, OnExit);
                         }
                         break;
                     default:
                         throw new NotImplementedException();
                 }
-
-                _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-                _trayIcon.ContextMenuStrip.Items.Add("About", null, OnAbout);
-                _trayIcon.ContextMenuStrip.Items.Add("Settings", null, OnSettings);
-                _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-                _trayIcon.ContextMenuStrip.Items.Add("Exit", null, OnExit);
-
             }
             catch (Exception ex)
             {
@@ -298,6 +318,20 @@ namespace SecureChat.Client
             {
                 Login();
 
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void OnProfile(object? sender, EventArgs e)
+        {
+            try
+            {
+                using var formProfile = new FormProfile(true);
+                formProfile.ShowDialog();
             }
             catch (Exception ex)
             {
@@ -358,7 +392,9 @@ namespace SecureChat.Client
             {
                 Task.Run(() => LocalSession.Current?.Client?.Disconnect());
 
-                LocalSession.Current?.FormHome?.Close();
+                Exceptions.Ignore(() => _formLogin?.Close());
+                Exceptions.Ignore(() => LocalSession.Current?.FormHome?.Close());
+
                 _trayIcon.Visible = false;
                 LocalSession.Current = null;
                 Application.Exit();

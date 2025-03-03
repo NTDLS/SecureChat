@@ -573,6 +573,20 @@ namespace SecureChat.Client.Forms
 
         #region Toolbar clicks.
 
+        private void ProfileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                using var formProfile = new FormProfile(false);
+                formProfile.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void AboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             try
@@ -612,5 +626,6 @@ namespace SecureChat.Client.Forms
         }
 
         #endregion
+
     }
 }

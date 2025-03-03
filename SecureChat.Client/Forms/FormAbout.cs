@@ -32,8 +32,8 @@ namespace SecureChat.Client.Forms
 
         private void FormAbout_Load(object sender, EventArgs e)
         {
-            AcceptButton = cmdOk;
-            CancelButton = cmdOk;
+            AcceptButton = buttonOk;
+            CancelButton = buttonOk;
 
             if (assembly == null || assembly.Location == null)
             {
@@ -89,6 +89,11 @@ namespace SecureChat.Client.Forms
             catch
             {
             }
+        }
+
+        private void ButtonOk_Click(object sender, EventArgs e)
+        {
+            Close();
         }
     }
 }

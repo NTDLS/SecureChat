@@ -30,7 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormAbout));
             pictureBox1 = new PictureBox();
-            cmdOk = new Button();
+            buttonOk = new Button();
             listViewVersions = new ListView();
             columnHeaderApplication = new ColumnHeader();
             columnHeaderVersion = new ColumnHeader();
@@ -50,15 +50,16 @@
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
             // 
-            // cmdOk
+            // buttonOk
             // 
-            cmdOk.Location = new Point(419, 171);
-            cmdOk.Margin = new Padding(4, 3, 4, 3);
-            cmdOk.Name = "cmdOk";
-            cmdOk.Size = new Size(88, 27);
-            cmdOk.TabIndex = 7;
-            cmdOk.Text = "Ok";
-            cmdOk.UseVisualStyleBackColor = true;
+            buttonOk.Location = new Point(419, 171);
+            buttonOk.Margin = new Padding(4, 3, 4, 3);
+            buttonOk.Name = "buttonOk";
+            buttonOk.Size = new Size(88, 27);
+            buttonOk.TabIndex = 7;
+            buttonOk.Text = "Ok";
+            buttonOk.UseVisualStyleBackColor = true;
+            buttonOk.Click += ButtonOk_Click;
             // 
             // listViewVersions
             // 
@@ -105,7 +106,7 @@
             ClientSize = new Size(517, 210);
             Controls.Add(linkWebsite);
             Controls.Add(listViewVersions);
-            Controls.Add(cmdOk);
+            Controls.Add(buttonOk);
             Controls.Add(pictureBox1);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
@@ -125,7 +126,7 @@
         #endregion
 
         private PictureBox pictureBox1;
-        private Button cmdOk;
+        private Button buttonOk;
         private ListView listViewVersions;
         private ColumnHeader columnHeaderApplication;
         private ColumnHeader columnHeaderVersion;
