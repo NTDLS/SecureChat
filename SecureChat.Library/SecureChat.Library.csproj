@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="NTDLS.ReliableMessaging" Version="2.1.4" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="9.0.2" />
   </ItemGroup>
 
 </Project>

@@ -1,8 +1,10 @@
 ﻿using NTDLS.Helpers;
+using NTDLS.Persistence;
 using NTDLS.ReliableMessaging;
 using NTDLS.WinFormsHelpers;
 using SecureChat.Client.Models;
 using SecureChat.Library;
+using SecureChat.Library.Models;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
 using System.Diagnostics;
@@ -31,8 +33,23 @@ namespace SecureChat.Client.Forms
                 textBoxUsername.Text = "wana";
             }
             textBoxPassword.Text = "password";
+#else
+            var lastUser = Settings.Instance.Users.OrderByDescending(o => o.Value.LastLogin).FirstOrDefault();
+            if(lastUser.Value != null)
+            {
+                textBoxUsername.Text = lastUser.Key;
+            }
 #endif
+
+            Shown += (object? sender, EventArgs e) =>
+            {
+                if (textBoxUsername.Text.Length > 0)
+                {
+                    textBoxPassword.Focus();
+                }
+            };
         }
+
 
         /// <summary>
         /// Prompts the user for login credentials and returns NULL on cancel or a connected reliable messaging client on success.
@@ -110,9 +127,10 @@ namespace SecureChat.Client.Forms
                                     o.Result.DisplayName.EnsureNotNull(),
                                     o.Result.ProfileJson.EnsureNotNull()
                                     );
+                                return true;
                             }
 
-                            return !o.IsFaulted && o.Result.IsSuccess;
+                            return false;
                         }).Result;
 
                         client.OnException -= Client_OnException;
@@ -123,10 +141,21 @@ namespace SecureChat.Client.Forms
                         }
                         else
                         {
-                            if (Settings.Instance.Users.ContainsKey(username) == false)
+                            if (!Settings.Instance.Users.TryGetValue(username, out var userState))
                             {
                                 Settings.Instance.Users.Add(username, new PersistedUserState());
-                                Settings.Save();
+                            }
+                            else
+                            {
+                                userState.LastLogin = DateTime.UtcNow;
+                            }
+
+                            Settings.Save();
+
+                            if (checkBoxStayLoggedIn.Checked)
+                            {
+                                var autoLogin = new AutoLoginModel(username, passwordHash);
+                                LocalUserApplicationData.SaveToDisk(ScConstants.AppName, autoLogin, new PersistentEncryptionProvider());
                             }
                         }
 

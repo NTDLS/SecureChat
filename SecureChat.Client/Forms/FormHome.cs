@@ -1,4 +1,6 @@
-﻿using NTDLS.SecureKeyExchange;
+﻿using NTDLS.Helpers;
+using NTDLS.Persistence;
+using NTDLS.SecureKeyExchange;
 using NTDLS.WinFormsHelpers;
 using SecureChat.Client.Properties;
 using SecureChat.Library;
@@ -625,6 +627,16 @@ namespace SecureChat.Client.Forms
 
         private void LogoutToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            try
+            {
+                Task.Run(() => LocalSession.Current?.Client?.Disconnect());
+                Exceptions.Ignore(() => LocalUserApplicationData.DeleteFromDisk(ScConstants.AppName, typeof(AutoLoginModel)));
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         #endregion

@@ -8,6 +8,7 @@ namespace SecureChat.Library
         public static string ComputeSha256Hash(string input)
             => ComputeSha256Hash(Encoding.UTF8.GetBytes(input));
 
+
         public static string ComputeSha256Hash(byte[] inputBytes)
         {
             var stringBuilder = new StringBuilder();

@@ -9,6 +9,6 @@
         /// Whether the locally logged in user has set their status to away.
         /// </summary>
         public bool ExplicitAway { get; set; } = false;
+        public DateTime LastLogin { get; set; } = DateTime.UtcNow;
     }
 }
-

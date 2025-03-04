@@ -37,6 +37,7 @@
             buttonLogin = new Button();
             buttonCancel = new Button();
             linkLabelCreateAccount = new LinkLabel();
+            checkBoxStayLoggedIn = new CheckBox();
             ((System.ComponentModel.ISupportInitialize)pictureBoxLogo).BeginInit();
             SuspendLayout();
             // 
@@ -54,7 +55,7 @@
             textBoxUsername.Location = new Point(100, 31);
             textBoxUsername.Name = "textBoxUsername";
             textBoxUsername.Size = new Size(197, 23);
-            textBoxUsername.TabIndex = 1;
+            textBoxUsername.TabIndex = 0;
             // 
             // labelPassword
             // 
@@ -71,7 +72,7 @@
             textBoxPassword.Name = "textBoxPassword";
             textBoxPassword.PasswordChar = '*';
             textBoxPassword.Size = new Size(197, 23);
-            textBoxPassword.TabIndex = 2;
+            textBoxPassword.TabIndex = 1;
             // 
             // pictureBoxLogo
             // 
@@ -85,20 +86,20 @@
             // 
             // buttonLogin
             // 
-            buttonLogin.Location = new Point(141, 130);
+            buttonLogin.Location = new Point(141, 162);
             buttonLogin.Name = "buttonLogin";
             buttonLogin.Size = new Size(75, 23);
-            buttonLogin.TabIndex = 3;
+            buttonLogin.TabIndex = 4;
             buttonLogin.Text = "Login";
             buttonLogin.UseVisualStyleBackColor = true;
             buttonLogin.Click += ButtonLogin_Click;
             // 
             // buttonCancel
             // 
-            buttonCancel.Location = new Point(222, 130);
+            buttonCancel.Location = new Point(222, 162);
             buttonCancel.Name = "buttonCancel";
             buttonCancel.Size = new Size(75, 23);
-            buttonCancel.TabIndex = 4;
+            buttonCancel.TabIndex = 5;
             buttonCancel.Text = "Cancel";
             buttonCancel.UseVisualStyleBackColor = true;
             buttonCancel.Click += ButtonCancel_Click;
@@ -106,19 +107,30 @@
             // linkLabelCreateAccount
             // 
             linkLabelCreateAccount.AutoSize = true;
-            linkLabelCreateAccount.Location = new Point(100, 105);
+            linkLabelCreateAccount.Location = new Point(100, 130);
             linkLabelCreateAccount.Name = "linkLabelCreateAccount";
             linkLabelCreateAccount.Size = new Size(194, 15);
-            linkLabelCreateAccount.TabIndex = 9;
+            linkLabelCreateAccount.TabIndex = 3;
             linkLabelCreateAccount.TabStop = true;
-            linkLabelCreateAccount.Text = "Don't have an account? Create one.";
+            linkLabelCreateAccount.Text = "Don't have an account? Create one!";
             linkLabelCreateAccount.LinkClicked += LinkLabelCreateAccount_LinkClicked;
+            // 
+            // checkBoxStayLoggedIn
+            // 
+            checkBoxStayLoggedIn.AutoSize = true;
+            checkBoxStayLoggedIn.Location = new Point(100, 108);
+            checkBoxStayLoggedIn.Name = "checkBoxStayLoggedIn";
+            checkBoxStayLoggedIn.Size = new Size(106, 19);
+            checkBoxStayLoggedIn.TabIndex = 2;
+            checkBoxStayLoggedIn.Text = "Stay logged in?";
+            checkBoxStayLoggedIn.UseVisualStyleBackColor = true;
             // 
             // FormLogin
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(309, 161);
+            ClientSize = new Size(309, 191);
+            Controls.Add(checkBoxStayLoggedIn);
             Controls.Add(linkLabelCreateAccount);
             Controls.Add(buttonCancel);
             Controls.Add(buttonLogin);
@@ -149,5 +161,6 @@
         private Button buttonLogin;
         private Button buttonCancel;
         private LinkLabel linkLabelCreateAccount;
+        private CheckBox checkBoxStayLoggedIn;
     }
 }
