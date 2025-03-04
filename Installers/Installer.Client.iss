@@ -8,7 +8,7 @@
  AppCopyright                     = Copyright © 1995-2025 NetworkDLS.
  DefaultDirName                   = {commonpf}\NetworkDLS\Secure Chat
  DefaultGroupName                 = NetworkDLS\Secure Chat
- UninstallDisplayIcon             = {app}\SecureChat.Client.exe
+ UninstallDisplayIcon             = {app}\Secure Chat.exe
  SetupIconFile                    = "..\Media\Logo.ico"
  PrivilegesRequired               = admin 
  Uninstallable                    = Yes
@@ -26,15 +26,15 @@
  Source: "..\Media\Logo.ico"; DestDir: "{app}"; Flags: IgnoreVersion;
 
 [Icons]
- Name: "{commondesktop}\Secure Chat"; Filename: "{app}\SecureChat.Client.exe";
- Name: "{group}\Secure Chat"; Filename: "{app}\SecureChat.Client.exe";
+ Name: "{commondesktop}\Secure Chat"; Filename: "{app}\Secure Chat.exe";
+ Name: "{group}\Secure Chat"; Filename: "{app}\Secure Chat.exe";
 
 [Tasks]
   Name: "AutoStartAtLogin"; Description: "Start when I log into Windows?"; GroupDescription: "Startup options:";
 
 [Run]
- Filename: "{app}\SecureChat.Client.exe"; Description: "Run Secure Chat now?"; Flags: postinstall nowait skipifsilent shellexec;
+ Filename: "{app}\Secure Chat.exe"; Description: "Run Secure Chat now?"; Flags: postinstall nowait skipifsilent shellexec;
 
 [Registry]
-  Root: HKCU; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "Secure Chat"; ValueData: """{app}\SecureChat.Client.exe"""; Flags: uninsdeletevalue; Tasks: AutoStartAtLogin
+  Root: HKCU; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "Secure Chat"; ValueData: """{app}\Secure Chat.exe"""; Flags: uninsdeletevalue; Tasks: AutoStartAtLogin
  
