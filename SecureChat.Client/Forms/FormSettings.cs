@@ -1,4 +1,5 @@
-﻿using NTDLS.Persistence;
+﻿using NTDLS.Helpers;
+using NTDLS.Persistence;
 using NTDLS.WinFormsHelpers;
 using SecureChat.Library;
 using Serilog;
@@ -27,6 +28,8 @@ namespace SecureChat.Client.Forms
 
             AcceptButton = buttonSave;
             CancelButton = buttonCancel;
+
+            Exceptions.Ignore(() => checkBoxAutoStartAtWindowsLogin.Checked = RegistryHelper.IsAutoStartEnabled());
 
             textBoxServerAddress.Text = Settings.Instance.ServerAddress;
             textBoxServerPort.Text = $"{Settings.Instance.ServerPort:n0}";
@@ -81,6 +84,22 @@ namespace SecureChat.Client.Forms
                 settings.FileTransmissionChunkSize = textBoxFileTransmissionChunkSize.GetAndValidateNumeric(128, 1024 * 1024, "File transmission chunk size must be between [min] and [max].");
                 settings.MaxFileTransmissionSize = textBoxMaxFileTransmissionSize.GetAndValidateNumeric(128, 1024 * 1024 * 1024, "Max file transmission size must be between [min] and [max].");
 
+                try
+                {
+                    if (checkBoxAutoStartAtWindowsLogin.Checked)
+                    {
+                        RegistryHelper.EnableAutoStart();
+                    }
+                    else
+                    {
+                        RegistryHelper.DisableAutoStart();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to set auto-start registry entry. Error: {ex.GetBaseException().Message}", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
                 Settings.Instance = settings;
 
                 this.InvokeClose(DialogResult.OK);
@@ -90,7 +109,6 @@ namespace SecureChat.Client.Forms
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
         }
 
         private void ButtonCancel_Click(object sender, EventArgs e)

@@ -47,6 +47,7 @@ namespace SecureChat.Client.Forms
             textBoxServerPort = new TextBox();
             textBoxServerAddress = new TextBox();
             tabPageAdvanced = new TabPage();
+            checkBoxAutoStartAtWindowsLogin = new CheckBox();
             textBoxMaxFileTransmissionSize = new TextBox();
             textBoxFileTransmissionChunkSize = new TextBox();
             textBoxMaxMessages = new TextBox();
@@ -191,6 +192,7 @@ namespace SecureChat.Client.Forms
             // 
             // tabPageAdvanced
             // 
+            tabPageAdvanced.Controls.Add(checkBoxAutoStartAtWindowsLogin);
             tabPageAdvanced.Controls.Add(textBoxMaxFileTransmissionSize);
             tabPageAdvanced.Controls.Add(textBoxFileTransmissionChunkSize);
             tabPageAdvanced.Controls.Add(textBoxMaxMessages);
@@ -205,6 +207,16 @@ namespace SecureChat.Client.Forms
             tabPageAdvanced.TabIndex = 1;
             tabPageAdvanced.Text = "Advanced";
             tabPageAdvanced.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxAutoStartAtWindowsLogin
+            // 
+            checkBoxAutoStartAtWindowsLogin.AutoSize = true;
+            checkBoxAutoStartAtWindowsLogin.Location = new Point(8, 237);
+            checkBoxAutoStartAtWindowsLogin.Name = "checkBoxAutoStartAtWindowsLogin";
+            checkBoxAutoStartAtWindowsLogin.Size = new Size(178, 19);
+            checkBoxAutoStartAtWindowsLogin.TabIndex = 4;
+            checkBoxAutoStartAtWindowsLogin.Text = "Auto-start at windows login?";
+            checkBoxAutoStartAtWindowsLogin.UseVisualStyleBackColor = true;
             // 
             // textBoxMaxFileTransmissionSize
             // 
@@ -314,5 +326,6 @@ namespace SecureChat.Client.Forms
         private Label labelFileTransmissionChunkSize;
         private Label labelMaxMessages;
         private Label labelAutoAwayIdleSeconds;
+        private CheckBox checkBoxAutoStartAtWindowsLogin;
     }
 }

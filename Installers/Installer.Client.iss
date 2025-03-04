@@ -10,7 +10,7 @@
  DefaultGroupName                 = NetworkDLS\Secure Chat
  UninstallDisplayIcon             = {app}\SecureChat.Client.exe
  SetupIconFile                    = "..\Media\Logo.ico"
- PrivilegesRequired               = admin
+ PrivilegesRequired               = admin 
  Uninstallable                    = Yes
  MinVersion                       = 0.0,7.0
  Compression                      = bZIP/9
@@ -29,5 +29,12 @@
  Name: "{commondesktop}\Secure Chat"; Filename: "{app}\SecureChat.Client.exe";
  Name: "{group}\Secure Chat"; Filename: "{app}\SecureChat.Client.exe";
 
+[Tasks]
+  Name: "AutoStartAtLogin"; Description: "Start when I log into Windows?"; GroupDescription: "Startup options:";
+
 [Run]
  Filename: "{app}\SecureChat.Client.exe"; Description: "Run Secure Chat now?"; Flags: postinstall nowait skipifsilent shellexec;
+
+[Registry]
+  Root: HKCU; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "Secure Chat"; ValueData: """{app}\SecureChat.Client.exe"""; Flags: uninsdeletevalue; Tasks: AutoStartAtLogin
+ 
