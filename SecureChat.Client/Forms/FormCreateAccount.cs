@@ -18,6 +18,8 @@ namespace SecureChat.Client.Forms
             InitializeComponent();
 
             FormClosing += FormCreateAccount_FormClosing;
+            AcceptButton = buttonCreate;
+            CancelButton = buttonCancel;
         }
 
         internal string? CreateAccount()

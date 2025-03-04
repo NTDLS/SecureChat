@@ -6,7 +6,7 @@ INSERT INTO Account
 	PasswordHash,
 	LastSeen,
 	State,
-	Status
+	ProfileJson
 )
 SELECT
 	@Id,
@@ -15,5 +15,4 @@ SELECT
 	@PasswordHash,
 	@LastSeen,
 	'Offline',
-	''
-
+	null

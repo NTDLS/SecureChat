@@ -22,7 +22,7 @@
 
 [Files]
  Source: "publish\SecureChat.Server\*.*"; DestDir: "{app}"; Flags: IgnoreVersion RecurseSubDirs;
- Source: "..\Data\server.db"; DestDir: "{app}\data"; Flags: IgnoreVersion RecurseSubDirs;
+ Source: "..\Data\server.db"; DestDir: "{app}\data"; Flags: RecurseSubDirs OnlyIfDoesntExist;
  Source: "..\Media\Logo.ico"; DestDir: "{app}"; Flags: IgnoreVersion;
 
 [Run]
