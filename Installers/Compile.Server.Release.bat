@@ -4,5 +4,7 @@
 cd 
 md publish
 dotnet publish ..\SecureChat.Server -c Release -o publish\SecureChat.Server --runtime win-x64 --self-contained false
+
 iscc Installer.Server.iss
+rd publish\SecureChat.Server /s /q
 pause
