@@ -81,7 +81,15 @@ namespace SecureChat.Client.Forms
 
                         //Send our public key to the server and wait on a reply of their public key.
                         var remotePublicKey = client.Query(new ExchangePublicKeyQuery((Assembly.GetEntryAssembly()?.GetName().Version).EnsureNotNull(), keyPair.PublicRsaKey))
-                            .ContinueWith(o => o.Result.PublicRsaKey).Result;
+                            .ContinueWith(o =>
+                            {
+                                if (o.IsFaulted || !o.Result.IsSuccess)
+                                {
+                                    throw new Exception(string.IsNullOrEmpty(o.Result.ErrorMessage) ? "Unknown negotiation error." : o.Result.ErrorMessage);
+                                }
+
+                                return o.Result.PublicRsaKey;
+                            }).Result;
 
                         client.Notify(new InitializeServerClientCryptography());
                         client.SetCryptographyProvider(new ServerClientCryptographyProvider(remotePublicKey, keyPair.PrivateRsaKey));

@@ -73,7 +73,7 @@ namespace SecureChat.Client.Forms
                             {
                                 if (o.IsFaulted || !o.Result.IsSuccess)
                                 {
-                                    throw new Exception(string.IsNullOrEmpty(o.Result.ErrorMessage) ? "unknown error" : o.Result.ErrorMessage);
+                                    throw new Exception(string.IsNullOrEmpty(o.Result.ErrorMessage) ? "Unknown negotiation error." : o.Result.ErrorMessage);
                                 }
 
                                 return o.Result.PublicRsaKey;
