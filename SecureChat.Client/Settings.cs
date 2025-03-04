@@ -28,14 +28,14 @@ namespace SecureChat.Client
             LocalUserApplicationData.SaveToDisk(ScConstants.AppName, Instance);
         }
 
-        public string ServerAddress { get; set; } = "127.0.0.1";
-        public string Font { get; set; } = "Cascadia Mono SemiLight";
-        public float FontSize { get; set; } = 10.0f;
-        public int ServerPort { get; set; } = 13265;
-        public int AutoAwayIdleSeconds { get; set; } = 600;
-        public int MaxMessages { get; set; } = 100;
-        public int FileTransmissionChunkSize { get; set; } = 1024 * 8;
-        public int MaxFileTransmissionSize { get; set; } = 1024 * 1024 * 10;
+        public string ServerAddress { get; set; } = ScConstants.DefaultServerAddress;
+        public string Font { get; set; } = ScConstants.DefaultFont;
+        public float FontSize { get; set; } = ScConstants.DefaultFontSize;
+        public int ServerPort { get; set; } = ScConstants.DefaultServerPort;
+        public int AutoAwayIdleSeconds { get; set; } = ScConstants.DefaultAutoAwayIdleSeconds;
+        public int MaxMessages { get; set; } = ScConstants.DefaultMaxMessages;
+        public int FileTransmissionChunkSize { get; set; } = ScConstants.DefaultFileTransmissionChunkSize;
+        public int MaxFileTransmissionSize { get; set; } = ScConstants.DefaultMaxFileTransmissionSize;
 
         /// <summary>
         /// Per user state that is saved to disk.

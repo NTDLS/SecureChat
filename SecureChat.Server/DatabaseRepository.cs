@@ -13,7 +13,11 @@ namespace SecureChat.Server
 
         public DatabaseRepository(IConfiguration configuration)
         {
+#if DEBUG
+            var sqliteConnection = "..\\..\\..\\..\\data\\server.db";
+#else
             var sqliteConnection = configuration.GetValue<string>("SQLiteConnection");
+#endif
             _dbFactory = new ManagedDataStorageFactory($"Data Source={sqliteConnection}");
         }
 

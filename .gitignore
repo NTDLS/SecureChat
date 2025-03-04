@@ -12,3 +12,7 @@ SecureChat.Server/obj/
 SecureChat.Server/bin/
 
 .vs/
+
+Installers/publish/
+
+Installers/Output/
