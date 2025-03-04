@@ -56,12 +56,20 @@ namespace SecureChat.Client
 
         private void Timer_Tick(object? sender, EventArgs e)
         {
-            if (_firstShownTimer != null)
+            try
             {
-                _firstShownTimer.Enabled = false;
-                _firstShownTimer.Dispose();
+                if (_firstShownTimer != null)
+                {
+                    _firstShownTimer.Enabled = false;
+                    _firstShownTimer.Dispose();
 
-                Login();
+                    Login();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
