@@ -348,6 +348,9 @@ namespace SecureChat.Server
                 if (context.GetCryptographyProvider() != null)
                     throw new Exception("Cryptography has already been initialized.");
 
+                if (param.ClientVersion < ScConstants.MinClientVersion)
+                    throw new Exception($"Client version is unsupported, use version {ScConstants.MinClientVersion} or greater.");
+
                 var localPublicPrivateKeyPair = Crypto.GeneratePublicPrivateKeyPair();
                 _chatService.RegisterSession(context.ConnectionId, new ServerClientCryptographyProvider(param.PublicRsaKey, localPublicPrivateKeyPair.PrivateRsaKey));
                 return new ExchangePublicKeyQueryReply(localPublicPrivateKeyPair.PublicRsaKey);

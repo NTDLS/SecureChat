@@ -5,11 +5,13 @@ namespace SecureChat.Library.ReliableMessages
     public class ExchangePublicKeyQuery
         : IRmQuery<ExchangePublicKeyQueryReply>
     {
+        public Version ClientVersion { get; set; }
         public byte[] PublicRsaKey { get; set; }
 
-        public ExchangePublicKeyQuery(byte[] publicRsaKey)
+        public ExchangePublicKeyQuery(Version clientVersion, byte[] publicRsaKey)
         {
             PublicRsaKey = publicRsaKey;
+            ClientVersion = clientVersion;
         }
     }
 

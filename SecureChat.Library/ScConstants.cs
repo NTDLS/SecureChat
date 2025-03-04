@@ -8,6 +8,7 @@
         public const int AesKeySize = 256;
         public const int OfflineLastSeenSeconds = 60;
         public const int MinPasswordLength = 8;
+        public readonly static Version MinClientVersion = new Version(0, 0, 1, 0);
 
         public enum ScOnlineState
         {

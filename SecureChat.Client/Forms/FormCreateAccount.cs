@@ -1,9 +1,11 @@
-﻿using NTDLS.ReliableMessaging;
+﻿using NTDLS.Helpers;
+using NTDLS.ReliableMessaging;
 using NTDLS.WinFormsHelpers;
 using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace SecureChat.Client.Forms
 {
@@ -78,7 +80,7 @@ namespace SecureChat.Client.Forms
                         client.Connect(Settings.Instance.ServerAddress, Settings.Instance.ServerPort);
 
                         //Send our public key to the server and wait on a reply of their public key.
-                        var remotePublicKey = client.Query(new ExchangePublicKeyQuery(keyPair.PublicRsaKey))
+                        var remotePublicKey = client.Query(new ExchangePublicKeyQuery((Assembly.GetEntryAssembly()?.GetName().Version).EnsureNotNull(), keyPair.PublicRsaKey))
                             .ContinueWith(o => o.Result.PublicRsaKey).Result;
 
                         client.Notify(new InitializeServerClientCryptography());
