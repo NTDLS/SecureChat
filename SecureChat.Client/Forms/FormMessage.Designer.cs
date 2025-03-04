@@ -63,8 +63,8 @@
             // 
             splitContainer1.Panel2.Controls.Add(textBoxMessage);
             splitContainer1.Panel2.Controls.Add(buttonSend);
-            splitContainer1.Size = new Size(535, 442);
-            splitContainer1.SplitterDistance = 389;
+            splitContainer1.Size = new Size(524, 482);
+            splitContainer1.SplitterDistance = 424;
             splitContainer1.TabIndex = 2;
             // 
             // flowPanel
@@ -75,8 +75,8 @@
             flowPanel.FlowDirection = FlowDirection.TopDown;
             flowPanel.Location = new Point(0, 0);
             flowPanel.Name = "flowPanel";
-            flowPanel.Size = new Size(535, 389);
-            flowPanel.TabIndex = 1;
+            flowPanel.Size = new Size(524, 424);
+            flowPanel.TabIndex = 2;
             flowPanel.WrapContents = false;
             // 
             // textBoxMessage
@@ -85,16 +85,16 @@
             textBoxMessage.Location = new Point(0, 0);
             textBoxMessage.Multiline = true;
             textBoxMessage.Name = "textBoxMessage";
-            textBoxMessage.Size = new Size(460, 49);
-            textBoxMessage.TabIndex = 3;
+            textBoxMessage.Size = new Size(449, 54);
+            textBoxMessage.TabIndex = 0;
             // 
             // buttonSend
             // 
             buttonSend.Dock = DockStyle.Right;
-            buttonSend.Location = new Point(460, 0);
+            buttonSend.Location = new Point(449, 0);
             buttonSend.Name = "buttonSend";
-            buttonSend.Size = new Size(75, 49);
-            buttonSend.TabIndex = 2;
+            buttonSend.Size = new Size(75, 54);
+            buttonSend.TabIndex = 1;
             buttonSend.Text = "Send";
             buttonSend.UseVisualStyleBackColor = true;
             buttonSend.Click += ButtonSend_Click;
@@ -104,7 +104,7 @@
             menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, connectionToolStripMenuItem });
             menuStrip1.Location = new Point(5, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(535, 24);
+            menuStrip1.Size = new Size(524, 24);
             menuStrip1.TabIndex = 3;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -159,7 +159,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(545, 471);
+            ClientSize = new Size(534, 511);
             Controls.Add(splitContainer1);
             Controls.Add(menuStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");

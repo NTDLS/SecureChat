@@ -1,4 +1,6 @@
-﻿using SecureChat.Library.Models;
+﻿using NTDLS.WinFormsHelpers;
+using SecureChat.Library;
+using SecureChat.Library.Models;
 using SecureChat.Library.ReliableMessages;
 
 namespace SecureChat.Client.Forms
@@ -24,6 +26,8 @@ namespace SecureChat.Client.Forms
         {
             if (LocalSession.Current == null || !LocalSession.Current.Client.IsConnected)
             {
+                MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.InvokeClose(DialogResult.Cancel);
                 return;
             }
 
@@ -78,6 +82,8 @@ namespace SecureChat.Client.Forms
         {
             if (LocalSession.Current == null || !LocalSession.Current.Client.IsConnected)
             {
+                MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.InvokeClose(DialogResult.Cancel);
                 return;
             }
 

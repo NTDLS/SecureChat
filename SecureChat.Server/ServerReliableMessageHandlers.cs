@@ -26,6 +26,38 @@ namespace SecureChat.Server
         }
 
         /// <summary>
+        /// Client is sending an update to their display name and/or profile
+        /// </summary>
+        public UpdateAccountProfileReply UpdateAccountProfile(RmContext context, UpdateAccountProfile param)
+        {
+            try
+            {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
+                    ?? throw new Exception("Session not found.");
+
+
+                var account = _dbRepository.GetAccountById(session.AccountId.EnsureNotNull());
+
+                if (account.DisplayName != param.DisplayName)
+                {
+                    _dbRepository.UpdateAccountDisplayName(session.AccountId.EnsureNotNull(), param.DisplayName);
+                }
+
+                _dbRepository.UpdateAccountProfile(session.AccountId.EnsureNotNull(), param.Profile);
+
+                return new UpdateAccountProfileReply();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                return new UpdateAccountProfileReply(ex);
+            }
+        }
+
+        /// <summary>
         /// Client is accepting a contact invite request.
         /// </summary>
         public AcceptContactInviteReply AcceptContactInvite(RmContext context, AcceptContactInvite param)

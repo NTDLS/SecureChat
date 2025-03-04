@@ -17,9 +17,6 @@ namespace SecureChat.Client.Forms
 
         public FormHome()
         {
-            //TODO: We need to handle server disconnection:
-            //  LocalSession.Current.Client.IsConnected
-
             InitializeComponent();
 
             _treeImages.ColorDepth = ColorDepth.Depth32Bit;
@@ -135,53 +132,57 @@ namespace SecureChat.Client.Forms
 
         public TreeNode? GetRootNode()
         {
-            if (LocalSession.Current != null)
+            if (LocalSession.Current == null || !LocalSession.Current.Client.IsConnected)
             {
-                if (treeViewContacts.Nodes.Count > 0)
-                {
-                    TreeNode existingRootNode = treeViewContacts.Nodes[0];
+                return null;
+            }
 
-                    if (LocalSession.Current.ExplicitAway)
-                    {
-                        existingRootNode.ImageKey = ScOnlineState.Away.ToString();
-                        existingRootNode.SelectedImageKey = ScOnlineState.Away.ToString();
-                        existingRootNode.ToolTipText = ScOnlineState.Away.ToString();
-                    }
-                    else
-                    {
-                        existingRootNode.ImageKey = LocalSession.Current.State.ToString();
-                        existingRootNode.SelectedImageKey = LocalSession.Current.State.ToString();
-                        existingRootNode.ToolTipText = LocalSession.Current.State.ToString();
-                    }
+            var rootName = LocalSession.Current.DisplayName;
+            if (string.IsNullOrEmpty(LocalSession.Current.Profile.Tagline) == false)
+            {
+                rootName += $" - {LocalSession.Current.Profile.Tagline}";
+            }
 
-                    return existingRootNode;
-                }
+            if (treeViewContacts.Nodes.Count > 0)
+            {
+                TreeNode existingRootNode = treeViewContacts.Nodes[0];
 
-                var rootName = LocalSession.Current.DisplayName;
-                if (string.IsNullOrEmpty(LocalSession.Current.Profile.Tagline) == false)
-                {
-                    rootName += $" - {LocalSession.Current.Profile.Tagline}";
-                }
-                var rootNode = new TreeNode(rootName);
+                existingRootNode.Text = rootName;
 
                 if (LocalSession.Current.ExplicitAway)
                 {
-                    rootNode.ImageKey = ScOnlineState.Away.ToString();
-                    rootNode.SelectedImageKey = ScOnlineState.Away.ToString();
-                    rootNode.ToolTipText = ScOnlineState.Away.ToString();
+                    existingRootNode.ImageKey = ScOnlineState.Away.ToString();
+                    existingRootNode.SelectedImageKey = ScOnlineState.Away.ToString();
+                    existingRootNode.ToolTipText = ScOnlineState.Away.ToString();
                 }
                 else
                 {
-                    rootNode.ImageKey = LocalSession.Current.State.ToString();
-                    rootNode.SelectedImageKey = LocalSession.Current.State.ToString();
-                    rootNode.ToolTipText = LocalSession.Current.State.ToString();
+                    existingRootNode.ImageKey = LocalSession.Current.State.ToString();
+                    existingRootNode.SelectedImageKey = LocalSession.Current.State.ToString();
+                    existingRootNode.ToolTipText = LocalSession.Current.State.ToString();
                 }
 
-                treeViewContacts.Nodes.Add(rootNode);
-
-                return rootNode;
+                return existingRootNode;
             }
-            return null;
+
+            var rootNode = new TreeNode(rootName);
+
+            if (LocalSession.Current.ExplicitAway)
+            {
+                rootNode.ImageKey = ScOnlineState.Away.ToString();
+                rootNode.SelectedImageKey = ScOnlineState.Away.ToString();
+                rootNode.ToolTipText = ScOnlineState.Away.ToString();
+            }
+            else
+            {
+                rootNode.ImageKey = LocalSession.Current.State.ToString();
+                rootNode.SelectedImageKey = LocalSession.Current.State.ToString();
+                rootNode.ToolTipText = LocalSession.Current.State.ToString();
+            }
+
+            treeViewContacts.Nodes.Add(rootNode);
+
+            return rootNode;
         }
 
         private void FormHome_Load(object? sender, EventArgs e)
@@ -280,10 +281,10 @@ namespace SecureChat.Client.Forms
                 }
 
                 //Start the key exchange process then popup the chat window.
-                if (LocalSession.Current == null)
+                if (LocalSession.Current == null || !LocalSession.Current.Client.IsConnected)
                 {
-                    this.InvokeMessageBox("Local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
-                    this.InvokeClose(DialogResult.No);
+                    MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    this.InvokeClose(DialogResult.Cancel);
                     return;
                 }
 
@@ -357,11 +358,11 @@ namespace SecureChat.Client.Forms
                 _repopulateInProgress = true;
             }
 
-            if (LocalSession.Current == null || LocalSession.Current.Client.IsConnected == false)
+            if (LocalSession.Current == null || !LocalSession.Current.Client.IsConnected)
             {
-                _repopulateInProgress = false;
+                //MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.InvokeClose(DialogResult.Cancel);
                 LocalSession.Current = null;
-                this.InvokeClose(DialogResult.No);
                 return;
             }
 
@@ -401,10 +402,10 @@ namespace SecureChat.Client.Forms
 
         private void DeltaRepopulateTree(List<ContactModel> contacts)
         {
-            if (LocalSession.Current == null)
+            if (LocalSession.Current == null || !LocalSession.Current.Client.IsConnected)
             {
-                this.InvokeMessageBox("Local connection is not established.", ScConstants.AppName, MessageBoxButtons.OK);
-                this.InvokeClose(DialogResult.No);
+                MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.InvokeClose(DialogResult.Cancel);
                 return;
             }
 
@@ -429,9 +430,7 @@ namespace SecureChat.Client.Forms
                         if (matchingContact != null)
                         {
                             //Update tree node if it is in the fresh contact list.
-                            node.ImageKey = matchingContact.State.ToString();
-                            node.SelectedImageKey = matchingContact.State.ToString();
-                            node.ToolTipText = matchingContact.State.ToString();
+                            TreeViewHelpers.UpdateContactNode(node, matchingContact);
                         }
                         else
                         {
@@ -578,7 +577,10 @@ namespace SecureChat.Client.Forms
             try
             {
                 using var formProfile = new FormProfile(false);
-                formProfile.ShowDialog();
+                if (formProfile.ShowDialog() == DialogResult.OK)
+                {
+                    Repopulate();
+                }
             }
             catch (Exception ex)
             {

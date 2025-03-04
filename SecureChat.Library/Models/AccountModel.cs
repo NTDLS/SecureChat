@@ -2,22 +2,14 @@
 
 namespace SecureChat.Library.Models
 {
-    public class ContactModel
+    public class AccountModel
     {
         public Guid Id { get; set; }
+        public string Username { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
-        /// <summary>
-        /// Online, Offline or Away
-        /// </summary>
-        public string State { get; set; } = "Offline";
-
-        /// <summary>
-        /// Json containing the user's profile information deserialize into an AccountProfile object.
-        /// </summary>
-        public string? ProfileJson { get; set; }
-        public bool IsAccepted { get; set; }
-        public bool RequestedByMe { get; set; }
         public DateTime? LastSeen { get; set; }
+        public string State { get; set; } = "Offline";
+        public string? ProfileJson { get; set; }
 
         private AccountProfileModel? _profile = null;
         public AccountProfileModel Profile
@@ -28,6 +20,5 @@ namespace SecureChat.Library.Models
                 return _profile;
             }
         }
-
     }
 }

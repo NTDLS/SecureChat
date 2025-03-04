@@ -2,6 +2,7 @@
 using NTDLS.SqliteDapperWrapper;
 using SecureChat.Library;
 using SecureChat.Library.Models;
+using System.Text.Json;
 using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Server
@@ -35,6 +36,33 @@ namespace SecureChat.Server
                     DisplayName = displayName,
                     PasswordHash = passwordHash,
                     LastSeen = DateTime.UtcNow
+                });
+        }
+
+        public void UpdateAccountProfile(Guid accountId, AccountProfileModel profile)
+        {
+            _dbFactory.Execute(@"SqlQueries\UpdateAccountProfile.sql",
+                new
+                {
+                    Id = accountId,
+                    ProfileJson = JsonSerializer.Serialize(profile)
+                });
+        }
+
+        public void UpdateAccountDisplayName(Guid accountId, string displayName)
+        {
+            var existingAccountId = GetAccountIdByDisplayName(displayName);
+
+            if (existingAccountId != null && existingAccountId != accountId)
+            {
+                throw new Exception("Display name is already in use by another account.");
+            }
+
+            _dbFactory.Execute(@"SqlQueries\UpdateAccountDisplayName.sql",
+                new
+                {
+                    Id = accountId,
+                    DisplayName = displayName
                 });
         }
 
@@ -127,6 +155,15 @@ namespace SecureChat.Server
                 new
                 {
                     Username = username
+                });
+        }
+
+        public AccountModel GetAccountById(Guid accountId)
+        {
+            return _dbFactory.QuerySingle<AccountModel>(@"SqlQueries\GetAccountById.sql",
+                new
+                {
+                    Id = accountId
                 });
         }
 

@@ -5,18 +5,20 @@ namespace SecureChat.Client.Forms
 {
     public partial class FormMessage : Form
     {
+        private readonly int DefaultHeight = 550;
+        private readonly int DefaultWidth = 550;
+
         private readonly ActiveChat _activeChat;
         private readonly string[] allowedFileTypes = { "bmp", "jpg", "jpeg", "png", "gif" };
         private DateTime? _lastMessageReceived;
 
         internal FormMessage(ActiveChat activeChat)
         {
-            //TODO: We need to handle server disconnection:
-            //  LocalSession.Current.Client.IsConnected
-
             InitializeComponent();
 
             _activeChat = activeChat;
+
+            Text = $"{activeChat.DisplayName} - {Text}";
 
             FormClosing += FormMessage_FormClosing;
             Load += FormMessage_Load;
@@ -25,6 +27,7 @@ namespace SecureChat.Client.Forms
             Deactivate += FormMessage_Deactivate;
 
             textBoxMessage.KeyDown += TextBoxMessage_KeyDown;
+            textBoxMessage.Focus();
 
             var timer = new System.Windows.Forms.Timer();
             timer.Interval = 5000;
@@ -36,27 +39,30 @@ namespace SecureChat.Client.Forms
 
         private void FormMessage_Deactivate(object? sender, EventArgs e)
         {
-            Opacity = 0.95;
+            Exceptions.Ignore(() => Opacity = 0.95);
         }
 
         private void FormMessage_Activated(object? sender, EventArgs e)
         {
-            Opacity = 1;
+            Exceptions.Ignore(() => Opacity = 1);
         }
 
         private void FormMessage_Load(object? sender, EventArgs e)
         {
+            this.Height = DefaultHeight;
+            this.Width = DefaultWidth;
+
             var currentScreen = Screen.FromPoint(Cursor.Position);
             int offsetY = 10; // Distance above the taskbar
             int offsetX = 10; // Distance from the right of the screen.
-            int x = currentScreen.WorkingArea.Right - this.Width - offsetX;
-            int y = currentScreen.WorkingArea.Bottom - this.Height - offsetY;
+            int x = currentScreen.WorkingArea.Right - DefaultWidth - offsetX;
+            int y = currentScreen.WorkingArea.Bottom - DefaultHeight - offsetY;
             Location = new Point(x, y);
         }
 
         private void FormMessage_FormClosing(object? sender, FormClosingEventArgs e)
         {
-            if (LocalSession.Current == null || _activeChat.IsTerminated)
+            if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.Client.IsConnected)
             {
                 return; //Close the dialog.
             }
@@ -67,10 +73,11 @@ namespace SecureChat.Client.Forms
 
         private void Timer_Tick(object? sender, EventArgs e)
         {
-            if (LocalSession.Current == null)
+            if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.Client.IsConnected)
             {
                 return;
             }
+
             if (_activeChat.IsTerminated)
             {
                 return;
@@ -146,6 +153,16 @@ namespace SecureChat.Client.Forms
 
         public void AppendReceivedMessageLine(string fromName, string plainText, Color? color = null)
         {
+            this.Invoke(() =>
+            {
+                if (Visible == false)
+                {
+                    //We want to show the dialog, but keep it minimized so that it does not jump in front of the user.
+                    WindowState = FormWindowState.Minimized;
+                    Visible = true;
+                }
+            });
+
             _lastMessageReceived = DateTime.Now;
             AppendFlowControl(new FlowControlTextMessage(fromName, plainText, color));
         }
@@ -154,7 +171,7 @@ namespace SecureChat.Client.Forms
 
         private void ButtonSend_Click(object? sender, EventArgs e)
         {
-            if (LocalSession.Current == null)
+            if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.Client.IsConnected)
             {
                 AppendMessageLine("Not connected.", Color.Red);
                 return;

@@ -6,13 +6,13 @@ namespace SecureChat.Client
     {
         public static void AddContactNode(TreeNode parentNode, ContactModel contact)
         {
-            var childName = contact.DisplayName;
+            var contactNodeText = contact.DisplayName;
             if (string.IsNullOrEmpty(contact.Profile.Tagline) == false)
             {
-                childName += $" - {contact.Profile.Tagline}";
+                contactNodeText += $" - {contact.Profile.Tagline}";
             }
 
-            var node = new TreeNode(childName)
+            var node = new TreeNode(contactNodeText)
             {
                 Tag = contact,
                 ImageKey = contact.State.ToString(),
@@ -21,6 +21,21 @@ namespace SecureChat.Client
             };
 
             parentNode.Nodes.Add(node);
+        }
+
+        public static void UpdateContactNode(TreeNode node, ContactModel contact)
+        {
+            var contactNodeText = contact.DisplayName;
+            if (string.IsNullOrEmpty(contact.Profile.Tagline) == false)
+            {
+                contactNodeText += $" - {contact.Profile.Tagline}";
+            }
+
+            node.Text = contactNodeText;
+            node.Tag = contact;
+            node.ImageKey = contact.State.ToString();
+            node.SelectedImageKey = contact.State.ToString();
+            node.ToolTipText = contact.State.ToString();
         }
 
         public static TreeNode? FindNodeByAccountId(TreeNode parentNode, Guid accountId)

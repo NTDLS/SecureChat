@@ -331,7 +331,10 @@ namespace SecureChat.Client
             try
             {
                 using var formProfile = new FormProfile(true);
-                formProfile.ShowDialog();
+                if (formProfile.ShowDialog() == DialogResult.OK)
+                {
+                    LocalSession.Current?.FormHome.Repopulate();
+                }
             }
             catch (Exception ex)
             {
