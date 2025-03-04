@@ -622,7 +622,6 @@ namespace SecureChat.Client.Forms
         private void CloseToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
-
         }
 
         private void LogoutToolStripMenuItem_Click(object sender, EventArgs e)
@@ -639,7 +638,20 @@ namespace SecureChat.Client.Forms
             }
         }
 
-        #endregion
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                using var formSettings = new FormSettings(false);
+                formSettings.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
+        #endregion
     }
 }

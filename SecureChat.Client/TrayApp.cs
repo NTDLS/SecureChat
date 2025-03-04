@@ -42,6 +42,8 @@ namespace SecureChat.Client
                 _trayIcon.ContextMenuStrip.Items.Add("Login", null, OnLogin);
                 _trayIcon.ContextMenuStrip.Items.Add("Exit", null, OnExit);
 
+                _ = _trayIcon.ContextMenuStrip.Handle;
+
                 _firstShownTimer.Interval = 250;
                 _firstShownTimer.Tick += Timer_Tick;
                 _firstShownTimer.Enabled = true;
@@ -130,145 +132,114 @@ namespace SecureChat.Client
                 {
                     LoginResult? loginResult = null;
 
-                    try
+                    var autoLogin = Exceptions.Ignore(() =>
+                        LocalUserApplicationData.LoadFromDisk<AutoLoginModel>(ScConstants.AppName, new PersistentEncryptionProvider()));
+
+                    if (autoLogin != null)
                     {
-                        var autoLogin = LocalUserApplicationData.LoadFromDisk<AutoLoginModel>(ScConstants.AppName, new PersistentEncryptionProvider());
-                        if (autoLogin != null)
+                        Task.Run(() =>
                         {
-                            try
-                            {
+                            var keyPair = Crypto.GeneratePublicPrivateKeyPair();
+                            var client = new RmClient();
+                            client.OnException += Client_OnException;
+                            client.Connect(Settings.Instance.ServerAddress, Settings.Instance.ServerPort);
 
-                                var keyPair = Crypto.GeneratePublicPrivateKeyPair();
-                                var client = new RmClient();
-                                client.OnException += Client_OnException;
-                                client.Connect(Settings.Instance.ServerAddress, Settings.Instance.ServerPort);
-
-                                //Send our public key to the server and wait on a reply of their public key.
-                                var remotePublicKey = client.Query(new ExchangePublicKeyQuery((Assembly.GetEntryAssembly()?.GetName().Version).EnsureNotNull(), keyPair.PublicRsaKey))
-                                    .ContinueWith(o =>
-                                    {
-                                        if (o.IsFaulted || !o.Result.IsSuccess)
-                                        {
-                                            throw new Exception(string.IsNullOrEmpty(o.Result.ErrorMessage) ? "Unknown negotiation error." : o.Result.ErrorMessage);
-                                        }
-
-                                        return o.Result.PublicRsaKey;
-                                    }).Result;
-
-                                client.Notify(new InitializeServerClientCryptography());
-                                client.SetCryptographyProvider(new ServerClientCryptographyProvider(remotePublicKey, keyPair.PrivateRsaKey));
-
-                                Thread.Sleep(1000); //Give the server a moment to initialize the cryptography.
-
-                                bool explicitAway = false;
-                                if (Settings.Instance.Users.TryGetValue(autoLogin.Username, out var userPersist))
+                            //Send our public key to the server and wait on a reply of their public key.
+                            var remotePublicKey = client.Query(new ExchangePublicKeyQuery((Assembly.GetEntryAssembly()?.GetName().Version).EnsureNotNull(), keyPair.PublicRsaKey))
+                                .ContinueWith(o =>
                                 {
-                                    //If the user has an explicit away state, send it to the server at
-                                    //  login so the server can update the user's status appropriately.
-                                    explicitAway = userPersist.ExplicitAway;
-                                }
-
-                                var isSuccess = client.Query(new LoginQuery(autoLogin.Username, autoLogin.PasswordHash, explicitAway)).ContinueWith(o =>
-                                {
-                                    if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
+                                    if (o.IsFaulted || !o.Result.IsSuccess)
                                     {
-                                        throw new Exception(o.Result.ErrorMessage);
+                                        throw new Exception(string.IsNullOrEmpty(o.Result.ErrorMessage) ? "Unknown negotiation error." : o.Result.ErrorMessage);
                                     }
 
-                                    if (!o.IsFaulted && o.Result.IsSuccess)
-                                    {
-                                        loginResult = new LoginResult(client,
-                                            o.Result.AccountId.EnsureNotNull(),
-                                            o.Result.Username.EnsureNotNull(),
-                                            o.Result.DisplayName.EnsureNotNull(),
-                                            o.Result.ProfileJson.EnsureNotNull()
-                                            );
-                                        return true;
-                                    }
-
-                                    return false;
+                                    return o.Result.PublicRsaKey;
                                 }).Result;
 
-                                client.OnException -= Client_OnException;
+                            client.Notify(new InitializeServerClientCryptography());
+                            client.SetCryptographyProvider(new ServerClientCryptographyProvider(remotePublicKey, keyPair.PrivateRsaKey));
 
-                                if (!isSuccess)
+                            Thread.Sleep(1000); //Give the server a moment to initialize the cryptography.
+
+                            bool explicitAway = false;
+                            if (Settings.Instance.Users.TryGetValue(autoLogin.Username, out var userPersist))
+                            {
+                                //If the user has an explicit away state, send it to the server at
+                                //  login so the server can update the user's status appropriately.
+                                explicitAway = userPersist.ExplicitAway;
+                            }
+
+                            var isSuccess = client.Query(new LoginQuery(autoLogin.Username, autoLogin.PasswordHash, explicitAway)).ContinueWith(o =>
+                            {
+                                if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
                                 {
-                                    client.Disconnect();
+                                    throw new Exception(o.Result.ErrorMessage);
+                                }
+
+                                if (!o.IsFaulted && o.Result.IsSuccess)
+                                {
+                                    loginResult = new LoginResult(client,
+                                        o.Result.AccountId.EnsureNotNull(),
+                                        o.Result.Username.EnsureNotNull(),
+                                        o.Result.DisplayName.EnsureNotNull(),
+                                        o.Result.ProfileJson.EnsureNotNull()
+                                        );
+                                    return true;
+                                }
+
+                                return false;
+                            }).Result;
+
+                            client.OnException -= Client_OnException;
+
+                            if (!isSuccess || loginResult == null)
+                            {
+                                client.Disconnect();
+                            }
+                            else
+                            {
+                                if (!Settings.Instance.Users.TryGetValue(autoLogin.Username, out var userState))
+                                {
+                                    Settings.Instance.Users.Add(autoLogin.Username, new PersistedUserState());
                                 }
                                 else
                                 {
-                                    if (!Settings.Instance.Users.TryGetValue(autoLogin.Username, out var userState))
-                                    {
-                                        Settings.Instance.Users.Add(autoLogin.Username, new PersistedUserState());
-                                    }
-                                    else
-                                    {
-                                        userState.LastLogin = DateTime.UtcNow;
-                                    }
-
-                                    Settings.Save();
+                                    userState.LastLogin = DateTime.UtcNow;
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show(ex.GetBaseException().Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                        MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
 
-                    if (loginResult == null)
+                                Settings.Save();
+
+                                SetValidLogin(loginResult);
+                            }
+                        }).ContinueWith(o =>
+                        {
+                            if (loginResult == null)
+                            {
+                                using (_formLogin = new FormLogin())
+                                {
+                                    loginResult = _formLogin.DoLogin();
+                                    if (loginResult != null)
+                                    {
+                                        SetValidLogin(loginResult);
+                                    }
+                                }
+                                _formLogin = null;
+                            }
+                        });
+                    }
+                    else
                     {
                         using (_formLogin = new FormLogin())
                         {
                             loginResult = _formLogin.DoLogin();
+                            if (loginResult != null)
+                            {
+                                SetValidLogin(loginResult);
+                            }
                         }
                         _formLogin = null;
                     }
 
-                    if (loginResult != null)
-                    {
-                        loginResult.Client.OnDisconnected += RmClient_OnDisconnected;
-                        loginResult.Client.OnException += Client_OnException;
-                        loginResult.Client.AddHandler(new ClientReliableMessageHandlers());
-
-                        var formHome = new FormHome();
-                        formHome.CreateControl(); //Force the window handle to be created before the form is shown,
-                        var handle = formHome.Handle; // Accessing the Handle property forces handle creation
-
-                        if (Settings.Instance.Users.TryGetValue(loginResult.Username, out var persistedUserState) == false)
-                        {
-                            persistedUserState = new();
-                        }
-
-                        if (persistedUserState.ExplicitAway)
-                        {
-                            UpdateClientState(ScOnlineState.Away);
-                        }
-                        else
-                        {
-                            UpdateClientState(ScOnlineState.Online);
-                        }
-
-                        LocalSession.Current = new LocalSession(_trayIcon,
-                            formHome,
-                            loginResult.Client,
-                            loginResult.AccountId,
-                            loginResult.Username,
-                            loginResult.DisplayName)
-                        {
-                            Profile = loginResult.Profile,
-                            State = persistedUserState.ExplicitAway ? ScOnlineState.Away : ScOnlineState.Online,
-                            ExplicitAway = persistedUserState.ExplicitAway
-                        };
-
-                        _trayIcon.BalloonTipText = $"Welcome back {loginResult.DisplayName}, you are now logged in.";
-                        _trayIcon.ShowBalloonTip(3000);
-                    }
                 }
             }
             catch (Exception ex)
@@ -279,6 +250,51 @@ namespace SecureChat.Client
                 _trayIcon.ShowBalloonTip(3000);
 
             }
+        }
+
+        private void SetValidLogin(LoginResult loginResult)
+        {
+            loginResult.Client.OnDisconnected += RmClient_OnDisconnected;
+            loginResult.Client.OnException += Client_OnException;
+            loginResult.Client.AddHandler(new ClientReliableMessageHandlers());
+
+            //Yea, I am using the ContextMenuStrips thread for form creation.
+            var formHome = _trayIcon.ContextMenuStrip.EnsureNotNull().Invoke(() =>
+            {
+                var formHome = new FormHome();
+                formHome.CreateControl(); //Force the window handle to be created before the form is shown,
+                _ = formHome.Handle; // Accessing the Handle property forces handle creation
+                return formHome;
+            });
+
+            if (Settings.Instance.Users.TryGetValue(loginResult.Username, out var persistedUserState) == false)
+            {
+                persistedUserState = new();
+            }
+
+            if (persistedUserState.ExplicitAway)
+            {
+                UpdateClientState(ScOnlineState.Away);
+            }
+            else
+            {
+                UpdateClientState(ScOnlineState.Online);
+            }
+
+            LocalSession.Current = new LocalSession(_trayIcon,
+                formHome,
+                loginResult.Client,
+                loginResult.AccountId,
+                loginResult.Username,
+                loginResult.DisplayName)
+            {
+                Profile = loginResult.Profile,
+                State = persistedUserState.ExplicitAway ? ScOnlineState.Away : ScOnlineState.Online,
+                ExplicitAway = persistedUserState.ExplicitAway
+            };
+
+            _trayIcon.BalloonTipText = $"Welcome back {loginResult.DisplayName}, you are now logged in.";
+            _trayIcon.ShowBalloonTip(3000);
         }
 
         private void Client_OnException(RmContext? context, Exception ex, IRmPayload? payload)
