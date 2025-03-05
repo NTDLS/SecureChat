@@ -29,7 +29,10 @@ namespace SecureChat.Client.Forms
             Activated += FormMessage_Activated;
             Deactivate += FormMessage_Deactivate;
 
+            textBoxMessage.AllowDrop = true;
             textBoxMessage.KeyDown += TextBoxMessage_KeyDown;
+            textBoxMessage.DragEnter += TextBoxMessage_DragEnter;
+            textBoxMessage.DragDrop += TextBoxMessage_DragDrop;
             textBoxMessage.Focus();
 
             var timer = new System.Windows.Forms.Timer();
@@ -38,6 +41,44 @@ namespace SecureChat.Client.Forms
             timer.Enabled = true;
 
             AppendSystemMessageLine($"Chat with {_activeChat.DisplayName} started at {DateTime.Now}.");
+        }
+
+        private void TextBoxMessage_DragDrop(object? sender, DragEventArgs e)
+        {
+            var files = (string[]?)e.Data?.GetData(DataFormats.FileDrop);
+
+            if (files?.Length == 1)
+            {
+                TransmitFile(files[0]);
+            }
+        }
+
+        private void TextBoxMessage_DragEnter(object? sender, DragEventArgs e)
+        {
+            if (e.Data?.GetDataPresent(DataFormats.FileDrop) != null)
+            {
+                var files = (string[]?)e.Data.GetData(DataFormats.FileDrop);
+                if (files?.Length == 1)
+                {
+                    var fileExtension = Path.GetExtension(files[0]).ToLower();
+
+                    if (!allowedFileTypes.Contains(fileExtension.Substring(1)))
+                    {
+                        e.Effect = DragDropEffects.None;
+                        return;
+                    }
+
+                    e.Effect = DragDropEffects.Copy; // Allow drop
+                }
+                else
+                {
+                    e.Effect = DragDropEffects.None;
+                }
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
         }
 
         private void FormMessage_Shown(object? sender, EventArgs e)
@@ -141,6 +182,26 @@ namespace SecureChat.Client.Forms
             }
         }
 
+        public void AppendImageMessage(string fromName, byte[] imageBytes, bool playNotifications)
+        {
+            AppendFlowControl(new FlowControlImage(imageBytes));
+
+            if (Visible == false)
+            {
+                //We want to show the dialog, but keep it minimized so that it does not jump in front of the user.
+                WindowState = FormWindowState.Minimized;
+                Visible = true;
+            }
+
+            if (playNotifications)
+            {
+                if (WindowFlasher.FlashWindow(this))
+                {
+                    Notifications.MessageReceived(fromName);
+                }
+            }
+        }
+
         public void AppendSystemMessageLine(string message, Color? color = null)
         {
             AppendFlowControl(new FlowControlSystemText(message, color));
@@ -229,26 +290,31 @@ namespace SecureChat.Client.Forms
             openFileDialog.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.gif";
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                var fileExtension = Path.GetExtension(openFileDialog.FileName).ToLower();
+                TransmitFile(openFileDialog.FileName);
+            }
+        }
 
-                if (!allowedFileTypes.Contains(fileExtension.Substring(1)))
-                {
-                    AppendSystemMessageLine($"Unsupported file type: {fileExtension}.", Color.Red);
-                    return;
-                }
+        private void TransmitFile(string filename)
+        {
+            var fileExtension = Path.GetExtension(filename).ToLower();
 
-                long fileSize = (new FileInfo(openFileDialog.FileName)).Length;
+            if (!allowedFileTypes.Contains(fileExtension.Substring(1)))
+            {
+                AppendSystemMessageLine($"Unsupported file type: {fileExtension}.", Color.Red);
+                return;
+            }
 
-                if (fileSize > Settings.Instance.MaxFileTransmissionSize)
-                {
-                    AppendSystemMessageLine($"File is too large {Formatters.FileSize(fileSize)}, max size is {Formatters.FileSize(Settings.Instance.MaxFileTransmissionSize)}.", Color.Red);
-                }
-                else if (fileSize > 0)
-                {
-                    var imageBytes = File.ReadAllBytes(openFileDialog.FileName);
+            long fileSize = (new FileInfo(filename)).Length;
 
-                    Task.Run(() => _activeChat.TransmitFile(openFileDialog.FileName, imageBytes));
-                }
+            if (fileSize > Settings.Instance.MaxFileTransmissionSize)
+            {
+                AppendSystemMessageLine($"File is too large {Formatters.FileSize(fileSize)}, max size is {Formatters.FileSize(Settings.Instance.MaxFileTransmissionSize)}.", Color.Red);
+            }
+            else if (fileSize > 0)
+            {
+                var imageBytes = File.ReadAllBytes(filename);
+
+                Task.Run(() => _activeChat.TransmitFile(filename, imageBytes));
             }
         }
 

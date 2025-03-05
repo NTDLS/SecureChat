@@ -73,7 +73,7 @@ namespace SecureChat.Client
                 return;
             }
 
-            Form?.AppendFlowControl(new FlowControlImage(imageBytes));
+            Form?.AppendImageMessage(DisplayName, imageBytes, true);
         }
 
         public void ReceiveMessage(byte[] cipherText)
@@ -134,7 +134,7 @@ namespace SecureChat.Client
                 if (!o.IsFaulted && o.Result.IsSuccess)
                 {
                     //Only show the image locally if the file was successfully transmitted.
-                    Form?.AppendFlowControl(new FlowControlImage(fileBytes));
+                    Form?.AppendImageMessage(LocalSession.Current.DisplayName, fileBytes, false);
                 }
                 else
                 {
