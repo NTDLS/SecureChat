@@ -16,7 +16,7 @@
         public const string AppName = "Secure Chat";
         public const string DefaultFont = "Cascadia Mono SemiLight";
         public const string DefaultServerAddress = "securechat.ntdls.com";
-        public readonly static Version MinClientVersion = new Version(1, 0, 1, 0);
+        public readonly static Version MinClientVersion = new Version(1, 0, 2, 0);
 
         public enum ScOnlineState
         {
