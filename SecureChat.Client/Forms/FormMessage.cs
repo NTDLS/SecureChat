@@ -22,12 +22,33 @@ namespace SecureChat.Client.Forms
 
             Text = $"{activeChat.DisplayName} - {Text}";
 
-            FormClosing += FormMessage_FormClosing;
-            Load += FormMessage_Load;
-            Shown += FormMessage_Shown;
+            FormClosing += (object? sender, FormClosingEventArgs e) =>
+            {
+                if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.Client.IsConnected)
+                {
+                    return; //Close the dialog.
+                }
 
-            Activated += FormMessage_Activated;
-            Deactivate += FormMessage_Deactivate;
+                e.Cancel = true;
+                Hide();
+            };
+
+            Load += (object? sender, EventArgs e) =>
+            {
+                Height = DefaultHeight;
+                Width = DefaultWidth;
+
+                var currentScreen = Screen.FromPoint(Cursor.Position);
+                int offsetY = 10; // Distance above the taskbar
+                int offsetX = 10; // Distance from the right of the screen.
+                int x = currentScreen.WorkingArea.Right - DefaultWidth - offsetX;
+                int y = currentScreen.WorkingArea.Bottom - DefaultHeight - offsetY;
+                Location = new Point(x, y);
+            };
+
+            Shown += (object? sender, EventArgs e) => textBoxMessage.Focus();
+            Activated += (object? sender, EventArgs e) => Exceptions.Ignore(() => Opacity = 1.0);
+            Deactivate += (object? sender, EventArgs e) => Exceptions.Ignore(() => Opacity = 0.95);
 
             textBoxMessage.AllowDrop = true;
             textBoxMessage.KeyDown += TextBoxMessage_KeyDown;
@@ -49,7 +70,7 @@ namespace SecureChat.Client.Forms
 
             if (files?.Length == 1)
             {
-                TransmitFile(files[0]);
+                TransmitFileToRemoteClient(files[0]);
             }
         }
 
@@ -79,45 +100,6 @@ namespace SecureChat.Client.Forms
             {
                 e.Effect = DragDropEffects.None;
             }
-        }
-
-        private void FormMessage_Shown(object? sender, EventArgs e)
-        {
-            textBoxMessage.Focus();
-        }
-
-        private void FormMessage_Deactivate(object? sender, EventArgs e)
-        {
-            Exceptions.Ignore(() => Opacity = 0.95);
-        }
-
-        private void FormMessage_Activated(object? sender, EventArgs e)
-        {
-            Exceptions.Ignore(() => Opacity = 1);
-        }
-
-        private void FormMessage_Load(object? sender, EventArgs e)
-        {
-            this.Height = DefaultHeight;
-            this.Width = DefaultWidth;
-
-            var currentScreen = Screen.FromPoint(Cursor.Position);
-            int offsetY = 10; // Distance above the taskbar
-            int offsetX = 10; // Distance from the right of the screen.
-            int x = currentScreen.WorkingArea.Right - DefaultWidth - offsetX;
-            int y = currentScreen.WorkingArea.Bottom - DefaultHeight - offsetY;
-            Location = new Point(x, y);
-        }
-
-        private void FormMessage_FormClosing(object? sender, FormClosingEventArgs e)
-        {
-            if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.Client.IsConnected)
-            {
-                return; //Close the dialog.
-            }
-
-            e.Cancel = true;
-            Hide();
         }
 
         private void Timer_Tick(object? sender, EventArgs e)
@@ -159,6 +141,39 @@ namespace SecureChat.Client.Forms
 
                 e.SuppressKeyPress = true;
             }
+            else if (e.Control && e.KeyCode == Keys.V) //Paste
+            {
+                if (Clipboard.ContainsImage())
+                {
+                    var image = Clipboard.GetImage();
+                    if (image != null)
+                    {
+                        var imageBytes = Imaging.ImageToPngBytes(image);
+                        Task.Run(() => _activeChat.TransmitFile("clipboard.png", imageBytes));
+                    }
+                    e.SuppressKeyPress = true;
+                }
+                else if (Clipboard.ContainsFileDropList()) // If clipboard contains file(s)
+                {
+                    string[] files = Clipboard.GetFileDropList().Cast<string>().ToArray();
+
+                    if (files.Length == 1)
+                    {
+                        string filename = files[0];
+                        var fileExtension = Path.GetExtension(filename).ToLower();
+                        if (allowedFileTypes.Contains(fileExtension.Substring(1)))
+                        {
+                            Image image = Image.FromFile(filename);
+                            var imageBytes = Imaging.ImageToPngBytes(image);
+                            Task.Run(() => _activeChat.TransmitFile("clipboard.png", imageBytes));
+                        }
+                    }
+                }
+                else
+                {
+                    //textBoxMessage.Paste();
+                }
+            }
         }
 
         #region Append Flow Controls.
@@ -186,20 +201,23 @@ namespace SecureChat.Client.Forms
         {
             AppendFlowControl(new FlowControlImage(imageBytes));
 
-            if (Visible == false)
+            Invoke(() =>
             {
-                //We want to show the dialog, but keep it minimized so that it does not jump in front of the user.
-                WindowState = FormWindowState.Minimized;
-                Visible = true;
-            }
-
-            if (playNotifications)
-            {
-                if (WindowFlasher.FlashWindow(this))
+                if (Visible == false)
                 {
-                    Notifications.MessageReceived(fromName);
+                    //We want to show the dialog, but keep it minimized so that it does not jump in front of the user.
+                    WindowState = FormWindowState.Minimized;
+                    Visible = true;
                 }
-            }
+
+                if (playNotifications)
+                {
+                    if (WindowFlasher.FlashWindow(this))
+                    {
+                        Notifications.MessageReceived(fromName);
+                    }
+                }
+            });
         }
 
         public void AppendSystemMessageLine(string message, Color? color = null)
@@ -209,20 +227,12 @@ namespace SecureChat.Client.Forms
 
         public void AppendMessageLine(string message, Color? color = null)
         {
-            if (InvokeRequired)
-            {
-                Invoke(AppendMessageLine, [message, color]);
-                return;
-            }
-            lock (flowPanel)
-            {
-                AppendFlowControl(new FlowControlSystemText(message, color));
-            }
+            AppendFlowControl(new FlowControlSystemText(message, color));
         }
 
         public void AppendReceivedMessageLine(string fromName, string plainText, bool playNotifications, Color? color = null)
         {
-            this.Invoke(() =>
+            Invoke(() =>
             {
                 if (Visible == false)
                 {
@@ -241,7 +251,15 @@ namespace SecureChat.Client.Forms
             });
 
             _lastMessageReceived = DateTime.Now;
-            AppendFlowControl(new FlowControlTextMessage(fromName, plainText, color));
+
+            if (plainText.StartsWith("http://") || plainText.StartsWith("https://"))
+            {
+                AppendFlowControl(new FlowControlHyperlink(fromName, plainText, color));
+            }
+            else
+            {
+                AppendFlowControl(new FlowControlTextMessage(fromName, plainText, color));
+            }
         }
 
         #endregion
@@ -290,11 +308,11 @@ namespace SecureChat.Client.Forms
             openFileDialog.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.gif";
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                TransmitFile(openFileDialog.FileName);
+                TransmitFileToRemoteClient(openFileDialog.FileName);
             }
         }
 
-        private void TransmitFile(string filename)
+        private void TransmitFileToRemoteClient(string filename)
         {
             var fileExtension = Path.GetExtension(filename).ToLower();
 

@@ -184,7 +184,7 @@ namespace SecureChat.Server
         {
             return _dbFactory.Ephemeral<LoginModel?>(o =>
             {
-                var login = _dbFactory.QueryFirst<LoginModel>(@"SqlQueries\Login.sql",
+                var login = _dbFactory.QueryFirstOrDefault<LoginModel>(@"SqlQueries\Login.sql",
                     new
                     {
                         Username = username,

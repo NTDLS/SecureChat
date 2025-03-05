@@ -10,7 +10,7 @@
 
     <Company>NetworkDLS</Company>
     <Copyright>Copyright © 2025 NetworkDLS</Copyright>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <Authors>NetworkDLS</Authors>
     <AssemblyName>Secure Chat</AssemblyName>
   </PropertyGroup>
@@ -41,6 +41,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Controls\FlowControlHyperlink.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Update="Controls\FlowControlTextMessage.cs">
       <SubType>Component</SubType>
     </Compile>

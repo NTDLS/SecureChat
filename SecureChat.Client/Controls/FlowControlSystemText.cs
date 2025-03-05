@@ -11,7 +11,7 @@ namespace SecureChat.Client.Controls
             Margin = new Padding(0);
 
 
-            var lblMessage = new Label
+            var labelMessage = new Label
             {
                 Text = message,
                 AutoSize = true,
@@ -19,7 +19,7 @@ namespace SecureChat.Client.Controls
                 Font = Fonts.Instance.Italic,
                 Padding = new Padding(0)
             };
-            Controls.Add(lblMessage);
+            Controls.Add(labelMessage);
         }
     }
 }

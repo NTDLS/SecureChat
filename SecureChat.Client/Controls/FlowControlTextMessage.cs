@@ -4,6 +4,8 @@ namespace SecureChat.Client.Controls
 {
     public class FlowControlTextMessage : FlowLayoutPanel
     {
+        private readonly Label _labelMessage;
+
         public FlowControlTextMessage(string displayName, string message, Color? color)
         {
             FlowDirection = FlowDirection.LeftToRight;
@@ -11,7 +13,7 @@ namespace SecureChat.Client.Controls
             Margin = new Padding(0);
             Padding = new Padding(0);
 
-            var lblDisplayName = new Label
+            var labelDisplayName = new Label
             {
                 Text = displayName,
                 AutoSize = true,
@@ -21,9 +23,9 @@ namespace SecureChat.Client.Controls
                 Padding = new Padding(0),
                 Margin = new Padding(0)
             };
-            Controls.Add(lblDisplayName);
+            Controls.Add(labelDisplayName);
 
-            var lblMessage = new Label
+            _labelMessage = new Label
             {
                 Text = message,
                 AutoSize = true,
@@ -33,7 +35,37 @@ namespace SecureChat.Client.Controls
                 Padding = new Padding(0),
                 Margin = new Padding(0)
             };
-            Controls.Add(lblMessage);
+
+            _labelMessage.MouseClick += LabelMessage_MouseClick;
+            Controls.Add(_labelMessage);
+        }
+
+        private void LabelMessage_MouseClick(object? sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                var contextMenu = new ContextMenuStrip();
+                contextMenu.Items.Add("Copy", null, OnCopy);
+                contextMenu.Items.Add(new ToolStripSeparator());
+                contextMenu.Items.Add("Remove", null, OnRemove);
+                contextMenu.Show(_labelMessage, e.Location);
+            }
+        }
+
+        private void OnRemove(object? sender, EventArgs e)
+        {
+            _labelMessage.Text = string.Empty;
+        }
+
+        private void OnCopy(object? sender, EventArgs e)
+        {
+            try
+            {
+                Clipboard.SetText(_labelMessage.Text);
+            }
+            catch
+            {
+            }
         }
     }
 }
