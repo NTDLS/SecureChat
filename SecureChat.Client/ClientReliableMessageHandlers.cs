@@ -30,7 +30,7 @@ namespace SecureChat.Client
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Cryptography has not been initialized.");
 
-                var activeChat = LocalSession.Current.ActiveChats.FirstOrDefault(o => o.AccountId == param.AccountId)
+                var activeChat = LocalSession.Current.GetActiveChat(param.PeerToPeerId)
                     ?? throw new Exception("Chat session was not found.");
 
                 activeChat.FileReceiveBuffers.Add(param.FileId, new FileReceiveBuffer(param.FileId, param.FileName, param.FileSize));
@@ -54,7 +54,7 @@ namespace SecureChat.Client
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Cryptography has not been initialized.");
 
-                var activeChat = LocalSession.Current.ActiveChats.FirstOrDefault(o => o.AccountId == param.AccountId)
+                var activeChat = LocalSession.Current.GetActiveChat(param.PeerToPeerId)
                     ?? throw new Exception("Chat session was not found.");
 
                 if (activeChat.FileReceiveBuffers.TryGetValue(param.FileId, out var buffer))
@@ -85,7 +85,7 @@ namespace SecureChat.Client
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Cryptography has not been initialized.");
 
-                var activeChat = LocalSession.Current.ActiveChats.FirstOrDefault(o => o.AccountId == param.AccountId)
+                var activeChat = LocalSession.Current.GetActiveChat(param.PeerToPeerId)
                     ?? throw new Exception("Chat session was not found.");
 
                 if (activeChat.FileReceiveBuffers.TryGetValue(param.FileId, out var buffer))
@@ -119,7 +119,7 @@ namespace SecureChat.Client
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Cryptography has not been initialized.");
 
-                var activeChat = LocalSession.Current.ActiveChats.FirstOrDefault(o => o.AccountId == param.AccountId)
+                var activeChat = LocalSession.Current.GetActiveChat(param.PeerToPeerId)
                     ?? throw new Exception("Chat session was not found.");
 
                 activeChat?.Terminate();
@@ -140,7 +140,7 @@ namespace SecureChat.Client
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Cryptography has not been initialized.");
 
-                var activeChat = LocalSession.Current.ActiveChats.FirstOrDefault(o => o.AccountId == param.MessageFromAccountId)
+                var activeChat = LocalSession.Current.GetActiveChat(param.PeerToPeerId)
                     ?? throw new Exception("Chat session was not found.");
 
                 activeChat?.ReceiveMessage(param.CipherText);
@@ -169,7 +169,7 @@ namespace SecureChat.Client
                 //TODO: this is the NASCCL encryption key we will use for all user communication (but not control messages).
                 //Console.WriteLine($"SharedSecret: {Crypto.ComputeSha256Hash(compoundNegotiator.SharedSecret)}");
 
-                var activeChat = LocalSession.Current.AddActiveChat(param.PeerConnectionId, param.SourceAccountId, param.DisplayName, compoundNegotiator.SharedSecret);
+                var activeChat = LocalSession.Current.AddActiveChat(param.PeerToPeerId, param.PeerConnectionId, param.SourceAccountId, param.DisplayName, compoundNegotiator.SharedSecret);
 
                 LocalSession.Current.FormHome.Invoke(() =>
                 {

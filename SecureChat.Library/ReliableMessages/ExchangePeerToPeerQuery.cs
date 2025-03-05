@@ -7,12 +7,12 @@ namespace SecureChat.Library.ReliableMessages
     {
         public byte[] CipherText { get; set; }
         public Guid ConnectionId { get; set; }
-        public Guid MessageFromAccountId { get; set; }
+        public Guid PeerToPeerId { get; set; }
 
-        public ExchangePeerToPeerQuery(Guid connectionId, Guid messageFromAccountId, byte[] cipherText)
+        public ExchangePeerToPeerQuery(Guid peerToPeerId, Guid connectionId, byte[] cipherText)
         {
+            PeerToPeerId = peerToPeerId;
             ConnectionId = connectionId;
-            MessageFromAccountId = messageFromAccountId;
             CipherText = cipherText;
         }
     }

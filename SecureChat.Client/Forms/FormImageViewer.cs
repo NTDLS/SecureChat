@@ -1,4 +1,7 @@
 ﻿using SecureChat.Client.Helpers;
+using SecureChat.Library;
+using Serilog;
+using System.Diagnostics;
 
 namespace SecureChat.Client.Forms
 {
@@ -17,6 +20,7 @@ namespace SecureChat.Client.Forms
             pictureBoxImage.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxImage.Dock = DockStyle.Fill;
             pictureBoxImage.Image = image;
+            pictureBoxImage.MouseClick += Image_MouseClick;
 
             if (image.Width > 800 || image.Height > 600)
             {
@@ -25,7 +29,7 @@ namespace SecureChat.Client.Forms
             }
             else if (image.Width < 300 || image.Height < 200)
             {
-                Width = 250;
+                Width = 300;
                 Height = 200;
             }
             else
@@ -42,21 +46,53 @@ namespace SecureChat.Client.Forms
             AdjustImageSize();
         }
 
+        private void Image_MouseClick(object? sender, MouseEventArgs e)
+        {
+            try
+            {
+                if (e.Button == MouseButtons.Right)
+                {
+                    var contextMenu = new ContextMenuStrip();
+                    contextMenu.Items.Add("Save", null, OnSaveImage);
+                    contextMenu.Items.Add("Copy", null, OnCopyImage);
+                    contextMenu.Show(pictureBoxImage, e.Location);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void AdjustImageSize()
         {
-            if (_image == null) return;
+            try
+            {
+                if (_image == null) return;
 
-            if (ClientSize.Width > _image.Width && ClientSize.Height > _image.Height)
-            {
-                pictureBoxImage.SizeMode = PictureBoxSizeMode.CenterImage;
+                if (ClientSize.Width > _image.Width && ClientSize.Height > _image.Height)
+                {
+                    pictureBoxImage.SizeMode = PictureBoxSizeMode.CenterImage;
+                }
+                else
+                {
+                    pictureBoxImage.SizeMode = PictureBoxSizeMode.Zoom;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                pictureBoxImage.SizeMode = PictureBoxSizeMode.Zoom;
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OnSaveImage(sender, e);
+        }
+
+        private void OnSaveImage(object? sender, EventArgs e)
         {
             if (pictureBoxImage.Image != null)
             {
@@ -71,6 +107,20 @@ namespace SecureChat.Client.Forms
                 {
                     File.WriteAllBytes(sfd.FileName, imageBytes);
                 }
+            }
+        }
+
+        private void OnCopyImage(object? sender, EventArgs e)
+        {
+            try
+            {
+                if (pictureBoxImage.Image != null)
+                {
+                    Clipboard.SetImage(pictureBoxImage.Image);
+                }
+            }
+            catch
+            {
             }
         }
     }

@@ -4,10 +4,12 @@ namespace SecureChat.Client.Controls
 {
     public class FlowControlTextMessage : FlowLayoutPanel
     {
+        private readonly FlowLayoutPanel _parent;
         private readonly Label _labelMessage;
 
-        public FlowControlTextMessage(string displayName, string message, Color? color)
+        public FlowControlTextMessage(FlowLayoutPanel parent, string displayName, string message, Color? color)
         {
+            _parent = parent;
             FlowDirection = FlowDirection.LeftToRight;
             AutoSize = true;
             Margin = new Padding(0);
@@ -54,7 +56,14 @@ namespace SecureChat.Client.Controls
 
         private void OnRemove(object? sender, EventArgs e)
         {
-            _labelMessage.Text = string.Empty;
+            try
+            {
+                _labelMessage.Text = string.Empty;
+                _parent.Controls.Remove(this);
+            }
+            catch
+            {
+            }
         }
 
         private void OnCopy(object? sender, EventArgs e)

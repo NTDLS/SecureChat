@@ -7,12 +7,12 @@ namespace SecureChat.Library.ReliableMessages
     {
         public Guid FileId { get; set; }
         public Guid ConnectionId { get; set; }
-        public Guid AccountId { get; set; }
         public byte[] Bytes { get; set; }
+        public Guid PeerToPeerId { get; set; }
 
-        public FileTransmissionChunk(Guid connectionId, Guid accountId, Guid fileId, byte[] bytes)
+        public FileTransmissionChunk(Guid peerToPeerId, Guid connectionId, Guid fileId, byte[] bytes)
         {
-            AccountId = accountId;
+            PeerToPeerId = peerToPeerId;
             ConnectionId = connectionId;
             FileId = fileId;
             Bytes = bytes;

@@ -9,16 +9,12 @@ namespace SecureChat.Library.ReliableMessages
         /// ConnectionId of the remote client to terminate the chat with.
         /// </summary>
         public Guid ConnectionId { get; set; }
+        public Guid PeerToPeerId { get; set; }
 
-        /// <summary>
-        /// The AccountId of the local client.
-        /// </summary>
-        public Guid AccountId { get; set; }
-
-        public TerminateChat(Guid connectionId, Guid accountId)
+        public TerminateChat(Guid connectionId, Guid peerToPeerId)
         {
             ConnectionId = connectionId;
-            AccountId = accountId;
+            PeerToPeerId = peerToPeerId;
         }
     }
 }

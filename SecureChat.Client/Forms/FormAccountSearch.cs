@@ -2,6 +2,8 @@
 using SecureChat.Library;
 using SecureChat.Library.Models;
 using SecureChat.Library.ReliableMessages;
+using Serilog;
+using System.Diagnostics;
 
 namespace SecureChat.Client.Forms
 {
@@ -24,52 +26,60 @@ namespace SecureChat.Client.Forms
 
         private void DataGridViewAccounts_CellContentClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (LocalSession.Current == null || !LocalSession.Current.Client.IsConnected)
+            try
             {
-                MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.InvokeClose(DialogResult.Cancel);
-                return;
-            }
-
-            if (e.RowIndex >= 0 && dataGridViewAccounts.Columns[e.ColumnIndex] is DataGridViewButtonColumn)
-            {
-                if (dataGridViewAccounts.Rows[e.RowIndex].Tag is AccountSearchModel account)
+                if (LocalSession.Current == null || !LocalSession.Current.Client.IsConnected)
                 {
-                    if (dataGridViewAccounts.Rows[e.RowIndex].Cells[e.ColumnIndex].Value?.ToString() == "Invite")
+                    MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    this.InvokeClose(DialogResult.Cancel);
+                    return;
+                }
+
+                if (e.RowIndex >= 0 && dataGridViewAccounts.Columns[e.ColumnIndex] is DataGridViewButtonColumn)
+                {
+                    if (dataGridViewAccounts.Rows[e.RowIndex].Tag is AccountSearchModel account)
                     {
-                        dataGridViewAccounts.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "Sending";
-
-                        LocalSession.Current.Client.Query(new InviteContactQuery(account.Id)).ContinueWith(o =>
+                        if (dataGridViewAccounts.Rows[e.RowIndex].Cells[e.ColumnIndex].Value?.ToString() == "Invite")
                         {
-                            if (!o.IsFaulted && o.Result.IsSuccess)
+                            dataGridViewAccounts.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "Sending";
+
+                            LocalSession.Current.Client.Query(new InviteContactQuery(account.Id)).ContinueWith(o =>
                             {
-                                Invoke(() =>
+                                if (!o.IsFaulted && o.Result.IsSuccess)
                                 {
-                                    dataGridViewAccounts.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "Remove";
-                                });
+                                    Invoke(() =>
+                                    {
+                                        dataGridViewAccounts.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "Remove";
+                                    });
 
-                                LocalSession.Current.FormHome.Repopulate();
-                            }
-                        });
-                    }
-                    else if (dataGridViewAccounts.Rows[e.RowIndex].Cells[e.ColumnIndex].Value?.ToString() == "Remove")
-                    {
-                        dataGridViewAccounts.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "Removing";
-
-                        LocalSession.Current.Client.Query(new RemoveContactQuery(account.Id)).ContinueWith(o =>
+                                    LocalSession.Current.FormHome.Repopulate();
+                                }
+                            });
+                        }
+                        else if (dataGridViewAccounts.Rows[e.RowIndex].Cells[e.ColumnIndex].Value?.ToString() == "Remove")
                         {
-                            if (!o.IsFaulted && o.Result.IsSuccess)
-                            {
-                                Invoke(() =>
-                                {
-                                    dataGridViewAccounts.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "Invite";
-                                });
-                                LocalSession.Current.FormHome.Repopulate();
-                            }
-                        });
+                            dataGridViewAccounts.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "Removing";
 
+                            LocalSession.Current.Client.Query(new RemoveContactQuery(account.Id)).ContinueWith(o =>
+                            {
+                                if (!o.IsFaulted && o.Result.IsSuccess)
+                                {
+                                    Invoke(() =>
+                                    {
+                                        dataGridViewAccounts.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "Invite";
+                                    });
+                                    LocalSession.Current.FormHome.Repopulate();
+                                }
+                            });
+
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -80,57 +90,65 @@ namespace SecureChat.Client.Forms
 
         private void ButtonSearch_Click(object sender, EventArgs e)
         {
-            if (LocalSession.Current == null || !LocalSession.Current.Client.IsConnected)
+            try
             {
-                MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.InvokeClose(DialogResult.Cancel);
-                return;
-            }
-
-            var displayName = textBoxDisplayName.Text;
-
-            dataGridViewAccounts.Rows.Clear();
-
-            if (string.IsNullOrEmpty(displayName))
-            {
-                return;
-            }
-
-            LocalSession.Current.Client.Query(new AccountSearchQuery(displayName)).ContinueWith(o =>
-            {
-                if (!o.IsFaulted && o.Result.IsSuccess)
+                if (LocalSession.Current == null || !LocalSession.Current.Client.IsConnected)
                 {
-                    Invoke(() =>
-                    {
-                        foreach (var account in o.Result.Accounts)
-                        {
-                            var button = new DataGridViewButtonCell();
-
-                            if (account.Id == LocalSession.Current.AccountId)
-                            {
-                                button.Value = "You";
-                            }
-                            else if (account.IsExitingContact)
-                            {
-                                button.Value = "Remove";
-                            }
-                            else
-                            {
-                                button.Value = "Invite";
-                            }
-
-                            var row = new DataGridViewRow();
-                            row.Cells.AddRange(
-                                new DataGridViewTextBoxCell { Value = account.DisplayName },
-                                new DataGridViewTextBoxCell { Value = account.State },
-                                button
-                            ); row.Tag = account;
-
-                            dataGridViewAccounts.Rows.Add(row);
-                        }
-                    });
+                    MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    this.InvokeClose(DialogResult.Cancel);
+                    return;
                 }
-            });
+
+                var displayName = textBoxDisplayName.Text;
+
+                dataGridViewAccounts.Rows.Clear();
+
+                if (string.IsNullOrEmpty(displayName))
+                {
+                    return;
+                }
+
+                LocalSession.Current.Client.Query(new AccountSearchQuery(displayName)).ContinueWith(o =>
+                {
+                    if (!o.IsFaulted && o.Result.IsSuccess)
+                    {
+                        Invoke(() =>
+                        {
+                            foreach (var account in o.Result.Accounts)
+                            {
+                                var button = new DataGridViewButtonCell();
+
+                                if (account.Id == LocalSession.Current.AccountId)
+                                {
+                                    button.Value = "You";
+                                }
+                                else if (account.IsExitingContact)
+                                {
+                                    button.Value = "Remove";
+                                }
+                                else
+                                {
+                                    button.Value = "Invite";
+                                }
+
+                                var row = new DataGridViewRow();
+                                row.Cells.AddRange(
+                                    new DataGridViewTextBoxCell { Value = account.DisplayName },
+                                    new DataGridViewTextBoxCell { Value = account.State },
+                                    button
+                                ); row.Tag = account;
+
+                                dataGridViewAccounts.Rows.Add(row);
+                            }
+                        });
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

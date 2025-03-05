@@ -16,8 +16,11 @@ namespace SecureChat.Client
         private readonly CryptoStream _streamCryptography;
         public Dictionary<Guid, FileReceiveBuffer> FileReceiveBuffers { get; set; } = new();
 
-        public ActiveChat(Guid connectionId, Guid accountId, string displayName, byte[] sharedSecret)
+        public Guid PeerToPeerId { get; private set; }
+
+        public ActiveChat(Guid peerToPeerId, Guid connectionId, Guid accountId, string displayName, byte[] sharedSecret)
         {
+            PeerToPeerId = peerToPeerId;
             _streamCryptography = new CryptoStream(sharedSecret);
             ConnectionId = connectionId;
             AccountId = accountId;
@@ -61,7 +64,7 @@ namespace SecureChat.Client
                 return;
             }
             IsTerminated = true;
-            LocalSession.Current?.Client.Notify(new TerminateChat(ConnectionId, LocalSession.Current.AccountId));
+            LocalSession.Current?.Client.Notify(new TerminateChat(ConnectionId, PeerToPeerId));
             Form?.AppendSystemMessageLine($"Chat ended at {DateTime.Now}.", Color.Red);
         }
 
@@ -92,8 +95,8 @@ namespace SecureChat.Client
                 return false;
             }
 
-            return LocalSession.Current?.Client.Query(new ExchangePeerToPeerQuery(
-                    ConnectionId, LocalSession.Current.AccountId, EncryptString(plaintText))).ContinueWith(o =>
+            return LocalSession.Current?.Client.Query(new ExchangePeerToPeerQuery(PeerToPeerId,
+                    ConnectionId, EncryptString(plaintText))).ContinueWith(o =>
                     {
                         if (!o.IsFaulted && o.Result.IsSuccess)
                         {
@@ -107,9 +110,9 @@ namespace SecureChat.Client
         {
             var fileId = Guid.NewGuid();
 
-            LocalSession.Current?.Client.Notify(new FileTransmissionBegin(ConnectionId, LocalSession.Current.AccountId, fileId, fileName, fileBytes.Length));
+            LocalSession.Current?.Client.Notify(new FileTransmissionBegin(PeerToPeerId, ConnectionId, fileId, fileName, fileBytes.Length));
 
-            using (MemoryStream memoryStream = new MemoryStream(fileBytes))
+            using (var memoryStream = new MemoryStream(fileBytes))
             {
                 var buffer = new byte[Settings.Instance.FileTransmissionChunkSize];
 
@@ -124,11 +127,11 @@ namespace SecureChat.Client
                         Array.Copy(buffer, chunkToSend, bytesRead);
                     }
 
-                    LocalSession.Current?.Client.Notify(new FileTransmissionChunk(ConnectionId, LocalSession.Current.AccountId, fileId, Cipher(chunkToSend)));
+                    LocalSession.Current?.Client.Notify(new FileTransmissionChunk(PeerToPeerId, ConnectionId, fileId, Cipher(chunkToSend)));
                 }
             }
 
-            LocalSession.Current?.Client.Query(new FileTransmissionEnd(ConnectionId, LocalSession.Current.AccountId, fileId)).ContinueWith(o =>
+            LocalSession.Current?.Client.Query(new FileTransmissionEnd(PeerToPeerId, ConnectionId, fileId)).ContinueWith(o =>
             {
                 if (!o.IsFaulted && o.Result.IsSuccess)
                 {

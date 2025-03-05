@@ -8,12 +8,12 @@ namespace SecureChat.Library.ReliableMessages
         public Guid FileId { get; set; }
         public int FileSize { get; set; }
         public Guid ConnectionId { get; set; }
-        public Guid AccountId { get; set; }
         public string FileName { get; set; }
+        public Guid PeerToPeerId { get; set; }
 
-        public FileTransmissionBegin(Guid connectionId, Guid accountId, Guid fileId, string fileName, int fileSize)
+        public FileTransmissionBegin(Guid peerToPeerId, Guid connectionId, Guid fileId, string fileName, int fileSize)
         {
-            AccountId = accountId;
+            PeerToPeerId = peerToPeerId;
             ConnectionId = connectionId;
             FileId = fileId;
             FileSize = fileSize;

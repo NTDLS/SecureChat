@@ -30,7 +30,7 @@ namespace SecureChat.Client
         public Guid AccountId { get; private set; }
         public string Username { get; private set; }
         public string DisplayName { get; set; }
-        public List<ActiveChat> ActiveChats { get; private set; } = new();
+        public Dictionary<Guid, ActiveChat> ActiveChats { get; private set; } = new();
         public FormHome FormHome { get; private set; }
         public AccountProfileModel Profile { get; set; } = new();
         public bool ExplicitAway { get; set; }
@@ -48,10 +48,16 @@ namespace SecureChat.Client
             AccountId = accountId;
         }
 
-        public ActiveChat AddActiveChat(Guid connectionId, Guid accountId, string displayName, byte[] sharedSecret)
+        public ActiveChat AddActiveChat(Guid peerToPeerId, Guid connectionId, Guid accountId, string displayName, byte[] sharedSecret)
         {
-            var activeChat = new ActiveChat(connectionId, accountId, displayName, sharedSecret);
-            ActiveChats.Add(activeChat);
+            var activeChat = new ActiveChat(peerToPeerId, connectionId, accountId, displayName, sharedSecret);
+            ActiveChats.Add(peerToPeerId, activeChat);
+            return activeChat;
+        }
+
+        public ActiveChat? GetActiveChat(Guid peerToPeerId)
+        {
+            ActiveChats.TryGetValue(peerToPeerId, out var activeChat);
             return activeChat;
         }
 
@@ -59,9 +65,9 @@ namespace SecureChat.Client
         {
             foreach (var activeChat in ActiveChats)
             {
-                if (activeChat.AccountId == accountId)
+                if (activeChat.Value.AccountId == accountId && activeChat.Value.IsTerminated == false)
                 {
-                    return activeChat;
+                    return activeChat.Value;
                 }
             }
             return null;

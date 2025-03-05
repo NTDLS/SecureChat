@@ -4,8 +4,11 @@ namespace SecureChat.Client.Controls
 {
     public class FlowControlSystemText : FlowLayoutPanel
     {
-        public FlowControlSystemText(string message, Color? color = null)
+        private readonly FlowLayoutPanel _parent;
+
+        public FlowControlSystemText(FlowLayoutPanel parent, string message, Color? color = null)
         {
+            _parent = parent;
             FlowDirection = FlowDirection.TopDown;
             AutoSize = true;
             Margin = new Padding(0);

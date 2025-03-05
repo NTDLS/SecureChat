@@ -7,11 +7,11 @@ namespace SecureChat.Library.ReliableMessages
     {
         public Guid FileId { get; set; }
         public Guid ConnectionId { get; set; }
-        public Guid AccountId { get; set; }
+        public Guid PeerToPeerId { get; set; }
 
-        public FileTransmissionEnd(Guid connectionId, Guid accountId, Guid fileId)
+        public FileTransmissionEnd(Guid peerToPeerId, Guid connectionId, Guid fileId)
         {
-            AccountId = accountId;
+            PeerToPeerId = peerToPeerId;
             ConnectionId = connectionId;
             FileId = fileId;
         }

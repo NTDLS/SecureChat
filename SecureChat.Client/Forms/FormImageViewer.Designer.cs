@@ -39,11 +39,12 @@
             // 
             // pictureBoxImage
             // 
+            pictureBoxImage.BorderStyle = BorderStyle.FixedSingle;
             pictureBoxImage.Dock = DockStyle.Fill;
-            pictureBoxImage.Image = Properties.Resources.Untitled;
+            pictureBoxImage.Image = Properties.Resources._128;
             pictureBoxImage.Location = new Point(0, 24);
             pictureBoxImage.Name = "pictureBoxImage";
-            pictureBoxImage.Size = new Size(784, 537);
+            pictureBoxImage.Size = new Size(453, 386);
             pictureBoxImage.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxImage.TabIndex = 0;
             pictureBoxImage.TabStop = false;
@@ -53,7 +54,7 @@
             menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(784, 24);
+            menuStrip1.Size = new Size(453, 24);
             menuStrip1.TabIndex = 1;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -67,7 +68,7 @@
             // saveToolStripMenuItem
             // 
             saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            saveToolStripMenuItem.Size = new Size(180, 22);
+            saveToolStripMenuItem.Size = new Size(98, 22);
             saveToolStripMenuItem.Text = "Save";
             saveToolStripMenuItem.Click += SaveToolStripMenuItem_Click;
             // 
@@ -75,7 +76,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(784, 561);
+            ClientSize = new Size(453, 410);
             Controls.Add(pictureBoxImage);
             Controls.Add(menuStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");

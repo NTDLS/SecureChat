@@ -5,10 +5,12 @@ namespace SecureChat.Client.Controls
 {
     public class FlowControlImage : FlowLayoutPanel
     {
+        private readonly FlowLayoutPanel _parent;
         private readonly PictureBox _pictureBox;
 
-        public FlowControlImage(byte[] imageBytes)
+        public FlowControlImage(FlowLayoutPanel parent, byte[] imageBytes)
         {
+            _parent = parent;
             AutoSize = true;
             Margin = new Padding(1);
 
@@ -71,7 +73,14 @@ namespace SecureChat.Client.Controls
 
         private void OnRemoveImage(object? sender, EventArgs e)
         {
-            _pictureBox.Image = null;
+            try
+            {
+                _pictureBox.Image = null;
+                _parent.Controls.Remove(this);
+            }
+            catch
+            {
+            }
         }
 
         private void OnCopyImage(object? sender, EventArgs e)

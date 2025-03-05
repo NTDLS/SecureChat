@@ -7,7 +7,6 @@ namespace SecureChat.Library.ReliableMessages
         : IRmNotification
     {
         public ScOnlineState State { get; set; }
-
         public Guid AccountId { get; set; }
 
         public UpdateAccountState(Guid accountId, ScOnlineState state)
