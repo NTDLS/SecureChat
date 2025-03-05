@@ -1,6 +1,7 @@
 ﻿using NTDLS.Helpers;
 using NTDLS.Persistence;
 using NTDLS.WinFormsHelpers;
+using SecureChat.Client.Helpers;
 using SecureChat.Client.Models;
 using SecureChat.Library;
 using Serilog;
@@ -38,6 +39,11 @@ namespace SecureChat.Client.Forms
             textBoxMaxMessages.Text = $"{Settings.Instance.MaxMessages:n0}";
             textBoxFileTransmissionChunkSize.Text = $"{Settings.Instance.FileTransmissionChunkSize:n0}";
             textBoxMaxFileTransmissionSize.Text = $"{Settings.Instance.MaxFileTransmissionSize:n0}";
+            checkBoxAlertToastWhenContactComesOnline.Checked = Settings.Instance.AlertToastWhenContactComesOnline;
+            checkBoxAlertToastWhenMessageReceived.Checked = Settings.Instance.AlertToastWhenMessageReceived;
+            checkBoxPlaySoundWhenContactComesOnline.Checked = Settings.Instance.PlaySoundWhenContactComesOnline;
+            checkBoxPlaySoundWhenMessageReceived.Checked = Settings.Instance.PlaySoundWhenMessageReceived;
+            checkBoxFlashWindowWhenMessageReceived.Checked = Settings.Instance.FlashWindowWhenMessageReceived;
 
             textBoxFontSample.Text = "John: Hey, how's is been going?\r\nJane: Pretty good. I've about to head out.\r\nJohn: Wanna grab some lunch?\r\nJane: Thai?\r\nJohn: Are you kidding me? Absolutely!\r\n";
 
@@ -84,6 +90,11 @@ namespace SecureChat.Client.Forms
                 settings.MaxMessages = textBoxMaxMessages.GetAndValidateNumeric(10, 10000, "Max messages must be between [min] and [max].");
                 settings.FileTransmissionChunkSize = textBoxFileTransmissionChunkSize.GetAndValidateNumeric(128, 1024 * 1024, "File transmission chunk size must be between [min] and [max].");
                 settings.MaxFileTransmissionSize = textBoxMaxFileTransmissionSize.GetAndValidateNumeric(128, 1024 * 1024 * 1024, "Max file transmission size must be between [min] and [max].");
+                settings.AlertToastWhenContactComesOnline = checkBoxAlertToastWhenContactComesOnline.Checked;
+                settings.AlertToastWhenMessageReceived = checkBoxAlertToastWhenMessageReceived.Checked;
+                settings.PlaySoundWhenContactComesOnline = checkBoxPlaySoundWhenContactComesOnline.Checked;
+                settings.PlaySoundWhenMessageReceived = checkBoxPlaySoundWhenMessageReceived.Checked;
+                settings.FlashWindowWhenMessageReceived = checkBoxFlashWindowWhenMessageReceived.Checked;
 
                 try
                 {

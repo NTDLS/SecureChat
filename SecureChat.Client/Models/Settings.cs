@@ -38,6 +38,12 @@ namespace SecureChat.Client.Models
         public int FileTransmissionChunkSize { get; set; } = ScConstants.DefaultFileTransmissionChunkSize;
         public int MaxFileTransmissionSize { get; set; } = ScConstants.DefaultMaxFileTransmissionSize;
 
+        public bool AlertToastWhenContactComesOnline { get; set; } = true;
+        public bool AlertToastWhenMessageReceived { get; set; } = true;
+        public bool PlaySoundWhenContactComesOnline { get; set; } = true;
+        public bool PlaySoundWhenMessageReceived { get; set; } = true;
+        public bool FlashWindowWhenMessageReceived { get; set; } = true;
+
         /// <summary>
         /// Per user state that is saved to disk.
         /// </summary>

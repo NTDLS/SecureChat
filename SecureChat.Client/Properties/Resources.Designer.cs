@@ -73,6 +73,26 @@ namespace SecureChat.Client.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] ContactOnline {
+            get {
+                object obj = ResourceManager.GetObject("ContactOnline", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] MessageReceived {
+            get {
+                object obj = ResourceManager.GetObject("MessageReceived", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] Offline16 {
             get {
                 object obj = ResourceManager.GetObject("Offline16", resourceCulture);

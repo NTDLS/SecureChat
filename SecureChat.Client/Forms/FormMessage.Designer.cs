@@ -71,6 +71,7 @@
             // 
             flowPanel.AutoScroll = true;
             flowPanel.AutoSize = true;
+            flowPanel.BorderStyle = BorderStyle.Fixed3D;
             flowPanel.Dock = DockStyle.Fill;
             flowPanel.FlowDirection = FlowDirection.TopDown;
             flowPanel.Location = new Point(0, 0);

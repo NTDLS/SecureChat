@@ -2,6 +2,7 @@
 using NTDLS.Persistence;
 using NTDLS.SecureKeyExchange;
 using NTDLS.WinFormsHelpers;
+using SecureChat.Client.Helpers;
 using SecureChat.Client.Models;
 using SecureChat.Client.Properties;
 using SecureChat.Library;
@@ -31,7 +32,6 @@ namespace SecureChat.Client.Forms
             treeViewContacts.ImageList = _treeImages;
             treeViewContacts.NodeMouseDoubleClick += TreeViewContacts_NodeMouseDoubleClick;
             treeViewContacts.NodeMouseClick += TreeViewContacts_NodeMouseClick;
-
             treeViewContacts.NodeMouseHover += TreeViewContacts_NodeMouseHover;
 
             // Set up the delays for the ToolTip.
@@ -206,7 +206,7 @@ namespace SecureChat.Client.Forms
             {
                 Repopulate();
 
-                var idleTime = Interop.GetIdleTime();
+                var idleTime = IdleTime.GetIdleTime();
                 if (idleTime.TotalSeconds >= Settings.Instance.AutoAwayIdleSeconds)
                 {
                     LocalSession.Current.Client.Notify(new UpdateAccountState(
@@ -331,6 +331,12 @@ namespace SecureChat.Client.Forms
                 else if (activeChat.Form != null)
                 {
                     activeChat.Form.Show();
+
+                    if (LocalSession.Current.FormHome.WindowState == FormWindowState.Minimized)
+                    {
+                        LocalSession.Current.FormHome.WindowState = FormWindowState.Normal;
+                    }
+
                     activeChat.Form.BringToFront();
                     activeChat.Form.Activate();
                     activeChat.Form.Focus();
@@ -365,7 +371,7 @@ namespace SecureChat.Client.Forms
             {
                 //MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.InvokeClose(DialogResult.Cancel);
-                LocalSession.Current = null;
+                LocalSession.Clear();
                 return;
             }
 
@@ -403,6 +409,9 @@ namespace SecureChat.Client.Forms
             });
         }
 
+        bool _isFirstPopulate = true;
+
+
         private void DeltaRepopulateTree(List<ContactModel> contacts)
         {
             if (LocalSession.Current == null || !LocalSession.Current.Client.IsConnected)
@@ -418,6 +427,8 @@ namespace SecureChat.Client.Forms
                 return;
             }
 
+            bool wasSoundPlayed = false;
+
             var rootNode = GetRootNode();
             if (rootNode != null)
             {
@@ -432,8 +443,16 @@ namespace SecureChat.Client.Forms
                         var matchingContact = contacts.FirstOrDefault(o => o.IsAccepted == true && o.Id == contactsModel.Id);
                         if (matchingContact != null)
                         {
+                            if (contactsModel.OnlineState == ScOnlineState.Offline && matchingContact.OnlineState == ScOnlineState.Online)
+                            {
+                                if (!wasSoundPlayed && !_isFirstPopulate)
+                                {
+                                    wasSoundPlayed = true;
+                                    Notifications.ContactOnline(contactsModel.DisplayName);
+                                }
+                            }
                             //Update tree node if it is in the fresh contact list.
-                            TreeViewHelpers.UpdateContactNode(node, matchingContact);
+                            ContactTree.UpdateContactNode(node, matchingContact);
                         }
                         else
                         {
@@ -453,21 +472,27 @@ namespace SecureChat.Client.Forms
                 //Add tree nodes for contacts that are in the fresh list but missing from the tree.
                 foreach (var contact in contacts.Where(o => o.IsAccepted == true))
                 {
-                    var existingNode = TreeViewHelpers.FindNodeByAccountId(rootNode, contact.Id);
+                    var existingNode = ContactTree.FindNodeByAccountId(rootNode, contact.Id);
                     if (existingNode == null)
                     {
-                        TreeViewHelpers.AddContactNode(rootNode, contact);
+                        if (!wasSoundPlayed && !_isFirstPopulate)
+                        {
+                            wasSoundPlayed = true;
+                            Notifications.ContactOnline(contact.DisplayName);
+                        }
+
+                        ContactTree.AddContactNode(rootNode, contact);
                     }
                 }
 
-                TreeViewHelpers.SortChildNodes(rootNode);
+                ContactTree.SortChildNodes(rootNode);
                 rootNode.Expand();
 
                 #endregion
 
                 #region Outgoing contact invites.
 
-                var requestedRootNode = TreeViewHelpers.FindNonContactNodeByText(treeViewContacts, "Requested");
+                var requestedRootNode = ContactTree.FindNonContactNodeByText(treeViewContacts, "Requested");
 
                 if (contacts.Any(o => o.IsAccepted == false && o.RequestedByMe == true))
                 {
@@ -501,14 +526,14 @@ namespace SecureChat.Client.Forms
 
                     foreach (var contact in contacts.Where(o => o.IsAccepted == false))
                     {
-                        var existingNode = TreeViewHelpers.FindNodeByAccountId(requestedRootNode, contact.Id);
+                        var existingNode = ContactTree.FindNodeByAccountId(requestedRootNode, contact.Id);
                         if (existingNode == null)
                         {
-                            TreeViewHelpers.AddContactNode(requestedRootNode, contact);
+                            ContactTree.AddContactNode(requestedRootNode, contact);
                         }
                     }
 
-                    TreeViewHelpers.SortChildNodes(requestedRootNode);
+                    ContactTree.SortChildNodes(requestedRootNode);
                     requestedRootNode.Expand();
                 }
                 else if (requestedRootNode != null)
@@ -520,7 +545,7 @@ namespace SecureChat.Client.Forms
 
                 #region Incoming contact invites.
 
-                var invitesRootNode = TreeViewHelpers.FindNonContactNodeByText(treeViewContacts, "Invites");
+                var invitesRootNode = ContactTree.FindNonContactNodeByText(treeViewContacts, "Invites");
 
                 if (contacts.Any(o => o.IsAccepted == false && o.RequestedByMe == false))
                 {
@@ -554,14 +579,14 @@ namespace SecureChat.Client.Forms
 
                     foreach (var contact in contacts.Where(o => o.IsAccepted == false))
                     {
-                        var existingNode = TreeViewHelpers.FindNodeByAccountId(invitesRootNode, contact.Id);
+                        var existingNode = ContactTree.FindNodeByAccountId(invitesRootNode, contact.Id);
                         if (existingNode == null)
                         {
-                            TreeViewHelpers.AddContactNode(invitesRootNode, contact);
+                            ContactTree.AddContactNode(invitesRootNode, contact);
                         }
                     }
 
-                    TreeViewHelpers.SortChildNodes(invitesRootNode);
+                    ContactTree.SortChildNodes(invitesRootNode);
                     invitesRootNode.Expand();
                 }
                 else if (invitesRootNode != null)
@@ -570,6 +595,8 @@ namespace SecureChat.Client.Forms
                 }
 
                 #endregion
+
+                _isFirstPopulate = false;
             }
         }
 
@@ -639,7 +666,7 @@ namespace SecureChat.Client.Forms
             }
         }
 
-        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void SettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             try
             {

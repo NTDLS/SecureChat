@@ -1,4 +1,5 @@
-﻿using NTDLS.ReliableMessaging;
+﻿using NTDLS.Helpers;
+using NTDLS.ReliableMessaging;
 using SecureChat.Client.Forms;
 using SecureChat.Library.Models;
 using static SecureChat.Library.ScConstants;
@@ -10,24 +11,37 @@ namespace SecureChat.Client
     /// </summary>
     internal class LocalSession
     {
-        public static LocalSession? Current;
+        public static LocalSession? Current { get; private set; }
 
-        public RmClient Client { get; set; }
-        public Guid AccountId { get; set; }
-        public string Username { get; set; }
+        public static void Set(LocalSession localSession)
+        {
+            Current = localSession;
+        }
+
+        public static void Clear()
+        {
+            Task.Run(() => Current?.Client?.Disconnect());
+            Exceptions.Ignore(() => Current?.FormHome?.Close());
+
+            Current = null;
+        }
+
+        public RmClient Client { get; private set; }
+        public Guid AccountId { get; private set; }
+        public string Username { get; private set; }
         public string DisplayName { get; set; }
-        public List<ActiveChat> ActiveChats { get; set; } = new();
-        public NotifyIcon TrayIcon { get; set; }
-        public FormHome FormHome { get; set; }
+        public List<ActiveChat> ActiveChats { get; private set; } = new();
+        public FormHome FormHome { get; private set; }
         public AccountProfileModel Profile { get; set; } = new();
         public bool ExplicitAway { get; set; }
+        public TrayApp Tray { get; private set; }
 
         public ScOnlineState State { get; set; } = ScOnlineState.Offline;
 
-        public LocalSession(NotifyIcon trayIcon, FormHome formHome, RmClient client, Guid accountId, string username, string displayName)
+        public LocalSession(TrayApp tray, FormHome formHome, RmClient client, Guid accountId, string username, string displayName)
         {
+            Tray = tray;
             FormHome = formHome;
-            TrayIcon = trayIcon;
             Client = client;
             Username = username;
             DisplayName = displayName;

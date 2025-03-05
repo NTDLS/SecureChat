@@ -121,6 +121,12 @@
   <data name="Away16" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Away16.ico;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="ContactOnline" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ContactOnline.wav;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="MessageReceived" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\MessageReceived.wav;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="Offline16" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Offline16.ico;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>

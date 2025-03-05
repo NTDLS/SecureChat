@@ -1,4 +1,6 @@
-﻿namespace SecureChat.Client.Controls
+﻿using SecureChat.Client.Helpers;
+
+namespace SecureChat.Client.Controls
 {
     public class FlowControlTextMessage : FlowLayoutPanel
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Win32;
 using SecureChat.Library;
 
-namespace SecureChat.Client
+namespace SecureChat.Client.Helpers
 {
     class RegistryHelper
     {

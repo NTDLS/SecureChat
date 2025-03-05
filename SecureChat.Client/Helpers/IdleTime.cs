@@ -1,8 +1,8 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace SecureChat.Client
+namespace SecureChat.Client.Helpers
 {
-    class Interop
+    class IdleTime
     {
         [StructLayout(LayoutKind.Sequential)]
         internal struct LASTINPUTINFO

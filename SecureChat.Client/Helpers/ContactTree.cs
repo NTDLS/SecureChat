@@ -1,8 +1,8 @@
 ﻿using SecureChat.Library.Models;
 
-namespace SecureChat.Client
+namespace SecureChat.Client.Helpers
 {
-    public static class TreeViewHelpers
+    public static class ContactTree
     {
         public static void AddContactNode(TreeNode parentNode, ContactModel contact)
         {

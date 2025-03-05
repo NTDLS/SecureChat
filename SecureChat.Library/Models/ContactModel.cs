@@ -12,6 +12,15 @@ namespace SecureChat.Library.Models
         public string State { get; set; } = "Offline";
 
         /// <summary>
+        /// Same as State but as an enum.
+        /// </summary>
+        public ScConstants.ScOnlineState OnlineState
+        {
+            get => Enum.Parse<ScConstants.ScOnlineState>(State);
+            set => State = value.ToString();
+        }
+
+        /// <summary>
         /// Json containing the user's profile information deserialize into an AccountProfile object.
         /// </summary>
         public string? ProfileJson { get; set; }

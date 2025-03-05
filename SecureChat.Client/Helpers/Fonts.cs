@@ -1,6 +1,6 @@
 ﻿using SecureChat.Client.Models;
 
-namespace SecureChat.Client
+namespace SecureChat.Client.Helpers
 {
     public class Fonts
     {

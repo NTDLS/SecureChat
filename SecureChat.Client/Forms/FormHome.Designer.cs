@@ -131,7 +131,7 @@ namespace SecureChat.Client.Forms
             settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             settingsToolStripMenuItem.Size = new Size(180, 22);
             settingsToolStripMenuItem.Text = "Settings";
-            settingsToolStripMenuItem.Click += settingsToolStripMenuItem_Click;
+            settingsToolStripMenuItem.Click += SettingsToolStripMenuItem_Click;
             // 
             // FormHome
             // 

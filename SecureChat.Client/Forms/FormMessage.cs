@@ -1,5 +1,6 @@
 ﻿using NTDLS.Helpers;
 using SecureChat.Client.Controls;
+using SecureChat.Client.Helpers;
 using SecureChat.Client.Models;
 
 namespace SecureChat.Client.Forms
@@ -23,6 +24,7 @@ namespace SecureChat.Client.Forms
 
             FormClosing += FormMessage_FormClosing;
             Load += FormMessage_Load;
+            Shown += FormMessage_Shown;
 
             Activated += FormMessage_Activated;
             Deactivate += FormMessage_Deactivate;
@@ -36,6 +38,11 @@ namespace SecureChat.Client.Forms
             timer.Enabled = true;
 
             AppendSystemMessageLine($"Chat with {_activeChat.DisplayName} started at {DateTime.Now}.");
+        }
+
+        private void FormMessage_Shown(object? sender, EventArgs e)
+        {
+            textBoxMessage.Focus();
         }
 
         private void FormMessage_Deactivate(object? sender, EventArgs e)
@@ -152,7 +159,7 @@ namespace SecureChat.Client.Forms
             }
         }
 
-        public void AppendReceivedMessageLine(string fromName, string plainText, Color? color = null)
+        public void AppendReceivedMessageLine(string fromName, string plainText, bool playNotifications, Color? color = null)
         {
             this.Invoke(() =>
             {
@@ -161,6 +168,14 @@ namespace SecureChat.Client.Forms
                     //We want to show the dialog, but keep it minimized so that it does not jump in front of the user.
                     WindowState = FormWindowState.Minimized;
                     Visible = true;
+                }
+
+                if (playNotifications)
+                {
+                    if (WindowFlasher.FlashWindow(this))
+                    {
+                        Notifications.MessageReceived(fromName);
+                    }
                 }
             });
 
@@ -193,7 +208,7 @@ namespace SecureChat.Client.Forms
 
             if (_activeChat.SendMessage(text))
             {
-                AppendReceivedMessageLine(LocalSession.Current.DisplayName, text, Color.Blue);
+                AppendReceivedMessageLine(LocalSession.Current.DisplayName, text, false, Color.Blue);
             }
             else
             {

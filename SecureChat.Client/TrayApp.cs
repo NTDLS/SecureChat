@@ -2,6 +2,7 @@
 using NTDLS.Persistence;
 using NTDLS.ReliableMessaging;
 using SecureChat.Client.Forms;
+using SecureChat.Client.Helpers;
 using SecureChat.Client.Models;
 using SecureChat.Client.Properties;
 using SecureChat.Library;
@@ -13,7 +14,7 @@ using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client
 {
-    class TrayApp : ApplicationContext
+    internal class TrayApp : ApplicationContext
     {
         private bool _applicationClosing = false;
         private readonly NotifyIcon _trayIcon;
@@ -84,27 +85,20 @@ namespace SecureChat.Client
                 }
                 else
                 {
-                    if (LocalSession.Current.FormHome != null)
+                    if (LocalSession.Current.FormHome == null)
                     {
-                        LocalSession.Current.FormHome.Show();
-
-                        if (LocalSession.Current.FormHome.WindowState == FormWindowState.Minimized)
-                        {
-                            LocalSession.Current.FormHome.WindowState = FormWindowState.Normal;
-                        }
-
-                        LocalSession.Current.FormHome.BringToFront();
-                        LocalSession.Current.FormHome.Activate();
-                        LocalSession.Current.FormHome.Focus();
+                        throw new Exception("Home form should not be null.");
                     }
-                    else
+                    LocalSession.Current.FormHome.Show();
+
+                    if (LocalSession.Current.FormHome.WindowState == FormWindowState.Minimized)
                     {
-                        //using (SessionState.Instance.FormHome = new FormHome())
-                        //{
-                        //SessionState.Instance.FormHome.ShowDialog();
-                        //}
-                        //SessionState.Instance.FormHome = null;
+                        LocalSession.Current.FormHome.WindowState = FormWindowState.Normal;
                     }
+
+                    LocalSession.Current.FormHome.BringToFront();
+                    LocalSession.Current.FormHome.Activate();
+                    LocalSession.Current.FormHome.Focus();
                 }
             }
             catch (Exception ex)
@@ -118,7 +112,7 @@ namespace SecureChat.Client
         {
             try
             {
-                LocalSession.Current = null;
+                LocalSession.Clear();
 
                 if (_formLogin != null)
                 {
@@ -207,7 +201,7 @@ namespace SecureChat.Client
 
                                 Settings.Save();
 
-                                SetValidLogin(loginResult);
+                                PropupLocalSession(loginResult);
                             }
                         }).ContinueWith(o =>
                         {
@@ -218,7 +212,7 @@ namespace SecureChat.Client
                                     loginResult = _formLogin.DoLogin();
                                     if (loginResult != null)
                                     {
-                                        SetValidLogin(loginResult);
+                                        PropupLocalSession(loginResult);
                                     }
                                 }
                                 _formLogin = null;
@@ -232,7 +226,7 @@ namespace SecureChat.Client
                             loginResult = _formLogin.DoLogin();
                             if (loginResult != null)
                             {
-                                SetValidLogin(loginResult);
+                                PropupLocalSession(loginResult);
                             }
                         }
                         _formLogin = null;
@@ -250,7 +244,15 @@ namespace SecureChat.Client
             }
         }
 
-        private void SetValidLogin(LoginResult loginResult)
+        public void ShowBalloon(string? title, string text, int duration = 3000)
+        {
+            _trayIcon.BalloonTipTitle = title ?? string.Empty;
+            _trayIcon.BalloonTipText = text;
+            _trayIcon.ShowBalloonTip(duration);
+
+        }
+
+        private void PropupLocalSession(LoginResult loginResult)
         {
             loginResult.Client.OnDisconnected += RmClient_OnDisconnected;
             loginResult.Client.OnException += Client_OnException;
@@ -279,7 +281,8 @@ namespace SecureChat.Client
                 UpdateClientState(ScOnlineState.Online);
             }
 
-            LocalSession.Current = new LocalSession(_trayIcon,
+            var localSession = new LocalSession(
+                this,
                 formHome,
                 loginResult.Client,
                 loginResult.AccountId,
@@ -290,6 +293,8 @@ namespace SecureChat.Client
                 State = persistedUserState.ExplicitAway ? ScOnlineState.Away : ScOnlineState.Online,
                 ExplicitAway = persistedUserState.ExplicitAway
             };
+
+            LocalSession.Set(localSession);
 
             _trayIcon.BalloonTipText = $"Welcome back {loginResult.DisplayName}, you are now logged in.";
             _trayIcon.ShowBalloonTip(3000);
@@ -309,7 +314,7 @@ namespace SecureChat.Client
             }
             try
             {
-                LocalSession.Current = null;
+                LocalSession.Clear();
                 UpdateClientState(ScOnlineState.Offline);
             }
             catch (Exception ex)
@@ -476,7 +481,7 @@ namespace SecureChat.Client
                 Task.Run(() => LocalSession.Current?.Client?.Disconnect());
                 Thread.Sleep(10);
                 UpdateClientState(ScOnlineState.Offline);
-                LocalSession.Current = null;
+                LocalSession.Clear();
                 Exceptions.Ignore(() => LocalUserApplicationData.DeleteFromDisk(ScConstants.AppName, typeof(AutoLogin)));
             }
             catch (Exception ex)
@@ -520,13 +525,10 @@ namespace SecureChat.Client
 
             try
             {
-                Task.Run(() => LocalSession.Current?.Client?.Disconnect());
-
                 Exceptions.Ignore(() => _formLogin?.Close());
-                Exceptions.Ignore(() => LocalSession.Current?.FormHome?.Close());
 
                 _trayIcon.Visible = false;
-                LocalSession.Current = null;
+                LocalSession.Clear();
                 Application.Exit();
             }
             catch (Exception ex)

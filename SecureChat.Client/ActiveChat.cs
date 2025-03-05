@@ -83,7 +83,7 @@ namespace SecureChat.Client
                 return;
             }
 
-            Form?.AppendReceivedMessageLine(DisplayName, DecryptString(cipherText), Color.DarkRed);
+            Form?.AppendReceivedMessageLine(DisplayName, DecryptString(cipherText), true, Color.DarkRed);
         }
 
         public bool SendMessage(string plaintText)
