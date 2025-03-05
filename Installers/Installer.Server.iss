@@ -1,4 +1,4 @@
-#define AppVersion "1.0.0"
+#define AppVersion "1.0.2"
 
 [Setup]
  AppName                          = Secure Chat Server
