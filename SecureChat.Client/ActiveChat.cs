@@ -1,5 +1,4 @@
 ﻿using NTDLS.NASCCL;
-using SecureChat.Client.Controls;
 using SecureChat.Client.Forms;
 using SecureChat.Client.Models;
 using SecureChat.Library.ReliableMessages;

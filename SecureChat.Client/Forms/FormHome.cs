@@ -551,7 +551,7 @@ namespace SecureChat.Client.Forms
                 {
                     if (invitesRootNode == null)
                     {
-                        invitesRootNode = new TreeNode("Requested");
+                        invitesRootNode = new TreeNode("Invites");
                         invitesRootNode.ImageKey = ScOnlineState.Pending.ToString();
                         invitesRootNode.SelectedImageKey = ScOnlineState.Pending.ToString();
                         treeViewContacts.Nodes.Add(invitesRootNode);
