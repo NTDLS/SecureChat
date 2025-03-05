@@ -35,5 +35,8 @@
     <Compile Update="Forms\FormSettings.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\FormVoicePreCall.cs">
+      <SubType>Form</SubType>
+    </Compile>
   </ItemGroup>
 </Project>

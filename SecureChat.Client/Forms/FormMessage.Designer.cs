@@ -41,6 +41,9 @@
             connectionToolStripMenuItem = new ToolStripMenuItem();
             terminateToolStripMenuItem = new ToolStripMenuItem();
             propertiesToolStripMenuItem = new ToolStripMenuItem();
+            voiceToolStripMenuItem = new ToolStripMenuItem();
+            endCallToolStripMenuItem = new ToolStripMenuItem();
+            startCallToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -102,7 +105,7 @@
             // 
             // menuStrip1
             // 
-            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, connectionToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, connectionToolStripMenuItem, voiceToolStripMenuItem });
             menuStrip1.Location = new Point(5, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(524, 24);
@@ -156,6 +159,27 @@
             propertiesToolStripMenuItem.Size = new Size(127, 22);
             propertiesToolStripMenuItem.Text = "Properties";
             // 
+            // voiceToolStripMenuItem
+            // 
+            voiceToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { startCallToolStripMenuItem, endCallToolStripMenuItem });
+            voiceToolStripMenuItem.Name = "voiceToolStripMenuItem";
+            voiceToolStripMenuItem.Size = new Size(47, 20);
+            voiceToolStripMenuItem.Text = "Voice";
+            // 
+            // endCallToolStripMenuItem
+            // 
+            endCallToolStripMenuItem.Name = "endCallToolStripMenuItem";
+            endCallToolStripMenuItem.Size = new Size(180, 22);
+            endCallToolStripMenuItem.Text = "End Call";
+            endCallToolStripMenuItem.Click += EndCallToolStripMenuItem_Click_1;
+            // 
+            // startCallToolStripMenuItem
+            // 
+            startCallToolStripMenuItem.Name = "startCallToolStripMenuItem";
+            startCallToolStripMenuItem.Size = new Size(180, 22);
+            startCallToolStripMenuItem.Text = "Start Call";
+            startCallToolStripMenuItem.Click += StartCallToolStripMenuItem_Click;
+            // 
             // FormMessage
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -196,5 +220,8 @@
         private ToolStripMenuItem propertiesToolStripMenuItem;
         private ToolStripMenuItem imageToolStripMenuItem;
         private FlowLayoutPanel flowPanel;
+        private ToolStripMenuItem voiceToolStripMenuItem;
+        private ToolStripMenuItem endCallToolStripMenuItem;
+        private ToolStripMenuItem startCallToolStripMenuItem;
     }
 }

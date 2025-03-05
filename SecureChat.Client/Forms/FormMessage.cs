@@ -379,6 +379,14 @@ namespace SecureChat.Client.Forms
 
         #region Toolbar Menu
 
+        private void CallToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+        }
+
+        private void EndCallToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+        }
+
         private void TerminateToolStripMenuItem_Click(object sender, EventArgs e)
         {
             try
@@ -440,6 +448,16 @@ namespace SecureChat.Client.Forms
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void EndCallToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void StartCallToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
 
         #endregion

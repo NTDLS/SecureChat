@@ -26,8 +26,8 @@ namespace SecureChat.Client
         }
 
         /*
-         using NAudio.CoreAudioApi;
-         using NAudio.Wave;
+        using NAudio.CoreAudioApi;
+         sing NAudio.Wave;
 
         private static WaveInEvent? waveIn;
         private static WasapiOut? waveOut;
