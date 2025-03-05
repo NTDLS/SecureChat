@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using SecureChat.Client.Models;
 using Serilog;
 
 namespace SecureChat.Client

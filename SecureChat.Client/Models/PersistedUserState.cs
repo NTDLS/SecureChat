@@ -1,4 +1,4 @@
-﻿namespace SecureChat.Client
+﻿namespace SecureChat.Client.Models
 {
     /// <summary>
     /// Per user state that is saved to disk.

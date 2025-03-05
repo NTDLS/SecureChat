@@ -2,6 +2,7 @@
 using NTDLS.Persistence;
 using NTDLS.SecureKeyExchange;
 using NTDLS.WinFormsHelpers;
+using SecureChat.Client.Models;
 using SecureChat.Client.Properties;
 using SecureChat.Library;
 using SecureChat.Library.Models;
@@ -629,7 +630,7 @@ namespace SecureChat.Client.Forms
             try
             {
                 Task.Run(() => LocalSession.Current?.Client?.Disconnect());
-                Exceptions.Ignore(() => LocalUserApplicationData.DeleteFromDisk(ScConstants.AppName, typeof(AutoLoginModel)));
+                Exceptions.Ignore(() => LocalUserApplicationData.DeleteFromDisk(ScConstants.AppName, typeof(AutoLogin)));
             }
             catch (Exception ex)
             {

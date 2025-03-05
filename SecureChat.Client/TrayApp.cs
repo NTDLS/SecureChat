@@ -5,7 +5,6 @@ using SecureChat.Client.Forms;
 using SecureChat.Client.Models;
 using SecureChat.Client.Properties;
 using SecureChat.Library;
-using SecureChat.Library.Models;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
 using System.Diagnostics;
@@ -133,16 +132,15 @@ namespace SecureChat.Client
                     LoginResult? loginResult = null;
 
                     var autoLogin = Exceptions.Ignore(() =>
-                        LocalUserApplicationData.LoadFromDisk<AutoLoginModel>(ScConstants.AppName, new PersistentEncryptionProvider()));
+                        LocalUserApplicationData.LoadFromDisk<AutoLogin>(ScConstants.AppName, new PersistentEncryptionProvider()));
 
                     if (autoLogin != null)
                     {
                         Task.Run(() =>
                         {
                             var keyPair = Crypto.GeneratePublicPrivateKeyPair();
-                            var client = new RmClient();
+                            var client = Settings.Instance.CreateClient();
                             client.OnException += Client_OnException;
-                            client.Connect(Settings.Instance.ServerAddress, Settings.Instance.ServerPort);
 
                             //Send our public key to the server and wait on a reply of their public key.
                             var remotePublicKey = client.Query(new ExchangePublicKeyQuery((Assembly.GetEntryAssembly()?.GetName().Version).EnsureNotNull(), keyPair.PublicRsaKey))
@@ -479,7 +477,7 @@ namespace SecureChat.Client
                 Thread.Sleep(10);
                 UpdateClientState(ScOnlineState.Offline);
                 LocalSession.Current = null;
-                Exceptions.Ignore(() => LocalUserApplicationData.DeleteFromDisk(ScConstants.AppName, typeof(AutoLoginModel)));
+                Exceptions.Ignore(() => LocalUserApplicationData.DeleteFromDisk(ScConstants.AppName, typeof(AutoLogin)));
             }
             catch (Exception ex)
             {

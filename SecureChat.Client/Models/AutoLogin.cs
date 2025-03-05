@@ -1,11 +1,11 @@
-﻿namespace SecureChat.Library.Models
+﻿namespace SecureChat.Client.Models
 {
-    public class AutoLoginModel
+    public class AutoLogin
     {
         public string Username { get; set; }
         public string PasswordHash { get; set; }
 
-        public AutoLoginModel(string username, string passwordHash)
+        public AutoLogin(string username, string passwordHash)
         {
             Username = username;
             PasswordHash = passwordHash;

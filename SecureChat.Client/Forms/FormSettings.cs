@@ -1,6 +1,7 @@
 ﻿using NTDLS.Helpers;
 using NTDLS.Persistence;
 using NTDLS.WinFormsHelpers;
+using SecureChat.Client.Models;
 using SecureChat.Library;
 using Serilog;
 using System.Diagnostics;

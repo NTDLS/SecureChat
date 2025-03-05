@@ -1,5 +1,6 @@
 ﻿using NTDLS.Helpers;
 using SecureChat.Client.Controls;
+using SecureChat.Client.Models;
 
 namespace SecureChat.Client.Forms
 {
