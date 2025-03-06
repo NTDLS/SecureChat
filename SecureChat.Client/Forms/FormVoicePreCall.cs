@@ -43,12 +43,12 @@ namespace SecureChat.Client.Forms
 
             FormClosing += (sender, e) =>
             {
-                //_audioPump?.Stop();
+                _audioPump?.Stop();
                 _audioPump = null;
             };
 
-            //volumeSliderVolume.VolumeChanged += VolumeSliderVolume_VolumeChanged;
-            //volumeSliderVolume.Volume = 0.025f;
+            trackBarGain.ValueChanged += TrackBarGain_ValueChanged;
+            trackBarGain.Value = 5;
 
             radioButtonBitRate8000.CheckedChanged += RadioButtonBitRate_CheckedChanged;
             radioButtonBitRate11025.CheckedChanged += RadioButtonBitRate_CheckedChanged;
@@ -56,6 +56,14 @@ namespace SecureChat.Client.Forms
             radioButtonBitRate32000.CheckedChanged += RadioButtonBitRate_CheckedChanged;
             radioButtonBitRate44100.CheckedChanged += RadioButtonBitRate_CheckedChanged;
             SetSelectedBitrate(_bitRate);
+        }
+
+        private void TrackBarGain_ValueChanged(object? sender, EventArgs e)
+        {
+            if (_audioPump != null)
+            {
+                _audioPump.Gain = trackBarGain.Value / 10.0f;
+            }
         }
 
         private void RadioButtonBitRate_CheckedChanged(object? sender, EventArgs e)
@@ -105,14 +113,6 @@ namespace SecureChat.Client.Forms
             }
         }
 
-        private void VolumeSliderVolume_VolumeChanged(object? sender, EventArgs e)
-        {
-            if (_audioPump != null)
-            {
-                //_audioPump.Volume = volumeSliderVolume.Volume;
-            }
-        }
-
         private void ComboBoxAudioInputDevice_SelectedIndexChanged(object? sender, EventArgs e)
         {
             _selectedInputDeviceIndex = (comboBoxAudioInputDevice.SelectedItem as AudioDeviceComboItem)?.DeviceIndex;
@@ -133,16 +133,15 @@ namespace SecureChat.Client.Forms
                 _audioPump = null;
 
                 _audioPump = new AudioPump(_selectedInputDeviceIndex.Value, _selectedIOutputDeviceIndex.Value);
-                //_audioPump.Volume = volumeSliderVolume.Volume;
-                /*
-                _audioPump.OnAmplitudeReport += (level) =>
+                _audioPump.Gain = trackBarGain.Value;
+
+                _audioPump.OnVolumeSample += (volume) =>
                 {
                     BeginInvoke(new Action(() =>
                     {
-                        //volumeMeter.Amplitude = level * 100;
+                        progressBarVolume.Value = (int)volume * 100;
                     }));
                 };
-                */
 
                 _audioPump.Start();
             }

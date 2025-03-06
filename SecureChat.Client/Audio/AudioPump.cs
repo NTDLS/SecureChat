@@ -5,6 +5,9 @@ namespace SecureChat.Client.Audio
 {
     internal class AudioPump
     {
+        public delegate void VolumeSampleEventHandler(float volume);
+        public event VolumeSampleEventHandler? OnVolumeSample;
+
         private WaveInEvent? _waveIn;
         private WasapiOut? _waveOut;
         private BufferedWaveProvider? _bufferStream;
@@ -22,21 +25,7 @@ namespace SecureChat.Client.Audio
 
         public bool Mute { get; set; } = false;
 
-        //public float Gain { get; set; } = 0.5f;
-        public float Volume
-        {
-            get
-            {
-                return _waveOut?.Volume ?? 0;
-            }
-            set
-            {
-                if (_waveOut != null)
-                {
-                    _waveOut.Volume = value;
-                }
-            }
-        }
+        public float Gain { get; set; } = 0.5f;
 
         public AudioPump(int inputDeviceIndex, int outputDeviceIndex)
         {
@@ -71,12 +60,31 @@ namespace SecureChat.Client.Audio
 
                 _waveIn.DataAvailable += (sender, e) =>
                 {
+                    _buffering = true;
                     if (Mute)
                     {
                         return;
                     }
 
-                    _bufferStream.AddSamples(e.Buffer, 0, e.BytesRecorded);
+                    // Reduce sensitivity by scaling down the volume
+                    byte[] buffer = e.Buffer;
+                    for (int i = 0; i < e.BytesRecorded; i += 2)
+                    {
+                        var sample = (short)(buffer[i] | (buffer[i + 1] << 8)); // Convert to 16-bit sample.
+                        sample = (short)(sample * Gain); // Reduce volume.
+                        //Reconstruct byte.
+                        buffer[i] = (byte)(sample & 0xFF); //Least significant bit.
+                        buffer[i + 1] = (byte)((sample >> 8) & 0xFF); //Most significant bit.
+                    }
+
+                    if (OnVolumeSample != null)
+                    {
+                        var volume = CalculateVolumeLevel(buffer, e.BytesRecorded);
+                        OnVolumeSample.Invoke(volume);
+                    }
+
+                    _bufferStream.AddSamples(buffer, 0, e.BytesRecorded);
+                    _buffering = false;
                 };
 
                 _waveOut.Init(_sampler);
@@ -104,7 +112,7 @@ namespace SecureChat.Client.Audio
                 _waveIn?.StopRecording();
                 _waveOut?.Stop();
 
-                while (_recordingRunning || _playbackRunning)
+                while (_recordingRunning || _playbackRunning || _buffering)
                 {
                     Thread.Sleep(10);
                 }
@@ -158,7 +166,6 @@ namespace SecureChat.Client.Audio
         }         
          */
 
-        /*
         /// <summary>
         // Calculate volume level from raw PCM data
         /// </summary>
@@ -178,7 +185,6 @@ namespace SecureChat.Client.Audio
             float normalized = (float)(rms / 32768.0); // Normalize to range 0.0 - 1.0
             return Math.Min(1.0f, normalized); // Ensure value is within range
         }
-        */
     }
 
 }
