@@ -3,12 +3,12 @@
     internal class AudioDeviceComboItem
     {
         public string Text { get; set; }
-        public string DeviceId { get; set; }
+        public int DeviceIndex { get; set; }
 
-        public AudioDeviceComboItem(string text, string deviceId)
+        public AudioDeviceComboItem(string text, int deviceIndex)
         {
             Text = text;
-            DeviceId = deviceId;
+            DeviceIndex = deviceIndex;
         }
 
         public override string ToString()

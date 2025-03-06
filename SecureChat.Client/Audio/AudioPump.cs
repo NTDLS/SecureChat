@@ -1,201 +1,183 @@
-﻿using CSCore.CoreAudioAPI;
-using CSCore;
-using CSCore.SoundIn;
-using CSCore.SoundOut;
-using CSCore.Streams;
-using Microsoft.Extensions.Configuration;
-using System.Threading;
+﻿using NAudio.CoreAudioApi;
+using NAudio.Wave;
 
 namespace SecureChat.Client.Audio
 {
     internal class AudioPump
     {
-        WasapiCapture? capture;
-        WasapiOut? playback;
-        SoundInSource? soundInSource;
-        WriteableBufferingSource? bufferSource;
+        private WaveInEvent? _waveIn;
+        private WasapiOut? _waveOut;
+        private BufferedWaveProvider? _bufferStream;
+        private ResamplerDmoStream? _sampler;
 
-        private readonly string _outputDeviceId;
-        private readonly string _inputDeviceId;
+        private readonly int _outputDeviceIndex;
+        private readonly int _inputDeviceIndex;
 
         private Thread? _thread;
+        private bool _running = false;
+        private bool _keepRunning = false;
+        private bool _recordingRunning = false;
+        private bool _playbackRunning = false;
+        private bool _buffering = false;
 
-        public AudioPump(string inputDeviceId, string outputDeviceId)
+        public bool Mute { get; set; } = false;
+
+        //public float Gain { get; set; } = 0.5f;
+        public float Volume
         {
-            _inputDeviceId = inputDeviceId;
-            _outputDeviceId = outputDeviceId;
+            get
+            {
+                return _waveOut?.Volume ?? 0;
+            }
+            set
+            {
+                if (_waveOut != null)
+                {
+                    _waveOut.Volume = value;
+                }
+            }
+        }
+
+        public AudioPump(int inputDeviceIndex, int outputDeviceIndex)
+        {
+            _inputDeviceIndex = inputDeviceIndex;
+            _outputDeviceIndex = outputDeviceIndex;
         }
 
         public void Start()
         {
-            using var deviceEnumerator = new MMDeviceEnumerator();
-            var inputDevice = deviceEnumerator.EnumAudioEndpoints(DataFlow.Capture, DeviceState.Active)
-                .FirstOrDefault(o => o.DeviceID == _inputDeviceId);
-
-            var outputDevice = deviceEnumerator.EnumAudioEndpoints(DataFlow.Render, DeviceState.Active)
-                .FirstOrDefault(o => o.DeviceID == _outputDeviceId);
+            _keepRunning = true;
 
             _thread = new Thread(() =>
             {
-                capture = new WasapiCapture(/*specify some params*/);
-                capture.Device = inputDevice;
-                capture.Initialize();
+                var enumerator = new MMDeviceEnumerator();
+                var outputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active).ToList();
 
-                soundInSource = new SoundInSource(capture) { FillWithZeros = false };
-                bufferSource = new WriteableBufferingSource(soundInSource.WaveFormat);
-
-                soundInSource.DataAvailable += (s, e) =>
+                _waveIn = new WaveInEvent
                 {
-                    bufferSource.Write(e.Data, 0, e.ByteCount);
+                    WaveFormat = new WaveFormat(44100, 16, 1), // 44.1kHz, 16-bit, Mono
+                    BufferMilliseconds = 100,
+                    DeviceNumber = _inputDeviceIndex
                 };
 
-                playback = new WasapiOut();
-                playback.Device = outputDevice;
-                playback.Initialize(bufferSource);
-
-
-                capture.Start();
-                playback.Play();
-
-                while (true)
+                _bufferStream = new BufferedWaveProvider(_waveIn.WaveFormat)
                 {
-                    Thread.Sleep(1000);
+                    DiscardOnBufferOverflow = true
+                };
+
+                _waveOut = new WasapiOut(outputDevices[_outputDeviceIndex], AudioClientShareMode.Shared, false, 50);
+
+                _sampler = new ResamplerDmoStream(_bufferStream, _waveOut.OutputWaveFormat);
+
+                _waveIn.DataAvailable += (sender, e) =>
+                {
+                    if (Mute)
+                    {
+                        return;
+                    }
+
+                    _bufferStream.AddSamples(e.Buffer, 0, e.BytesRecorded);
+                };
+
+                _waveOut.Init(_sampler);
+                _waveIn.StartRecording();
+                _recordingRunning = true;
+                _waveOut.Play();
+                _playbackRunning = true;
+                _running = true;
+
+                _waveIn.RecordingStopped += (object? sender, StoppedEventArgs e) =>
+                {
+                    _recordingRunning = false;
+                };
+
+                _waveOut.PlaybackStopped += (object? sender, StoppedEventArgs e) =>
+                {
+                    _playbackRunning = false;
+                };
+
+                while (_keepRunning)
+                {
+                    Thread.Sleep(100);
                 }
 
-                
-                // Cleanup resources
-                //playback.Stop();
-                //capture.Stop();
-                //playback.Dispose();
-                //capture.Dispose();
+                _waveIn?.StopRecording();
+                _waveOut?.Stop();
+
+                while (_recordingRunning || _playbackRunning)
+                {
+                    Thread.Sleep(10);
+                }
+
+                _waveIn?.Dispose();
+                _waveOut?.Dispose();
+                _sampler?.Dispose();
+
+                _running = false;
             });
 
             _thread.Start();
         }
 
+        public void Stop()
+        {
+
+            _keepRunning = false;
+
+            while (_running)
+            {
+                Thread.Sleep(10);
+            }
+
+            _thread = null;
+        }
+
         /*
-                private WaveInEvent? waveIn;
-                private WaveOutEvent? waveOut;
-                private BufferedWaveProvider? bufferStream;
-                private readonly int _outputDeviceIndex;
-                private readonly int _inputDeviceIndex;
-                private Thread? _thread;
+        static void GetInputDevices()
+        {
+            var enumerator = new MMDeviceEnumerator();
 
-                public bool Mute { get; set; } = false;
-                public double Volume { get; set; } = 0.25;
-                public int BitRate { get; private set; } = 44100;
-
-                public delegate void AmplitudeReportEventHandler(float amplitude);
-                public event AmplitudeReportEventHandler? OnAmplitudeReport;
-
-                public AudioPump(int inputDeviceIndex, int outputDeviceIndex, int bitRate = 44100)
+            Console.WriteLine("Available Input Devices:");
+            var inputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active).ToList();
+            for (int device = 0; device < WaveInEvent.DeviceCount; device++)
+            {
+                var capabilities = WaveInEvent.GetCapabilities(device);
+                var mmDevice = inputDevices.FirstOrDefault(o => o.FriendlyName.StartsWith(capabilities.ProductName));
+                if (mmDevice != null)
                 {
-                    BitRate = bitRate;
-                    _outputDeviceIndex = outputDeviceIndex;
-                    _inputDeviceIndex = inputDeviceIndex;
+                    Console.WriteLine($"{device}: {mmDevice.FriendlyName}");
                 }
+            }
 
-                public void Start()
-                {
-                    _stopped = false;
+            Console.WriteLine("Available Output Devices:");
+            var outputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active);
+            for (int device = 0; device < outputDevices.Count; device++)
+            {
+                Console.WriteLine($"{device}: {outputDevices[device].FriendlyName}");
+            }
+        }         
+         */
 
-                    _thread = new Thread(() =>
-                    {
-                        try
-                        {
-                            waveIn = new WaveInEvent
-                            {
-                                WaveFormat = new WaveFormat(BitRate, 16, 1), // 44.1kHz, 16-bit, Mono
-                                BufferMilliseconds = 50,
-                                DeviceNumber = _inputDeviceIndex
-                            };
+        /*
+        /// <summary>
+        // Calculate volume level from raw PCM data
+        /// </summary>
+        private static float CalculateVolumeLevel(byte[] buffer, int bytesRead)
+        {
+            // Compute RMS level of audio to display on meter
+            int sampleCount = bytesRead / 2; // 16-bit audio (2 bytes per sample)
+            double sum = 0;
 
-                            bufferStream = new BufferedWaveProvider(waveIn.WaveFormat)
-                            {
-                                DiscardOnBufferOverflow = true
-                            };
+            for (int i = 0; i < bytesRead; i += 2)
+            {
+                short sample = (short)(buffer[i] | (buffer[i + 1] << 8)); // Convert bytes to 16-bit sample
+                sum += sample * sample;
+            }
 
-                            waveOut = new WaveOutEvent()
-                            {
-                                DeviceNumber = _outputDeviceIndex,
-                                DesiredLatency = 100
-                            };
-
-                            waveIn.DataAvailable += (sender, e) =>
-                            {
-                                bufferStream.AddSamples(e.Buffer, 0, e.BytesRecorded);
-                            };
-
-
-                            waveOut.Init(bufferStream);
-                            waveIn.StartRecording();
-                            waveOut.Play();
-
-
-                            while (_keepRunning)
-                            {
-                                Thread.Sleep(100);
-                            }
-
-                            while (_playbackRunning || _recordingRunning || _buffering)
-                            {
-                                Thread.Sleep(100);
-                            }
-
-                            Exceptions.Ignore(() => waveIn.Dispose());
-                            Exceptions.Ignore(() => waveOut.Dispose());
-
-                            _stopped = true;
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex.Message);
-                        }
-                    });
-
-                    _thread.Start();
-                }
-
-                bool _stopped = true;
-                bool _keepRunning = true;
-                bool _recordingRunning = false;
-                bool _playbackRunning = false;
-                bool _buffering = false;
-
-                public void Stop()
-                {
-                    Exceptions.Ignore(() => waveIn?.StopRecording());
-                    Exceptions.Ignore(() => waveOut?.Stop());
-
-                    _keepRunning = false;
-
-                    while (!_stopped)
-                    {
-                        Thread.Sleep(100);
-                    }
-
-                    _thread = null;
-                }
-
-                /// <summary>
-                // Calculate volume level from raw PCM data
-                /// </summary>
-                private static float CalculateVolumeLevel(byte[] buffer, int bytesRead)
-                {
-                    // Compute RMS level of audio to display on meter
-                    int sampleCount = bytesRead / 2; // 16-bit audio (2 bytes per sample)
-                    double sum = 0;
-
-                    for (int i = 0; i < bytesRead; i += 2)
-                    {
-                        short sample = (short)(buffer[i] | (buffer[i + 1] << 8)); // Convert bytes to 16-bit sample
-                        sum += sample * sample;
-                    }
-
-                    double rms = Math.Sqrt(sum / sampleCount);
-                    float normalized = (float)(rms / 32768.0); // Normalize to range 0.0 - 1.0
-                    return Math.Min(1.0f, normalized); // Ensure value is within range
-                }
+            double rms = Math.Sqrt(sum / sampleCount);
+            float normalized = (float)(rms / 32768.0); // Normalize to range 0.0 - 1.0
+            return Math.Min(1.0f, normalized); // Ensure value is within range
+        }
         */
     }
 

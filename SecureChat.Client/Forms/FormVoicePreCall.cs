@@ -1,12 +1,13 @@
-﻿using CSCore.CoreAudioAPI;
+﻿using NAudio.CoreAudioApi;
+using NAudio.Wave;
 using SecureChat.Client.Audio;
 
 namespace SecureChat.Client.Forms
 {
     public partial class FormVoicePreCall : Form
     {
-        private string? _selectedInputDeviceId = null;
-        private string? _selectedIOutputDeviceId = null;
+        private int? _selectedInputDeviceIndex = null;
+        private int? _selectedIOutputDeviceIndex = null;
         private AudioPump? _audioPump = null;
         private int _bitRate = 22050;
 
@@ -20,18 +21,24 @@ namespace SecureChat.Client.Forms
             comboBoxAudioInputDevice.SelectedIndexChanged += ComboBoxAudioInputDevice_SelectedIndexChanged;
             comboBoxAudioOutputDevice.SelectedIndexChanged += ComboBoxAudioOutputDevice_SelectedIndexChanged;
 
-            using var deviceEnumerator = new MMDeviceEnumerator();
+            var enumerator = new MMDeviceEnumerator();
 
-            var inputDevices = deviceEnumerator.EnumAudioEndpoints(DataFlow.Capture, DeviceState.Active);
-            foreach(var inputDevice in inputDevices) 
+            var inputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active).ToList();
+            for (int device = 0; device < WaveInEvent.DeviceCount; device++)
             {
-                comboBoxAudioInputDevice.Items.Add(new AudioDeviceComboItem(inputDevice.FriendlyName, inputDevice.DeviceID));
+                var capabilities = WaveInEvent.GetCapabilities(device);
+                var mmDevice = inputDevices.FirstOrDefault(o => o.FriendlyName.StartsWith(capabilities.ProductName));
+                if (mmDevice != null)
+                {
+                    comboBoxAudioInputDevice.Items.Add(new AudioDeviceComboItem(mmDevice.FriendlyName, device));
+                }
             }
 
-            var outputDevices = deviceEnumerator.EnumAudioEndpoints(DataFlow.Render, DeviceState.Active);
-            foreach (var outputDevice in outputDevices)
+            Console.WriteLine("Available Output Devices:");
+            var outputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active);
+            for (int device = 0; device < outputDevices.Count; device++)
             {
-                comboBoxAudioOutputDevice.Items.Add(new AudioDeviceComboItem(outputDevice.FriendlyName, outputDevice.DeviceID));
+                comboBoxAudioOutputDevice.Items.Add(new AudioDeviceComboItem(outputDevices[device].FriendlyName, device));
             }
 
             FormClosing += (sender, e) =>
@@ -108,32 +115,34 @@ namespace SecureChat.Client.Forms
 
         private void ComboBoxAudioInputDevice_SelectedIndexChanged(object? sender, EventArgs e)
         {
-            _selectedInputDeviceId = (comboBoxAudioInputDevice.SelectedItem as AudioDeviceComboItem)?.DeviceId;
+            _selectedInputDeviceIndex = (comboBoxAudioInputDevice.SelectedItem as AudioDeviceComboItem)?.DeviceIndex;
             PropUpAudio();
         }
 
         private void ComboBoxAudioOutputDevice_SelectedIndexChanged(object? sender, EventArgs e)
         {
-            _selectedIOutputDeviceId = (comboBoxAudioOutputDevice.SelectedItem as AudioDeviceComboItem)?.DeviceId;
+            _selectedIOutputDeviceIndex = (comboBoxAudioOutputDevice.SelectedItem as AudioDeviceComboItem)?.DeviceIndex;
             PropUpAudio();
         }
 
         private void PropUpAudio()
         {
-            if (_selectedInputDeviceId != null && _selectedIOutputDeviceId != null)
+            if (_selectedInputDeviceIndex != null && _selectedIOutputDeviceIndex != null)
             {
-                //_audioPump?.Stop();
+                _audioPump?.Stop();
                 _audioPump = null;
 
-                _audioPump = new AudioPump(_selectedInputDeviceId, _selectedIOutputDeviceId);
+                _audioPump = new AudioPump(_selectedInputDeviceIndex.Value, _selectedIOutputDeviceIndex.Value);
                 //_audioPump.Volume = volumeSliderVolume.Volume;
-                //_audioPump.OnAmplitudeReport += (level) =>
+                /*
+                _audioPump.OnAmplitudeReport += (level) =>
                 {
                     BeginInvoke(new Action(() =>
                     {
                         //volumeMeter.Amplitude = level * 100;
                     }));
                 };
+                */
 
                 _audioPump.Start();
             }
