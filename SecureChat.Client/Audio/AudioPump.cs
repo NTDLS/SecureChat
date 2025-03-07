@@ -56,8 +56,9 @@ namespace SecureChat.Client.Audio
 
                     var waveIn = new WaveInEvent
                     {
-                        //Example: 44.1kHz, 16-bit, Mono
-                        WaveFormat = new WaveFormat(inputWaveFormat.SampleRate, inputWaveFormat.BitsPerSample, inputWaveFormat.Channels),
+                        WaveFormat = new WaveFormat(inputWaveFormat.SampleRate, 16, 1),
+                        //If the mic will allow 16bit mono, then lets just roll with it.
+                        //WaveFormat = new WaveFormat(inputWaveFormat.SampleRate, inputWaveFormat.BitsPerSample, inputWaveFormat.Channels),
                         BufferMilliseconds = 75,
                         DeviceNumber = _inputDeviceIndex
                     };
