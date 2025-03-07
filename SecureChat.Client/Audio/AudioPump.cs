@@ -27,14 +27,12 @@ namespace SecureChat.Client.Audio
         }
 
         const int ResampleBufferSize = 1024;
+        private DateTime _lastBufferTime = DateTime.UtcNow; // Tracks last buffer received
 
         public void Start()
         {
             _keepRunning = true;
 
-            bool isRecordingRunning = false;
-            bool isPlaybackRunning = false;
-            bool isBuffering = false;
 
             new Thread(() =>
                 {
@@ -70,7 +68,7 @@ namespace SecureChat.Client.Audio
 
                     var waveOut = new WasapiOut(outputDevices[_outputDeviceIndex], AudioClientShareMode.Shared, false, 50);
 
-                    var bufferStream = new BufferedWaveProvider(waveOut.OutputWaveFormat)
+                    var outputBufferStream = new BufferedWaveProvider(waveOut.OutputWaveFormat)
                     {
                         BufferLength = 64 * 1024,
                         DiscardOnBufferOverflow = true
@@ -82,40 +80,28 @@ namespace SecureChat.Client.Audio
 
                     waveIn.DataAvailable += (sender, e) =>
                     {
-                        if (Mute)
-                        {
-                            return;
-                        }
+                        if (Mute) return;
+
+                        var now = DateTime.UtcNow;
+                        double elapsedMs = (now - _lastBufferTime).TotalMilliseconds;
+                        _lastBufferTime = now; // Update last buffer time
 
                         var transmissionBytes = ResampleForTransmission(e, waveIn.WaveFormat, transmissionWaveFormat);
 
-                        if (OnVolumeSample != null)
+                        ResampleForOutput(transmissionBytes, transmissionWaveFormat, waveOut.OutputWaveFormat, outputBufferStream);
+
+                        // If the time gap is too large, fill the missing time with silence
+                        if (outputBufferStream.BufferedDuration.TotalMilliseconds < elapsedMs)
                         {
-                            var volume = CalculateVolumeLevelWithGain(transmissionBytes);
-                            OnVolumeSample.Invoke(volume);
+                            //Console.WriteLine($"Buffer underrun detected! Injecting {elapsedMs:F2}ms of silence...");
+                            //InjectAdaptiveSilence(outputBufferStream, elapsedMs, waveOut.OutputWaveFormat);
                         }
-
-                        //Mock sending transmissionBytes to remote peer.
-
-                        ResampleForOutput(transmissionBytes, transmissionWaveFormat, waveOut.OutputWaveFormat, bufferStream);
                     };
 
-                    waveOut.Init(bufferStream);
+                    waveOut.Init(outputBufferStream);
                     waveIn.StartRecording();
-                    isRecordingRunning = true;
                     waveOut.Play();
-                    isPlaybackRunning = true;
                     _IsRunning = true;
-
-                    waveIn.RecordingStopped += (object? sender, StoppedEventArgs e) =>
-                    {
-                        isRecordingRunning = false;
-                    };
-
-                    waveOut.PlaybackStopped += (object? sender, StoppedEventArgs e) =>
-                    {
-                        isPlaybackRunning = false;
-                    };
 
                     while (_keepRunning)
                     {
@@ -125,7 +111,7 @@ namespace SecureChat.Client.Audio
                     waveIn?.StopRecording();
                     waveOut?.Stop();
 
-                    while (isRecordingRunning || isPlaybackRunning || isBuffering)
+                    while (waveOut?.PlaybackState == PlaybackState.Playing)
                     {
                         Thread.Sleep(10);
                     }
@@ -136,6 +122,16 @@ namespace SecureChat.Client.Audio
                     _IsRunning = false;
                 }).Start();
         }
+
+        private void InjectAdaptiveSilence(BufferedWaveProvider outputBuffer, double missingMs, WaveFormat format)
+        {
+            int bytesPerMs = format.AverageBytesPerSecond / 1000; // Convert ms to bytes
+            int silenceBytesNeeded = (int)(missingMs * bytesPerMs); // Compute exact bytes needed
+
+            byte[] silenceBuffer = new byte[silenceBytesNeeded];
+            outputBuffer.AddSamples(silenceBuffer, 0, silenceBuffer.Length);
+        }
+
 
         public byte[] ResampleForTransmission(WaveInEventArgs recorded, WaveFormat inputFormat, WaveFormat outputFormat)
         {
@@ -168,7 +164,7 @@ namespace SecureChat.Client.Audio
             int bytesRead;
             while ((bytesRead = resampler.Read(buffer, 0, buffer.Length)) > 0)
             {
-                if (outputBuffer.BufferedDuration.TotalMilliseconds < 500) // Prevents overflow by dropping extra data.
+                //if (outputBuffer.BufferedDuration.TotalMilliseconds < 500) // Prevents overflow by dropping extra data.
                 {
                     outputBuffer.AddSamples(buffer, 0, bytesRead);
                 }
