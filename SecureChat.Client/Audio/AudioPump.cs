@@ -1,12 +1,12 @@
 ﻿using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using NTDLS.Helpers;
-using System.IO;
 
 namespace SecureChat.Client.Audio
 {
     internal class AudioPump
     {
+
         public delegate void VolumeSampleEventHandler(float volume);
         public event VolumeSampleEventHandler? OnVolumeSample;
 
@@ -26,6 +26,8 @@ namespace SecureChat.Client.Audio
             _inputDeviceIndex = inputDeviceIndex;
             _outputDeviceIndex = outputDeviceIndex;
         }
+
+        const int ResampleBufferSize = 2048;
 
         public void Start()
         {
@@ -85,13 +87,20 @@ namespace SecureChat.Client.Audio
                             return;
                         }
 
-                        var transmissionBytes = ResampleAudioBytes(e.Buffer, e.BytesRecorded, waveIn.WaveFormat, transmissionWaveFormat);
+                        var transmissionBytes = ResampleForTransmission(e, waveIn.WaveFormat, transmissionWaveFormat);
+
+                        for (int i = 0; i < transmissionBytes.Length; i += 2) //Adjust gain.
+                        {
+                            var sample = (short)(transmissionBytes[i] | (transmissionBytes[i + 1] << 8)); // Convert to 16-bit sample.
+                            sample = (short)(sample * Gain); // Reduce volume.
+                            //Reconstruct sample byte.
+                            transmissionBytes[i] = (byte)(sample & 0xFF); //Least significant bit.
+                            transmissionBytes[i + 1] = (byte)((sample >> 8) & 0xFF); //Most significant bit.
+                        }
 
                         //Mock sending transmissionBytes to remote peer.
 
-                        var outputBytes = ResampleAudioBytes(transmissionBytes, transmissionBytes.Length, transmissionWaveFormat, waveOut.OutputWaveFormat);
-
-                        bufferStream.AddSamples(outputBytes, 0, outputBytes.Length);
+                        ResampleForOutput(transmissionBytes, transmissionWaveFormat, waveOut.OutputWaveFormat, bufferStream);
                     };
 
                     waveOut.Init(bufferStream);
@@ -131,21 +140,41 @@ namespace SecureChat.Client.Audio
                 }).Start();
         }
 
-        public static byte[] ResampleAudioBytes(byte[] inputBytes, int inputByteCount, WaveFormat inputFormat, WaveFormat outputFormat)
+        public static byte[] ResampleForTransmission(WaveInEventArgs recorded, WaveFormat inputFormat, WaveFormat outputFormat)
         {
-            using var inputStream = new RawSourceWaveStream(new MemoryStream(inputBytes, 0, inputByteCount), inputFormat);
+            using var inputStream = new RawSourceWaveStream(new MemoryStream(recorded.Buffer, 0, recorded.BytesRecorded, writable: false), inputFormat);
             using var resampler = new ResamplerDmoStream(inputStream, outputFormat);
+
+            var resampledBuffer = new byte[ResampleBufferSize];
             using var outputStream = new MemoryStream();
 
-            var buffer = new byte[outputFormat.AverageBytesPerSecond];
+            int bytesRead;
+            while ((bytesRead = resampler.Read(resampledBuffer, 0, resampledBuffer.Length)) > 0)
+            {
+                outputStream.Write(resampledBuffer, 0, bytesRead);
+            }
+
+            return outputStream.ToArray();
+        }
+
+        public static void ResampleForOutput(byte[] inputBytes, WaveFormat inputFormat, WaveFormat outputFormat, BufferedWaveProvider outputBuffer)
+        {
+            using var inputStream = new RawSourceWaveStream(new MemoryStream(inputBytes, 0, inputBytes.Length, writable: false), inputFormat);
+            using var resampler = new ResamplerDmoStream(inputStream, outputFormat);
+            var buffer = new byte[ResampleBufferSize];
 
             int bytesRead;
             while ((bytesRead = resampler.Read(buffer, 0, buffer.Length)) > 0)
             {
-                outputStream.Write(buffer, 0, bytesRead);
+                if (outputBuffer.BufferedDuration.TotalMilliseconds < 500) // Prevents overflow
+                {
+                    outputBuffer.AddSamples(buffer, 0, bytesRead);
+                }
+                else
+                {
+                    //Drop bytes. :(
+                }
             }
-
-            return outputStream.ToArray();
         }
 
         public void Stop()
@@ -157,32 +186,6 @@ namespace SecureChat.Client.Audio
                 Thread.Sleep(10);
             }
         }
-
-        /*
-        static void GetInputDevices()
-        {
-            var enumerator = new MMDeviceEnumerator();
-
-            Console.WriteLine("Available Input Devices:");
-            var inputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active).ToList();
-            for (int device = 0; device < WaveInEvent.DeviceCount; device++)
-            {
-                var capabilities = WaveInEvent.GetCapabilities(device);
-                var mmDevice = inputDevices.FirstOrDefault(o => o.FriendlyName.StartsWith(capabilities.ProductName));
-                if (mmDevice != null)
-                {
-                    Console.WriteLine($"{device}: {mmDevice.FriendlyName}");
-                }
-            }
-
-            Console.WriteLine("Available Output Devices:");
-            var outputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active);
-            for (int device = 0; device < outputDevices.Count; device++)
-            {
-                Console.WriteLine($"{device}: {outputDevices[device].FriendlyName}");
-            }
-        }         
-         */
 
         /// <summary>
         // Calculate volume level from raw PCM data
