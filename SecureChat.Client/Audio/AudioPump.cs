@@ -62,7 +62,7 @@ namespace SecureChat.Client.Audio
 
                 _waveIn = new WaveInEvent
                 {
-                    WaveFormat = inputWaveFormat, // 44.1kHz, 16-bit, Mono
+                    WaveFormat = inputWaveFormat, //new WaveFormat(SampleRate, 16, 1), //inputWaveFormat, // 44.1kHz, 16-bit, Mono
                     BufferMilliseconds = 100,
                     DeviceNumber = _inputDeviceIndex
                 };
@@ -76,10 +76,9 @@ namespace SecureChat.Client.Audio
 
                 _sampler = new ResamplerDmoStream(_bufferStream, _waveOut.OutputWaveFormat);
                 //_sampler = new ResamplerDmoStream(_bufferStream, new WaveFormat(SampleRate, 16, 1));
-
-                Console.WriteLine($"Input Format: {_waveIn.WaveFormat.SampleRate} Hz, {_waveIn.WaveFormat.BitsPerSample}-bit, {_waveIn.WaveFormat.Channels}ch");
-                Console.WriteLine($"Resampler Format: {_sampler.WaveFormat.SampleRate} Hz, {_sampler.WaveFormat.BitsPerSample}-bit, {_sampler.WaveFormat.Channels}ch");
-                Console.WriteLine($"Output Format: {_waveOut.OutputWaveFormat.SampleRate} Hz, {_waveOut.OutputWaveFormat.BitsPerSample}-bit, {_waveOut.OutputWaveFormat.Channels}ch");
+                //Console.WriteLine($"Input Format: {_waveIn.WaveFormat.SampleRate} Hz, {_waveIn.WaveFormat.BitsPerSample}-bit, {_waveIn.WaveFormat.Channels}ch");
+                //Console.WriteLine($"Resampler Format: {_sampler.WaveFormat.SampleRate} Hz, {_sampler.WaveFormat.BitsPerSample}-bit, {_sampler.WaveFormat.Channels}ch");
+                //Console.WriteLine($"Output Format: {_waveOut.OutputWaveFormat.SampleRate} Hz, {_waveOut.OutputWaveFormat.BitsPerSample}-bit, {_waveOut.OutputWaveFormat.Channels}ch");
 
                 _waveIn.DataAvailable += (sender, e) =>
                 {
@@ -88,7 +87,6 @@ namespace SecureChat.Client.Audio
                     {
                         return;
                     }
-                    /*
                     byte[] buffer = e.Buffer;
                     for (int i = 0; i < e.BytesRecorded; i += 2)
                     {
@@ -101,10 +99,10 @@ namespace SecureChat.Client.Audio
 
                     if (OnVolumeSample != null)
                     {
-                        var volume = CalculateVolumeLevelWithGain(buffer, e.BytesRecorded);
-                        OnVolumeSample.Invoke(volume);
+                        //var volume = CalculateVolumeLevelWithGain(buffer, e.BytesRecorded);
+                        //OnVolumeSample.Invoke(volume);
                     }
-                    */
+
                     _bufferStream.AddSamples(e.Buffer, 0, e.BytesRecorded);
                     _buffering = false;
                 };
