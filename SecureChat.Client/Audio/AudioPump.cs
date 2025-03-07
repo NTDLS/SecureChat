@@ -76,21 +76,15 @@ namespace SecureChat.Client.Audio
                     Console.WriteLine($"Transmission: {transmissionWaveFormat.SampleRate} Hz, {transmissionWaveFormat.BitsPerSample}-bit, {transmissionWaveFormat.Channels}ch");
                     Console.WriteLine($"Output: {waveOut.OutputWaveFormat.SampleRate} Hz, {waveOut.OutputWaveFormat.BitsPerSample}-bit, {waveOut.OutputWaveFormat.Channels}ch");
 
-                    bool transcode = true;
-
                     waveIn.DataAvailable += (sender, e) =>
                     {
                         if (Mute) return;
 
-                        if (transcode)
-                        {
-                            var transmissionBytes = ResampleForTransmission(e, waveIn.WaveFormat, transmissionWaveFormat, Gain);
-                            ResampleForOutput(transmissionBytes, transmissionWaveFormat, waveOut.OutputWaveFormat, outputBufferStream);
-                        }
-                        else
-                        {
-                            ResampleForOutput(e.Buffer, e.BytesRecorded, waveIn.WaveFormat, waveOut.OutputWaveFormat, outputBufferStream);
-                        }
+                        var transmissionBytes = ResampleForTransmission(e, waveIn.WaveFormat, transmissionWaveFormat, Gain);
+
+                        //Send this to the remote peer: transmissionBytes
+
+                        ResampleForOutput(transmissionBytes, transmissionWaveFormat, waveOut.OutputWaveFormat, outputBufferStream);
                     };
 
                     waveOut.Init(outputBufferStream);
