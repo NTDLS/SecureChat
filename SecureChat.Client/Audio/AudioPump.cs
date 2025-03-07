@@ -26,7 +26,6 @@ namespace SecureChat.Client.Audio
             _outputDeviceIndex = outputDeviceIndex;
         }
 
-        const int ResampleBufferSize = 1024;
         private DateTime _lastBufferTime = DateTime.UtcNow; // Tracks last buffer received
 
         public void Start()
@@ -143,7 +142,7 @@ namespace SecureChat.Client.Audio
                 Volume = Gain
             };
 
-            var resampledBuffer = new byte[ResampleBufferSize];
+            var resampledBuffer = new byte[inputFormat.AverageBytesPerSecond];
             using var outputStream = new MemoryStream();
 
             int bytesRead;
@@ -159,12 +158,12 @@ namespace SecureChat.Client.Audio
         {
             using var inputStream = new RawSourceWaveStream(new MemoryStream(inputBytes, 0, inputBytes.Length, writable: false), inputFormat);
             using var resampler = new ResamplerDmoStream(inputStream, outputFormat);
-            var buffer = new byte[ResampleBufferSize];
+            var buffer = new byte[outputFormat.AverageBytesPerSecond];
 
             int bytesRead;
             while ((bytesRead = resampler.Read(buffer, 0, buffer.Length)) > 0)
             {
-                //if (outputBuffer.BufferedDuration.TotalMilliseconds < 500) // Prevents overflow by dropping extra data.
+                if (outputBuffer.BufferedDuration.TotalMilliseconds < 500) // Prevents overflow by dropping extra data.
                 {
                     outputBuffer.AddSamples(buffer, 0, bytesRead);
                 }
