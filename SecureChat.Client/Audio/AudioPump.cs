@@ -16,22 +16,19 @@ namespace SecureChat.Client.Audio
         private bool _keepRunning = false;
 
         public bool Mute { get; set; } = false;
-        public float Gain { get; set; } = 0.5f;
-        public int SampleRate { get; private set; } = 22050;
+        public float Gain { get; set; } = 1.0f;
+        public int? SampleRate { get; private set; }
 
-        public AudioPump(int inputDeviceIndex, int outputDeviceIndex, int sampleRate = 22050)
+        public AudioPump(int inputDeviceIndex, int outputDeviceIndex, int? sampleRate)
         {
             SampleRate = sampleRate;
             _inputDeviceIndex = inputDeviceIndex;
             _outputDeviceIndex = outputDeviceIndex;
         }
 
-        private DateTime _lastBufferTime = DateTime.UtcNow; // Tracks last buffer received
-
         public void Start()
         {
             _keepRunning = true;
-
 
             new Thread(() =>
                 {
@@ -55,6 +52,8 @@ namespace SecureChat.Client.Audio
 
                     inputWaveFormat.EnsureNotNull();
 
+                    var transmissionWaveFormat = new WaveFormat(SampleRate ?? inputWaveFormat.SampleRate, 16, 1);
+
                     var waveIn = new WaveInEvent
                     {
                         //Example: 44.1kHz, 16-bit, Mono
@@ -63,9 +62,8 @@ namespace SecureChat.Client.Audio
                         DeviceNumber = _inputDeviceIndex
                     };
 
-                    var transmissionWaveFormat = new WaveFormat(SampleRate, 16, 1);
-
-                    var waveOut = new WasapiOut(outputDevices[_outputDeviceIndex], AudioClientShareMode.Shared, false, 50);
+                    var waveOut = new WasapiOut(outputDevices[_outputDeviceIndex], AudioClientShareMode.Shared, true, 50);
+                    //waveOut.Volume = 1.0f;
 
                     var outputBufferStream = new BufferedWaveProvider(waveOut.OutputWaveFormat)
                     {
@@ -77,23 +75,20 @@ namespace SecureChat.Client.Audio
                     Console.WriteLine($"Transmission: {transmissionWaveFormat.SampleRate} Hz, {transmissionWaveFormat.BitsPerSample}-bit, {transmissionWaveFormat.Channels}ch");
                     Console.WriteLine($"Output: {waveOut.OutputWaveFormat.SampleRate} Hz, {waveOut.OutputWaveFormat.BitsPerSample}-bit, {waveOut.OutputWaveFormat.Channels}ch");
 
+                    bool transcode = true;
+
                     waveIn.DataAvailable += (sender, e) =>
                     {
                         if (Mute) return;
 
-                        var now = DateTime.UtcNow;
-                        double elapsedMs = (now - _lastBufferTime).TotalMilliseconds;
-                        _lastBufferTime = now; // Update last buffer time
-
-                        var transmissionBytes = ResampleForTransmission(e, waveIn.WaveFormat, transmissionWaveFormat);
-
-                        ResampleForOutput(transmissionBytes, transmissionWaveFormat, waveOut.OutputWaveFormat, outputBufferStream);
-
-                        // If the time gap is too large, fill the missing time with silence
-                        if (outputBufferStream.BufferedDuration.TotalMilliseconds < elapsedMs)
+                        if (transcode)
                         {
-                            //Console.WriteLine($"Buffer underrun detected! Injecting {elapsedMs:F2}ms of silence...");
-                            //InjectAdaptiveSilence(outputBufferStream, elapsedMs, waveOut.OutputWaveFormat);
+                            var transmissionBytes = ResampleForTransmission(e, waveIn.WaveFormat, transmissionWaveFormat, Gain);
+                            ResampleForOutput(transmissionBytes, transmissionWaveFormat, waveOut.OutputWaveFormat, outputBufferStream);
+                        }
+                        else
+                        {
+                            ResampleForOutput(e.Buffer, e.BytesRecorded, waveIn.WaveFormat, waveOut.OutputWaveFormat, outputBufferStream);
                         }
                     };
 
@@ -122,24 +117,14 @@ namespace SecureChat.Client.Audio
                 }).Start();
         }
 
-        private void InjectAdaptiveSilence(BufferedWaveProvider outputBuffer, double missingMs, WaveFormat format)
-        {
-            int bytesPerMs = format.AverageBytesPerSecond / 1000; // Convert ms to bytes
-            int silenceBytesNeeded = (int)(missingMs * bytesPerMs); // Compute exact bytes needed
-
-            byte[] silenceBuffer = new byte[silenceBytesNeeded];
-            outputBuffer.AddSamples(silenceBuffer, 0, silenceBuffer.Length);
-        }
-
-
-        public byte[] ResampleForTransmission(WaveInEventArgs recorded, WaveFormat inputFormat, WaveFormat outputFormat)
+        public static byte[] ResampleForTransmission(WaveInEventArgs recorded, WaveFormat inputFormat, WaveFormat outputFormat, float gain)
         {
             using var inputStream = new RawSourceWaveStream(new MemoryStream(recorded.Buffer, 0, recorded.BytesRecorded, writable: false), inputFormat);
-            using var resampler = new ResamplerDmoStream(inputStream, outputFormat);
+            using var resampler = new MediaFoundationResampler(inputStream, outputFormat);
 
             var volumeProvider = new VolumeWaveProvider16(resampler)
             {
-                Volume = Gain
+                Volume = gain
             };
 
             var resampledBuffer = new byte[inputFormat.AverageBytesPerSecond];
@@ -154,11 +139,41 @@ namespace SecureChat.Client.Audio
             return outputStream.ToArray();
         }
 
-        public static void ResampleForOutput(byte[] inputBytes, WaveFormat inputFormat, WaveFormat outputFormat, BufferedWaveProvider outputBuffer)
+        public static byte[] ResampleForTransmission(WaveInEventArgs recorded, WaveFormat inputFormat, WaveFormat outputFormat)
         {
-            using var inputStream = new RawSourceWaveStream(new MemoryStream(inputBytes, 0, inputBytes.Length, writable: false), inputFormat);
-            using var resampler = new ResamplerDmoStream(inputStream, outputFormat);
-            var buffer = new byte[outputFormat.AverageBytesPerSecond];
+            using var inputStream = new RawSourceWaveStream(new MemoryStream(recorded.Buffer, 0, recorded.BytesRecorded, writable: false), inputFormat);
+            using var resampler = new MediaFoundationResampler(inputStream, outputFormat);
+
+            // Compute buffer size based on sample rate & frame size.
+            int bytesPerSample = outputFormat.BitsPerSample / 8 * outputFormat.Channels;
+            int bytesPerMs = outputFormat.SampleRate * bytesPerSample / 1000;
+            int bufferSize = bytesPerMs * 50; // 50ms buffer
+            var buffer = new byte[bufferSize];
+
+            using var outputStream = new MemoryStream();
+
+            int bytesRead;
+            while ((bytesRead = resampler.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                outputStream.Write(buffer, 0, bytesRead);
+            }
+
+            return outputStream.ToArray();
+        }
+
+        public static void ResampleForOutput(byte[] inputBytes, WaveFormat inputFormat, WaveFormat outputFormat, BufferedWaveProvider outputBuffer)
+            => ResampleForOutput(inputBytes, inputBytes.Length, inputFormat, outputFormat, outputBuffer);
+
+        public static void ResampleForOutput(byte[] inputBytes, int byteCount, WaveFormat inputFormat, WaveFormat outputFormat, BufferedWaveProvider outputBuffer)
+        {
+            using var inputStream = new RawSourceWaveStream(new MemoryStream(inputBytes, 0, byteCount, writable: false), inputFormat);
+            using var resampler = new MediaFoundationResampler(inputStream, outputFormat);
+
+            // Compute buffer size based on sample rate & frame size.
+            int bytesPerSample = outputFormat.BitsPerSample / 8 * outputFormat.Channels;
+            int bytesPerMs = outputFormat.SampleRate * bytesPerSample / 1000;
+            int bufferSize = bytesPerMs * 50; // 50ms buffer
+            var buffer = new byte[bufferSize];
 
             int bytesRead;
             while ((bytesRead = resampler.Read(buffer, 0, buffer.Length)) > 0)

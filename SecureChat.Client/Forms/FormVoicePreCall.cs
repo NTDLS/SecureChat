@@ -9,7 +9,7 @@ namespace SecureChat.Client.Forms
         private int? _selectedInputDeviceIndex = null;
         private int? _selectedIOutputDeviceIndex = null;
         private AudioPump? _audioPump = null;
-        private int _sampleRate = 22050;
+        private int? _sampleRate = null;
 
         public FormVoicePreCall()
         {
@@ -47,14 +47,16 @@ namespace SecureChat.Client.Forms
             };
 
             trackBarGain.ValueChanged += TrackBarGain_ValueChanged;
-            trackBarGain.Value = 5;
+            trackBarGain.Value = 10;
 
             radioButtonBitRate8000.CheckedChanged += RadioButtonBitRate_CheckedChanged;
             radioButtonBitRate11025.CheckedChanged += RadioButtonBitRate_CheckedChanged;
             radioButtonBitRate22050.CheckedChanged += RadioButtonBitRate_CheckedChanged;
             radioButtonBitRate32000.CheckedChanged += RadioButtonBitRate_CheckedChanged;
             radioButtonBitRate44100.CheckedChanged += RadioButtonBitRate_CheckedChanged;
-            SetSelectedSampleRate(_sampleRate);
+            radioButtonBitRateDeviceNative.CheckedChanged += RadioButtonBitRate_CheckedChanged;
+
+            SetSelectedSampleRate(32000);
         }
 
         private void TrackBarGain_ValueChanged(object? sender, EventArgs e)
@@ -74,7 +76,7 @@ namespace SecureChat.Client.Forms
             }
         }
 
-        private int GetSelectedSampleRate()
+        private int? GetSelectedSampleRate()
         {
             if (radioButtonBitRate8000.Checked)
                 return 8000;
@@ -86,11 +88,13 @@ namespace SecureChat.Client.Forms
                 return 32000;
             else if (radioButtonBitRate44100.Checked)
                 return 44100;
+            else if (radioButtonBitRateDeviceNative.Checked)
+                return null;
 
             return 44100;
         }
 
-        private void SetSelectedSampleRate(int sampleRate)
+        private void SetSelectedSampleRate(int? sampleRate)
         {
             switch (sampleRate)
             {
@@ -108,6 +112,9 @@ namespace SecureChat.Client.Forms
                     break;
                 case 44100:
                     radioButtonBitRate44100.Checked = true;
+                    break;
+                case null:
+                    radioButtonBitRateDeviceNative.Checked = true;
                     break;
             }
         }

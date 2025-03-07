@@ -35,6 +35,7 @@
             comboBoxAudioInputDevice = new ComboBox();
             labelMicrophoneGain = new Label();
             groupBoxBitrate = new GroupBox();
+            radioButtonBitRateDeviceNative = new RadioButton();
             radioButtonBitRate44100 = new RadioButton();
             radioButtonBitRate32000 = new RadioButton();
             radioButtonBitRate22050 = new RadioButton();
@@ -95,6 +96,7 @@
             // 
             // groupBoxBitrate
             // 
+            groupBoxBitrate.Controls.Add(radioButtonBitRateDeviceNative);
             groupBoxBitrate.Controls.Add(radioButtonBitRate44100);
             groupBoxBitrate.Controls.Add(radioButtonBitRate32000);
             groupBoxBitrate.Controls.Add(radioButtonBitRate22050);
@@ -102,10 +104,21 @@
             groupBoxBitrate.Controls.Add(radioButtonBitRate8000);
             groupBoxBitrate.Location = new Point(14, 115);
             groupBoxBitrate.Name = "groupBoxBitrate";
-            groupBoxBitrate.Size = new Size(222, 148);
+            groupBoxBitrate.Size = new Size(222, 174);
             groupBoxBitrate.TabIndex = 7;
             groupBoxBitrate.TabStop = false;
             groupBoxBitrate.Text = "Quality";
+            // 
+            // radioButtonBitRateDeviceNative
+            // 
+            radioButtonBitRateDeviceNative.AutoSize = true;
+            radioButtonBitRateDeviceNative.Location = new Point(11, 145);
+            radioButtonBitRateDeviceNative.Name = "radioButtonBitRateDeviceNative";
+            radioButtonBitRateDeviceNative.Size = new Size(95, 19);
+            radioButtonBitRateDeviceNative.TabIndex = 5;
+            radioButtonBitRateDeviceNative.TabStop = true;
+            radioButtonBitRateDeviceNative.Text = "Device native";
+            radioButtonBitRateDeviceNative.UseVisualStyleBackColor = true;
             // 
             // radioButtonBitRate44100
             // 
@@ -164,7 +177,7 @@
             // 
             // buttonOk
             // 
-            buttonOk.Location = new Point(313, 240);
+            buttonOk.Location = new Point(313, 266);
             buttonOk.Name = "buttonOk";
             buttonOk.Size = new Size(75, 23);
             buttonOk.TabIndex = 8;
@@ -173,7 +186,7 @@
             // 
             // buttonCancel
             // 
-            buttonCancel.Location = new Point(394, 240);
+            buttonCancel.Location = new Point(394, 266);
             buttonCancel.Name = "buttonCancel";
             buttonCancel.Size = new Size(75, 23);
             buttonCancel.TabIndex = 9;
@@ -183,7 +196,7 @@
             // trackBarGain
             // 
             trackBarGain.Location = new Point(242, 130);
-            trackBarGain.Maximum = 20;
+            trackBarGain.Maximum = 50;
             trackBarGain.Minimum = 1;
             trackBarGain.Name = "trackBarGain";
             trackBarGain.Size = new Size(227, 45);
@@ -202,7 +215,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(481, 274);
+            ClientSize = new Size(481, 299);
             Controls.Add(progressBarVolume);
             Controls.Add(trackBarGain);
             Controls.Add(buttonCancel);
@@ -243,5 +256,6 @@
         private Button buttonCancel;
         private TrackBar trackBarGain;
         private ProgressBar progressBarVolume;
+        private RadioButton radioButtonBitRateDeviceNative;
     }
 }
