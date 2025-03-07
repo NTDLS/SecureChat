@@ -24,11 +24,12 @@ namespace SecureChat.Client.Audio
         private bool _buffering = false;
 
         public bool Mute { get; set; } = false;
-
         public float Gain { get; set; } = 0.5f;
+        public int SampleRate { get; private set; }
 
-        public AudioPump(int inputDeviceIndex, int outputDeviceIndex)
+        public AudioPump(int inputDeviceIndex, int outputDeviceIndex, int sampleRate = 22050)
         {
+            SampleRate = sampleRate;
             _inputDeviceIndex = inputDeviceIndex;
             _outputDeviceIndex = outputDeviceIndex;
         }
@@ -44,7 +45,7 @@ namespace SecureChat.Client.Audio
 
                 _waveIn = new WaveInEvent
                 {
-                    WaveFormat = new WaveFormat(44100, 16, 1), // 44.1kHz, 16-bit, Mono
+                    WaveFormat = new WaveFormat(SampleRate, 16, 1), // 44.1kHz, 16-bit, Mono
                     BufferMilliseconds = 100,
                     DeviceNumber = _inputDeviceIndex
                 };
@@ -66,7 +67,6 @@ namespace SecureChat.Client.Audio
                         return;
                     }
 
-                    // Reduce sensitivity by scaling down the volume
                     byte[] buffer = e.Buffer;
                     for (int i = 0; i < e.BytesRecorded; i += 2)
                     {
@@ -79,7 +79,7 @@ namespace SecureChat.Client.Audio
 
                     if (OnVolumeSample != null)
                     {
-                        var volume = CalculateVolumeLevel(buffer, e.BytesRecorded);
+                        var volume = CalculateVolumeLevelWithGain(buffer, e.BytesRecorded);
                         OnVolumeSample.Invoke(volume);
                     }
 
@@ -169,7 +169,7 @@ namespace SecureChat.Client.Audio
         /// <summary>
         // Calculate volume level from raw PCM data
         /// </summary>
-        private static float CalculateVolumeLevel(byte[] buffer, int bytesRead)
+        private static float CalculateVolumeLevelRMS(byte[] buffer, int bytesRead)
         {
             // Compute RMS level of audio to display on meter
             int sampleCount = bytesRead / 2; // 16-bit audio (2 bytes per sample)
@@ -185,6 +185,18 @@ namespace SecureChat.Client.Audio
             float normalized = (float)(rms / 32768.0); // Normalize to range 0.0 - 1.0
             return Math.Min(1.0f, normalized); // Ensure value is within range
         }
-    }
 
+        private static float CalculateVolumeLevelWithGain(byte[] buffer, int bytesRead, float gain = 100.0f)
+        {
+            short maxSample = 0;
+            for (int i = 0; i < bytesRead; i += 2)
+            {
+                short sample = (short)(buffer[i] | (buffer[i + 1] << 8));
+                maxSample = Math.Max(maxSample, Math.Abs(sample));
+            }
+
+            float normalized = maxSample / 32768.0f;
+            return Math.Min(1.0f, normalized * gain);
+        }
+    }
 }

@@ -9,7 +9,7 @@ namespace SecureChat.Client.Forms
         private int? _selectedInputDeviceIndex = null;
         private int? _selectedIOutputDeviceIndex = null;
         private AudioPump? _audioPump = null;
-        private int _bitRate = 22050;
+        private int _sampleRate = 22050;
 
         public FormVoicePreCall()
         {
@@ -55,7 +55,7 @@ namespace SecureChat.Client.Forms
             radioButtonBitRate22050.CheckedChanged += RadioButtonBitRate_CheckedChanged;
             radioButtonBitRate32000.CheckedChanged += RadioButtonBitRate_CheckedChanged;
             radioButtonBitRate44100.CheckedChanged += RadioButtonBitRate_CheckedChanged;
-            SetSelectedBitrate(_bitRate);
+            SetSelectedSampleRate(_sampleRate);
         }
 
         private void TrackBarGain_ValueChanged(object? sender, EventArgs e)
@@ -70,12 +70,12 @@ namespace SecureChat.Client.Forms
         {
             if (sender is RadioButton radioButton && radioButton.Checked)
             {
-                _bitRate = GetSelectedBitrate();
+                _sampleRate = GetSelectedSampleRate();
                 PropUpAudio();
             }
         }
 
-        private int GetSelectedBitrate()
+        private int GetSelectedSampleRate()
         {
             if (radioButtonBitRate8000.Checked)
                 return 8000;
@@ -91,9 +91,9 @@ namespace SecureChat.Client.Forms
             return 44100;
         }
 
-        private void SetSelectedBitrate(int bitrate)
+        private void SetSelectedSampleRate(int sampleRate)
         {
-            switch (bitrate)
+            switch (sampleRate)
             {
                 case 8000:
                     radioButtonBitRate8000.Checked = true;
@@ -132,14 +132,14 @@ namespace SecureChat.Client.Forms
                 _audioPump?.Stop();
                 _audioPump = null;
 
-                _audioPump = new AudioPump(_selectedInputDeviceIndex.Value, _selectedIOutputDeviceIndex.Value);
+                _audioPump = new AudioPump(_selectedInputDeviceIndex.Value, _selectedIOutputDeviceIndex.Value, _sampleRate);
                 _audioPump.Gain = trackBarGain.Value;
 
                 _audioPump.OnVolumeSample += (volume) =>
                 {
                     BeginInvoke(new Action(() =>
                     {
-                        progressBarVolume.Value = (int)volume * 100;
+                        progressBarVolume.Value = (int)(volume * 100.0f);
                     }));
                 };
 

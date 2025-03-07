@@ -192,10 +192,9 @@
             // 
             // progressBarVolume
             // 
-            progressBarVolume.Location = new Point(254, 188);
-            progressBarVolume.Maximum = 10;
+            progressBarVolume.Location = new Point(242, 160);
             progressBarVolume.Name = "progressBarVolume";
-            progressBarVolume.Size = new Size(215, 23);
+            progressBarVolume.Size = new Size(227, 15);
             progressBarVolume.Step = 1;
             progressBarVolume.TabIndex = 11;
             // 
