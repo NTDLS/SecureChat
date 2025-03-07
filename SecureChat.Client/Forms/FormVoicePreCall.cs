@@ -34,7 +34,6 @@ namespace SecureChat.Client.Forms
                 }
             }
 
-            Console.WriteLine("Available Output Devices:");
             var outputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active);
             for (int device = 0; device < outputDevices.Count; device++)
             {
