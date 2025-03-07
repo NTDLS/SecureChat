@@ -8,24 +8,15 @@ namespace SecureChat.Client.Audio
         public delegate void VolumeSampleEventHandler(float volume);
         public event VolumeSampleEventHandler? OnVolumeSample;
 
-        private WaveInEvent? _waveIn;
-        private WasapiOut? _waveOut;
-        private BufferedWaveProvider? _bufferStream;
-        private ResamplerDmoStream? _sampler;
-
         private readonly int _outputDeviceIndex;
         private readonly int _inputDeviceIndex;
 
-        private Thread? _thread;
-        private bool _running = false;
+        private bool _IsRunning = false;
         private bool _keepRunning = false;
-        private bool _recordingRunning = false;
-        private bool _playbackRunning = false;
-        private bool _buffering = false;
 
         public bool Mute { get; set; } = false;
         public float Gain { get; set; } = 0.5f;
-        public int SampleRate { get; private set; }
+        public int SampleRate { get; private set; } = 22050;
 
         public AudioPump(int inputDeviceIndex, int outputDeviceIndex, int sampleRate = 22050)
         {
@@ -38,124 +29,123 @@ namespace SecureChat.Client.Audio
         {
             _keepRunning = true;
 
-            _thread = new Thread(() =>
-            {
-                var enumerator = new MMDeviceEnumerator();
-                var outputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active).ToList();
+            bool isRecordingRunning = false;
+            bool isPlaybackRunning = false;
+            bool isBuffering = false;
 
-                WaveFormat? inputWaveFormat = null;
-                var inputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active).ToList();
-                for (int device = 0; device < WaveInEvent.DeviceCount; device++)
+            new Thread(() =>
                 {
-                    if (_inputDeviceIndex == device)
+                    var enumerator = new MMDeviceEnumerator();
+                    var outputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active).ToList();
+
+                    WaveFormat? inputWaveFormat = null;
+                    var inputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active).ToList();
+                    for (int device = 0; device < WaveInEvent.DeviceCount; device++)
                     {
-                        var capabilities = WaveInEvent.GetCapabilities(device);
-                        var mmDevice = inputDevices.FirstOrDefault(o => o.FriendlyName.StartsWith(capabilities.ProductName));
-                        if (mmDevice != null)
+                        if (_inputDeviceIndex == device)
                         {
-                            inputWaveFormat = mmDevice.AudioClient.MixFormat;
+                            var capabilities = WaveInEvent.GetCapabilities(device);
+                            var mmDevice = inputDevices.FirstOrDefault(o => o.FriendlyName.StartsWith(capabilities.ProductName));
+                            if (mmDevice != null)
+                            {
+                                inputWaveFormat = mmDevice.AudioClient.MixFormat;
+                            }
                         }
                     }
-                }
 
-                _waveIn = new WaveInEvent
-                {
-                    WaveFormat = inputWaveFormat, //new WaveFormat(SampleRate, 16, 1), //inputWaveFormat, // 44.1kHz, 16-bit, Mono
-                    BufferMilliseconds = 100,
-                    DeviceNumber = _inputDeviceIndex
-                };
-
-                _bufferStream = new BufferedWaveProvider(_waveIn.WaveFormat)
-                {
-                    DiscardOnBufferOverflow = true
-                };
-
-                _waveOut = new WasapiOut(outputDevices[_outputDeviceIndex], AudioClientShareMode.Shared, false, 100);
-
-                _sampler = new ResamplerDmoStream(_bufferStream, _waveOut.OutputWaveFormat);
-                //_sampler = new ResamplerDmoStream(_bufferStream, new WaveFormat(SampleRate, 16, 1));
-                //Console.WriteLine($"Input Format: {_waveIn.WaveFormat.SampleRate} Hz, {_waveIn.WaveFormat.BitsPerSample}-bit, {_waveIn.WaveFormat.Channels}ch");
-                //Console.WriteLine($"Resampler Format: {_sampler.WaveFormat.SampleRate} Hz, {_sampler.WaveFormat.BitsPerSample}-bit, {_sampler.WaveFormat.Channels}ch");
-                //Console.WriteLine($"Output Format: {_waveOut.OutputWaveFormat.SampleRate} Hz, {_waveOut.OutputWaveFormat.BitsPerSample}-bit, {_waveOut.OutputWaveFormat.Channels}ch");
-
-                _waveIn.DataAvailable += (sender, e) =>
-                {
-                    _buffering = true;
-                    if (Mute)
+                    var waveIn = new WaveInEvent
                     {
-                        return;
-                    }
-                    byte[] buffer = e.Buffer;
-                    for (int i = 0; i < e.BytesRecorded; i += 2)
+                        WaveFormat = inputWaveFormat, //new WaveFormat(SampleRate, 16, 1), //inputWaveFormat, // 44.1kHz, 16-bit, Mono
+                        BufferMilliseconds = 100,
+                        DeviceNumber = _inputDeviceIndex
+                    };
+
+                    var bufferStream = new BufferedWaveProvider(waveIn.WaveFormat)
                     {
-                        var sample = (short)(buffer[i] | (buffer[i + 1] << 8)); // Convert to 16-bit sample.
-                        sample = (short)(sample * Gain); // Reduce volume.
-                        //Reconstruct byte.
-                        buffer[i] = (byte)(sample & 0xFF); //Least significant bit.
-                        buffer[i + 1] = (byte)((sample >> 8) & 0xFF); //Most significant bit.
-                    }
+                        DiscardOnBufferOverflow = true
+                    };
 
-                    if (OnVolumeSample != null)
+                    var waveOut = new WasapiOut(outputDevices[_outputDeviceIndex], AudioClientShareMode.Shared, false, 100);
+
+                    var _sampler = new ResamplerDmoStream(bufferStream, waveOut.OutputWaveFormat);
+                    //_sampler = new ResamplerDmoStream(_bufferStream, new WaveFormat(SampleRate, 16, 1));
+                    //Console.WriteLine($"Input Format: {_waveIn.WaveFormat.SampleRate} Hz, {_waveIn.WaveFormat.BitsPerSample}-bit, {_waveIn.WaveFormat.Channels}ch");
+                    //Console.WriteLine($"Resampler Format: {_sampler.WaveFormat.SampleRate} Hz, {_sampler.WaveFormat.BitsPerSample}-bit, {_sampler.WaveFormat.Channels}ch");
+                    //Console.WriteLine($"Output Format: {_waveOut.OutputWaveFormat.SampleRate} Hz, {_waveOut.OutputWaveFormat.BitsPerSample}-bit, {_waveOut.OutputWaveFormat.Channels}ch");
+
+                    waveIn.DataAvailable += (sender, e) =>
                     {
-                        //var volume = CalculateVolumeLevelWithGain(buffer, e.BytesRecorded);
-                        //OnVolumeSample.Invoke(volume);
+                        isBuffering = true;
+                        if (Mute)
+                        {
+                            return;
+                        }
+                        byte[] buffer = e.Buffer;
+                        for (int i = 0; i < e.BytesRecorded; i += 2)
+                        {
+                            var sample = (short)(buffer[i] | (buffer[i + 1] << 8)); // Convert to 16-bit sample.
+                            sample = (short)(sample * Gain); // Reduce volume.
+                                                             //Reconstruct byte.
+                            buffer[i] = (byte)(sample & 0xFF); //Least significant bit.
+                            buffer[i + 1] = (byte)((sample >> 8) & 0xFF); //Most significant bit.
+                        }
+
+                        if (OnVolumeSample != null)
+                        {
+                            //var volume = CalculateVolumeLevelWithGain(buffer, e.BytesRecorded);
+                            //OnVolumeSample.Invoke(volume);
+                        }
+
+                        bufferStream.AddSamples(e.Buffer, 0, e.BytesRecorded);
+                        isBuffering = false;
+                    };
+
+                    waveOut.Init(_sampler);
+                    waveIn.StartRecording();
+                    isRecordingRunning = true;
+                    waveOut.Play();
+                    isPlaybackRunning = true;
+                    _IsRunning = true;
+
+                    waveIn.RecordingStopped += (object? sender, StoppedEventArgs e) =>
+                    {
+                        isRecordingRunning = false;
+                    };
+
+                    waveOut.PlaybackStopped += (object? sender, StoppedEventArgs e) =>
+                    {
+                        isPlaybackRunning = false;
+                    };
+
+                    while (_keepRunning)
+                    {
+                        Thread.Sleep(100);
                     }
 
-                    _bufferStream.AddSamples(e.Buffer, 0, e.BytesRecorded);
-                    _buffering = false;
-                };
+                    waveIn?.StopRecording();
+                    waveOut?.Stop();
 
-                _waveOut.Init(_sampler);
-                _waveIn.StartRecording();
-                _recordingRunning = true;
-                _waveOut.Play();
-                _playbackRunning = true;
-                _running = true;
+                    while (isRecordingRunning || isPlaybackRunning || isBuffering)
+                    {
+                        Thread.Sleep(10);
+                    }
 
-                _waveIn.RecordingStopped += (object? sender, StoppedEventArgs e) =>
-                {
-                    _recordingRunning = false;
-                };
+                    waveIn?.Dispose();
+                    waveOut?.Dispose();
+                    _sampler?.Dispose();
 
-                _waveOut.PlaybackStopped += (object? sender, StoppedEventArgs e) =>
-                {
-                    _playbackRunning = false;
-                };
-
-                while (_keepRunning)
-                {
-                    Thread.Sleep(100);
-                }
-
-                _waveIn?.StopRecording();
-                _waveOut?.Stop();
-
-                while (_recordingRunning || _playbackRunning || _buffering)
-                {
-                    Thread.Sleep(10);
-                }
-
-                _waveIn?.Dispose();
-                _waveOut?.Dispose();
-                _sampler?.Dispose();
-
-                _running = false;
-            });
-
-            _thread.Start();
+                    _IsRunning = false;
+                }).Start();
         }
 
         public void Stop()
         {
-
             _keepRunning = false;
 
-            while (_running)
+            while (_IsRunning)
             {
                 Thread.Sleep(10);
             }
-
-            _thread = null;
         }
 
         /*
