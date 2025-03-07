@@ -1,5 +1,7 @@
 ﻿using NAudio.CoreAudioApi;
 using NAudio.Wave;
+using NTDLS.Helpers;
+using System.IO;
 
 namespace SecureChat.Client.Audio
 {
@@ -53,12 +55,17 @@ namespace SecureChat.Client.Audio
                         }
                     }
 
+                    inputWaveFormat.EnsureNotNull();
+
                     var waveIn = new WaveInEvent
                     {
-                        WaveFormat = inputWaveFormat, //new WaveFormat(SampleRate, 16, 1), //inputWaveFormat, // 44.1kHz, 16-bit, Mono
+                        //Example: 44.1kHz, 16-bit, Mono
+                        WaveFormat = new WaveFormat(inputWaveFormat.SampleRate, inputWaveFormat.BitsPerSample, inputWaveFormat.Channels),
                         BufferMilliseconds = 100,
                         DeviceNumber = _inputDeviceIndex
                     };
+
+                    var transmissionWaveFormat = new WaveFormat(SampleRate, 16, 1);
 
                     var bufferStream = new BufferedWaveProvider(waveIn.WaveFormat)
                     {
@@ -67,40 +74,27 @@ namespace SecureChat.Client.Audio
 
                     var waveOut = new WasapiOut(outputDevices[_outputDeviceIndex], AudioClientShareMode.Shared, false, 100);
 
-                    var _sampler = new ResamplerDmoStream(bufferStream, waveOut.OutputWaveFormat);
-                    //_sampler = new ResamplerDmoStream(_bufferStream, new WaveFormat(SampleRate, 16, 1));
-                    //Console.WriteLine($"Input Format: {_waveIn.WaveFormat.SampleRate} Hz, {_waveIn.WaveFormat.BitsPerSample}-bit, {_waveIn.WaveFormat.Channels}ch");
-                    //Console.WriteLine($"Resampler Format: {_sampler.WaveFormat.SampleRate} Hz, {_sampler.WaveFormat.BitsPerSample}-bit, {_sampler.WaveFormat.Channels}ch");
-                    //Console.WriteLine($"Output Format: {_waveOut.OutputWaveFormat.SampleRate} Hz, {_waveOut.OutputWaveFormat.BitsPerSample}-bit, {_waveOut.OutputWaveFormat.Channels}ch");
+                    Console.WriteLine($"Input: {waveIn.WaveFormat.SampleRate} Hz, {waveIn.WaveFormat.BitsPerSample}-bit, {waveIn.WaveFormat.Channels}ch");
+                    Console.WriteLine($"Transmission: {transmissionWaveFormat.SampleRate} Hz, {transmissionWaveFormat.BitsPerSample}-bit, {transmissionWaveFormat.Channels}ch");
+                    Console.WriteLine($"Output: {waveOut.OutputWaveFormat.SampleRate} Hz, {waveOut.OutputWaveFormat.BitsPerSample}-bit, {waveOut.OutputWaveFormat.Channels}ch");
 
                     waveIn.DataAvailable += (sender, e) =>
                     {
-                        isBuffering = true;
                         if (Mute)
                         {
                             return;
                         }
-                        byte[] buffer = e.Buffer;
-                        for (int i = 0; i < e.BytesRecorded; i += 2)
-                        {
-                            var sample = (short)(buffer[i] | (buffer[i + 1] << 8)); // Convert to 16-bit sample.
-                            sample = (short)(sample * Gain); // Reduce volume.
-                                                             //Reconstruct byte.
-                            buffer[i] = (byte)(sample & 0xFF); //Least significant bit.
-                            buffer[i + 1] = (byte)((sample >> 8) & 0xFF); //Most significant bit.
-                        }
 
-                        if (OnVolumeSample != null)
-                        {
-                            //var volume = CalculateVolumeLevelWithGain(buffer, e.BytesRecorded);
-                            //OnVolumeSample.Invoke(volume);
-                        }
+                        var transmissionBytes = ResampleAudioBytes(e.Buffer, e.BytesRecorded, waveIn.WaveFormat, transmissionWaveFormat);
 
-                        bufferStream.AddSamples(e.Buffer, 0, e.BytesRecorded);
-                        isBuffering = false;
+                        //Mock sending transmissionBytes to remote peer.
+
+                        var outputBytes = ResampleAudioBytes(transmissionBytes, transmissionBytes.Length, transmissionWaveFormat, waveOut.OutputWaveFormat);
+
+                        bufferStream.AddSamples(outputBytes, 0, outputBytes.Length);
                     };
 
-                    waveOut.Init(_sampler);
+                    waveOut.Init(bufferStream);
                     waveIn.StartRecording();
                     isRecordingRunning = true;
                     waveOut.Play();
@@ -132,10 +126,26 @@ namespace SecureChat.Client.Audio
 
                     waveIn?.Dispose();
                     waveOut?.Dispose();
-                    _sampler?.Dispose();
 
                     _IsRunning = false;
                 }).Start();
+        }
+
+        public static byte[] ResampleAudioBytes(byte[] inputBytes, int inputByteCount, WaveFormat inputFormat, WaveFormat outputFormat)
+        {
+            using var inputStream = new RawSourceWaveStream(new MemoryStream(inputBytes, 0, inputByteCount), inputFormat);
+            using var resampler = new ResamplerDmoStream(inputStream, outputFormat);
+            using var outputStream = new MemoryStream();
+
+            var buffer = new byte[outputFormat.AverageBytesPerSecond];
+
+            int bytesRead;
+            while ((bytesRead = resampler.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                outputStream.Write(buffer, 0, bytesRead);
+            }
+
+            return outputStream.ToArray();
         }
 
         public void Stop()
