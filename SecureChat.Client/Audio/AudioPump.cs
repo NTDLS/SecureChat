@@ -44,7 +44,6 @@ namespace SecureChat.Client.Audio
                 var outputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active).ToList();
 
                 WaveFormat? inputWaveFormat = null;
-
                 var inputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active).ToList();
                 for (int device = 0; device < WaveInEvent.DeviceCount; device++)
                 {
@@ -55,7 +54,6 @@ namespace SecureChat.Client.Audio
                         if (mmDevice != null)
                         {
                             inputWaveFormat = mmDevice.AudioClient.MixFormat;
-                            //comboBoxAudioInputDevice.Items.Add(new AudioDeviceComboItem(mmDevice.FriendlyName, device));
                         }
                     }
                 }
