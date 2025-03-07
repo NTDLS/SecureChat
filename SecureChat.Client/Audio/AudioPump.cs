@@ -6,7 +6,6 @@ namespace SecureChat.Client.Audio
 {
     internal class AudioPump
     {
-
         public delegate void VolumeSampleEventHandler(float volume);
         public event VolumeSampleEventHandler? OnVolumeSample;
 
@@ -27,7 +26,7 @@ namespace SecureChat.Client.Audio
             _outputDeviceIndex = outputDeviceIndex;
         }
 
-        const int ResampleBufferSize = 2048;
+        const int ResampleBufferSize = 1024;
 
         public void Start()
         {
@@ -63,18 +62,19 @@ namespace SecureChat.Client.Audio
                     {
                         //Example: 44.1kHz, 16-bit, Mono
                         WaveFormat = new WaveFormat(inputWaveFormat.SampleRate, inputWaveFormat.BitsPerSample, inputWaveFormat.Channels),
-                        BufferMilliseconds = 100,
+                        BufferMilliseconds = 75,
                         DeviceNumber = _inputDeviceIndex
                     };
 
                     var transmissionWaveFormat = new WaveFormat(SampleRate, 16, 1);
 
-                    var bufferStream = new BufferedWaveProvider(waveIn.WaveFormat)
+                    var waveOut = new WasapiOut(outputDevices[_outputDeviceIndex], AudioClientShareMode.Shared, false, 50);
+
+                    var bufferStream = new BufferedWaveProvider(waveOut.OutputWaveFormat)
                     {
+                        BufferLength = 64 * 1024,
                         DiscardOnBufferOverflow = true
                     };
-
-                    var waveOut = new WasapiOut(outputDevices[_outputDeviceIndex], AudioClientShareMode.Shared, false, 100);
 
                     Console.WriteLine($"Input: {waveIn.WaveFormat.SampleRate} Hz, {waveIn.WaveFormat.BitsPerSample}-bit, {waveIn.WaveFormat.Channels}ch");
                     Console.WriteLine($"Transmission: {transmissionWaveFormat.SampleRate} Hz, {transmissionWaveFormat.BitsPerSample}-bit, {transmissionWaveFormat.Channels}ch");
@@ -89,13 +89,10 @@ namespace SecureChat.Client.Audio
 
                         var transmissionBytes = ResampleForTransmission(e, waveIn.WaveFormat, transmissionWaveFormat);
 
-                        for (int i = 0; i < transmissionBytes.Length; i += 2) //Adjust gain.
+                        if (OnVolumeSample != null)
                         {
-                            var sample = (short)(transmissionBytes[i] | (transmissionBytes[i + 1] << 8)); // Convert to 16-bit sample.
-                            sample = (short)(sample * Gain); // Reduce volume.
-                            //Reconstruct sample byte.
-                            transmissionBytes[i] = (byte)(sample & 0xFF); //Least significant bit.
-                            transmissionBytes[i + 1] = (byte)((sample >> 8) & 0xFF); //Most significant bit.
+                            var volume = CalculateVolumeLevelWithGain(transmissionBytes);
+                            OnVolumeSample.Invoke(volume);
                         }
 
                         //Mock sending transmissionBytes to remote peer.
@@ -140,16 +137,21 @@ namespace SecureChat.Client.Audio
                 }).Start();
         }
 
-        public static byte[] ResampleForTransmission(WaveInEventArgs recorded, WaveFormat inputFormat, WaveFormat outputFormat)
+        public byte[] ResampleForTransmission(WaveInEventArgs recorded, WaveFormat inputFormat, WaveFormat outputFormat)
         {
             using var inputStream = new RawSourceWaveStream(new MemoryStream(recorded.Buffer, 0, recorded.BytesRecorded, writable: false), inputFormat);
             using var resampler = new ResamplerDmoStream(inputStream, outputFormat);
+
+            var volumeProvider = new VolumeWaveProvider16(resampler)
+            {
+                Volume = Gain
+            };
 
             var resampledBuffer = new byte[ResampleBufferSize];
             using var outputStream = new MemoryStream();
 
             int bytesRead;
-            while ((bytesRead = resampler.Read(resampledBuffer, 0, resampledBuffer.Length)) > 0)
+            while ((bytesRead = volumeProvider.Read(resampledBuffer, 0, resampledBuffer.Length)) > 0)
             {
                 outputStream.Write(resampledBuffer, 0, bytesRead);
             }
@@ -166,13 +168,9 @@ namespace SecureChat.Client.Audio
             int bytesRead;
             while ((bytesRead = resampler.Read(buffer, 0, buffer.Length)) > 0)
             {
-                if (outputBuffer.BufferedDuration.TotalMilliseconds < 500) // Prevents overflow
+                if (outputBuffer.BufferedDuration.TotalMilliseconds < 500) // Prevents overflow by dropping extra data.
                 {
                     outputBuffer.AddSamples(buffer, 0, bytesRead);
-                }
-                else
-                {
-                    //Drop bytes. :(
                 }
             }
         }
@@ -190,13 +188,13 @@ namespace SecureChat.Client.Audio
         /// <summary>
         // Calculate volume level from raw PCM data
         /// </summary>
-        private static float CalculateVolumeLevelRMS(byte[] buffer, int bytesRead)
+        private static float CalculateVolumeLevelRMS(byte[] buffer)
         {
             // Compute RMS level of audio to display on meter
-            int sampleCount = bytesRead / 2; // 16-bit audio (2 bytes per sample)
+            int sampleCount = buffer.Length / 2; // 16-bit audio (2 bytes per sample)
             double sum = 0;
 
-            for (int i = 0; i < bytesRead; i += 2)
+            for (int i = 0; i < buffer.Length; i += 2)
             {
                 short sample = (short)(buffer[i] | (buffer[i + 1] << 8)); // Convert bytes to 16-bit sample
                 sum += sample * sample;
@@ -207,10 +205,10 @@ namespace SecureChat.Client.Audio
             return Math.Min(1.0f, normalized); // Ensure value is within range
         }
 
-        private static float CalculateVolumeLevelWithGain(byte[] buffer, int bytesRead, float gain = 100.0f)
+        private static float CalculateVolumeLevelWithGain(byte[] buffer, float gain = 100.0f)
         {
             short maxSample = 0;
-            for (int i = 0; i < bytesRead; i += 2)
+            for (int i = 0; i < buffer.Length; i += 2)
             {
                 short sample = (short)(buffer[i] | (buffer[i + 1] << 8));
                 maxSample = Math.Max(maxSample, Math.Abs(sample));
