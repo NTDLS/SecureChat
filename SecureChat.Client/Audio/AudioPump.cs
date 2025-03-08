@@ -124,16 +124,25 @@ namespace SecureChat.Client.Audio
                 Volume = gain
             };
 
-            var resampledBuffer = new byte[inputFormat.AverageBytesPerSecond];
+            var bufferSize = CalculateBufferSize(inputFormat);
+            var buffer = new byte[bufferSize];
             using var outputStream = new MemoryStream();
 
             int bytesRead;
-            while ((bytesRead = volumeProvider.Read(resampledBuffer, 0, resampledBuffer.Length)) > 0)
+            while ((bytesRead = volumeProvider.Read(buffer, 0, buffer.Length)) > 0)
             {
-                outputStream.Write(resampledBuffer, 0, bytesRead);
+                outputStream.Write(buffer, 0, bytesRead);
             }
 
             return outputStream.ToArray();
+        }
+
+        private static int CalculateBufferSize(WaveFormat inputFormat, int milliseconds = 50)
+        {
+            // Compute buffer size based on sample rate & frame size.
+            int bytesPerSample = inputFormat.BitsPerSample / 8 * inputFormat.Channels;
+            int bytesPerMs = inputFormat.SampleRate * bytesPerSample / 1000;
+            return bytesPerMs * milliseconds;
         }
 
         public static byte[] ResampleForTransmission(WaveInEventArgs recorded, WaveFormat inputFormat, WaveFormat outputFormat)
@@ -141,10 +150,7 @@ namespace SecureChat.Client.Audio
             using var inputStream = new RawSourceWaveStream(new MemoryStream(recorded.Buffer, 0, recorded.BytesRecorded, writable: false), inputFormat);
             using var resampler = new MediaFoundationResampler(inputStream, outputFormat);
 
-            // Compute buffer size based on sample rate & frame size.
-            int bytesPerSample = outputFormat.BitsPerSample / 8 * outputFormat.Channels;
-            int bytesPerMs = outputFormat.SampleRate * bytesPerSample / 1000;
-            int bufferSize = bytesPerMs * 50; // 50ms buffer
+            var bufferSize = CalculateBufferSize(inputFormat);
             var buffer = new byte[bufferSize];
 
             using var outputStream = new MemoryStream();
@@ -166,10 +172,7 @@ namespace SecureChat.Client.Audio
             using var inputStream = new RawSourceWaveStream(new MemoryStream(inputBytes, 0, byteCount, writable: false), inputFormat);
             using var resampler = new MediaFoundationResampler(inputStream, outputFormat);
 
-            // Compute buffer size based on sample rate & frame size.
-            int bytesPerSample = outputFormat.BitsPerSample / 8 * outputFormat.Channels;
-            int bytesPerMs = outputFormat.SampleRate * bytesPerSample / 1000;
-            int bufferSize = bytesPerMs * 50; // 50ms buffer
+            var bufferSize = CalculateBufferSize(inputFormat);
             var buffer = new byte[bufferSize];
 
             int bytesRead;
