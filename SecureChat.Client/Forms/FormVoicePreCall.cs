@@ -9,7 +9,7 @@ namespace SecureChat.Client.Forms
         private int? _selectedInputDeviceIndex = null;
         private int? _selectedIOutputDeviceIndex = null;
         private AudioPump? _audioPump = null;
-        private int? _sampleRate = null;
+        private int _sampleRate = 16000;
 
         public FormVoicePreCall()
         {
@@ -50,13 +50,12 @@ namespace SecureChat.Client.Forms
             trackBarGain.Value = 25;
 
             radioButtonSampleRate8000.CheckedChanged += RadioButtonBitRate_CheckedChanged;
-            radioButtonSampleRate11025.CheckedChanged += RadioButtonBitRate_CheckedChanged;
-            radioButtonSampleRate22050.CheckedChanged += RadioButtonBitRate_CheckedChanged;
-            radioButtonSampleRate32000.CheckedChanged += RadioButtonBitRate_CheckedChanged;
-            radioButtonSampleRate44100.CheckedChanged += RadioButtonBitRate_CheckedChanged;
-            radioButtonSampleRateNative.CheckedChanged += RadioButtonBitRate_CheckedChanged;
+            radioButtonSampleRate12000.CheckedChanged += RadioButtonBitRate_CheckedChanged;
+            radioButtonSampleRate16000.CheckedChanged += RadioButtonBitRate_CheckedChanged;
+            radioButtonSampleRate24000.CheckedChanged += RadioButtonBitRate_CheckedChanged;
+            radioButtonSampleRate48000.CheckedChanged += RadioButtonBitRate_CheckedChanged;
 
-            SetSelectedSampleRate(22050);
+            SetSelectedSampleRate(16000);
         }
 
         private void TrackBarGain_ValueChanged(object? sender, EventArgs e)
@@ -76,45 +75,41 @@ namespace SecureChat.Client.Forms
             }
         }
 
-        private int? GetSelectedSampleRate()
-        {
+        private int GetSelectedSampleRate()
+        {            //be 8 / 12 / 16 / 24 / 48 Khz
+
             if (radioButtonSampleRate8000.Checked)
                 return 8000;
-            else if (radioButtonSampleRate11025.Checked)
-                return 11025;
-            else if (radioButtonSampleRate22050.Checked)
-                return 22050;
-            else if (radioButtonSampleRate32000.Checked)
-                return 32000;
-            else if (radioButtonSampleRate44100.Checked)
-                return 44100;
-            else if (radioButtonSampleRateNative.Checked)
-                return null;
+            else if (radioButtonSampleRate12000.Checked)
+                return 12000;
+            else if (radioButtonSampleRate16000.Checked)
+                return 16000;
+            else if (radioButtonSampleRate24000.Checked)
+                return 24000;
+            else if (radioButtonSampleRate48000.Checked)
+                return 48000;
 
-            return 44100;
+            return 48000;
         }
 
-        private void SetSelectedSampleRate(int? sampleRate)
+        private void SetSelectedSampleRate(int sampleRate)
         {
             switch (sampleRate)
             {
                 case 8000:
                     radioButtonSampleRate8000.Checked = true;
                     break;
-                case 11025:
-                    radioButtonSampleRate11025.Checked = true;
+                case 12000:
+                    radioButtonSampleRate12000.Checked = true;
                     break;
-                case 22050:
-                    radioButtonSampleRate22050.Checked = true;
+                case 16000:
+                    radioButtonSampleRate16000.Checked = true;
                     break;
-                case 32000:
-                    radioButtonSampleRate32000.Checked = true;
+                case 24000:
+                    radioButtonSampleRate24000.Checked = true;
                     break;
-                case 44100:
-                    radioButtonSampleRate44100.Checked = true;
-                    break;
-                case null:
-                    radioButtonSampleRateNative.Checked = true;
+                case 48000:
+                    radioButtonSampleRate48000.Checked = true;
                     break;
             }
         }

@@ -23,9 +23,9 @@ namespace SecureChat.Client.Audio
 
         public bool Mute { get; set; } = false;
         public float Gain { get; set; } = 1.0f;
-        public int? SampleRate { get; private set; }
+        public int SampleRate { get; private set; }
 
-        public AudioPump(int inputDeviceIndex, int outputDeviceIndex, int? sampleRate)
+        public AudioPump(int inputDeviceIndex, int outputDeviceIndex, int sampleRate)
         {
             SampleRate = sampleRate;
             _inputDeviceIndex = inputDeviceIndex;
@@ -58,8 +58,6 @@ namespace SecureChat.Client.Audio
 
                     inputWaveFormat.EnsureNotNull();
 
-                    var transmissionWaveFormat = new WaveFormat(SampleRate ?? inputWaveFormat.SampleRate, 16, 1);
-
                     var waveIn = new WaveInEvent
                     {
                         WaveFormat = new WaveFormat(inputWaveFormat.SampleRate, 16, 1),
@@ -70,7 +68,6 @@ namespace SecureChat.Client.Audio
                     };
 
                     var waveOut = new WasapiOut(outputDevices[_outputDeviceIndex], AudioClientShareMode.Shared, true, 50);
-
                     var outputBufferStream = new BufferedWaveProvider(waveOut.OutputWaveFormat)
                     {
                         BufferLength = 64 * 1024,
@@ -78,52 +75,47 @@ namespace SecureChat.Client.Audio
                     };
 
                     Console.WriteLine($"Input: {waveIn.WaveFormat.SampleRate} Hz, {waveIn.WaveFormat.BitsPerSample}-bit, {waveIn.WaveFormat.Channels}ch");
-                    Console.WriteLine($"Transmission: {transmissionWaveFormat.SampleRate} Hz, {transmissionWaveFormat.BitsPerSample}-bit, {transmissionWaveFormat.Channels}ch");
                     Console.WriteLine($"Output: {waveOut.OutputWaveFormat.SampleRate} Hz, {waveOut.OutputWaveFormat.BitsPerSample}-bit, {waveOut.OutputWaveFormat.Channels}ch");
 
-                    // Keep the encoder persistent (do NOT create inside DataAvailable)
-                    var encoder = OpusCodecFactory.CreateEncoder(transmissionWaveFormat.SampleRate, transmissionWaveFormat.Channels, OpusApplication.OPUS_APPLICATION_VOIP);
-                    encoder.Bitrate = 32000; // User-defined bitrate
+                    var encoder = OpusCodecFactory.CreateEncoder(waveIn.WaveFormat.SampleRate, waveIn.WaveFormat.Channels, OpusApplication.OPUS_APPLICATION_VOIP);
+                    encoder.ForceChannels = 1;
+                    encoder.Bitrate = SampleRate;
 
-                    List<short> pcmBuffer = new List<short>(); // Buffer for leftover PCM data
+                    var pcmBuffer = new List<short>(); // Buffer for leftover PCM data
 
                     waveIn.DataAvailable += (sender, e) =>
                     {
                         if (Mute) return;
 
-                        byte[] opusData = new byte[1275]; // Max Opus packet size
+                        var pcmShorts = ConvertPcmBytesToShorts(e.Buffer, e.BytesRecorded);
 
-                        var transmissionBytes = ResampleForTransmission(e, waveIn.WaveFormat, transmissionWaveFormat, Gain);
-
-                        // Convert PCM bytes to shorts
-                        var pcmShorts = ConvertPcmBytesToShorts(transmissionBytes, transmissionBytes.Length);
-
-                        // 🔥 Prepend leftover PCM from previous buffer to the new PCM data
+                        // Prepend leftover PCM from previous buffer to the new PCM data
                         if (pcmBuffer.Count > 0)
                         {
                             pcmShorts = pcmBuffer.Concat(pcmShorts).ToArray();
                             pcmBuffer.Clear();
                         }
 
-                        // Process PCM in 960-sample chunks
+                        int frameSize = waveIn.WaveFormat.SampleRate / 50; // 20ms frame size
+
+                        // Process PCM in frameSize-sample chunks
+                        byte[] opusData = new byte[1275]; // Max Opus packet size
                         int i = 0;
-                        for (; i + 960 <= pcmShorts.Length; i += 960)
+                        for (; i + frameSize <= pcmShorts.Length; i += frameSize)
                         {
-                            int encodedBytes = encoder.Encode(new ReadOnlySpan<short>(pcmShorts, i, 960), 960, new Span<byte>(opusData), opusData.Length);
+                            int encodedBytes = encoder.Encode(new ReadOnlySpan<short>(pcmShorts, i, frameSize), frameSize, new Span<byte>(opusData), opusData.Length);
 
                             Console.WriteLine($"Encoded {encodedBytes} bytes at {encoder.Bitrate}bps for frame {i / 960}");
 
-                            // Send or store the encoded Opus data...
+                            // Transmit encoded data...
                         }
 
-                        // 🔥 Store leftover samples (PREPEND to next buffer)
+                        // Store leftover samples (PREPEND to next buffer)
                         if (i < pcmShorts.Length)
                         {
                             pcmBuffer.AddRange(pcmShorts.Skip(i));
                         }
                     };
-
-
 
                     waveOut.Init(outputBufferStream);
                     waveIn.StartRecording();
