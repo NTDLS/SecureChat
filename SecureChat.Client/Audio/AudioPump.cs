@@ -1,6 +1,12 @@
-﻿using NAudio.CoreAudioApi;
+﻿using Concentus.Structs;
+using Concentus.Enums;
+
+using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using NTDLS.Helpers;
+using System.Xml.Linq;
+using Concentus;
+using System;
 
 namespace SecureChat.Client.Audio
 {
@@ -75,16 +81,49 @@ namespace SecureChat.Client.Audio
                     Console.WriteLine($"Transmission: {transmissionWaveFormat.SampleRate} Hz, {transmissionWaveFormat.BitsPerSample}-bit, {transmissionWaveFormat.Channels}ch");
                     Console.WriteLine($"Output: {waveOut.OutputWaveFormat.SampleRate} Hz, {waveOut.OutputWaveFormat.BitsPerSample}-bit, {waveOut.OutputWaveFormat.Channels}ch");
 
+                    // Keep the encoder persistent (do NOT create inside DataAvailable)
+                    var encoder = OpusCodecFactory.CreateEncoder(transmissionWaveFormat.SampleRate, transmissionWaveFormat.Channels, OpusApplication.OPUS_APPLICATION_VOIP);
+                    encoder.Bitrate = 32000; // User-defined bitrate
+
+                    List<short> pcmBuffer = new List<short>(); // Buffer for leftover PCM data
+
                     waveIn.DataAvailable += (sender, e) =>
                     {
                         if (Mute) return;
 
+                        byte[] opusData = new byte[1275]; // Max Opus packet size
+
                         var transmissionBytes = ResampleForTransmission(e, waveIn.WaveFormat, transmissionWaveFormat, Gain);
 
-                        //Send this to the remote peer: transmissionBytes
+                        // Convert PCM bytes to shorts
+                        var pcmShorts = ConvertPcmBytesToShorts(transmissionBytes, transmissionBytes.Length);
 
-                        ResampleForOutput(transmissionBytes, transmissionWaveFormat, waveOut.OutputWaveFormat, outputBufferStream);
+                        // 🔥 Prepend leftover PCM from previous buffer to the new PCM data
+                        if (pcmBuffer.Count > 0)
+                        {
+                            pcmShorts = pcmBuffer.Concat(pcmShorts).ToArray();
+                            pcmBuffer.Clear();
+                        }
+
+                        // Process PCM in 960-sample chunks
+                        int i = 0;
+                        for (; i + 960 <= pcmShorts.Length; i += 960)
+                        {
+                            int encodedBytes = encoder.Encode(new ReadOnlySpan<short>(pcmShorts, i, 960), 960, new Span<byte>(opusData), opusData.Length);
+
+                            Console.WriteLine($"Encoded {encodedBytes} bytes at {encoder.Bitrate}bps for frame {i / 960}");
+
+                            // Send or store the encoded Opus data...
+                        }
+
+                        // 🔥 Store leftover samples (PREPEND to next buffer)
+                        if (i < pcmShorts.Length)
+                        {
+                            pcmBuffer.AddRange(pcmShorts.Skip(i));
+                        }
                     };
+
+
 
                     waveOut.Init(outputBufferStream);
                     waveIn.StartRecording();
@@ -110,6 +149,33 @@ namespace SecureChat.Client.Audio
                     _IsRunning = false;
                 }).Start();
         }
+
+        static short[] ConvertPcmBytesToShorts(byte[] pcmBytes, int length)
+        {
+            short[] pcmShorts = new short[length / 2]; // 2 bytes per sample
+
+            for (int i = 0; i < pcmShorts.Length; i++)
+            {
+                pcmShorts[i] = (short)(pcmBytes[i * 2] | (pcmBytes[i * 2 + 1] << 8));
+            }
+
+            return pcmShorts;
+        }
+
+        static byte[] ConvertShortsToPcmBytes(short[] pcmShorts)
+        {
+            byte[] pcmBytes = new byte[pcmShorts.Length * 2];
+
+            for (int i = 0; i < pcmShorts.Length; i++)
+            {
+                pcmBytes[i * 2] = (byte)(pcmShorts[i] & 0xFF);
+                pcmBytes[i * 2 + 1] = (byte)((pcmShorts[i] >> 8) & 0xFF);
+            }
+
+            return pcmBytes;
+        }
+
+
 
         public byte[] ResampleForTransmission(WaveInEventArgs recorded, WaveFormat inputFormat, WaveFormat outputFormat, float gain)
         {
