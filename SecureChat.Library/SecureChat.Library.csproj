@@ -12,8 +12,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="NTDLS.DatagramMessaging" Version="1.4.0" />
     <PackageReference Include="NTDLS.ReliableMessaging" Version="2.1.4" />
-    <PackageReference Include="SonicBoom" Version="1.0.9" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="9.0.2" />
   </ItemGroup>
 

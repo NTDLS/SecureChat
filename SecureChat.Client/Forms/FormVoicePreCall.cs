@@ -63,7 +63,7 @@ namespace SecureChat.Client.Forms
         {
             if (_audioPump != null)
             {
-                _audioPump.Gain = trackBarGain.Value / 10.0f;
+                _audioPump.Gain = ((float)trackBarGain.Value) / 10.0f;
             }
         }
 
@@ -139,7 +139,7 @@ namespace SecureChat.Client.Forms
                 _audioPump = null;
 
                 _audioPump = new AudioPump(_selectedInputDeviceIndex.Value, _selectedIOutputDeviceIndex.Value, _sampleRate);
-                _audioPump.Gain = trackBarGain.Value;
+                _audioPump.Gain = ((float)trackBarGain.Value) / 10.0f;
 
                 _audioPump.OnVolumeSample += (volume) =>
                 {

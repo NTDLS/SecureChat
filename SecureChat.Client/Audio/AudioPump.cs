@@ -82,6 +82,8 @@ namespace SecureChat.Client.Audio
 
                         var transmissionBytes = ResampleForTransmission(e, waveIn.WaveFormat, transmissionWaveFormat, Gain);
 
+                        OnVolumeSample?.Invoke(CalculateVolumeLevelWithGain(transmissionBytes));
+
                         //Send this to the remote peer: transmissionBytes
 
                         ResampleForOutput(transmissionBytes, transmissionWaveFormat, waveOut.OutputWaveFormat, outputBufferStream);
@@ -210,7 +212,7 @@ namespace SecureChat.Client.Audio
             return Math.Min(1.0f, normalized); // Ensure value is within range
         }
 
-        private static float CalculateVolumeLevelWithGain(byte[] buffer, float gain = 100.0f)
+        private static float CalculateVolumeLevelWithGain(byte[] buffer, float gain = 70.0f)
         {
             short maxSample = 0;
             for (int i = 0; i < buffer.Length; i += 2)
