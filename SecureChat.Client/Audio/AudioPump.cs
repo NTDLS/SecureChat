@@ -7,7 +7,7 @@ namespace SecureChat.Client.Audio
     internal class AudioPump
     {
         public delegate void VolumeSampleEventHandler(float volume);
-        public event VolumeSampleEventHandler? OnVolumeSample;
+        public event VolumeSampleEventHandler? OnInputSample;
 
         private readonly int _outputDeviceIndex;
         private readonly int _inputDeviceIndex;
@@ -64,7 +64,6 @@ namespace SecureChat.Client.Audio
                     };
 
                     var waveOut = new WasapiOut(outputDevices[_outputDeviceIndex], AudioClientShareMode.Shared, true, 50);
-                    //waveOut.Volume = 1.0f;
 
                     var outputBufferStream = new BufferedWaveProvider(waveOut.OutputWaveFormat)
                     {
@@ -81,8 +80,6 @@ namespace SecureChat.Client.Audio
                         if (Mute) return;
 
                         var transmissionBytes = ResampleForTransmission(e, waveIn.WaveFormat, transmissionWaveFormat, Gain);
-
-                        OnVolumeSample?.Invoke(CalculateVolumeLevelWithGain(transmissionBytes));
 
                         //Send this to the remote peer: transmissionBytes
 
@@ -114,7 +111,7 @@ namespace SecureChat.Client.Audio
                 }).Start();
         }
 
-        public static byte[] ResampleForTransmission(WaveInEventArgs recorded, WaveFormat inputFormat, WaveFormat outputFormat, float gain)
+        public byte[] ResampleForTransmission(WaveInEventArgs recorded, WaveFormat inputFormat, WaveFormat outputFormat, float gain)
         {
             using var inputStream = new RawSourceWaveStream(new MemoryStream(recorded.Buffer, 0, recorded.BytesRecorded, writable: false), inputFormat);
             using var resampler = new MediaFoundationResampler(inputStream, outputFormat);
@@ -134,7 +131,9 @@ namespace SecureChat.Client.Audio
                 outputStream.Write(buffer, 0, bytesRead);
             }
 
-            return outputStream.ToArray();
+            var output = outputStream.ToArray();
+            OnInputSample?.Invoke(CalculateVolumeLevelWithGain(output));
+            return output;
         }
 
         private static int CalculateBufferSize(WaveFormat inputFormat, int milliseconds = 50)
@@ -215,7 +214,7 @@ namespace SecureChat.Client.Audio
             return Math.Min(1.0f, normalized); // Ensure value is within range
         }
 
-        private static float CalculateVolumeLevelWithGain(byte[] buffer, float gain = 70.0f)
+        private static float CalculateVolumeLevelWithGain(byte[] buffer)
         {
             short maxSample = 0;
             for (int i = 0; i < buffer.Length; i += 2)
@@ -225,7 +224,7 @@ namespace SecureChat.Client.Audio
             }
 
             float normalized = maxSample / 32768.0f;
-            return Math.Min(1.0f, normalized * gain);
+            return Math.Min(1.0f, normalized);
         }
     }
 }

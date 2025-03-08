@@ -47,16 +47,16 @@ namespace SecureChat.Client.Forms
             };
 
             trackBarGain.ValueChanged += TrackBarGain_ValueChanged;
-            trackBarGain.Value = 10;
+            trackBarGain.Value = 25;
 
-            radioButtonBitRate8000.CheckedChanged += RadioButtonBitRate_CheckedChanged;
-            radioButtonBitRate11025.CheckedChanged += RadioButtonBitRate_CheckedChanged;
-            radioButtonBitRate22050.CheckedChanged += RadioButtonBitRate_CheckedChanged;
-            radioButtonBitRate32000.CheckedChanged += RadioButtonBitRate_CheckedChanged;
-            radioButtonBitRate44100.CheckedChanged += RadioButtonBitRate_CheckedChanged;
-            radioButtonBitRateDeviceNative.CheckedChanged += RadioButtonBitRate_CheckedChanged;
+            radioButtonSampleRate8000.CheckedChanged += RadioButtonBitRate_CheckedChanged;
+            radioButtonSampleRate11025.CheckedChanged += RadioButtonBitRate_CheckedChanged;
+            radioButtonSampleRate22050.CheckedChanged += RadioButtonBitRate_CheckedChanged;
+            radioButtonSampleRate32000.CheckedChanged += RadioButtonBitRate_CheckedChanged;
+            radioButtonSampleRate44100.CheckedChanged += RadioButtonBitRate_CheckedChanged;
+            radioButtonSampleRateNative.CheckedChanged += RadioButtonBitRate_CheckedChanged;
 
-            SetSelectedSampleRate(32000);
+            SetSelectedSampleRate(22050);
         }
 
         private void TrackBarGain_ValueChanged(object? sender, EventArgs e)
@@ -78,17 +78,17 @@ namespace SecureChat.Client.Forms
 
         private int? GetSelectedSampleRate()
         {
-            if (radioButtonBitRate8000.Checked)
+            if (radioButtonSampleRate8000.Checked)
                 return 8000;
-            else if (radioButtonBitRate11025.Checked)
+            else if (radioButtonSampleRate11025.Checked)
                 return 11025;
-            else if (radioButtonBitRate22050.Checked)
+            else if (radioButtonSampleRate22050.Checked)
                 return 22050;
-            else if (radioButtonBitRate32000.Checked)
+            else if (radioButtonSampleRate32000.Checked)
                 return 32000;
-            else if (radioButtonBitRate44100.Checked)
+            else if (radioButtonSampleRate44100.Checked)
                 return 44100;
-            else if (radioButtonBitRateDeviceNative.Checked)
+            else if (radioButtonSampleRateNative.Checked)
                 return null;
 
             return 44100;
@@ -99,22 +99,22 @@ namespace SecureChat.Client.Forms
             switch (sampleRate)
             {
                 case 8000:
-                    radioButtonBitRate8000.Checked = true;
+                    radioButtonSampleRate8000.Checked = true;
                     break;
                 case 11025:
-                    radioButtonBitRate11025.Checked = true;
+                    radioButtonSampleRate11025.Checked = true;
                     break;
                 case 22050:
-                    radioButtonBitRate22050.Checked = true;
+                    radioButtonSampleRate22050.Checked = true;
                     break;
                 case 32000:
-                    radioButtonBitRate32000.Checked = true;
+                    radioButtonSampleRate32000.Checked = true;
                     break;
                 case 44100:
-                    radioButtonBitRate44100.Checked = true;
+                    radioButtonSampleRate44100.Checked = true;
                     break;
                 case null:
-                    radioButtonBitRateDeviceNative.Checked = true;
+                    radioButtonSampleRateNative.Checked = true;
                     break;
             }
         }
@@ -141,16 +141,26 @@ namespace SecureChat.Client.Forms
                 _audioPump = new AudioPump(_selectedInputDeviceIndex.Value, _selectedIOutputDeviceIndex.Value, _sampleRate);
                 _audioPump.Gain = ((float)trackBarGain.Value) / 10.0f;
 
-                _audioPump.OnVolumeSample += (volume) =>
+                _audioPump.OnInputSample += (volume) =>
                 {
                     BeginInvoke(new Action(() =>
                     {
-                        progressBarVolume.Value = (int)(volume * 100.0f);
+                        volumeMeterInput.Amplitude = volume;
                     }));
                 };
 
                 _audioPump.Start();
             }
+        }
+
+        private void ButtonOk_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ButtonCancel_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
