@@ -2,7 +2,6 @@
 using Concentus.Enums;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
-using NTDLS.Helpers;
 
 namespace SecureChat.Client.Audio
 {
@@ -79,14 +78,14 @@ namespace SecureChat.Client.Audio
 
             new Thread(() => //Audio capture thread.
             {
-                int? supportedSampleRate = null;
+                int? bestSupportedSampleRate = null;
 
                 var inputDeviceCapabilities = WaveInEvent.GetCapabilities(_inputDeviceIndex);
                 foreach (var inputFormat in _inputFormatPriorities)
                 {
                     if (inputDeviceCapabilities.SupportsWaveFormat(inputFormat))
                     {
-                        supportedSampleRate = inputFormat switch
+                        bestSupportedSampleRate = inputFormat switch
                         {
                             SupportedWaveFormat.WAVE_FORMAT_48M16 => 48000, //48 kHz, Mono, 16-bit (preferred due to Opus codec)
                             SupportedWaveFormat.WAVE_FORMAT_44M16 => 44100, //44.1 kHz, Mono, 16-bit
@@ -99,13 +98,13 @@ namespace SecureChat.Client.Audio
                     }
                 }
 
-                if (supportedSampleRate == null)
+                if (bestSupportedSampleRate == null)
                 {
                     throw new Exception("No acceptable capture rates are supported.");
                 }
 
                 WaveFormat? captureResampleFormat = null;
-                if (supportedSampleRate != CaptureSampleRate)
+                if (bestSupportedSampleRate != CaptureSampleRate)
                 {
                     //Opus only supports 8/12/16/24/48 Khz, so if the mic does not support 48Khz then we will resample the input.
                     captureResampleFormat = new WaveFormat(CaptureSampleRate, 16, 1);
@@ -113,7 +112,7 @@ namespace SecureChat.Client.Audio
 
                 var waveIn = new WaveInEvent
                 {
-                    WaveFormat = new WaveFormat(supportedSampleRate.Value, 16, 1),
+                    WaveFormat = new WaveFormat(bestSupportedSampleRate.Value, 16, 1),
                     BufferMilliseconds = 10, //Should be equal or less than the Opus Codec ms per frameSize.
                     DeviceNumber = _inputDeviceIndex
                 };
