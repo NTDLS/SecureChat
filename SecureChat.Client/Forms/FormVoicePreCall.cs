@@ -144,9 +144,17 @@ namespace SecureChat.Client.Forms
                     }));
                 };
 
+                _audioPump.OnFrameProduced += (byte[] bytes) =>
+                {
+                    _audioPump.IngestFrame(bytes);
+
+                };
+
                 _audioPump.Start();
             }
         }
+
+
 
         private void ButtonOk_Click(object sender, EventArgs e)
         {
