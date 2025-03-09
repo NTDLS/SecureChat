@@ -2,7 +2,7 @@
 
 namespace SecureChat.Library.ReliableMessages
 {
-    public class FileTransmissionChunk
+    public class FileTransmissionChunkNotification
         : IRmNotification
     {
         public Guid FileId { get; set; }
@@ -10,7 +10,7 @@ namespace SecureChat.Library.ReliableMessages
         public byte[] Bytes { get; set; }
         public Guid PeerToPeerId { get; set; }
 
-        public FileTransmissionChunk(Guid peerToPeerId, Guid connectionId, Guid fileId, byte[] bytes)
+        public FileTransmissionChunkNotification(Guid peerToPeerId, Guid connectionId, Guid fileId, byte[] bytes)
         {
             PeerToPeerId = peerToPeerId;
             ConnectionId = connectionId;

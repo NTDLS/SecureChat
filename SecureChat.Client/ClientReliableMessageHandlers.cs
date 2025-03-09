@@ -18,9 +18,33 @@ namespace SecureChat.Client
         }
 
         /// <summary>
+        /// A client is requesting a voice call with another us.
+        /// </summary>
+        public void RequestVoiceCallNotification(RmContext context, RequestVoiceCallNotification param)
+        {
+            try
+            {
+                if (LocalSession.Current == null)
+                    throw new Exception("Local connection is not established.");
+
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+                var activeChat = LocalSession.Current.GetActiveChat(param.PeerToPeerId)
+                    ?? throw new Exception("Chat session was not found.");
+
+                activeChat?.AlertOfIncomingCall();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
         /// The client is beginning to transmit a file.
         /// </summary>
-        public void FileTransmissionBegin(RmContext context, FileTransmissionBegin param)
+        public void FileTransmissionBeginNotification(RmContext context, FileTransmissionBeginNotification param)
         {
             try
             {
@@ -44,7 +68,7 @@ namespace SecureChat.Client
         /// <summary>
         /// The client transmitting a file chunk.
         /// </summary>
-        public void FileTransmissionChunk(RmContext context, FileTransmissionChunk param)
+        public void FileTransmissionChunkNotification(RmContext context, FileTransmissionChunkNotification param)
         {
             try
             {
@@ -75,7 +99,7 @@ namespace SecureChat.Client
         /// <summary>
         /// The client has finished transmitting a file.
         /// </summary>
-        public FileTransmissionEndReply FileTransmissionEnd(RmContext context, FileTransmissionEnd param)
+        public FileTransmissionEndQueryReply FileTransmissionEndQuery(RmContext context, FileTransmissionEndQuery param)
         {
             try
             {
@@ -100,16 +124,16 @@ namespace SecureChat.Client
                     throw new Exception("File buffer not found.");
                 }
 
-                return new FileTransmissionEndReply();
+                return new FileTransmissionEndQueryReply();
             }
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new FileTransmissionEndReply(ex);
+                return new FileTransmissionEndQueryReply(ex);
             }
         }
 
-        public void TerminateChat(RmContext context, TerminateChat param)
+        public void TerminateChatNotification(RmContext context, TerminateChatNotification param)
         {
             try
             {
@@ -130,7 +154,7 @@ namespace SecureChat.Client
             }
         }
 
-        public ExchangePeerToPeerQueryReply ExchangePeerToPeerQuery(RmContext context, ExchangePeerToPeerQuery param)
+        public ExchangeMessageTextQueryReply ExchangeMessageTextQuery(RmContext context, ExchangeMessageTextQuery param)
         {
             try
             {
@@ -145,16 +169,16 @@ namespace SecureChat.Client
 
                 activeChat?.ReceiveMessage(param.CipherText);
 
-                return new ExchangePeerToPeerQueryReply();
+                return new ExchangeMessageTextQueryReply();
             }
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new ExchangePeerToPeerQueryReply(ex);
+                return new ExchangeMessageTextQueryReply(ex);
             }
         }
 
-        public InitiateEndToEndCryptographyReply InitiateEndToEndCryptography(RmContext context, InitiateEndToEndCryptography param)
+        public InitiateEndToEndCryptographyQueryReply InitiateEndToEndCryptographyQuery(RmContext context, InitiateEndToEndCryptographyQuery param)
         {
             try
             {
@@ -165,9 +189,6 @@ namespace SecureChat.Client
 
                 //Apply the diffie-hellman negotiation token.
                 var negotiationReplyToken = compoundNegotiator.ApplyNegotiationToken(param.NegotiationToken);
-
-                //TODO: this is the NASCCL encryption key we will use for all user communication (but not control messages).
-                //Console.WriteLine($"SharedSecret: {Crypto.ComputeSha256Hash(compoundNegotiator.SharedSecret)}");
 
                 var activeChat = LocalSession.Current.AddActiveChat(param.PeerToPeerId, param.PeerConnectionId, param.SourceAccountId, param.DisplayName, compoundNegotiator.SharedSecret);
 
@@ -181,12 +202,12 @@ namespace SecureChat.Client
                 });
 
                 //Reply with the applied negotiation token so that the requester can arrive at the same shared secret.
-                return new InitiateEndToEndCryptographyReply(negotiationReplyToken);
+                return new InitiateEndToEndCryptographyQueryReply(negotiationReplyToken);
             }
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new InitiateEndToEndCryptographyReply(ex.GetBaseException());
+                return new InitiateEndToEndCryptographyQueryReply(ex.GetBaseException());
             }
         }
     }

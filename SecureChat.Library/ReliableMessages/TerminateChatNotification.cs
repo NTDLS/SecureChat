@@ -2,7 +2,7 @@
 
 namespace SecureChat.Library.ReliableMessages
 {
-    public class TerminateChat
+    public class TerminateChatNotification
         : IRmNotification
     {
         /// <summary>
@@ -11,7 +11,7 @@ namespace SecureChat.Library.ReliableMessages
         public Guid ConnectionId { get; set; }
         public Guid PeerToPeerId { get; set; }
 
-        public TerminateChat(Guid connectionId, Guid peerToPeerId)
+        public TerminateChatNotification(Guid connectionId, Guid peerToPeerId)
         {
             ConnectionId = connectionId;
             PeerToPeerId = peerToPeerId;

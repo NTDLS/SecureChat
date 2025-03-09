@@ -93,7 +93,7 @@ namespace SecureChat.Client.Forms
                                 return o.Result.PublicRsaKey;
                             }).Result;
 
-                        client.Notify(new InitializeServerClientCryptography());
+                        client.Notify(new InitializeServerClientCryptographyNotification());
                         client.SetCryptographyProvider(new ServerClientCryptographyProvider(remotePublicKey, keyPair.PrivateRsaKey));
 
                         Thread.Sleep(1000); //Give the server a moment to initialize the cryptography.

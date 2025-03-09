@@ -3,13 +3,13 @@ using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Library.ReliableMessages
 {
-    public class UpdateAccountState
+    public class UpdateAccountStateNotification
         : IRmNotification
     {
         public ScOnlineState State { get; set; }
         public Guid AccountId { get; set; }
 
-        public UpdateAccountState(Guid accountId, ScOnlineState state)
+        public UpdateAccountStateNotification(Guid accountId, ScOnlineState state)
         {
             AccountId = accountId;
             State = state;

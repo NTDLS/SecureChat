@@ -42,7 +42,6 @@
             terminateToolStripMenuItem = new ToolStripMenuItem();
             propertiesToolStripMenuItem = new ToolStripMenuItem();
             voiceToolStripMenuItem = new ToolStripMenuItem();
-            endCallToolStripMenuItem = new ToolStripMenuItem();
             startCallToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
@@ -161,17 +160,10 @@
             // 
             // voiceToolStripMenuItem
             // 
-            voiceToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { startCallToolStripMenuItem, endCallToolStripMenuItem });
+            voiceToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { startCallToolStripMenuItem });
             voiceToolStripMenuItem.Name = "voiceToolStripMenuItem";
             voiceToolStripMenuItem.Size = new Size(47, 20);
             voiceToolStripMenuItem.Text = "Voice";
-            // 
-            // endCallToolStripMenuItem
-            // 
-            endCallToolStripMenuItem.Name = "endCallToolStripMenuItem";
-            endCallToolStripMenuItem.Size = new Size(180, 22);
-            endCallToolStripMenuItem.Text = "End Call";
-            endCallToolStripMenuItem.Click += EndCallToolStripMenuItem_Click_1;
             // 
             // startCallToolStripMenuItem
             // 
@@ -221,7 +213,6 @@
         private ToolStripMenuItem imageToolStripMenuItem;
         private FlowLayoutPanel flowPanel;
         private ToolStripMenuItem voiceToolStripMenuItem;
-        private ToolStripMenuItem endCallToolStripMenuItem;
         private ToolStripMenuItem startCallToolStripMenuItem;
     }
 }

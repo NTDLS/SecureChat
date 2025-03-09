@@ -26,9 +26,27 @@ namespace SecureChat.Server
         }
 
         /// <summary>
+        /// A client is requesting a voice call with another client. Route the notification.
+        /// </summary>
+        public void RequestVoiceCall(RmContext context, RequestVoiceCallNotification param)
+        {
+            try
+            {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+                _chatService.RmServer.Notify(param.ConnectionId, param);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
         /// Client is sending an update to their display name and/or profile
         /// </summary>
-        public UpdateAccountProfileReply UpdateAccountProfile(RmContext context, UpdateAccountProfile param)
+        public UpdateAccountProfileQueryReply UpdateAccountProfileQuery(RmContext context, UpdateAccountProfileQuery param)
         {
             try
             {
@@ -48,19 +66,19 @@ namespace SecureChat.Server
 
                 _dbRepository.UpdateAccountProfile(session.AccountId.EnsureNotNull(), param.Profile);
 
-                return new UpdateAccountProfileReply();
+                return new UpdateAccountProfileQueryReply();
             }
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new UpdateAccountProfileReply(ex);
+                return new UpdateAccountProfileQueryReply(ex);
             }
         }
 
         /// <summary>
         /// Client is accepting a contact invite request.
         /// </summary>
-        public AcceptContactInviteReply AcceptContactInvite(RmContext context, AcceptContactInvite param)
+        public AcceptContactInviteQueryReply AcceptContactInviteQuery(RmContext context, AcceptContactInviteQuery param)
         {
             try
             {
@@ -72,12 +90,12 @@ namespace SecureChat.Server
 
                 _dbRepository.AcceptContactInvite(param.AccountId, session.AccountId.EnsureNotNull());
 
-                return new AcceptContactInviteReply();
+                return new AcceptContactInviteQueryReply();
             }
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new AcceptContactInviteReply(ex);
+                return new AcceptContactInviteQueryReply(ex);
             }
         }
 
@@ -177,7 +195,7 @@ namespace SecureChat.Server
         /// <summary>
         /// The client is beginning to transmit a file. Relay it to the appropriate client.
         /// </summary>
-        public void FileTransmissionBegin(RmContext context, FileTransmissionBegin param)
+        public void FileTransmissionBeginNotification(RmContext context, FileTransmissionBeginNotification param)
         {
             try
             {
@@ -195,7 +213,7 @@ namespace SecureChat.Server
         /// <summary>
         /// The client transmitting a file chunk. Relay it to the appropriate client.
         /// </summary>
-        public void FileTransmissionChunk(RmContext context, FileTransmissionChunk param)
+        public void FileTransmissionChunkNotification(RmContext context, FileTransmissionChunkNotification param)
         {
             try
             {
@@ -213,7 +231,7 @@ namespace SecureChat.Server
         /// <summary>
         /// The client has finished transmitting a file. Relay it to the appropriate client.
         /// </summary>
-        public FileTransmissionEndReply FileTransmissionEnd(RmContext context, FileTransmissionEnd param)
+        public FileTransmissionEndQueryReply FileTransmissionEndQuery(RmContext context, FileTransmissionEndQuery param)
         {
             try
             {
@@ -225,7 +243,7 @@ namespace SecureChat.Server
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new FileTransmissionEndReply(ex);
+                return new FileTransmissionEndQueryReply(ex);
             }
         }
 
@@ -233,7 +251,7 @@ namespace SecureChat.Server
         /// A client is letting the server know that they are terminating the chat.
         /// Relay the message to the other client.
         /// </summary>
-        public void TerminateChat(RmContext context, TerminateChat param)
+        public void TerminateChatNotification(RmContext context, TerminateChatNotification param)
         {
             try
             {
@@ -251,7 +269,7 @@ namespace SecureChat.Server
         /// <summary>
         /// A client is updating the server about their state/status.
         /// </summary>
-        public void UpdateAccountState(RmContext context, UpdateAccountState param)
+        public void UpdateAccountStateNotification(RmContext context, UpdateAccountStateNotification param)
         {
             try
             {
@@ -269,7 +287,7 @@ namespace SecureChat.Server
         /// <summary>
         /// A client is sending a message to another client.
         /// </summary>
-        public ExchangePeerToPeerQueryReply ExchangePeerToPeerQuery(RmContext context, ExchangePeerToPeerQuery param)
+        public ExchangeMessageTextQueryReply ExchangeMessageTextQuery(RmContext context, ExchangeMessageTextQuery param)
         {
             try
             {
@@ -281,14 +299,14 @@ namespace SecureChat.Server
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new ExchangePeerToPeerQueryReply(ex);
+                return new ExchangeMessageTextQueryReply(ex);
             }
         }
 
         /// <summary>
         /// A client is telling the server that it would like to establish end-to-end encryption with another client.
         /// </summary>
-        public InitiateEndToEndCryptographyReply InitiateEndToEndCryptography(RmContext context, InitiateEndToEndCryptography param)
+        public InitiateEndToEndCryptographyQueryReply InitiateEndToEndCryptographyQuery(RmContext context, InitiateEndToEndCryptographyQuery param)
         {
             try
             {
@@ -310,7 +328,7 @@ namespace SecureChat.Server
             }
             catch (Exception ex)
             {
-                return new InitiateEndToEndCryptographyReply(ex.GetBaseException());
+                return new InitiateEndToEndCryptographyQueryReply(ex.GetBaseException());
             }
         }
 
@@ -318,7 +336,7 @@ namespace SecureChat.Server
         /// The remote service is letting us know that they are about to start using the
         /// cryptography provider, so we need to apply the one that we have ready on this end.
         /// </summary>
-        public void InitializeServerClientCryptography(RmContext context, InitializeServerClientCryptography notification)
+        public void InitializeServerClientCryptographyNotification(RmContext context, InitializeServerClientCryptographyNotification param)
         {
             try
             {

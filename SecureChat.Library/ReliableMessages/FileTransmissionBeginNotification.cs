@@ -2,7 +2,7 @@
 
 namespace SecureChat.Library.ReliableMessages
 {
-    public class FileTransmissionBegin
+    public class FileTransmissionBeginNotification
         : IRmNotification
     {
         public Guid FileId { get; set; }
@@ -11,7 +11,7 @@ namespace SecureChat.Library.ReliableMessages
         public string FileName { get; set; }
         public Guid PeerToPeerId { get; set; }
 
-        public FileTransmissionBegin(Guid peerToPeerId, Guid connectionId, Guid fileId, string fileName, int fileSize)
+        public FileTransmissionBeginNotification(Guid peerToPeerId, Guid connectionId, Guid fileId, string fileName, int fileSize)
         {
             PeerToPeerId = peerToPeerId;
             ConnectionId = connectionId;

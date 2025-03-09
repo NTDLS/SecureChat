@@ -130,7 +130,7 @@ namespace SecureChat.Client.Forms
                     {
                         try
                         {
-                            LocalSession.Current.Client.Query(new AcceptContactInvite(contact.Id)).ContinueWith(o =>
+                            LocalSession.Current.Client.Query(new AcceptContactInviteQuery(contact.Id)).ContinueWith(o =>
                             {
                                 if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
                                 {
@@ -253,13 +253,13 @@ namespace SecureChat.Client.Forms
                     var idleTime = IdleTime.GetIdleTime();
                     if (idleTime.TotalSeconds >= Settings.Instance.AutoAwayIdleSeconds)
                     {
-                        LocalSession.Current.Client.Notify(new UpdateAccountState(
+                        LocalSession.Current.Client.Notify(new UpdateAccountStateNotification(
                                 LocalSession.Current.AccountId,
                                 ScOnlineState.Away));
                     }
                     else
                     {
-                        LocalSession.Current.Client.Notify(new UpdateAccountState(
+                        LocalSession.Current.Client.Notify(new UpdateAccountStateNotification(
                                 LocalSession.Current.AccountId,
                                 LocalSession.Current.ExplicitAway ? ScOnlineState.Away : ScOnlineState.Online));
                     }
@@ -368,7 +368,7 @@ namespace SecureChat.Client.Forms
 
                         //The first thing we do when we get a connection is start a new key exchange process.
                         var queryRequestKeyExchangeReply = LocalSession.Current.Client.Query(
-                            new InitiateEndToEndCryptography(peerToPeerId, LocalSession.Current.AccountId, contactsModel.Id, LocalSession.Current.DisplayName, negotiationToken))
+                            new InitiateEndToEndCryptographyQuery(peerToPeerId, LocalSession.Current.AccountId, contactsModel.Id, LocalSession.Current.DisplayName, negotiationToken))
                             .ContinueWith(o =>
                             {
                                 if (!o.IsFaulted && o.Result.IsSuccess)
@@ -382,9 +382,6 @@ namespace SecureChat.Client.Forms
                         {
                             //We received a reply to the secure key exchange, apply it.
                             compoundNegotiator.ApplyNegotiationResponseToken(queryRequestKeyExchangeReply.NegotiationToken);
-
-                            //TODO: this is the NASCCL encryption key we will use for all user communication (but not control messages).
-                            //Console.WriteLine($"SharedSecret: {Crypto.ComputeSha256Hash(compoundNegotiator.SharedSecret)}");
 
                             activeChat = LocalSession.Current.AddActiveChat(peerToPeerId,
                                 queryRequestKeyExchangeReply.PeerConnectionId, contactsModel.Id, contactsModel.DisplayName, compoundNegotiator.SharedSecret);

@@ -2,8 +2,8 @@
 
 namespace SecureChat.Library.ReliableMessages
 {
-    public class InitiateEndToEndCryptography
-        : IRmQuery<InitiateEndToEndCryptographyReply>
+    public class InitiateEndToEndCryptographyQuery
+        : IRmQuery<InitiateEndToEndCryptographyQueryReply>
     {
         /// <summary>
         /// The AccountId that is requesting the chat.
@@ -28,7 +28,7 @@ namespace SecureChat.Library.ReliableMessages
         /// </summary>
         public Guid PeerConnectionId { get; set; }
 
-        public InitiateEndToEndCryptography(Guid peerToPeerId, Guid sourceAccountId, Guid targetAccountId, string displayName, byte[] negotiationToken)
+        public InitiateEndToEndCryptographyQuery(Guid peerToPeerId, Guid sourceAccountId, Guid targetAccountId, string displayName, byte[] negotiationToken)
         {
             PeerToPeerId = peerToPeerId;
             SourceAccountId = sourceAccountId;
@@ -38,7 +38,7 @@ namespace SecureChat.Library.ReliableMessages
         }
     }
 
-    public class InitiateEndToEndCryptographyReply
+    public class InitiateEndToEndCryptographyQueryReply
         : IRmQueryReply
     {
         public bool IsSuccess { get; set; }
@@ -52,20 +52,20 @@ namespace SecureChat.Library.ReliableMessages
         /// </summary>
         public Guid PeerConnectionId { get; set; }
 
-        public InitiateEndToEndCryptographyReply(Exception exception)
+        public InitiateEndToEndCryptographyQueryReply(Exception exception)
         {
             NegotiationToken = Array.Empty<byte>();
             IsSuccess = false;
             ErrorMessage = exception.GetBaseException().Message;
         }
 
-        public InitiateEndToEndCryptographyReply(byte[] negotiationToken)
+        public InitiateEndToEndCryptographyQueryReply(byte[] negotiationToken)
         {
             NegotiationToken = negotiationToken;
             IsSuccess = true;
         }
 
-        public InitiateEndToEndCryptographyReply()
+        public InitiateEndToEndCryptographyQueryReply()
         {
             NegotiationToken = Array.Empty<byte>();
         }

@@ -2,34 +2,34 @@
 
 namespace SecureChat.Library.ReliableMessages
 {
-    public class ExchangePeerToPeerQuery
-        : IRmQuery<ExchangePeerToPeerQueryReply>
+    public class FileTransmissionEndQuery
+        : IRmQuery<FileTransmissionEndQueryReply>
     {
-        public byte[] CipherText { get; set; }
+        public Guid FileId { get; set; }
         public Guid ConnectionId { get; set; }
         public Guid PeerToPeerId { get; set; }
 
-        public ExchangePeerToPeerQuery(Guid peerToPeerId, Guid connectionId, byte[] cipherText)
+        public FileTransmissionEndQuery(Guid peerToPeerId, Guid connectionId, Guid fileId)
         {
             PeerToPeerId = peerToPeerId;
             ConnectionId = connectionId;
-            CipherText = cipherText;
+            FileId = fileId;
         }
     }
 
-    public class ExchangePeerToPeerQueryReply
+    public class FileTransmissionEndQueryReply
     : IRmQueryReply
     {
         public bool IsSuccess { get; set; }
         public string? ErrorMessage { get; set; }
 
-        public ExchangePeerToPeerQueryReply(Exception exception)
+        public FileTransmissionEndQueryReply(Exception exception)
         {
             IsSuccess = false;
             ErrorMessage = exception.GetBaseException().Message;
         }
 
-        public ExchangePeerToPeerQueryReply()
+        public FileTransmissionEndQueryReply()
         {
             IsSuccess = true;
         }

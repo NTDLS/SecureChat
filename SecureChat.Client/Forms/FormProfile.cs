@@ -55,7 +55,7 @@ namespace SecureChat.Client.Forms
                     Biography = textBoxBiography.GetAndValidateText(0, 2500, "If a biography is supplied, it must not exceed [max] characters.")
                 };
 
-                LocalSession.Current.Client.Query(new UpdateAccountProfile(displayName, profile)).ContinueWith(o =>
+                LocalSession.Current.Client.Query(new UpdateAccountProfileQuery(displayName, profile)).ContinueWith(o =>
                 {
                     if (!o.IsFaulted && o.Result.IsSuccess)
                     {

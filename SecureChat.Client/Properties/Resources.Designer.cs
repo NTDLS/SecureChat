@@ -93,6 +93,16 @@ namespace SecureChat.Client.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] IncomingCall {
+            get {
+                object obj = ResourceManager.GetObject("IncomingCall", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] MessageReceived {
             get {
                 object obj = ResourceManager.GetObject("MessageReceived", resourceCulture);
