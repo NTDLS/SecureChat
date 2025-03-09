@@ -182,12 +182,8 @@ namespace SecureChat.Client.Audio
                     {
                         //ResampleForOutput(bytes, transmissionWaveFormat, waveOut.OutputWaveFormat, outputBufferStream);
 
-                        short[] decodedPcm = new short[transmissionSampleRate * transmissionChannelCount * 10];
+                        short[] decodedPcm = new short[transmissionSampleRate * transmissionChannelCount];
                         int decodedSamples = decoder.Decode(new ReadOnlySpan<byte>(bytes), new Span<short>(decodedPcm), FrameSize, false);
-
-                        if (decodedPcm.Any(o => o != 0))
-                        {
-                        }
 
                         var pcmBytes = ConvertShortsToPcmBytes(decodedPcm);
 
