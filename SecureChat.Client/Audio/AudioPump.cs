@@ -2,7 +2,6 @@
 using Concentus.Enums;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
-using System.Collections.ObjectModel;
 
 namespace SecureChat.Client.Audio
 {
@@ -15,18 +14,18 @@ namespace SecureChat.Client.Audio
         public delegate void FrameProducedEventHandler(byte[] bytes);
         public event FrameProducedEventHandler? OnFrameProduced;
 
-        private readonly int _outputDeviceIndex;
-        private readonly int _inputDeviceIndex;
         private bool _IsCaptureRunning = false;
         private bool _IsPlaybackRunning = false;
         private bool _keepRunning = false;
-        public int _bitRate;
-
-        private readonly AutoResetEvent _ingestionEvent = new AutoResetEvent(false);
+        private readonly int _bitRate;
+        private readonly int _inputDeviceIndex;
+        private readonly int _outputDeviceIndex;
+        private readonly Queue<byte[]> _playbackBuffer = new();
+        private readonly AutoResetEvent _ingestionEvent = new(false);
 
         public bool Mute { get; set; } = false;
         public const int CaptureSampleRate = 48000; //We either capture at 48Khz (preferred) or resample to it.
-        
+
         private readonly Dictionary<SupportedWaveFormat, WaveFormat> _inputFormatPriorities = new()
         {
             {SupportedWaveFormat.WAVE_FORMAT_48M16, new WaveFormat(48000, 16, 1)}, //48 kHz, Mono, 16-bit (strongly preferred due to Opus codec)
@@ -47,8 +46,6 @@ namespace SecureChat.Client.Audio
             _inputDeviceIndex = inputDeviceIndex;
             _outputDeviceIndex = outputDeviceIndex;
         }
-
-        private readonly Queue<byte[]> _playbackBuffer = new();
 
         public void IngestFrame(byte[] bytes)
         {
@@ -222,6 +219,7 @@ namespace SecureChat.Client.Audio
                         int decodedSamples = decoder.Decode(new ReadOnlySpan<byte>(bytes), new Span<short>(decodedPcm), frameSize);
                         var pcmBytes = ShortsToBytes(decodedPcm, decodedSamples);
                         ResampleForOutput(pcmBytes, transmissionWaveFormat, waveOut.OutputWaveFormat, outputBufferStream);
+
                     }
                     else
                     {
