@@ -12,9 +12,7 @@ namespace SecureChat.Client
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new FormVoicePreCall());
-
-            return;
+            //Application.Run(new FormVoicePreCall());
 
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", false)
