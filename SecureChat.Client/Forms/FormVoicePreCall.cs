@@ -111,8 +111,8 @@ namespace SecureChat.Client.Forms
                     _audioPump.IngestFrame(bytes, byteCount);
                 };
 
-                int captureSampleRate = _audioPump.StartCapture();
-                _audioPump.StartPlayback(captureSampleRate);
+                _audioPump.StartCapture();
+                _audioPump.StartPlayback();
             }
         }
 

@@ -64,7 +64,7 @@ namespace SecureChat.Client.Audio
             }
         }
 
-        public int StartCapture()
+        public void StartCapture()
         {
             _keepRunning = true;
 
@@ -174,11 +174,9 @@ namespace SecureChat.Client.Audio
             {
                 Thread.Sleep(1); //This loop is just for debugging.
             }
-
-            return CaptureSampleRate;
         }
 
-        public void StartPlayback(int originalCaptureSampleRate)
+        public void StartPlayback()
         {
             new Thread(() => //Audio playback thread.
             {
@@ -196,9 +194,9 @@ namespace SecureChat.Client.Audio
                 waveOut.Play();
                 _IsPlaybackRunning = true;
 
-                var decoder = OpusCodecFactory.CreateDecoder(originalCaptureSampleRate, 1);
-                var transmissionWaveFormat = new WaveFormat(originalCaptureSampleRate, 1);
-                var decodedPcm = new short[originalCaptureSampleRate];
+                var decoder = OpusCodecFactory.CreateDecoder(CaptureSampleRate, 1);
+                var transmissionWaveFormat = new WaveFormat(CaptureSampleRate, 1);
+                var decodedPcm = new short[CaptureSampleRate];
                 int frameSize = CaptureSampleRate / 50; //20ms frame size (1000/50) = 20.
 
                 while (_keepRunning)
