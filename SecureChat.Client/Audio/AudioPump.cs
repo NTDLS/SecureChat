@@ -9,6 +9,7 @@ using Concentus;
 using System;
 using System.Text;
 using System.Threading.Channels;
+using System.Drawing.Imaging;
 
 namespace SecureChat.Client.Audio
 {
@@ -38,13 +39,13 @@ namespace SecureChat.Client.Audio
             _outputDeviceIndex = outputDeviceIndex;
         }
 
-        private readonly Stack<byte[]> _playbackBuffer = new();
+        private readonly Queue<byte[]> _playbackBuffer = new();
 
         public void IngestFrame(byte[] bytes)
         {
             lock (_playbackBuffer)
             {
-                _playbackBuffer.Push(bytes);
+                _playbackBuffer.Enqueue(bytes);
             }
         }
 
@@ -52,15 +53,14 @@ namespace SecureChat.Client.Audio
         {
             _keepRunning = true;
 
-            int transmissionSampleRate = SampleRate; //Should come from client.
-            int transmissionChannelCount = 1; //Should come from client.
-            var transmissionWaveFormat = new WaveFormat(transmissionSampleRate, transmissionChannelCount);
+            int transmissionSampleRate = 0; //Should come from client.
+            int transmissionChannelCount = 0; //Should come from client.
 
             new Thread(() => //Audio capture thread.
             {
                 var enumerator = new MMDeviceEnumerator();
 
-                WaveFormat? inputWaveFormat = null;
+                WaveFormat? nativeInputDeviceWaveFormat = null;
                 var inputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active).ToList();
                 for (int device = 0; device < WaveInEvent.DeviceCount; device++)
                 {
@@ -70,66 +70,72 @@ namespace SecureChat.Client.Audio
                         var mmDevice = inputDevices.FirstOrDefault(o => o.FriendlyName.StartsWith(capabilities.ProductName));
                         if (mmDevice != null)
                         {
-                            inputWaveFormat = mmDevice.AudioClient.MixFormat;
+                            nativeInputDeviceWaveFormat = mmDevice.AudioClient.MixFormat;
                         }
                     }
                 }
 
-                inputWaveFormat.EnsureNotNull();
+                nativeInputDeviceWaveFormat.EnsureNotNull();
+
+                transmissionSampleRate = nativeInputDeviceWaveFormat.SampleRate; //Should come from client.
+                transmissionChannelCount = 1; //Should come from client.
 
                 var waveIn = new WaveInEvent
                 {
-                    WaveFormat = new WaveFormat(inputWaveFormat.SampleRate, 16, 1),
+                    WaveFormat = new WaveFormat(transmissionSampleRate, 16, transmissionChannelCount),
                     //If the mic will allow 16bit mono, then lets just roll with it.
                     //WaveFormat = new WaveFormat(inputWaveFormat.SampleRate, inputWaveFormat.BitsPerSample, inputWaveFormat.Channels),
-                    BufferMilliseconds = 75,
+                    BufferMilliseconds = 20,
                     DeviceNumber = _inputDeviceIndex
                 };
 
-                FrameSize = transmissionWaveFormat.SampleRate / 50; // 20ms frame size
+                FrameSize = (transmissionSampleRate * transmissionChannelCount) / 50; // 20ms frame size
+                //byte[] frameBuffer = new byte[FrameSize];
 
                 Console.WriteLine($"Input: {waveIn.WaveFormat.SampleRate} Hz, {waveIn.WaveFormat.BitsPerSample}-bit, {waveIn.WaveFormat.Channels}ch");
 
-                var encoder = OpusCodecFactory.CreateEncoder(SampleRate, transmissionChannelCount, OpusApplication.OPUS_APPLICATION_VOIP);
+                var encoder = OpusCodecFactory.CreateEncoder(transmissionSampleRate, transmissionChannelCount, OpusApplication.OPUS_APPLICATION_VOIP);
+                encoder.Bitrate = (96000);
+                encoder.ForceMode = (OpusMode.MODE_SILK_ONLY);
+                encoder.SignalType = (OpusSignal.OPUS_SIGNAL_VOICE);
+                encoder.Complexity = (5);
 
-                var pcmBuffer = new List<short>(); // Buffer for leftover PCM data
+                var partialBuffer = new List<short>(); // Buffer for leftover PCM data
+                var encodedFrameBytes = new byte[1275]; // Max Opus packet size
 
                 waveIn.DataAvailable += (sender, e) =>
                 {
                     if (Mute) return;
 
-                    var transmissionBytes = ResampleForTransmission(e, waveIn.WaveFormat, transmissionWaveFormat, Gain);
-
-                    var pcmShorts = ConvertPcmBytesToShorts(transmissionBytes, transmissionBytes.Length);
+                    var pcmShorts = BytesToShorts(e.Buffer, 0, e.BytesRecorded);
 
                     // Prepend leftover PCM from previous buffer to the new PCM data
-                    if (pcmBuffer.Count > 0)
+                    if (partialBuffer.Count > 0)
                     {
-                        pcmShorts = pcmBuffer.Concat(pcmShorts).ToArray();
-                        pcmBuffer.Clear();
+                        pcmShorts = partialBuffer.Concat(pcmShorts).ToArray();
+                        partialBuffer.Clear();
                     }
 
-                    //var transmissionBytes = ResampleForTransmission(e, waveIn.WaveFormat, transmissionWaveFormat, Gain);
-                    //OnFrameProduced?.Invoke(transmissionBytes, transmissionBytes.Length);
-
                     // Process PCM in frameSize-sample chunks
-                    byte[] opusData = new byte[1275]; // Max Opus packet size
                     int i = 0;
                     for (; i + FrameSize <= pcmShorts.Length; i += FrameSize)
                     {
-                        int encodedBytes = encoder.Encode(new ReadOnlySpan<short>(pcmShorts, i, FrameSize), FrameSize, new Span<byte>(opusData), opusData.Length);
+                        int encodedFrameByteCount = encoder.Encode(
+                            new ReadOnlySpan<short>(pcmShorts, i, FrameSize),
+                            FrameSize, new Span<byte>(encodedFrameBytes), encodedFrameBytes.Length);
 
-                        OnFrameProduced?.Invoke(opusData.Take(encodedBytes).ToArray());
+                        lock (_playbackBuffer)
+                        {
+                            _playbackBuffer.Enqueue(encodedFrameBytes.Take(encodedFrameByteCount).ToArray());
+                        }
 
-                        Console.WriteLine($"Encoded {encodedBytes} bytes at {encoder.Bitrate}bps for frame {i / FrameSize}");
-
-                        // Transmit encoded data...
+                        //OnFrameProduced?.Invoke(encodedFrameBytes.Take(encodedFrameByteCount).ToArray());
                     }
 
                     // Store leftover samples (PREPEND to next buffer)
                     if (i < pcmShorts.Length)
                     {
-                        pcmBuffer.AddRange(pcmShorts.Skip(i));
+                        partialBuffer.AddRange(pcmShorts.Skip(i));
                     }
                 };
 
@@ -147,8 +153,13 @@ namespace SecureChat.Client.Audio
                 _IsRunning = false;
             }).Start();
 
+
             new Thread(() => //Audio playback thread.
             {
+                while (transmissionSampleRate == 0 && transmissionChannelCount == 0)
+                {
+                    Thread.Sleep(1); // This loop is just for debugging.
+                }
 
                 var enumerator = new MMDeviceEnumerator();
                 var outputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active).ToList();
@@ -168,6 +179,8 @@ namespace SecureChat.Client.Audio
                 waveOut.Play();
                 _IsRunning = true;
 
+                var transmissionWaveFormat = new WaveFormat(transmissionSampleRate, transmissionChannelCount);
+
                 while (_keepRunning)
                 {
                     byte[]? bytes;
@@ -175,23 +188,22 @@ namespace SecureChat.Client.Audio
 
                     lock (_playbackBuffer)
                     {
-                        gotData = _playbackBuffer.TryPop(out bytes);
+                        gotData = _playbackBuffer.TryDequeue(out bytes);
                     }
 
                     if (gotData && bytes != null)
                     {
-                        //ResampleForOutput(bytes, transmissionWaveFormat, waveOut.OutputWaveFormat, outputBufferStream);
-
                         short[] decodedPcm = new short[transmissionSampleRate * transmissionChannelCount];
                         int decodedSamples = decoder.Decode(new ReadOnlySpan<byte>(bytes), new Span<short>(decodedPcm), FrameSize, false);
 
-                        var pcmBytes = ConvertShortsToPcmBytes(decodedPcm);
+                        var pcmBytes = ShortsToBytes(decodedPcm);
 
+                        //Resamples and writes to the audio output device.
                         ResampleForOutput(pcmBytes, transmissionWaveFormat, waveOut.OutputWaveFormat, outputBufferStream);
                     }
                     else
                     {
-                        Thread.Sleep(1);
+                        //Thread.Sleep(1);
                     }
                 }
 
@@ -208,29 +220,40 @@ namespace SecureChat.Client.Audio
             }).Start();
         }
 
-        static short[] ConvertPcmBytesToShorts(byte[] pcmBytes, int length)
+
+        public static short[] BytesToShorts(byte[] input)
         {
-            short[] pcmShorts = new short[length / 2]; // 2 bytes per sample
-
-            for (int i = 0; i < pcmShorts.Length; i++)
-            {
-                pcmShorts[i] = (short)(pcmBytes[i * 2] | (pcmBytes[i * 2 + 1] << 8));
-            }
-
-            return pcmShorts;
+            return BytesToShorts(input, 0, input.Length);
         }
 
-        static byte[] ConvertShortsToPcmBytes(short[] pcmShorts)
-        {
-            byte[] pcmBytes = new byte[pcmShorts.Length * 2];
 
-            for (int i = 0; i < pcmShorts.Length; i++)
+        public static short[] BytesToShorts(byte[] input, int offset, int length)
+        {
+            short[] processedValues = new short[length / 2];
+            for (int c = 0; c < processedValues.Length; c++)
             {
-                pcmBytes[i * 2] = (byte)(pcmShorts[i] & 0xFF);
-                pcmBytes[i * 2 + 1] = (byte)((pcmShorts[i] >> 8) & 0xFF);
+                processedValues[c] = (short)(((int)input[(c * 2) + offset]) << 0);
+                processedValues[c] += (short)(((int)input[(c * 2) + 1 + offset]) << 8);
             }
 
-            return pcmBytes;
+            return processedValues;
+        }
+
+        public static byte[] ShortsToBytes(short[] input)
+        {
+            return ShortsToBytes(input, 0, input.Length);
+        }
+
+        public static byte[] ShortsToBytes(short[] input, int offset, int length)
+        {
+            byte[] processedValues = new byte[length * 2];
+            for (int c = 0; c < length; c++)
+            {
+                processedValues[c * 2] = (byte)(input[c + offset] & 0xFF);
+                processedValues[c * 2 + 1] = (byte)((input[c + offset] >> 8) & 0xFF);
+            }
+
+            return processedValues;
         }
 
         public byte[] ResampleForTransmission(WaveInEventArgs recorded, WaveFormat inputFormat, WaveFormat outputFormat, float gain)
