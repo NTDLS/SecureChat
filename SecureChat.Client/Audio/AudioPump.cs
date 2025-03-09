@@ -92,6 +92,7 @@ namespace SecureChat.Client.Audio
                 encoder.ForceMode = OpusMode.MODE_SILK_ONLY;
                 encoder.SignalType = OpusSignal.OPUS_SIGNAL_VOICE;
                 encoder.Complexity = 5;
+                encoder.ForceChannels = 1;
 
                 int frameSize = CaptureSampleRate / 50; // 20ms frame size (1000/50) = 20. (should be greater than WaveInEvent.BufferMilliseconds).
                 var partialBuffer = new List<short>(); // Buffer for leftover PCM data
