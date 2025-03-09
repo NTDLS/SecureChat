@@ -105,44 +105,44 @@
             groupBoxSampleRate.TabStop = false;
             groupBoxSampleRate.Text = "Quality (sample rate)";
             // 
-            // radioButtonSampleRateExtraHighQuality
+            // radioButtonBitRateExtraHighQuality
             // 
             radioButtonBitRateExtraHighQuality.AutoSize = true;
             radioButtonBitRateExtraHighQuality.Location = new Point(11, 95);
-            radioButtonBitRateExtraHighQuality.Name = "radioButtonSampleRateExtraHighQuality";
+            radioButtonBitRateExtraHighQuality.Name = "radioButtonBitRateExtraHighQuality";
             radioButtonBitRateExtraHighQuality.Size = new Size(169, 19);
             radioButtonBitRateExtraHighQuality.TabIndex = 5;
             radioButtonBitRateExtraHighQuality.TabStop = true;
             radioButtonBitRateExtraHighQuality.Text = "Extra-high quality (96 kbps)";
             radioButtonBitRateExtraHighQuality.UseVisualStyleBackColor = true;
             // 
-            // radioButtonSampleRateHighQuality
+            // radioButtonBitRateHighQuality
             // 
             radioButtonBitRateHighQuality.AutoSize = true;
             radioButtonBitRateHighQuality.Location = new Point(11, 70);
-            radioButtonBitRateHighQuality.Name = "radioButtonSampleRateHighQuality";
+            radioButtonBitRateHighQuality.Name = "radioButtonBitRateHighQuality";
             radioButtonBitRateHighQuality.Size = new Size(141, 19);
             radioButtonBitRateHighQuality.TabIndex = 4;
             radioButtonBitRateHighQuality.TabStop = true;
             radioButtonBitRateHighQuality.Text = "High quality (64 kbps)";
             radioButtonBitRateHighQuality.UseVisualStyleBackColor = true;
             // 
-            // radioButtonSampleRateMediumQuality
+            // radioButtonBitRateMediumQuality
             // 
             radioButtonBitRateMediumQuality.AutoSize = true;
             radioButtonBitRateMediumQuality.Location = new Point(11, 45);
-            radioButtonBitRateMediumQuality.Name = "radioButtonSampleRateMediumQuality";
+            radioButtonBitRateMediumQuality.Name = "radioButtonBitRateMediumQuality";
             radioButtonBitRateMediumQuality.Size = new Size(160, 19);
             radioButtonBitRateMediumQuality.TabIndex = 3;
             radioButtonBitRateMediumQuality.TabStop = true;
             radioButtonBitRateMediumQuality.Text = "Medium quality (32 kbps)";
             radioButtonBitRateMediumQuality.UseVisualStyleBackColor = true;
             // 
-            // radioButtonSampleRateLowQuality
+            // radioButtonBitRateLowQuality
             // 
             radioButtonBitRateLowQuality.AutoSize = true;
             radioButtonBitRateLowQuality.Location = new Point(11, 20);
-            radioButtonBitRateLowQuality.Name = "radioButtonSampleRateLowQuality";
+            radioButtonBitRateLowQuality.Name = "radioButtonBitRateLowQuality";
             radioButtonBitRateLowQuality.Size = new Size(137, 19);
             radioButtonBitRateLowQuality.TabIndex = 2;
             radioButtonBitRateLowQuality.TabStop = true;
@@ -207,6 +207,8 @@
             Controls.Add(comboBoxAudioOutputDevice);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
+            MaximizeBox = false;
+            MinimizeBox = false;
             Name = "FormVoicePreCall";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Secure Chat";
