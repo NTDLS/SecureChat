@@ -9,7 +9,6 @@ namespace SecureChat.Client.Forms
         private int? _selectedInputDeviceIndex = null;
         private int? _selectedIOutputDeviceIndex = null;
         private AudioPump? _audioPump = null;
-        private int _bitRate = 32 * 1000;
 
         public FormVoicePreCall()
         {
@@ -46,65 +45,34 @@ namespace SecureChat.Client.Forms
                 _audioPump = null;
             };
 
-            trackBarGain.ValueChanged += TrackBarGain_ValueChanged;
-            trackBarGain.Value = 25;
+            radioButtonBitRateLow.CheckedChanged += RadioButtonBitRate_CheckedChanged;
+            radioButtonBitRateStandard.CheckedChanged += RadioButtonBitRate_CheckedChanged;
+            radioButtonBitRateBalanced.CheckedChanged += RadioButtonBitRate_CheckedChanged;
+            radioButtonBitRateHighFidelity.CheckedChanged += RadioButtonBitRate_CheckedChanged;
 
-            radioButtonBitRateLowQuality.CheckedChanged += RadioButtonBitRate_CheckedChanged;
-            radioButtonBitRateMediumQuality.CheckedChanged += RadioButtonBitRate_CheckedChanged;
-            radioButtonBitRateHighQuality.CheckedChanged += RadioButtonBitRate_CheckedChanged;
-            radioButtonBitRateExtraHighQuality.CheckedChanged += RadioButtonBitRate_CheckedChanged;
-
-            SetSelectedBitRate(_bitRate);
-        }
-
-        private void TrackBarGain_ValueChanged(object? sender, EventArgs e)
-        {
-            if (_audioPump != null)
-            {
-                _audioPump.Gain = ((float)trackBarGain.Value) / 10.0f;
-            }
+            radioButtonBitRateStandard.Checked = true;
         }
 
         private void RadioButtonBitRate_CheckedChanged(object? sender, EventArgs e)
         {
             if (sender is RadioButton radioButton && radioButton.Checked)
             {
-                _bitRate = GetSelectedBitRate();
                 PropUpAudio();
             }
         }
 
         private int GetSelectedBitRate()
         {
-            if (radioButtonBitRateLowQuality.Checked)
+            if (radioButtonBitRateLow.Checked)
                 return 16 * 1000;
-            else if (radioButtonBitRateMediumQuality.Checked)
+            else if (radioButtonBitRateStandard.Checked)
                 return 32 * 1000;
-            else if (radioButtonBitRateHighQuality.Checked)
+            else if (radioButtonBitRateBalanced.Checked)
                 return 64 * 1000;
-            else if (radioButtonBitRateExtraHighQuality.Checked)
+            else if (radioButtonBitRateHighFidelity.Checked)
                 return 96 * 1000;
 
             return 32 * 1000;
-        }
-
-        private void SetSelectedBitRate(int bitRate)
-        {
-            switch (bitRate)
-            {
-                case 16 * 1000:
-                    radioButtonBitRateLowQuality.Checked = true;
-                    break;
-                case 32 * 1000:
-                    radioButtonBitRateMediumQuality.Checked = true;
-                    break;
-                case 64 * 1000:
-                    radioButtonBitRateHighQuality.Checked = true;
-                    break;
-                case 96 * 1000:
-                    radioButtonBitRateExtraHighQuality.Checked = true;
-                    break;
-            }
         }
 
         private void ComboBoxAudioInputDevice_SelectedIndexChanged(object? sender, EventArgs e)
@@ -125,7 +93,9 @@ namespace SecureChat.Client.Forms
             {
                 _audioPump?.Stop();
 
-                _audioPump = new AudioPump(_selectedInputDeviceIndex.Value, _selectedIOutputDeviceIndex.Value, _bitRate);
+                int bitRate = GetSelectedBitRate();
+
+                _audioPump = new AudioPump(_selectedInputDeviceIndex.Value, _selectedIOutputDeviceIndex.Value, bitRate);
 
                 _audioPump.OnInputSample += (volume) =>
                 {
@@ -137,6 +107,7 @@ namespace SecureChat.Client.Forms
 
                 _audioPump.OnFrameProduced += (byte[] bytes) =>
                 {
+                    Console.WriteLine(bytes.Length);
                     _audioPump.IngestFrame(bytes);
                 };
 

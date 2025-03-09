@@ -7,13 +7,9 @@ namespace SecureChat.Client.Audio
 {
     internal class AudioPump
     {
-        #region UNUSED
 
         public delegate void VolumeSampleEventHandler(float volume);
         public event VolumeSampleEventHandler? OnInputSample;
-        public float Gain { get; set; } = 1.0f;
-
-        #endregion
 
         public delegate void FrameProducedEventHandler(byte[] bytes);
         public event FrameProducedEventHandler? OnFrameProduced;
@@ -33,15 +29,9 @@ namespace SecureChat.Client.Audio
         private readonly SupportedWaveFormat[] _inputFormatPriorities = {
             SupportedWaveFormat.WAVE_FORMAT_48M16, //48 kHz, Mono, 16-bit
             SupportedWaveFormat.WAVE_FORMAT_44M16, //44.1 kHz, Mono, 16-bit
-            //SupportedWaveFormat.WAVE_FORMAT_44S16, //44.1 kHz, Stereo, 16-bit
-            //SupportedWaveFormat.WAVE_FORMAT_4S16, //44.1 kHz, Stereo, 16-bit
-            //SupportedWaveFormat.WAVE_FORMAT_48S16, //48 kHz, Stereo, 16-bit
             SupportedWaveFormat.WAVE_FORMAT_96M16, //96 kHz, Mono, 16-bit
-            //SupportedWaveFormat.WAVE_FORMAT_96S16, //96 kHz, Stereo, 16-bit
             SupportedWaveFormat.WAVE_FORMAT_2M16, //22.05 kHz, Mono, 16-bit
-            //SupportedWaveFormat.WAVE_FORMAT_2S16, //22.05 kHz, Stereo, 16-bit
             SupportedWaveFormat.WAVE_FORMAT_1M16, //11.025 kHz, Mono, 16-bit
-            //SupportedWaveFormat.WAVE_FORMAT_1S16 //11.025 kHz, Stereo, 16-bit
         };
 
         public AudioPump(int inputDeviceIndex, int outputDeviceIndex, int bitRate)
