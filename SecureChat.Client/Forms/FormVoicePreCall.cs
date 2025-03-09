@@ -1,5 +1,6 @@
 ﻿using NAudio.CoreAudioApi;
 using NAudio.Wave;
+using NTDLS.WinFormsHelpers;
 using SecureChat.Client.Audio;
 
 namespace SecureChat.Client.Forms
@@ -105,10 +106,9 @@ namespace SecureChat.Client.Forms
                     }));
                 };
 
-                _audioPump.OnFrameProduced += (byte[] bytes) =>
+                _audioPump.OnFrameProduced += (byte[] bytes, int byteCount) =>
                 {
-                    Console.WriteLine(bytes.Length);
-                    _audioPump.IngestFrame(bytes);
+                    _audioPump.IngestFrame(bytes, byteCount);
                 };
 
                 int captureSampleRate = _audioPump.StartCapture();
@@ -116,16 +116,14 @@ namespace SecureChat.Client.Forms
             }
         }
 
-
-
         private void ButtonOk_Click(object sender, EventArgs e)
         {
-
+            this.InvokeClose(DialogResult.OK);
         }
 
         private void ButtonCancel_Click(object sender, EventArgs e)
         {
-
+            this.InvokeClose(DialogResult.Cancel);
         }
     }
 }
