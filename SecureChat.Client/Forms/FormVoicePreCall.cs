@@ -9,7 +9,7 @@ namespace SecureChat.Client.Forms
         private int? _selectedInputDeviceIndex = null;
         private int? _selectedIOutputDeviceIndex = null;
         private AudioPump? _audioPump = null;
-        private int _sampleRate = 16000;
+        private int _bitRate = 32 * 1000;
 
         public FormVoicePreCall()
         {
@@ -49,13 +49,12 @@ namespace SecureChat.Client.Forms
             trackBarGain.ValueChanged += TrackBarGain_ValueChanged;
             trackBarGain.Value = 25;
 
-            radioButtonSampleRate8000.CheckedChanged += RadioButtonBitRate_CheckedChanged;
-            radioButtonSampleRate12000.CheckedChanged += RadioButtonBitRate_CheckedChanged;
-            radioButtonSampleRate16000.CheckedChanged += RadioButtonBitRate_CheckedChanged;
-            radioButtonSampleRate24000.CheckedChanged += RadioButtonBitRate_CheckedChanged;
-            radioButtonSampleRate48000.CheckedChanged += RadioButtonBitRate_CheckedChanged;
+            radioButtonBitRateLowQuality.CheckedChanged += RadioButtonBitRate_CheckedChanged;
+            radioButtonBitRateMediumQuality.CheckedChanged += RadioButtonBitRate_CheckedChanged;
+            radioButtonBitRateHighQuality.CheckedChanged += RadioButtonBitRate_CheckedChanged;
+            radioButtonBitRateExtraHighQuality.CheckedChanged += RadioButtonBitRate_CheckedChanged;
 
-            SetSelectedSampleRate(16000);
+            SetSelectedBitRate(_bitRate);
         }
 
         private void TrackBarGain_ValueChanged(object? sender, EventArgs e)
@@ -70,46 +69,40 @@ namespace SecureChat.Client.Forms
         {
             if (sender is RadioButton radioButton && radioButton.Checked)
             {
-                _sampleRate = GetSelectedSampleRate();
+                _bitRate = GetSelectedBitRate();
                 PropUpAudio();
             }
         }
 
-        private int GetSelectedSampleRate()
-        {            //be 8 / 12 / 16 / 24 / 48 Khz
+        private int GetSelectedBitRate()
+        {
+            if (radioButtonBitRateLowQuality.Checked)
+                return 16 * 1000;
+            else if (radioButtonBitRateMediumQuality.Checked)
+                return 32 * 1000;
+            else if (radioButtonBitRateHighQuality.Checked)
+                return 64 * 1000;
+            else if (radioButtonBitRateExtraHighQuality.Checked)
+                return 96 * 1000;
 
-            if (radioButtonSampleRate8000.Checked)
-                return 8000;
-            else if (radioButtonSampleRate12000.Checked)
-                return 12000;
-            else if (radioButtonSampleRate16000.Checked)
-                return 16000;
-            else if (radioButtonSampleRate24000.Checked)
-                return 24000;
-            else if (radioButtonSampleRate48000.Checked)
-                return 48000;
-
-            return 48000;
+            return 32 * 1000;
         }
 
-        private void SetSelectedSampleRate(int sampleRate)
+        private void SetSelectedBitRate(int bitRate)
         {
-            switch (sampleRate)
+            switch (bitRate)
             {
-                case 8000:
-                    radioButtonSampleRate8000.Checked = true;
+                case 16 * 1000:
+                    radioButtonBitRateLowQuality.Checked = true;
                     break;
-                case 12000:
-                    radioButtonSampleRate12000.Checked = true;
+                case 32 * 1000:
+                    radioButtonBitRateMediumQuality.Checked = true;
                     break;
-                case 16000:
-                    radioButtonSampleRate16000.Checked = true;
+                case 64 * 1000:
+                    radioButtonBitRateHighQuality.Checked = true;
                     break;
-                case 24000:
-                    radioButtonSampleRate24000.Checked = true;
-                    break;
-                case 48000:
-                    radioButtonSampleRate48000.Checked = true;
+                case 96 * 1000:
+                    radioButtonBitRateExtraHighQuality.Checked = true;
                     break;
             }
         }
@@ -133,7 +126,7 @@ namespace SecureChat.Client.Forms
                 _audioPump?.Stop();
                 _audioPump = null;
 
-                _audioPump = new AudioPump(_selectedInputDeviceIndex.Value, _selectedIOutputDeviceIndex.Value, _sampleRate);
+                _audioPump = new AudioPump(_selectedInputDeviceIndex.Value, _selectedIOutputDeviceIndex.Value, _bitRate);
                 _audioPump.Gain = ((float)trackBarGain.Value) / 10.0f;
 
                 _audioPump.OnInputSample += (volume) =>

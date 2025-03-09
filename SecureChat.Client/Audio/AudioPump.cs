@@ -24,17 +24,19 @@ namespace SecureChat.Client.Audio
         private readonly int _outputDeviceIndex;
         private readonly int _inputDeviceIndex;
 
+        private AutoResetEvent _ingestionEvent = new AutoResetEvent(false);
+
         private bool _IsRunning = false;
         private bool _keepRunning = false;
 
         public bool Mute { get; set; } = false;
         public float Gain { get; set; } = 1.0f;
-        public int SampleRate { get; private set; }
+        public int BitRate { get; private set; }
         public int FrameSize { get; private set; }
 
-        public AudioPump(int inputDeviceIndex, int outputDeviceIndex, int sampleRate)
+        public AudioPump(int inputDeviceIndex, int outputDeviceIndex, int bitRate)
         {
-            SampleRate = sampleRate;
+            BitRate = bitRate;
             _inputDeviceIndex = inputDeviceIndex;
             _outputDeviceIndex = outputDeviceIndex;
         }
@@ -46,6 +48,7 @@ namespace SecureChat.Client.Audio
             lock (_playbackBuffer)
             {
                 _playbackBuffer.Enqueue(bytes);
+                _ingestionEvent.Set();
             }
         }
 
@@ -85,20 +88,19 @@ namespace SecureChat.Client.Audio
                     WaveFormat = new WaveFormat(transmissionSampleRate, 16, transmissionChannelCount),
                     //If the mic will allow 16bit mono, then lets just roll with it.
                     //WaveFormat = new WaveFormat(inputWaveFormat.SampleRate, inputWaveFormat.BitsPerSample, inputWaveFormat.Channels),
-                    BufferMilliseconds = 20,
+                    BufferMilliseconds = 10,
                     DeviceNumber = _inputDeviceIndex
                 };
 
-                FrameSize = (transmissionSampleRate * transmissionChannelCount) / 50; // 20ms frame size
-                //byte[] frameBuffer = new byte[FrameSize];
+                FrameSize = transmissionSampleRate / 50; // 20ms frame size (1000/50) = 20.
 
                 Console.WriteLine($"Input: {waveIn.WaveFormat.SampleRate} Hz, {waveIn.WaveFormat.BitsPerSample}-bit, {waveIn.WaveFormat.Channels}ch");
 
                 var encoder = OpusCodecFactory.CreateEncoder(transmissionSampleRate, transmissionChannelCount, OpusApplication.OPUS_APPLICATION_VOIP);
-                encoder.Bitrate = (96000);
-                encoder.ForceMode = (OpusMode.MODE_SILK_ONLY);
-                encoder.SignalType = (OpusSignal.OPUS_SIGNAL_VOICE);
-                encoder.Complexity = (5);
+                encoder.Bitrate = BitRate;
+                encoder.ForceMode = OpusMode.MODE_SILK_ONLY;
+                encoder.SignalType = OpusSignal.OPUS_SIGNAL_VOICE;
+                encoder.Complexity = 5;
 
                 var partialBuffer = new List<short>(); // Buffer for leftover PCM data
                 var encodedFrameBytes = new byte[1275]; // Max Opus packet size
@@ -109,14 +111,13 @@ namespace SecureChat.Client.Audio
 
                     var pcmShorts = BytesToShorts(e.Buffer, 0, e.BytesRecorded);
 
-                    // Prepend leftover PCM from previous buffer to the new PCM data
                     if (partialBuffer.Count > 0)
                     {
+                        // Prepend leftover PCM from previous buffer to the new PCM data
                         pcmShorts = partialBuffer.Concat(pcmShorts).ToArray();
                         partialBuffer.Clear();
                     }
 
-                    // Process PCM in frameSize-sample chunks
                     int i = 0;
                     for (; i + FrameSize <= pcmShorts.Length; i += FrameSize)
                     {
@@ -124,18 +125,12 @@ namespace SecureChat.Client.Audio
                             new ReadOnlySpan<short>(pcmShorts, i, FrameSize),
                             FrameSize, new Span<byte>(encodedFrameBytes), encodedFrameBytes.Length);
 
-                        lock (_playbackBuffer)
-                        {
-                            _playbackBuffer.Enqueue(encodedFrameBytes.Take(encodedFrameByteCount).ToArray());
-                        }
-
-                        //OnFrameProduced?.Invoke(encodedFrameBytes.Take(encodedFrameByteCount).ToArray());
+                        OnFrameProduced?.Invoke(encodedFrameBytes.Take(encodedFrameByteCount).ToArray());
                     }
 
-                    // Store leftover samples (PREPEND to next buffer)
                     if (i < pcmShorts.Length)
                     {
-                        partialBuffer.AddRange(pcmShorts.Skip(i));
+                        partialBuffer.AddRange(pcmShorts.Skip(i)); // Store leftover samples to be prepended to the next buffer.
                     }
                 };
 
@@ -203,7 +198,7 @@ namespace SecureChat.Client.Audio
                     }
                     else
                     {
-                        //Thread.Sleep(1);
+                        _ingestionEvent.WaitOne(1);
                     }
                 }
 
@@ -225,7 +220,6 @@ namespace SecureChat.Client.Audio
         {
             return BytesToShorts(input, 0, input.Length);
         }
-
 
         public static short[] BytesToShorts(byte[] input, int offset, int length)
         {

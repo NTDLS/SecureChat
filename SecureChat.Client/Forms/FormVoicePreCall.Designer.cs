@@ -35,11 +35,10 @@
             comboBoxAudioInputDevice = new ComboBox();
             labelMicrophoneGain = new Label();
             groupBoxSampleRate = new GroupBox();
-            radioButtonSampleRate48000 = new RadioButton();
-            radioButtonSampleRate24000 = new RadioButton();
-            radioButtonSampleRate16000 = new RadioButton();
-            radioButtonSampleRate12000 = new RadioButton();
-            radioButtonSampleRate8000 = new RadioButton();
+            radioButtonBitRateExtraHighQuality = new RadioButton();
+            radioButtonBitRateHighQuality = new RadioButton();
+            radioButtonBitRateMediumQuality = new RadioButton();
+            radioButtonBitRateLowQuality = new RadioButton();
             buttonOk = new Button();
             buttonCancel = new Button();
             volumeMeterInput = new NAudio.Gui.VolumeMeter();
@@ -95,76 +94,64 @@
             // 
             // groupBoxSampleRate
             // 
-            groupBoxSampleRate.Controls.Add(radioButtonSampleRate48000);
-            groupBoxSampleRate.Controls.Add(radioButtonSampleRate24000);
-            groupBoxSampleRate.Controls.Add(radioButtonSampleRate16000);
-            groupBoxSampleRate.Controls.Add(radioButtonSampleRate12000);
-            groupBoxSampleRate.Controls.Add(radioButtonSampleRate8000);
+            groupBoxSampleRate.Controls.Add(radioButtonBitRateExtraHighQuality);
+            groupBoxSampleRate.Controls.Add(radioButtonBitRateHighQuality);
+            groupBoxSampleRate.Controls.Add(radioButtonBitRateMediumQuality);
+            groupBoxSampleRate.Controls.Add(radioButtonBitRateLowQuality);
             groupBoxSampleRate.Location = new Point(14, 115);
             groupBoxSampleRate.Name = "groupBoxSampleRate";
-            groupBoxSampleRate.Size = new Size(222, 152);
+            groupBoxSampleRate.Size = new Size(222, 124);
             groupBoxSampleRate.TabIndex = 7;
             groupBoxSampleRate.TabStop = false;
             groupBoxSampleRate.Text = "Quality (sample rate)";
             // 
-            // radioButtonSampleRate48000
+            // radioButtonSampleRateExtraHighQuality
             // 
-            radioButtonSampleRate48000.AutoSize = true;
-            radioButtonSampleRate48000.Location = new Point(11, 120);
-            radioButtonSampleRate48000.Name = "radioButtonSampleRate48000";
-            radioButtonSampleRate48000.Size = new Size(122, 19);
-            radioButtonSampleRate48000.TabIndex = 6;
-            radioButtonSampleRate48000.TabStop = true;
-            radioButtonSampleRate48000.Text = "CD quality (48Khz)";
-            radioButtonSampleRate48000.UseVisualStyleBackColor = true;
+            radioButtonBitRateExtraHighQuality.AutoSize = true;
+            radioButtonBitRateExtraHighQuality.Location = new Point(11, 95);
+            radioButtonBitRateExtraHighQuality.Name = "radioButtonSampleRateExtraHighQuality";
+            radioButtonBitRateExtraHighQuality.Size = new Size(169, 19);
+            radioButtonBitRateExtraHighQuality.TabIndex = 5;
+            radioButtonBitRateExtraHighQuality.TabStop = true;
+            radioButtonBitRateExtraHighQuality.Text = "Extra-high quality (96 kbps)";
+            radioButtonBitRateExtraHighQuality.UseVisualStyleBackColor = true;
             // 
-            // radioButtonSampleRate24000
+            // radioButtonSampleRateHighQuality
             // 
-            radioButtonSampleRate24000.AutoSize = true;
-            radioButtonSampleRate24000.Location = new Point(11, 95);
-            radioButtonSampleRate24000.Name = "radioButtonSampleRate24000";
-            radioButtonSampleRate24000.Size = new Size(114, 19);
-            radioButtonSampleRate24000.TabIndex = 5;
-            radioButtonSampleRate24000.TabStop = true;
-            radioButtonSampleRate24000.Text = "FM radio (24Khz)";
-            radioButtonSampleRate24000.UseVisualStyleBackColor = true;
+            radioButtonBitRateHighQuality.AutoSize = true;
+            radioButtonBitRateHighQuality.Location = new Point(11, 70);
+            radioButtonBitRateHighQuality.Name = "radioButtonSampleRateHighQuality";
+            radioButtonBitRateHighQuality.Size = new Size(141, 19);
+            radioButtonBitRateHighQuality.TabIndex = 4;
+            radioButtonBitRateHighQuality.TabStop = true;
+            radioButtonBitRateHighQuality.Text = "High quality (64 kbps)";
+            radioButtonBitRateHighQuality.UseVisualStyleBackColor = true;
             // 
-            // radioButtonSampleRate16000
+            // radioButtonSampleRateMediumQuality
             // 
-            radioButtonSampleRate16000.AutoSize = true;
-            radioButtonSampleRate16000.Location = new Point(11, 70);
-            radioButtonSampleRate16000.Name = "radioButtonSampleRate16000";
-            radioButtonSampleRate16000.Size = new Size(123, 19);
-            radioButtonSampleRate16000.TabIndex = 4;
-            radioButtonSampleRate16000.TabStop = true;
-            radioButtonSampleRate16000.Text = "Mid-range (16Khz)";
-            radioButtonSampleRate16000.UseVisualStyleBackColor = true;
+            radioButtonBitRateMediumQuality.AutoSize = true;
+            radioButtonBitRateMediumQuality.Location = new Point(11, 45);
+            radioButtonBitRateMediumQuality.Name = "radioButtonSampleRateMediumQuality";
+            radioButtonBitRateMediumQuality.Size = new Size(160, 19);
+            radioButtonBitRateMediumQuality.TabIndex = 3;
+            radioButtonBitRateMediumQuality.TabStop = true;
+            radioButtonBitRateMediumQuality.Text = "Medium quality (32 kbps)";
+            radioButtonBitRateMediumQuality.UseVisualStyleBackColor = true;
             // 
-            // radioButtonSampleRate12000
+            // radioButtonSampleRateLowQuality
             // 
-            radioButtonSampleRate12000.AutoSize = true;
-            radioButtonSampleRate12000.Location = new Point(11, 45);
-            radioButtonSampleRate12000.Name = "radioButtonSampleRate12000";
-            radioButtonSampleRate12000.Size = new Size(170, 19);
-            radioButtonSampleRate12000.TabIndex = 3;
-            radioButtonSampleRate12000.TabStop = true;
-            radioButtonSampleRate12000.Text = "Low-quality speech (12Khz)";
-            radioButtonSampleRate12000.UseVisualStyleBackColor = true;
-            // 
-            // radioButtonSampleRate8000
-            // 
-            radioButtonSampleRate8000.AutoSize = true;
-            radioButtonSampleRate8000.Location = new Point(11, 20);
-            radioButtonSampleRate8000.Name = "radioButtonSampleRate8000";
-            radioButtonSampleRate8000.Size = new Size(155, 19);
-            radioButtonSampleRate8000.TabIndex = 2;
-            radioButtonSampleRate8000.TabStop = true;
-            radioButtonSampleRate8000.Text = "Telephone quality (8Khz)";
-            radioButtonSampleRate8000.UseVisualStyleBackColor = true;
+            radioButtonBitRateLowQuality.AutoSize = true;
+            radioButtonBitRateLowQuality.Location = new Point(11, 20);
+            radioButtonBitRateLowQuality.Name = "radioButtonSampleRateLowQuality";
+            radioButtonBitRateLowQuality.Size = new Size(137, 19);
+            radioButtonBitRateLowQuality.TabIndex = 2;
+            radioButtonBitRateLowQuality.TabStop = true;
+            radioButtonBitRateLowQuality.Text = "Low quality (16 kbps)";
+            radioButtonBitRateLowQuality.UseVisualStyleBackColor = true;
             // 
             // buttonOk
             // 
-            buttonOk.Location = new Point(313, 244);
+            buttonOk.Location = new Point(313, 216);
             buttonOk.Name = "buttonOk";
             buttonOk.Size = new Size(75, 23);
             buttonOk.TabIndex = 10;
@@ -174,7 +161,7 @@
             // 
             // buttonCancel
             // 
-            buttonCancel.Location = new Point(394, 244);
+            buttonCancel.Location = new Point(394, 216);
             buttonCancel.Name = "buttonCancel";
             buttonCancel.Size = new Size(75, 23);
             buttonCancel.TabIndex = 11;
@@ -207,7 +194,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(481, 277);
+            ClientSize = new Size(481, 249);
             Controls.Add(trackBarGain);
             Controls.Add(volumeMeterInput);
             Controls.Add(buttonCancel);
@@ -239,11 +226,10 @@
         private ComboBox comboBoxAudioInputDevice;
         private Label labelMicrophoneGain;
         private GroupBox groupBoxSampleRate;
-        private RadioButton radioButtonSampleRate48000;
-        private RadioButton radioButtonSampleRate24000;
-        private RadioButton radioButtonSampleRate16000;
-        private RadioButton radioButtonSampleRate12000;
-        private RadioButton radioButtonSampleRate8000;
+        private RadioButton radioButtonBitRateExtraHighQuality;
+        private RadioButton radioButtonBitRateHighQuality;
+        private RadioButton radioButtonBitRateMediumQuality;
+        private RadioButton radioButtonBitRateLowQuality;
         private Button buttonOk;
         private Button buttonCancel;
         private NAudio.Gui.VolumeMeter volumeMeterInput;
