@@ -2,6 +2,7 @@
 using Concentus.Enums;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
+using System.Collections.ObjectModel;
 
 namespace SecureChat.Client.Audio
 {
@@ -25,13 +26,19 @@ namespace SecureChat.Client.Audio
 
         public bool Mute { get; set; } = false;
         public const int CaptureSampleRate = 48000; //We either capture at 48Khz (preferred) or resample to it.
-
-        private readonly SupportedWaveFormat[] _inputFormatPriorities = {
-            SupportedWaveFormat.WAVE_FORMAT_48M16, //48 kHz, Mono, 16-bit
-            SupportedWaveFormat.WAVE_FORMAT_44M16, //44.1 kHz, Mono, 16-bit
-            SupportedWaveFormat.WAVE_FORMAT_96M16, //96 kHz, Mono, 16-bit
-            SupportedWaveFormat.WAVE_FORMAT_2M16, //22.05 kHz, Mono, 16-bit
-            SupportedWaveFormat.WAVE_FORMAT_1M16, //11.025 kHz, Mono, 16-bit
+        
+        private readonly Dictionary<SupportedWaveFormat, WaveFormat> _inputFormatPriorities = new()
+        {
+            {SupportedWaveFormat.WAVE_FORMAT_48M16, new WaveFormat(48000, 16, 1)}, //48 kHz, Mono, 16-bit (strongly preferred due to Opus codec)
+            {SupportedWaveFormat.WAVE_FORMAT_48S16, new WaveFormat(48000, 16, 2)}, //48 kHz, Stereo, 16-bit
+            {SupportedWaveFormat.WAVE_FORMAT_44M16, new WaveFormat(44100, 16, 1)}, //44.1 kHz, Mono, 16-bit
+            {SupportedWaveFormat.WAVE_FORMAT_44S16, new WaveFormat(44100, 16, 2)}, //44.1 kHz, Stereo, 16-bit
+            {SupportedWaveFormat.WAVE_FORMAT_96M16, new WaveFormat(96000, 16, 1)}, //96 kHz, Mono, 16-bit
+            {SupportedWaveFormat.WAVE_FORMAT_96S16, new WaveFormat(96000, 16, 2)}, //96 kHz, Stereo, 16-bit
+            {SupportedWaveFormat.WAVE_FORMAT_2M16, new WaveFormat(22050, 16, 1)}, //22.05 kHz, Mono, 16-bit
+            {SupportedWaveFormat.WAVE_FORMAT_2S16, new WaveFormat(22050, 16, 2)}, //22.05 kHz, Stereo, 16-bit
+            {SupportedWaveFormat.WAVE_FORMAT_1M16, new WaveFormat(11025, 16, 1)}, //11.025 kHz, Mono, 16-bit
+            {SupportedWaveFormat.WAVE_FORMAT_1S16, new WaveFormat(11025, 16, 2)}, //11.025 kHz, Stereo, 16-bit
         };
 
         public AudioPump(int inputDeviceIndex, int outputDeviceIndex, int bitRate)
@@ -68,42 +75,34 @@ namespace SecureChat.Client.Audio
 
             new Thread(() => //Audio capture thread.
             {
-                int? bestSupportedSampleRate = null;
+                WaveFormat? bestSupportedInputFormat = null;
 
                 var inputDeviceCapabilities = WaveInEvent.GetCapabilities(_inputDeviceIndex);
                 foreach (var inputFormat in _inputFormatPriorities)
                 {
-                    if (inputDeviceCapabilities.SupportsWaveFormat(inputFormat))
+                    if (inputDeviceCapabilities.SupportsWaveFormat(inputFormat.Key))
                     {
-                        bestSupportedSampleRate = inputFormat switch
-                        {
-                            SupportedWaveFormat.WAVE_FORMAT_48M16 => 48000, //48 kHz, Mono, 16-bit (preferred due to Opus codec)
-                            SupportedWaveFormat.WAVE_FORMAT_44M16 => 44100, //44.1 kHz, Mono, 16-bit
-                            SupportedWaveFormat.WAVE_FORMAT_96M16 => 96000, //96 kHz, Mono, 16-bit
-                            SupportedWaveFormat.WAVE_FORMAT_2M16 => 22050, //22.05 kHz, Mono, 16-bit
-                            SupportedWaveFormat.WAVE_FORMAT_1M16 => 11025, //11.025 kHz, Mono, 16-bit
-                            _ => throw new NotSupportedException(),
-                        };
+                        bestSupportedInputFormat = inputFormat.Value;
                         break;
                     }
                 }
 
-                if (bestSupportedSampleRate == null)
+                if (bestSupportedInputFormat == null)
                 {
                     throw new Exception("No acceptable capture rates are supported.");
                 }
 
                 WaveFormat? captureResampleFormat = null;
-                if (bestSupportedSampleRate != CaptureSampleRate)
+                if (bestSupportedInputFormat.SampleRate != CaptureSampleRate || bestSupportedInputFormat.Channels != 1)
                 {
-                    //Opus only supports 8/12/16/24/48 Khz, so if the mic does not support 48Khz then we will resample the input.
+                    //Opus only supports 8/12/16/24/48 Khz, so if the mic does not support 48Khz mono then we will resample the input.
                     captureResampleFormat = new WaveFormat(CaptureSampleRate, 16, 1);
                 }
 
                 var waveIn = new WaveInEvent
                 {
-                    WaveFormat = new WaveFormat(bestSupportedSampleRate.Value, 16, 1),
-                    BufferMilliseconds = 10, //Should be equal or less than the Opus Codec ms per frameSize.
+                    WaveFormat = bestSupportedInputFormat,
+                    BufferMilliseconds = 18, //Should be equal or less than the Opus Codec ms per frameSize.
                     DeviceNumber = _inputDeviceIndex
                 };
 
@@ -112,9 +111,8 @@ namespace SecureChat.Client.Audio
                 encoder.ForceMode = OpusMode.MODE_SILK_ONLY;
                 encoder.SignalType = OpusSignal.OPUS_SIGNAL_VOICE;
                 encoder.Complexity = 5;
-                encoder.ForceChannels = 1;
 
-                int frameSize = CaptureSampleRate / 50; //20ms frame size (1000/50) = 20. (should be greater than WaveInEvent.BufferMilliseconds).
+                int frameSize = (CaptureSampleRate / 1000) * 20; //should be greater than WaveInEvent.BufferMilliseconds).
                 var partialBuffer = new List<short>(); //Buffer for leftover PCM data
                 var encodedFrameBytes = new byte[1275]; //Max Opus packet size
 
@@ -221,7 +219,7 @@ namespace SecureChat.Client.Audio
 
                     if (gotData && bytes != null)
                     {
-                        int decodedSamples = decoder.Decode(new ReadOnlySpan<byte>(bytes), new Span<short>(decodedPcm), frameSize, false);
+                        int decodedSamples = decoder.Decode(new ReadOnlySpan<byte>(bytes), new Span<short>(decodedPcm), frameSize);
                         var pcmBytes = ShortsToBytes(decodedPcm, decodedSamples);
                         ResampleForOutput(pcmBytes, transmissionWaveFormat, waveOut.OutputWaveFormat, outputBufferStream);
                     }
