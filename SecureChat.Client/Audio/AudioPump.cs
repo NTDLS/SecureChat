@@ -29,7 +29,21 @@ namespace SecureChat.Client.Audio
         private readonly AutoResetEvent _ingestionEvent = new AutoResetEvent(false);
 
         public bool Mute { get; set; } = false;
-        public int CaptureSampleRate { get; private set; }
+        public const int CaptureSampleRate = 48000; //We either capture at 48Khz (preferred) or resample to it.
+
+        private readonly SupportedWaveFormat[] _inputFormatPriorities = {
+            SupportedWaveFormat.WAVE_FORMAT_48M16, //48 kHz, Mono, 16-bit
+            SupportedWaveFormat.WAVE_FORMAT_44M16, //44.1 kHz, Mono, 16-bit
+            //SupportedWaveFormat.WAVE_FORMAT_44S16, //44.1 kHz, Stereo, 16-bit
+            //SupportedWaveFormat.WAVE_FORMAT_4S16, //44.1 kHz, Stereo, 16-bit
+            //SupportedWaveFormat.WAVE_FORMAT_48S16, //48 kHz, Stereo, 16-bit
+            SupportedWaveFormat.WAVE_FORMAT_96M16, //96 kHz, Mono, 16-bit
+            //SupportedWaveFormat.WAVE_FORMAT_96S16, //96 kHz, Stereo, 16-bit
+            SupportedWaveFormat.WAVE_FORMAT_2M16, //22.05 kHz, Mono, 16-bit
+            //SupportedWaveFormat.WAVE_FORMAT_2S16, //22.05 kHz, Stereo, 16-bit
+            SupportedWaveFormat.WAVE_FORMAT_1M16, //11.025 kHz, Mono, 16-bit
+            //SupportedWaveFormat.WAVE_FORMAT_1S16 //11.025 kHz, Stereo, 16-bit
+        };
 
         public AudioPump(int inputDeviceIndex, int outputDeviceIndex, int bitRate)
         {
@@ -65,35 +79,44 @@ namespace SecureChat.Client.Audio
 
             new Thread(() => //Audio capture thread.
             {
-                var enumerator = new MMDeviceEnumerator();
+                int? supportedSampleRate = null;
 
-                WaveFormat? nativeInputDeviceWaveFormat = null;
-                var inputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active).ToList();
-                for (int device = 0; device < WaveInEvent.DeviceCount; device++)
+                var inputDeviceCapabilities = WaveInEvent.GetCapabilities(_inputDeviceIndex);
+                foreach (var inputFormat in _inputFormatPriorities)
                 {
-                    if (_inputDeviceIndex == device)
+                    if (inputDeviceCapabilities.SupportsWaveFormat(inputFormat))
                     {
-                        var capabilities = WaveInEvent.GetCapabilities(device);
-                        var mmDevice = inputDevices.FirstOrDefault(o => o.FriendlyName.StartsWith(capabilities.ProductName));
-                        if (mmDevice != null)
+                        supportedSampleRate = inputFormat switch
                         {
-                            nativeInputDeviceWaveFormat = mmDevice.AudioClient.MixFormat;
-                        }
+                            SupportedWaveFormat.WAVE_FORMAT_48M16 => 48000, //48 kHz, Mono, 16-bit (preferred due to Opus codec)
+                            SupportedWaveFormat.WAVE_FORMAT_44M16 => 44100, //44.1 kHz, Mono, 16-bit
+                            SupportedWaveFormat.WAVE_FORMAT_96M16 => 96000, //96 kHz, Mono, 16-bit
+                            SupportedWaveFormat.WAVE_FORMAT_2M16 => 22050, //22.05 kHz, Mono, 16-bit
+                            SupportedWaveFormat.WAVE_FORMAT_1M16 => 11025, //11.025 kHz, Mono, 16-bit
+                            _ => throw new NotSupportedException(),
+                        };
+                        break;
                     }
                 }
 
-                nativeInputDeviceWaveFormat.EnsureNotNull();
+                if (supportedSampleRate == null)
+                {
+                    throw new Exception("No acceptable capture rates are supported.");
+                }
 
-                CaptureSampleRate = nativeInputDeviceWaveFormat.SampleRate;
+                WaveFormat? captureResampleFormat = null;
+                if (supportedSampleRate != CaptureSampleRate)
+                {
+                    //Opus only supports 8/12/16/24/48 Khz, so if the mic does not support 48Khz then we will resample the input.
+                    captureResampleFormat = new WaveFormat(CaptureSampleRate, 16, 1);
+                }
 
                 var waveIn = new WaveInEvent
                 {
-                    WaveFormat = new WaveFormat(CaptureSampleRate, 16, 1),
+                    WaveFormat = new WaveFormat(supportedSampleRate.Value, 16, 1),
                     BufferMilliseconds = 10, //Should be equal or less than the Opus Codec ms per frameSize.
                     DeviceNumber = _inputDeviceIndex
                 };
-
-                //Console.WriteLine($"Input: {waveIn.WaveFormat.SampleRate} Hz, {waveIn.WaveFormat.BitsPerSample}-bit, {waveIn.WaveFormat.Channels}ch");
 
                 var encoder = OpusCodecFactory.CreateEncoder(CaptureSampleRate, 1, OpusApplication.OPUS_APPLICATION_VOIP);
                 encoder.Bitrate = _bitRate;
@@ -110,7 +133,17 @@ namespace SecureChat.Client.Audio
                 {
                     if (Mute) return;
 
-                    var pcmShorts = BytesToShorts(e.Buffer, e.BytesRecorded);
+                    short[] pcmShorts;
+
+                    if (captureResampleFormat != null)
+                    {
+                        var resampledInput = ResampleForTransmission(e, waveIn.WaveFormat, captureResampleFormat);
+                        pcmShorts = BytesToShorts(resampledInput, resampledInput.Length);
+                    }
+                    else
+                    {
+                        pcmShorts = BytesToShorts(e.Buffer, e.BytesRecorded);
+                    }
 
                     if (OnInputSample != null)
                     {
@@ -168,7 +201,7 @@ namespace SecureChat.Client.Audio
         {
             new Thread(() => //Audio playback thread.
             {
-                var enumerator = new MMDeviceEnumerator();
+                using var enumerator = new MMDeviceEnumerator();
                 var outputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active).ToList();
 
                 var waveOut = new WasapiOut(outputDevices[_outputDeviceIndex], AudioClientShareMode.Shared, true, 50);
@@ -178,14 +211,11 @@ namespace SecureChat.Client.Audio
                     DiscardOnBufferOverflow = true
                 };
 
-                //Console.WriteLine($"Output: {waveOut.OutputWaveFormat.SampleRate} Hz, {waveOut.OutputWaveFormat.BitsPerSample}-bit, {waveOut.OutputWaveFormat.Channels}ch");
-
-                var decoder = OpusCodecFactory.CreateDecoder(originalCaptureSampleRate, 1);
-
                 waveOut.Init(outputBufferStream);
                 waveOut.Play();
                 _IsPlaybackRunning = true;
 
+                var decoder = OpusCodecFactory.CreateDecoder(originalCaptureSampleRate, 1);
                 var transmissionWaveFormat = new WaveFormat(originalCaptureSampleRate, 1);
                 var decodedPcm = new short[originalCaptureSampleRate];
                 int frameSize = CaptureSampleRate / 50; //20ms frame size (1000/50) = 20.
@@ -298,6 +328,25 @@ namespace SecureChat.Client.Audio
 
             float normalized = maxSample / 32768.0f;
             return Math.Min(1.0f, normalized);
+        }
+
+        public static byte[] ResampleForTransmission(WaveInEventArgs recorded, WaveFormat inputFormat, WaveFormat outputFormat)
+        {
+            using var inputStream = new RawSourceWaveStream(new MemoryStream(recorded.Buffer, 0, recorded.BytesRecorded, writable: false), inputFormat);
+            using var resampler = new MediaFoundationResampler(inputStream, outputFormat);
+
+            var bufferSize = CalculateBufferSize(inputFormat);
+            var buffer = new byte[bufferSize];
+
+            using var outputStream = new MemoryStream();
+
+            int bytesRead;
+            while ((bytesRead = resampler.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                outputStream.Write(buffer, 0, bytesRead);
+            }
+
+            return outputStream.ToArray();
         }
     }
 }
