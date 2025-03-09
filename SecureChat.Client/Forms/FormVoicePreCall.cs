@@ -124,10 +124,8 @@ namespace SecureChat.Client.Forms
             if (_selectedInputDeviceIndex != null && _selectedIOutputDeviceIndex != null)
             {
                 _audioPump?.Stop();
-                _audioPump = null;
 
                 _audioPump = new AudioPump(_selectedInputDeviceIndex.Value, _selectedIOutputDeviceIndex.Value, _bitRate);
-                _audioPump.Gain = ((float)trackBarGain.Value) / 10.0f;
 
                 _audioPump.OnInputSample += (volume) =>
                 {
@@ -140,10 +138,10 @@ namespace SecureChat.Client.Forms
                 _audioPump.OnFrameProduced += (byte[] bytes) =>
                 {
                     _audioPump.IngestFrame(bytes);
-
                 };
 
-                _audioPump.Start();
+                int captureSampleRate = _audioPump.StartCapture();
+                _audioPump.StartPlayback(captureSampleRate);
             }
         }
 

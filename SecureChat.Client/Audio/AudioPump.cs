@@ -1,42 +1,39 @@
-﻿using Concentus.Structs;
+﻿using Concentus;
 using Concentus.Enums;
-
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using NTDLS.Helpers;
-using System.Xml.Linq;
-using Concentus;
-using System;
-using System.Text;
-using System.Threading.Channels;
-using System.Drawing.Imaging;
 
 namespace SecureChat.Client.Audio
 {
     internal class AudioPump
     {
+        #region UNUSED
+
         public delegate void VolumeSampleEventHandler(float volume);
         public event VolumeSampleEventHandler? OnInputSample;
+        public float Gain { get; set; } = 1.0f;
+
+        #endregion
 
         public delegate void FrameProducedEventHandler(byte[] bytes);
         public event FrameProducedEventHandler? OnFrameProduced;
 
         private readonly int _outputDeviceIndex;
         private readonly int _inputDeviceIndex;
-
-        private AutoResetEvent _ingestionEvent = new AutoResetEvent(false);
-
-        private bool _IsRunning = false;
+        private bool _IsCaptureRunning = false;
+        private bool _IsPlaybackRunning = false;
         private bool _keepRunning = false;
+        public int _bitRate;
+
+        private readonly AutoResetEvent _ingestionEvent = new AutoResetEvent(false);
 
         public bool Mute { get; set; } = false;
-        public float Gain { get; set; } = 1.0f;
-        public int BitRate { get; private set; }
-        public int FrameSize { get; private set; }
+        public int CaptureSampleRate { get; private set; }
 
         public AudioPump(int inputDeviceIndex, int outputDeviceIndex, int bitRate)
         {
-            BitRate = bitRate;
+            _bitRate = bitRate;
             _inputDeviceIndex = inputDeviceIndex;
             _outputDeviceIndex = outputDeviceIndex;
         }
@@ -52,12 +49,9 @@ namespace SecureChat.Client.Audio
             }
         }
 
-        public void Start()
+        public int StartCapture()
         {
             _keepRunning = true;
-
-            int transmissionSampleRate = 0; //Should come from client.
-            int transmissionChannelCount = 0; //Should come from client.
 
             new Thread(() => //Audio capture thread.
             {
@@ -80,28 +74,26 @@ namespace SecureChat.Client.Audio
 
                 nativeInputDeviceWaveFormat.EnsureNotNull();
 
-                transmissionSampleRate = nativeInputDeviceWaveFormat.SampleRate; //Should come from client.
-                transmissionChannelCount = 1; //Should come from client.
+                CaptureSampleRate = nativeInputDeviceWaveFormat.SampleRate; //Should come from client.
 
                 var waveIn = new WaveInEvent
                 {
-                    WaveFormat = new WaveFormat(transmissionSampleRate, 16, transmissionChannelCount),
+                    WaveFormat = new WaveFormat(CaptureSampleRate, 16, 1),
                     //If the mic will allow 16bit mono, then lets just roll with it.
                     //WaveFormat = new WaveFormat(inputWaveFormat.SampleRate, inputWaveFormat.BitsPerSample, inputWaveFormat.Channels),
-                    BufferMilliseconds = 10,
+                    BufferMilliseconds = 10, //Should be equal or less than the Opus Codec ms per frameSize.
                     DeviceNumber = _inputDeviceIndex
                 };
 
-                FrameSize = transmissionSampleRate / 50; // 20ms frame size (1000/50) = 20.
+                //Console.WriteLine($"Input: {waveIn.WaveFormat.SampleRate} Hz, {waveIn.WaveFormat.BitsPerSample}-bit, {waveIn.WaveFormat.Channels}ch");
 
-                Console.WriteLine($"Input: {waveIn.WaveFormat.SampleRate} Hz, {waveIn.WaveFormat.BitsPerSample}-bit, {waveIn.WaveFormat.Channels}ch");
-
-                var encoder = OpusCodecFactory.CreateEncoder(transmissionSampleRate, transmissionChannelCount, OpusApplication.OPUS_APPLICATION_VOIP);
-                encoder.Bitrate = BitRate;
+                var encoder = OpusCodecFactory.CreateEncoder(CaptureSampleRate, 1, OpusApplication.OPUS_APPLICATION_VOIP);
+                encoder.Bitrate = _bitRate;
                 encoder.ForceMode = OpusMode.MODE_SILK_ONLY;
                 encoder.SignalType = OpusSignal.OPUS_SIGNAL_VOICE;
                 encoder.Complexity = 5;
 
+                int frameSize = CaptureSampleRate / 50; // 20ms frame size (1000/50) = 20. (should be greater than WaveInEvent.BufferMilliseconds).
                 var partialBuffer = new List<short>(); // Buffer for leftover PCM data
                 var encodedFrameBytes = new byte[1275]; // Max Opus packet size
 
@@ -109,7 +101,13 @@ namespace SecureChat.Client.Audio
                 {
                     if (Mute) return;
 
-                    var pcmShorts = BytesToShorts(e.Buffer, 0, e.BytesRecorded);
+                    var pcmShorts = BytesToShorts(e.Buffer, e.BytesRecorded);
+
+                    if (OnInputSample != null)
+                    {
+                        var volume = CalculateVolumeLevelWithGain(e.Buffer, e.BytesRecorded);
+                        OnInputSample.Invoke(volume);
+                    }
 
                     if (partialBuffer.Count > 0)
                     {
@@ -119,11 +117,11 @@ namespace SecureChat.Client.Audio
                     }
 
                     int i = 0;
-                    for (; i + FrameSize <= pcmShorts.Length; i += FrameSize)
+                    for (; i + frameSize <= pcmShorts.Length; i += frameSize)
                     {
                         int encodedFrameByteCount = encoder.Encode(
-                            new ReadOnlySpan<short>(pcmShorts, i, FrameSize),
-                            FrameSize, new Span<byte>(encodedFrameBytes), encodedFrameBytes.Length);
+                            new ReadOnlySpan<short>(pcmShorts, i, frameSize),
+                            frameSize, new Span<byte>(encodedFrameBytes), encodedFrameBytes.Length);
 
                         OnFrameProduced?.Invoke(encodedFrameBytes.Take(encodedFrameByteCount).ToArray());
                     }
@@ -135,7 +133,7 @@ namespace SecureChat.Client.Audio
                 };
 
                 waveIn.StartRecording();
-                _IsRunning = true;
+                _IsCaptureRunning = true;
 
                 while (_keepRunning)
                 {
@@ -145,17 +143,21 @@ namespace SecureChat.Client.Audio
                 waveIn?.StopRecording();
                 waveIn?.Dispose();
 
-                _IsRunning = false;
+                _IsCaptureRunning = false;
             }).Start();
 
+            while (!_IsCaptureRunning)
+            {
+                Thread.Sleep(1); // This loop is just for debugging.
+            }
 
+            return CaptureSampleRate;
+        }
+
+        public void StartPlayback(int originalCaptureSampleRate)
+        {
             new Thread(() => //Audio playback thread.
             {
-                while (transmissionSampleRate == 0 && transmissionChannelCount == 0)
-                {
-                    Thread.Sleep(1); // This loop is just for debugging.
-                }
-
                 var enumerator = new MMDeviceEnumerator();
                 var outputDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active).ToList();
 
@@ -166,15 +168,17 @@ namespace SecureChat.Client.Audio
                     DiscardOnBufferOverflow = true
                 };
 
-                Console.WriteLine($"Output: {waveOut.OutputWaveFormat.SampleRate} Hz, {waveOut.OutputWaveFormat.BitsPerSample}-bit, {waveOut.OutputWaveFormat.Channels}ch");
+                //Console.WriteLine($"Output: {waveOut.OutputWaveFormat.SampleRate} Hz, {waveOut.OutputWaveFormat.BitsPerSample}-bit, {waveOut.OutputWaveFormat.Channels}ch");
 
-                var decoder = OpusCodecFactory.CreateDecoder(transmissionSampleRate, transmissionChannelCount);
+                var decoder = OpusCodecFactory.CreateDecoder(originalCaptureSampleRate, 1);
 
                 waveOut.Init(outputBufferStream);
                 waveOut.Play();
-                _IsRunning = true;
+                _IsPlaybackRunning = true;
 
-                var transmissionWaveFormat = new WaveFormat(transmissionSampleRate, transmissionChannelCount);
+                var transmissionWaveFormat = new WaveFormat(originalCaptureSampleRate, 1);
+                var decodedPcm = new short[originalCaptureSampleRate];
+                int frameSize = CaptureSampleRate / 50; // 20ms frame size (1000/50) = 20.
 
                 while (_keepRunning)
                 {
@@ -188,12 +192,8 @@ namespace SecureChat.Client.Audio
 
                     if (gotData && bytes != null)
                     {
-                        short[] decodedPcm = new short[transmissionSampleRate * transmissionChannelCount];
-                        int decodedSamples = decoder.Decode(new ReadOnlySpan<byte>(bytes), new Span<short>(decodedPcm), FrameSize, false);
-
-                        var pcmBytes = ShortsToBytes(decodedPcm);
-
-                        //Resamples and writes to the audio output device.
+                        int decodedSamples = decoder.Decode(new ReadOnlySpan<byte>(bytes), new Span<short>(decodedPcm), frameSize, false);
+                        var pcmBytes = ShortsToBytes(decodedPcm, decodedSamples);
                         ResampleForOutput(pcmBytes, transmissionWaveFormat, waveOut.OutputWaveFormat, outputBufferStream);
                     }
                     else
@@ -211,45 +211,41 @@ namespace SecureChat.Client.Audio
 
                 waveOut?.Dispose();
 
-                _IsRunning = false;
+                _IsPlaybackRunning = false;
             }).Start();
         }
 
-
         public static short[] BytesToShorts(byte[] input)
-        {
-            return BytesToShorts(input, 0, input.Length);
-        }
+            => BytesToShorts(input, input.Length);
 
-        public static short[] BytesToShorts(byte[] input, int offset, int length)
+        public static short[] BytesToShorts(byte[] input, int length)
         {
             short[] processedValues = new short[length / 2];
             for (int c = 0; c < processedValues.Length; c++)
             {
-                processedValues[c] = (short)(((int)input[(c * 2) + offset]) << 0);
-                processedValues[c] += (short)(((int)input[(c * 2) + 1 + offset]) << 8);
+                processedValues[c] = (short)(((int)input[(c * 2)]) << 0);
+                processedValues[c] += (short)(((int)input[(c * 2) + 1]) << 8);
             }
 
             return processedValues;
         }
 
         public static byte[] ShortsToBytes(short[] input)
-        {
-            return ShortsToBytes(input, 0, input.Length);
-        }
+            => ShortsToBytes(input, input.Length);
 
-        public static byte[] ShortsToBytes(short[] input, int offset, int length)
+        public static byte[] ShortsToBytes(short[] input, int length)
         {
             byte[] processedValues = new byte[length * 2];
             for (int c = 0; c < length; c++)
             {
-                processedValues[c * 2] = (byte)(input[c + offset] & 0xFF);
-                processedValues[c * 2 + 1] = (byte)((input[c + offset] >> 8) & 0xFF);
+                processedValues[c * 2] = (byte)(input[c] & 0xFF);
+                processedValues[c * 2 + 1] = (byte)((input[c] >> 8) & 0xFF);
             }
 
             return processedValues;
         }
 
+        /*
         public byte[] ResampleForTransmission(WaveInEventArgs recorded, WaveFormat inputFormat, WaveFormat outputFormat, float gain)
         {
             using var inputStream = new RawSourceWaveStream(new MemoryStream(recorded.Buffer, 0, recorded.BytesRecorded, writable: false), inputFormat);
@@ -274,6 +270,7 @@ namespace SecureChat.Client.Audio
             OnInputSample?.Invoke(CalculateVolumeLevelWithGain(output));
             return output;
         }
+        */
 
         private static int CalculateBufferSize(WaveFormat inputFormat, int milliseconds = 50)
         {
@@ -283,6 +280,7 @@ namespace SecureChat.Client.Audio
             return bytesPerMs * milliseconds;
         }
 
+        /*
         public static byte[] ResampleForTransmission(WaveInEventArgs recorded, WaveFormat inputFormat, WaveFormat outputFormat)
         {
             using var inputStream = new RawSourceWaveStream(new MemoryStream(recorded.Buffer, 0, recorded.BytesRecorded, writable: false), inputFormat);
@@ -301,10 +299,17 @@ namespace SecureChat.Client.Audio
 
             return outputStream.ToArray();
         }
+        */
 
+        /// <summary>
+        /// Resamples and writes to the audio output device.
+        /// </summary>
         public static void ResampleForOutput(byte[] inputBytes, WaveFormat inputFormat, WaveFormat outputFormat, BufferedWaveProvider outputBuffer)
             => ResampleForOutput(inputBytes, inputBytes.Length, inputFormat, outputFormat, outputBuffer);
 
+        /// <summary>
+        /// Resamples and writes to the audio output device.
+        /// </summary>
         public static void ResampleForOutput(byte[] inputBytes, int byteCount, WaveFormat inputFormat, WaveFormat outputFormat, BufferedWaveProvider outputBuffer)
         {
             using var inputStream = new RawSourceWaveStream(new MemoryStream(inputBytes, 0, byteCount, writable: false), inputFormat);
@@ -327,14 +332,15 @@ namespace SecureChat.Client.Audio
         {
             _keepRunning = false;
 
-            while (_IsRunning)
+            while (_IsCaptureRunning || _IsPlaybackRunning)
             {
                 Thread.Sleep(10);
             }
         }
 
+        /*
         /// <summary>
-        // Calculate volume level from raw PCM data
+        // Calculate RMS volume level from raw PCM data
         /// </summary>
         private static float CalculateVolumeLevelRMS(byte[] buffer)
         {
@@ -352,18 +358,23 @@ namespace SecureChat.Client.Audio
             float normalized = (float)(rms / 32768.0); // Normalize to range 0.0 - 1.0
             return Math.Min(1.0f, normalized); // Ensure value is within range
         }
+        */
 
-        private static float CalculateVolumeLevelWithGain(byte[] buffer)
+        /// <summary>
+        // Calculate volume level from raw PCM data
+        /// </summary>
+        private static float CalculateVolumeLevelWithGain(byte[] bytes, int byteCount)
         {
             short maxSample = 0;
-            for (int i = 0; i < buffer.Length; i += 2)
+            for (int i = 0; i < byteCount; i += 2)
             {
-                short sample = (short)(buffer[i] | (buffer[i + 1] << 8));
+                short sample = (short)(bytes[i] | (bytes[i + 1] << 8));
                 maxSample = Math.Max(maxSample, Math.Abs(sample));
             }
 
             float normalized = maxSample / 32768.0f;
             return Math.Min(1.0f, normalized);
         }
+
     }
 }
