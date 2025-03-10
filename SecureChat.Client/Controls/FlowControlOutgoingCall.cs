@@ -18,6 +18,7 @@
 
         private void ButtonCancel_Click(object sender, EventArgs e)
         {
+            buttonCancel.Enabled = false;
             _activeChat.CancelVoiceCallRequest();
         }
 

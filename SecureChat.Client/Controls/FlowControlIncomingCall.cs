@@ -1,4 +1,6 @@
-﻿namespace SecureChat.Client.Controls
+﻿using SecureChat.Client.Forms;
+
+namespace SecureChat.Client.Controls
 {
     internal partial class FlowControlIncomingCall : UserControl
     {
@@ -18,12 +20,21 @@
 
         private void ButtonAccept_Click(object sender, EventArgs e)
         {
-            _activeChat.AcceptVoiceCallRequest();
+            using var formVoicePreCall = new FormVoicePreCall();
+            if (formVoicePreCall.ShowDialog() == DialogResult.OK && formVoicePreCall.InputDeviceIndex != null && formVoicePreCall.OutputDeviceIndex != null)
+            {
+                buttonAccept.Enabled = false;
+                buttonDecline.Enabled = false;
 
+                //TODO: Setup the call...
+                _activeChat.AcceptVoiceCallRequest();
+            }
         }
 
         private void ButtonDecline_Click(object sender, EventArgs e)
         {
+            buttonAccept.Enabled = false;
+            buttonDecline.Enabled = false;
             _activeChat.DeclineVoiceCallRequest();
         }
 
