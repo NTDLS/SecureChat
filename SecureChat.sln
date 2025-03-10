@@ -15,6 +15,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Installers", "Installers", 
 		Installers\Installer.Server.iss = Installers\Installer.Server.iss
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External", "External", "{9BDF6621-8D0C-44F2-92C4-08675F99E3E6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTDLS.DatagramMessaging", "..\NTDLS.DatagramMessaging\NTDLS.DatagramMessaging\NTDLS.DatagramMessaging.csproj", "{8E06F01A-EF98-0078-851D-F75BFEB117C3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,9 +37,16 @@ Global
 		{DEAF30CB-B70D-4148-84FB-99A1E9AA9E0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DEAF30CB-B70D-4148-84FB-99A1E9AA9E0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DEAF30CB-B70D-4148-84FB-99A1E9AA9E0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E06F01A-EF98-0078-851D-F75BFEB117C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E06F01A-EF98-0078-851D-F75BFEB117C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E06F01A-EF98-0078-851D-F75BFEB117C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E06F01A-EF98-0078-851D-F75BFEB117C3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8E06F01A-EF98-0078-851D-F75BFEB117C3} = {9BDF6621-8D0C-44F2-92C4-08675F99E3E6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {44CB2F6B-2BB9-49AD-9343-C72A18B4A8E9}

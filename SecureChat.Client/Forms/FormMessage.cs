@@ -28,7 +28,7 @@ namespace SecureChat.Client.Forms
 
                 FormClosing += (object? sender, FormClosingEventArgs e) =>
                 {
-                    if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.RmClient.IsConnected)
+                    if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.ReliableClient.IsConnected)
                     {
                         return; //Close the dialog.
                     }
@@ -132,7 +132,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.RmClient.IsConnected)
+                if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.ReliableClient.IsConnected)
                 {
                     if (Visible == false)
                     {
@@ -378,7 +378,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.RmClient.IsConnected)
+                if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.ReliableClient.IsConnected)
                 {
                     AppendSystemMessageLine("Not connected.", Color.Red);
                     return;
@@ -488,12 +488,16 @@ namespace SecureChat.Client.Forms
 
         private void StartCallToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            _activeChat.RequestVoiceCall();
+
+            /*
             using var formVoicePreCall = new FormVoicePreCall();
             if (formVoicePreCall.ShowDialog() == DialogResult.OK && formVoicePreCall.InputDeviceIndex != null && formVoicePreCall.OutputDeviceIndex != null)
             {
                 _activeChat.RequestVoiceCall();
                 AppendOutgoingCallRequest(_activeChat.DisplayName);
             }
+            */
         }
     }
 

@@ -1,4 +1,5 @@
-﻿using NTDLS.Persistence;
+﻿using NTDLS.DatagramMessaging;
+using NTDLS.Persistence;
 using NTDLS.ReliableMessaging;
 using SecureChat.Client.Models;
 using SecureChat.Library;
@@ -52,13 +53,23 @@ namespace SecureChat.Client
 
         public RmClient CreateRmClient()
         {
-            var client = new RmClient();
+            var rmClient = new RmClient();
 #if DEBUG
-            client.Connect("127.0.0.1", ServerPort);
+            rmClient.Connect("127.0.0.1", ServerPort);
 #else
             client.Connect(ServerAddress, ServerPort);
 #endif
-            return client;
+            return rmClient;
+        }
+
+        public DmClient CreateDmClient()
+        {
+#if DEBUG
+            var dmClient = new DmClient("127.0.0.1", ServerPort);
+#else
+            var client = new DmClient(ServerAddress, ServerPort);
+#endif
+            return dmClient;
         }
     }
 }

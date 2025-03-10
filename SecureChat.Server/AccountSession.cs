@@ -9,9 +9,9 @@ namespace SecureChat.Server
     {
         public Guid ConnectionId { get; private set; }
         public Guid? AccountId { get; private set; } = null;
-        public ServerClientCryptographyProvider ServerClientCryptographyProvider { get; set; }
+        public ReliableCryptographyProvider ServerClientCryptographyProvider { get; set; }
 
-        public AccountSession(Guid connectionId, ServerClientCryptographyProvider serverClientCryptographyProvider)
+        public AccountSession(Guid connectionId, ReliableCryptographyProvider serverClientCryptographyProvider)
         {
             ConnectionId = connectionId;
             ServerClientCryptographyProvider = serverClientCryptographyProvider;

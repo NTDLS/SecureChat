@@ -79,11 +79,11 @@ namespace SecureChat.Client.Forms
                         progressForm.SetHeaderText("Negotiating cryptography...");
 
                         var keyPair = Crypto.GeneratePublicPrivateKeyPair();
-                        var client = Settings.Instance.CreateRmClient();
-                        client.OnException += Client_OnException;
+                        var rmClient = Settings.Instance.CreateRmClient();
+                        rmClient.OnException += Client_OnException;
 
                         //Send our public key to the server and wait on a reply of their public key.
-                        var remotePublicKey = client.Query(new ExchangePublicKeyQuery((Assembly.GetEntryAssembly()?.GetName().Version).EnsureNotNull(), keyPair.PublicRsaKey))
+                        var remotePublicKey = rmClient.Query(new ExchangePublicKeyQuery((Assembly.GetEntryAssembly()?.GetName().Version).EnsureNotNull(), keyPair.PublicRsaKey))
                             .ContinueWith(o =>
                             {
                                 if (o.IsFaulted || !o.Result.IsSuccess)
@@ -94,8 +94,8 @@ namespace SecureChat.Client.Forms
                                 return o.Result.PublicRsaKey;
                             }).Result;
 
-                        client.Notify(new InitializeServerClientCryptographyNotification());
-                        client.SetCryptographyProvider(new ServerClientCryptographyProvider(remotePublicKey, keyPair.PrivateRsaKey));
+                        rmClient.Notify(new InitializeServerClientCryptographyNotification());
+                        rmClient.SetCryptographyProvider(new ReliableCryptographyProvider(remotePublicKey, keyPair.PrivateRsaKey));
 
                         Thread.Sleep(1000); //Give the server a moment to initialize the cryptography.
 
@@ -110,7 +110,7 @@ namespace SecureChat.Client.Forms
                         progressForm.SetHeaderText("Logging in...");
                         Thread.Sleep(250); //For aesthetics.
 
-                        var isSuccess = client.Query(new LoginQuery(username, passwordHash, explicitAway)).ContinueWith(o =>
+                        var isSuccess = rmClient.Query(new LoginQuery(username, passwordHash, explicitAway)).ContinueWith(o =>
                         {
                             if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
                             {
@@ -119,7 +119,7 @@ namespace SecureChat.Client.Forms
 
                             if (!o.IsFaulted && o.Result.IsSuccess)
                             {
-                                _loginResult = new LoginResult(client,
+                                _loginResult = new LoginResult(rmClient,
                                     o.Result.AccountId.EnsureNotNull(),
                                     o.Result.Username.EnsureNotNull(),
                                     o.Result.DisplayName.EnsureNotNull(),
@@ -131,11 +131,11 @@ namespace SecureChat.Client.Forms
                             return false;
                         }).Result;
 
-                        client.OnException -= Client_OnException;
+                        rmClient.OnException -= Client_OnException;
 
                         if (!isSuccess)
                         {
-                            client.Disconnect();
+                            rmClient.Disconnect();
                         }
                         else
                         {

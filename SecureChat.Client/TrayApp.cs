@@ -79,7 +79,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (LocalSession.Current?.RmClient == null)
+                if (LocalSession.Current?.ReliableClient == null)
                 {
                     Login();
                 }
@@ -133,11 +133,11 @@ namespace SecureChat.Client
                         Task.Run(() =>
                         {
                             var keyPair = Crypto.GeneratePublicPrivateKeyPair();
-                            var client = Settings.Instance.CreateRmClient();
-                            client.OnException += Client_OnException;
+                            var rmClient = Settings.Instance.CreateRmClient();
+                            rmClient.OnException += Client_OnException;
 
                             //Send our public key to the server and wait on a reply of their public key.
-                            var remotePublicKey = client.Query(new ExchangePublicKeyQuery((Assembly.GetEntryAssembly()?.GetName().Version).EnsureNotNull(), keyPair.PublicRsaKey))
+                            var remotePublicKey = rmClient.Query(new ExchangePublicKeyQuery((Assembly.GetEntryAssembly()?.GetName().Version).EnsureNotNull(), keyPair.PublicRsaKey))
                                 .ContinueWith(o =>
                                 {
                                     if (o.IsFaulted || !o.Result.IsSuccess)
@@ -148,8 +148,8 @@ namespace SecureChat.Client
                                     return o.Result.PublicRsaKey;
                                 }).Result;
 
-                            client.Notify(new InitializeServerClientCryptographyNotification());
-                            client.SetCryptographyProvider(new ServerClientCryptographyProvider(remotePublicKey, keyPair.PrivateRsaKey));
+                            rmClient.Notify(new InitializeServerClientCryptographyNotification());
+                            rmClient.SetCryptographyProvider(new ReliableCryptographyProvider(remotePublicKey, keyPair.PrivateRsaKey));
 
                             Thread.Sleep(1000); //Give the server a moment to initialize the cryptography.
 
@@ -161,7 +161,7 @@ namespace SecureChat.Client
                                 explicitAway = userPersist.ExplicitAway;
                             }
 
-                            var isSuccess = client.Query(new LoginQuery(autoLogin.Username, autoLogin.PasswordHash, explicitAway)).ContinueWith(o =>
+                            var isSuccess = rmClient.Query(new LoginQuery(autoLogin.Username, autoLogin.PasswordHash, explicitAway)).ContinueWith(o =>
                             {
                                 if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
                                 {
@@ -170,7 +170,7 @@ namespace SecureChat.Client
 
                                 if (!o.IsFaulted && o.Result.IsSuccess)
                                 {
-                                    loginResult = new LoginResult(client,
+                                    loginResult = new LoginResult(rmClient,
                                         o.Result.AccountId.EnsureNotNull(),
                                         o.Result.Username.EnsureNotNull(),
                                         o.Result.DisplayName.EnsureNotNull(),
@@ -182,11 +182,11 @@ namespace SecureChat.Client
                                 return false;
                             }).Result;
 
-                            client.OnException -= Client_OnException;
+                            rmClient.OnException -= Client_OnException;
 
                             if (!isSuccess || loginResult == null)
                             {
-                                client.Disconnect();
+                                rmClient.Disconnect();
                             }
                             else
                             {
@@ -253,9 +253,9 @@ namespace SecureChat.Client
 
         private void PropupLocalSession(LoginResult loginResult)
         {
-            loginResult.Client.OnDisconnected += RmClient_OnDisconnected;
-            loginResult.Client.OnException += Client_OnException;
-            loginResult.Client.AddHandler(new ClientReliableMessageHandlers());
+            loginResult.ReliableClient.OnDisconnected += RmClient_OnDisconnected;
+            loginResult.ReliableClient.OnException += Client_OnException;
+            loginResult.ReliableClient.AddHandler(new ClientReliableMessageHandlers());
 
             //Yea, I am using the ContextMenuStrips thread for form creation.
             var formHome = _trayIcon.ContextMenuStrip.EnsureNotNull().Invoke(() =>
@@ -283,7 +283,7 @@ namespace SecureChat.Client
             var localSession = new LocalSession(
                 this,
                 formHome,
-                loginResult.Client,
+                loginResult.ReliableClient,
                 loginResult.AccountId,
                 loginResult.Username,
                 loginResult.DisplayName)
@@ -477,7 +477,7 @@ namespace SecureChat.Client
         {
             try
             {
-                Task.Run(() => LocalSession.Current?.RmClient?.Disconnect());
+                Task.Run(() => LocalSession.Current?.ReliableClient?.Disconnect());
                 Thread.Sleep(10);
                 UpdateClientState(ScOnlineState.Offline);
                 LocalSession.Clear();

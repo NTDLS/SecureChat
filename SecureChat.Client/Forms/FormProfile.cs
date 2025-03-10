@@ -13,7 +13,7 @@ namespace SecureChat.Client.Forms
         {
             InitializeComponent();
 
-            if (LocalSession.Current == null || !LocalSession.Current.RmClient.IsConnected)
+            if (LocalSession.Current == null || !LocalSession.Current.ReliableClient.IsConnected)
             {
                 return;
             }
@@ -40,7 +40,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (LocalSession.Current == null || !LocalSession.Current.RmClient.IsConnected)
+                if (LocalSession.Current == null || !LocalSession.Current.ReliableClient.IsConnected)
                 {
                     MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     this.InvokeClose(DialogResult.Cancel);
@@ -55,7 +55,7 @@ namespace SecureChat.Client.Forms
                     Biography = textBoxBiography.GetAndValidateText(0, 2500, "If a biography is supplied, it must not exceed [max] characters.")
                 };
 
-                LocalSession.Current.RmClient.Query(new UpdateAccountProfileQuery(displayName, profile)).ContinueWith(o =>
+                LocalSession.Current.ReliableClient.Query(new UpdateAccountProfileQuery(displayName, profile)).ContinueWith(o =>
                 {
                     if (!o.IsFaulted && o.Result.IsSuccess)
                     {

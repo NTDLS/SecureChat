@@ -64,32 +64,30 @@ namespace SecureChat.Client
                 return;
             }
             IsTerminated = true;
-            LocalSession.Current?.RmClient.Notify(new TerminateChatNotification(ConnectionId, PeerToPeerId));
+            LocalSession.Current?.ReliableClient.Notify(new TerminateChatNotification(ConnectionId, PeerToPeerId));
             Form?.AppendSystemMessageLine($"Chat ended at {DateTime.Now}.", Color.Red);
         }
 
         public void RequestVoiceCall()
         {
-            LocalSession.Current?.RmClient.Notify(new RequestVoiceCallNotification(PeerToPeerId, ConnectionId));
-
-            LocalSession.Current?.DatagramDispatch(new InitiateNetworkAddressTranslationMessage(PeerToPeerId, ConnectionId));
+            LocalSession.Current?.ReliableClient.Notify(new RequestVoiceCallNotification(PeerToPeerId, ConnectionId));
+            LocalSession.Current?.InitiateNetworkAddressTranslationMessage(PeerToPeerId, ConnectionId);
         }
 
         public void CancelVoiceCallRequest()
         {
-            LocalSession.Current?.RmClient.Notify(new CancelVoiceCallRequestNotification(PeerToPeerId, ConnectionId));
+            LocalSession.Current?.ReliableClient.Notify(new CancelVoiceCallRequestNotification(PeerToPeerId, ConnectionId));
         }
 
         public void AcceptVoiceCallRequest()
         {
-            LocalSession.Current?.RmClient.Notify(new AcceptVoiceCallNotification(PeerToPeerId, ConnectionId));
-
-            LocalSession.Current?.DatagramDispatch(new InitiateNetworkAddressTranslationMessage(PeerToPeerId, ConnectionId));
+            LocalSession.Current?.ReliableClient.Notify(new AcceptVoiceCallNotification(PeerToPeerId, ConnectionId));
+            LocalSession.Current?.DatagramClient.Dispatch(new InitiateNetworkAddressTranslationMessage(PeerToPeerId, ConnectionId));
         }
 
         public void DeclineVoiceCallRequest()
         {
-            LocalSession.Current?.RmClient.Notify(new DeclineVoiceCallNotification(PeerToPeerId, ConnectionId));
+            LocalSession.Current?.ReliableClient.Notify(new DeclineVoiceCallNotification(PeerToPeerId, ConnectionId));
         }
 
         public void ReceiveImage(byte[] imageBytes)
@@ -129,7 +127,7 @@ namespace SecureChat.Client
                 return false;
             }
 
-            return LocalSession.Current?.RmClient.Query(new ExchangeMessageTextQuery(PeerToPeerId,
+            return LocalSession.Current?.ReliableClient.Query(new ExchangeMessageTextQuery(PeerToPeerId,
                     ConnectionId, EncryptString(plaintText))).ContinueWith(o =>
                     {
                         if (!o.IsFaulted && o.Result.IsSuccess)
@@ -144,7 +142,7 @@ namespace SecureChat.Client
         {
             var fileId = Guid.NewGuid();
 
-            LocalSession.Current?.RmClient.Notify(new FileTransmissionBeginNotification(PeerToPeerId, ConnectionId, fileId, fileName, fileBytes.Length));
+            LocalSession.Current?.ReliableClient.Notify(new FileTransmissionBeginNotification(PeerToPeerId, ConnectionId, fileId, fileName, fileBytes.Length));
 
             using (var memoryStream = new MemoryStream(fileBytes))
             {
@@ -161,11 +159,11 @@ namespace SecureChat.Client
                         Array.Copy(buffer, chunkToSend, bytesRead);
                     }
 
-                    LocalSession.Current?.RmClient.Notify(new FileTransmissionChunkNotification(PeerToPeerId, ConnectionId, fileId, Cipher(chunkToSend)));
+                    LocalSession.Current?.ReliableClient.Notify(new FileTransmissionChunkNotification(PeerToPeerId, ConnectionId, fileId, Cipher(chunkToSend)));
                 }
             }
 
-            LocalSession.Current?.RmClient.Query(new FileTransmissionEndQuery(PeerToPeerId, ConnectionId, fileId)).ContinueWith(o =>
+            LocalSession.Current?.ReliableClient.Query(new FileTransmissionEndQuery(PeerToPeerId, ConnectionId, fileId)).ContinueWith(o =>
             {
                 if (!o.IsFaulted && o.Result.IsSuccess)
                 {

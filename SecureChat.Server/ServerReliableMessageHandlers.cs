@@ -114,9 +114,7 @@ namespace SecureChat.Server
                 var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
                     ?? throw new Exception("Session not found.");
 
-
                 var account = _dbRepository.GetAccountById(session.AccountId.EnsureNotNull());
-
                 if (account.DisplayName != param.DisplayName)
                 {
                     _dbRepository.UpdateAccountDisplayName(session.AccountId.EnsureNotNull(), param.DisplayName);
@@ -432,7 +430,7 @@ namespace SecureChat.Server
                     throw new Exception($"Client version is unsupported, use version {ScConstants.MinClientVersion} or greater.");
 
                 var localPublicPrivateKeyPair = Crypto.GeneratePublicPrivateKeyPair();
-                _chatService.RegisterSession(context.ConnectionId, new ServerClientCryptographyProvider(param.PublicRsaKey, localPublicPrivateKeyPair.PrivateRsaKey));
+                _chatService.RegisterSession(context.ConnectionId, new ReliableCryptographyProvider(param.PublicRsaKey, localPublicPrivateKeyPair.PrivateRsaKey));
                 return new ExchangePublicKeyQueryReply(localPublicPrivateKeyPair.PublicRsaKey);
             }
             catch (Exception ex)

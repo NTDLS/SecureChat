@@ -13,14 +13,14 @@ namespace SecureChat.Server
     internal class ChatService
     {
         private readonly RmServer _rmServer;
-        private readonly DatagramMessenger _dmServer;
+        private readonly DmServer _dmServer;
         private readonly IConfiguration _configuration;
         private readonly DatabaseRepository _dbRepository;
         private readonly Dictionary<Guid, AccountSession> _sessions = new();
         public delegate void OnLogEvent(ChatService server, ScErrorLevel errorLevel, string message, Exception? ex = null);
 
         public RmServer RmServer { get => _rmServer; }
-        public DatagramMessenger DmServer { get => _dmServer; }
+        public DmServer DmServer { get => _dmServer; }
         public event OnLogEvent? OnLog;
 
         public ChatService(IConfiguration configuration)
@@ -33,8 +33,8 @@ namespace SecureChat.Server
             _rmServer.OnDisconnected += RmServer_OnDisconnected;
             _rmServer.AddHandler(new ServerReliableMessageHandlers(configuration, this));
 
-            _dmServer = new DatagramMessenger();
-            _dmServer.AddHandler(new DatagramMessageHandlers());
+            _dmServer = new DmServer();
+            _dmServer.AddHandler(new DatagramMessageHandlers(configuration, this));
 
             _dbRepository = new DatabaseRepository(configuration);
         }
@@ -73,7 +73,7 @@ namespace SecureChat.Server
             Log.Information("Message stopped successfully.");
         }
 
-        public void RegisterSession(Guid connectionId, ServerClientCryptographyProvider baselineCryptographyProvider)
+        public void RegisterSession(Guid connectionId, ReliableCryptographyProvider baselineCryptographyProvider)
         {
             _sessions.Add(connectionId, new AccountSession(connectionId, baselineCryptographyProvider));
         }
