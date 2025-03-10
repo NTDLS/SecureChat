@@ -8,6 +8,9 @@
     <Compile Update="Controls\DoubleBufferedTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Update="Controls\FlowControlIncomingCall.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="Forms\FormAbout.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -21,9 +24,6 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\FormImageViewer.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="Forms\FormIncomingCall.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\FormLogin.cs">

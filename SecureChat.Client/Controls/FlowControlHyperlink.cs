@@ -37,12 +37,12 @@ namespace SecureChat.Client.Controls
                 Padding = new Padding(0),
                 Margin = new Padding(0)
             };
-            labelMessage.LinkClicked += LblMessage_LinkClicked;
+            labelMessage.LinkClicked += LabelMessage_LinkClicked;
             labelMessage.MouseClick += LabelMessage_MouseClick;
             Controls.Add(labelMessage);
         }
 
-        private void LblMessage_LinkClicked(object? sender, LinkLabelLinkClickedEventArgs e)
+        private void LabelMessage_LinkClicked(object? sender, LinkLabelLinkClickedEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {

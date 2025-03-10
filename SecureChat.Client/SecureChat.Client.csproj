@@ -41,11 +41,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Controls\FlowControlIncomingCall.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Update="Controls\FlowControlHyperlink.cs">
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Controls\FlowControlOutgoingCall.cs">
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="Controls\FlowControlTextMessage.cs">
       <SubType>Component</SubType>

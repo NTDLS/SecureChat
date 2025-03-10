@@ -38,7 +38,7 @@ namespace SecureChat.Client.Controls
                 Margin = new Padding(0)
             };
 
-            _labelMessage.MouseClick += LabelMessage_MouseClick;
+            MouseClick += LabelMessage_MouseClick;
             Controls.Add(_labelMessage);
         }
 

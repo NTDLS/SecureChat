@@ -13,7 +13,6 @@ namespace SecureChat.Client.Controls
             AutoSize = true;
             Margin = new Padding(0);
 
-
             var labelMessage = new Label
             {
                 Text = message,

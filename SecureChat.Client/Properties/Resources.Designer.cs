@@ -101,12 +101,11 @@ namespace SecureChat.Client.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
+        ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
         /// </summary>
-        internal static byte[] MessageReceived {
+        internal static System.IO.UnmanagedMemoryStream MessageReceived {
             get {
-                object obj = ResourceManager.GetObject("MessageReceived", resourceCulture);
-                return ((byte[])(obj));
+                return ResourceManager.GetStream("MessageReceived", resourceCulture);
             }
         }
         

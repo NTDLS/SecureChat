@@ -227,7 +227,7 @@ namespace SecureChat.Client.Forms
 
         #region Append Flow Controls.
 
-        public void AppendFlowControl(FlowLayoutPanel control)
+        private void AppendFlowControl(Control control)
         {
             try
             {

@@ -1,24 +1,20 @@
 ﻿namespace SecureChat.Client.Controls
 {
-    public partial class FlowControlIncomingCall : UserControl
+    public partial class FlowControlOutgoingCall : UserControl
     {
         private readonly FlowLayoutPanel _parent;
 
-        public FlowControlIncomingCall(FlowLayoutPanel parent, string fromName)
+        public FlowControlOutgoingCall(FlowLayoutPanel parent, string toName)
         {
             _parent = parent;
             InitializeComponent();
 
-            labelIncomingCallFrom.Text = $"Incoming call from {fromName}...";
+            labelOutgoingCallTo.Text = $"Outgoing call to {toName}...";
 
             MouseClick += Control_MouseClick;
         }
 
-        private void NuttonAccept_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void ButtonDecline_Click(object sender, EventArgs e)
+        private void ButtonCancel_Click(object sender, EventArgs e)
         {
         }
 
