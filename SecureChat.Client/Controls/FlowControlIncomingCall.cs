@@ -1,11 +1,13 @@
 ﻿namespace SecureChat.Client.Controls
 {
-    public partial class FlowControlIncomingCall : UserControl
+    internal partial class FlowControlIncomingCall : UserControl
     {
         private readonly FlowLayoutPanel _parent;
+        private readonly ActiveChat _activeChat;
 
-        public FlowControlIncomingCall(FlowLayoutPanel parent, string fromName)
+        public FlowControlIncomingCall(FlowLayoutPanel parent, ActiveChat activeChat, string fromName)
         {
+            _activeChat = activeChat;
             _parent = parent;
             InitializeComponent();
 
@@ -14,12 +16,15 @@
             MouseClick += Control_MouseClick;
         }
 
-        private void NuttonAccept_Click(object sender, EventArgs e)
+        private void ButtonAccept_Click(object sender, EventArgs e)
         {
+            _activeChat.AcceptVoiceCallRequest();
+
         }
 
         private void ButtonDecline_Click(object sender, EventArgs e)
         {
+            _activeChat.DeclineVoiceCallRequest();
         }
 
         private void Control_MouseClick(object? sender, MouseEventArgs e)

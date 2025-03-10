@@ -61,16 +61,6 @@ namespace SecureChat.Client.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap _128 {
-            get {
-                object obj = ResourceManager.GetObject("128", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] Away16 {
@@ -101,11 +91,12 @@ namespace SecureChat.Client.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
+        ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static System.IO.UnmanagedMemoryStream MessageReceived {
+        internal static byte[] MessageReceived {
             get {
-                return ResourceManager.GetStream("MessageReceived", resourceCulture);
+                object obj = ResourceManager.GetObject("MessageReceived", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         
@@ -136,16 +127,6 @@ namespace SecureChat.Client.Properties {
             get {
                 object obj = ResourceManager.GetObject("Pending16", resourceCulture);
                 return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap Untitled {
-            get {
-                object obj = ResourceManager.GetObject("Untitled", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }

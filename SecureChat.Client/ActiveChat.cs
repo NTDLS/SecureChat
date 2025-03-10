@@ -68,6 +68,28 @@ namespace SecureChat.Client
             Form?.AppendSystemMessageLine($"Chat ended at {DateTime.Now}.", Color.Red);
         }
 
+        public void RequestVoiceCall()
+        {
+            LocalSession.Current?.Client.Notify(new RequestVoiceCallNotification(PeerToPeerId, ConnectionId));
+        }
+
+        public void CancelVoiceCallRequest()
+        {
+            LocalSession.Current?.Client.Notify(new CancelVoiceCallRequestNotification(PeerToPeerId, ConnectionId));
+
+        }
+
+        public void AcceptVoiceCallRequest()
+        {
+            LocalSession.Current?.Client.Notify(new AcceptVoiceCallNotification(PeerToPeerId, ConnectionId));
+
+        }
+
+        public void DeclineVoiceCallRequest()
+        {
+            LocalSession.Current?.Client.Notify(new DeclineVoiceCallNotification(PeerToPeerId, ConnectionId));
+        }
+
         public void ReceiveImage(byte[] imageBytes)
         {
             if (IsTerminated)
@@ -96,11 +118,6 @@ namespace SecureChat.Client
             }
 
             Form?.AppendReceivedMessageLine(DisplayName, DecryptString(cipherText), true, Color.DarkRed);
-        }
-
-        public void RequestVoiceCall()
-        {
-            LocalSession.Current?.Client.Notify(new RequestVoiceCallNotification(PeerToPeerId, ConnectionId));
         }
 
         public bool SendMessage(string plaintText)

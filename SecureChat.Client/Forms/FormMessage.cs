@@ -290,9 +290,14 @@ namespace SecureChat.Client.Forms
             AppendFlowControl(new FlowControlSystemText(flowPanel, message, color));
         }
 
-        public void AppendIncomingCallRequest(string fromName, Color? color = null)
+        public void AppendIncomingCallRequest(string fromName)
         {
-            AppendFlowControl(new FlowControlIncomingCall(flowPanel, fromName));
+            AppendFlowControl(new FlowControlIncomingCall(flowPanel, _activeChat, fromName));
+        }
+
+        public void AppendOutgoingCallRequest(string toName)
+        {
+            AppendFlowControl(new FlowControlOutgoingCall(flowPanel, _activeChat, toName));
         }
 
         public void AppendReceivedMessageLine(string fromName, string plainText, bool playNotifications, Color? color = null)
@@ -359,7 +364,7 @@ namespace SecureChat.Client.Forms
 
                 _lastMessageReceived = DateTime.Now;
 
-                AppendIncomingCallRequest(fromName, Color.Blue);
+                AppendIncomingCallRequest(fromName);
             }
             catch (Exception ex)
             {
@@ -488,7 +493,7 @@ namespace SecureChat.Client.Forms
             if (formVoicePreCall.ShowDialog() == DialogResult.OK && formVoicePreCall.InputDeviceIndex != null && formVoicePreCall.OutputDeviceIndex != null)
             {
                 _activeChat.RequestVoiceCall();
-                AppendSystemMessageLine($"Voice call request sent.", Color.Blue);
+                AppendOutgoingCallRequest(_activeChat.DisplayName);
             }
         }
     }

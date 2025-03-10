@@ -41,7 +41,6 @@
             // 
             pictureBoxImage.BorderStyle = BorderStyle.FixedSingle;
             pictureBoxImage.Dock = DockStyle.Fill;
-            pictureBoxImage.Image = Properties.Resources._128;
             pictureBoxImage.Location = new Point(0, 24);
             pictureBoxImage.Name = "pictureBoxImage";
             pictureBoxImage.Size = new Size(453, 386);

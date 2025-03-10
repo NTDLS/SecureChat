@@ -1,11 +1,13 @@
 ﻿namespace SecureChat.Client.Controls
 {
-    public partial class FlowControlOutgoingCall : UserControl
+    internal  partial class FlowControlOutgoingCall : UserControl
     {
         private readonly FlowLayoutPanel _parent;
+        private readonly ActiveChat _activeChat;
 
-        public FlowControlOutgoingCall(FlowLayoutPanel parent, string toName)
+        public FlowControlOutgoingCall(FlowLayoutPanel parent, ActiveChat activeChat, string toName)
         {
+            _activeChat = activeChat;
             _parent = parent;
             InitializeComponent();
 
@@ -16,6 +18,7 @@
 
         private void ButtonCancel_Click(object sender, EventArgs e)
         {
+            _activeChat.CancelVoiceCallRequest();
         }
 
         private void Control_MouseClick(object? sender, MouseEventArgs e)

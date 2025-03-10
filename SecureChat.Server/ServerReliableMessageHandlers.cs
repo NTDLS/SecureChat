@@ -26,9 +26,67 @@ namespace SecureChat.Server
         }
 
         /// <summary>
-        /// A client is requesting a voice call with another client. Route the notification.
+        /// A client is requesting a voice call with another client.
+        /// Route the message to the appropriate connection.
         /// </summary>
-        public void RequestVoiceCall(RmContext context, RequestVoiceCallNotification param)
+        public void RequestVoiceCallNotification(RmContext context, RequestVoiceCallNotification param)
+        {
+            try
+            {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+                _chatService.RmServer.Notify(param.ConnectionId, param);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// A client that requested a voice call is cancelling that request.
+        /// Route the message to the appropriate connection.
+        /// </summary>
+        public void CancelVoiceCallRequestNotification(RmContext context, CancelVoiceCallRequestNotification param)
+        {
+            try
+            {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+                _chatService.RmServer.Notify(param.ConnectionId, param);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// A client that received a voice call request is accepting that request.
+        /// Route the message to the appropriate connection.
+        /// </summary>
+        public void AcceptVoiceCallNotification(RmContext context, AcceptVoiceCallNotification param)
+        {
+            try
+            {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+                _chatService.RmServer.Notify(param.ConnectionId, param);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// A client that received a voice call request is declining that request.
+        /// Route the message to the appropriate connection.
+        /// </summary>
+        public void DeclineVoiceCallNotification(RmContext context, DeclineVoiceCallNotification param)
         {
             try
             {
@@ -193,7 +251,8 @@ namespace SecureChat.Server
         }
 
         /// <summary>
-        /// The client is beginning to transmit a file. Relay it to the appropriate client.
+        /// A client is beginning to transmit a file.
+        /// Route the message to the appropriate connection.
         /// </summary>
         public void FileTransmissionBeginNotification(RmContext context, FileTransmissionBeginNotification param)
         {
@@ -211,7 +270,8 @@ namespace SecureChat.Server
         }
 
         /// <summary>
-        /// The client transmitting a file chunk. Relay it to the appropriate client.
+        /// A client transmitting a file chunk.
+        /// Route the message to the appropriate connection.
         /// </summary>
         public void FileTransmissionChunkNotification(RmContext context, FileTransmissionChunkNotification param)
         {
@@ -229,7 +289,8 @@ namespace SecureChat.Server
         }
 
         /// <summary>
-        /// The client has finished transmitting a file. Relay it to the appropriate client.
+        /// A client has finished transmitting a file.
+        /// Route the message to the appropriate connection.
         /// </summary>
         public FileTransmissionEndQueryReply FileTransmissionEndQuery(RmContext context, FileTransmissionEndQuery param)
         {
@@ -249,7 +310,7 @@ namespace SecureChat.Server
 
         /// <summary>
         /// A client is letting the server know that they are terminating the chat.
-        /// Relay the message to the other client.
+        /// Route the message to the appropriate connection.
         /// </summary>
         public void TerminateChatNotification(RmContext context, TerminateChatNotification param)
         {
@@ -286,6 +347,7 @@ namespace SecureChat.Server
 
         /// <summary>
         /// A client is sending a message to another client.
+        /// Route the message to the appropriate connection.
         /// </summary>
         public ExchangeMessageTextQueryReply ExchangeMessageTextQuery(RmContext context, ExchangeMessageTextQuery param)
         {

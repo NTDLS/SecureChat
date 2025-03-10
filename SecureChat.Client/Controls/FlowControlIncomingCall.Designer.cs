@@ -62,7 +62,7 @@
             buttonAccept.TabIndex = 3;
             buttonAccept.Text = "Accept";
             buttonAccept.UseVisualStyleBackColor = true;
-            buttonAccept.Click += NuttonAccept_Click;
+            buttonAccept.Click += ButtonAccept_Click;
             // 
             // FlowControlIncomingCall
             // 

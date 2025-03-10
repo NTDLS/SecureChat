@@ -18,7 +18,60 @@ namespace SecureChat.Client
         }
 
         /// <summary>
-        /// A client is requesting a voice call with another us.
+        /// A client that requested a voice call with us is cancelling that request.
+        /// </summary>
+        public void CancelVoiceCallRequestNotification(RmContext context, CancelVoiceCallRequestNotification param)
+        {
+            try
+            {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// The client that we requested a voice call with has accepted that call.
+        /// </summary>
+        public void AcceptVoiceCallNotification(RmContext context, AcceptVoiceCallNotification param)
+        {
+            try
+            {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// The client that we requested a voice call with has decliend that call.
+        /// </summary>
+        public void DeclineVoiceCallNotification(RmContext context, DeclineVoiceCallNotification param)
+        {
+            try
+            {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// A client is requesting a voice call with us.
         /// </summary>
         public void RequestVoiceCallNotification(RmContext context, RequestVoiceCallNotification param)
         {
@@ -42,7 +95,7 @@ namespace SecureChat.Client
         }
 
         /// <summary>
-        /// The client is beginning to transmit a file.
+        /// A client is beginning to transmit a file to us.
         /// </summary>
         public void FileTransmissionBeginNotification(RmContext context, FileTransmissionBeginNotification param)
         {
@@ -66,7 +119,7 @@ namespace SecureChat.Client
         }
 
         /// <summary>
-        /// The client transmitting a file chunk.
+        /// A client is transmitting a file chunk to us.
         /// </summary>
         public void FileTransmissionChunkNotification(RmContext context, FileTransmissionChunkNotification param)
         {
@@ -97,7 +150,7 @@ namespace SecureChat.Client
         }
 
         /// <summary>
-        /// The client has finished transmitting a file.
+        /// A client has finished transmitting a file to us.
         /// </summary>
         public FileTransmissionEndQueryReply FileTransmissionEndQuery(RmContext context, FileTransmissionEndQuery param)
         {
@@ -133,6 +186,9 @@ namespace SecureChat.Client
             }
         }
 
+        /// <summary>
+        /// A client is letting us know that they are terminating the chat session.
+        /// </summary>
         public void TerminateChatNotification(RmContext context, TerminateChatNotification param)
         {
             try
@@ -154,6 +210,9 @@ namespace SecureChat.Client
             }
         }
 
+        /// <summary>
+        /// A client is sending us a text message.
+        /// </summary>
         public ExchangeMessageTextQueryReply ExchangeMessageTextQuery(RmContext context, ExchangeMessageTextQuery param)
         {
             try
@@ -178,6 +237,11 @@ namespace SecureChat.Client
             }
         }
 
+        /// <summary>
+        /// A client is requesting the initiation of end-to-end encryption.
+        /// They have supplied a Diffie-Hellman negotiation token, so apply it and reply with the result.
+        /// This is also where we prop up the chat session.
+        /// </summary>
         public InitiateEndToEndCryptographyQueryReply InitiateEndToEndCryptographyQuery(RmContext context, InitiateEndToEndCryptographyQuery param)
         {
             try
@@ -190,7 +254,12 @@ namespace SecureChat.Client
                 //Apply the diffie-hellman negotiation token.
                 var negotiationReplyToken = compoundNegotiator.ApplyNegotiationToken(param.NegotiationToken);
 
-                var activeChat = LocalSession.Current.AddActiveChat(param.PeerToPeerId, param.PeerConnectionId, param.SourceAccountId, param.DisplayName, compoundNegotiator.SharedSecret);
+                var activeChat = LocalSession.Current.AddActiveChat(
+                    param.PeerToPeerId,
+                    param.PeerConnectionId,
+                    param.SourceAccountId,
+                    param.DisplayName,
+                    compoundNegotiator.SharedSecret);
 
                 LocalSession.Current.FormHome.Invoke(() =>
                 {
