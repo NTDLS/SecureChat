@@ -32,19 +32,20 @@
             buttonCancel = new Button();
             SuspendLayout();
             // 
-            // labelIncomingCallFrom
+            // labelOutgoingCallTo
             // 
             labelOutgoingCallTo.AutoSize = true;
+            labelOutgoingCallTo.Font = new Font("Segoe UI", 12F);
             labelOutgoingCallTo.Location = new Point(3, 0);
-            labelOutgoingCallTo.Name = "labelIncomingCallFrom";
-            labelOutgoingCallTo.Size = new Size(132, 15);
+            labelOutgoingCallTo.Name = "labelOutgoingCallTo";
+            labelOutgoingCallTo.Size = new Size(161, 21);
             labelOutgoingCallTo.TabIndex = 5;
             labelOutgoingCallTo.Text = "Outgoing call to ............";
             // 
             // buttonCancel
             // 
             buttonCancel.ForeColor = Color.DarkRed;
-            buttonCancel.Location = new Point(3, 34);
+            buttonCancel.Location = new Point(3, 24);
             buttonCancel.Name = "buttonCancel";
             buttonCancel.Size = new Size(75, 23);
             buttonCancel.TabIndex = 4;
@@ -59,7 +60,7 @@
             Controls.Add(labelOutgoingCallTo);
             Controls.Add(buttonCancel);
             Name = "FlowControlOutgoingCall";
-            Size = new Size(220, 60);
+            Size = new Size(400, 50);
             ResumeLayout(false);
             PerformLayout();
         }

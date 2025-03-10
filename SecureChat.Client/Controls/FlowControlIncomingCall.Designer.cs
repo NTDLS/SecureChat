@@ -36,16 +36,17 @@
             // labelIncomingCallFrom
             // 
             labelIncomingCallFrom.AutoSize = true;
+            labelIncomingCallFrom.Font = new Font("Segoe UI", 12F);
             labelIncomingCallFrom.Location = new Point(3, 0);
             labelIncomingCallFrom.Name = "labelIncomingCallFrom";
-            labelIncomingCallFrom.Size = new Size(147, 15);
+            labelIncomingCallFrom.Size = new Size(180, 21);
             labelIncomingCallFrom.TabIndex = 5;
             labelIncomingCallFrom.Text = "Incoming call from ............";
             // 
             // buttonDecline
             // 
             buttonDecline.ForeColor = Color.DarkRed;
-            buttonDecline.Location = new Point(142, 32);
+            buttonDecline.Location = new Point(84, 24);
             buttonDecline.Name = "buttonDecline";
             buttonDecline.Size = new Size(75, 23);
             buttonDecline.TabIndex = 4;
@@ -56,7 +57,7 @@
             // buttonAccept
             // 
             buttonAccept.ForeColor = Color.ForestGreen;
-            buttonAccept.Location = new Point(3, 32);
+            buttonAccept.Location = new Point(3, 24);
             buttonAccept.Name = "buttonAccept";
             buttonAccept.Size = new Size(75, 23);
             buttonAccept.TabIndex = 3;
@@ -72,7 +73,7 @@
             Controls.Add(buttonDecline);
             Controls.Add(buttonAccept);
             Name = "FlowControlIncomingCall";
-            Size = new Size(220, 60);
+            Size = new Size(400, 50);
             ResumeLayout(false);
             PerformLayout();
         }
