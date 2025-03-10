@@ -79,7 +79,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (LocalSession.Current?.Client == null)
+                if (LocalSession.Current?.RmClient == null)
                 {
                     Login();
                 }
@@ -133,7 +133,7 @@ namespace SecureChat.Client
                         Task.Run(() =>
                         {
                             var keyPair = Crypto.GeneratePublicPrivateKeyPair();
-                            var client = Settings.Instance.CreateClient();
+                            var client = Settings.Instance.CreateRmClient();
                             client.OnException += Client_OnException;
 
                             //Send our public key to the server and wait on a reply of their public key.
@@ -240,7 +240,6 @@ namespace SecureChat.Client
                 _trayIcon.BalloonTipTitle = "Login Failure";
                 _trayIcon.BalloonTipText = $"An error has occurred during the connection process.";
                 _trayIcon.ShowBalloonTip(3000);
-
             }
         }
 
@@ -478,7 +477,7 @@ namespace SecureChat.Client
         {
             try
             {
-                Task.Run(() => LocalSession.Current?.Client?.Disconnect());
+                Task.Run(() => LocalSession.Current?.RmClient?.Disconnect());
                 Thread.Sleep(10);
                 UpdateClientState(ScOnlineState.Offline);
                 LocalSession.Clear();

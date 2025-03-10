@@ -79,7 +79,7 @@ namespace SecureChat.Client.Forms
                         progressForm.SetHeaderText("Negotiating cryptography...");
 
                         var keyPair = Crypto.GeneratePublicPrivateKeyPair();
-                        var client = Settings.Instance.CreateClient();
+                        var client = Settings.Instance.CreateRmClient();
                         client.OnException += Client_OnException;
 
                         //Send our public key to the server and wait on a reply of their public key.

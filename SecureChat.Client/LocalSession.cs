@@ -1,4 +1,5 @@
-﻿using NTDLS.Helpers;
+﻿using NTDLS.DatagramMessaging;
+using NTDLS.Helpers;
 using NTDLS.ReliableMessaging;
 using SecureChat.Client.Forms;
 using SecureChat.Library.Models;
@@ -20,13 +21,14 @@ namespace SecureChat.Client
 
         public static void Clear()
         {
-            Task.Run(() => Current?.Client?.Disconnect());
+            Task.Run(() => Current?.RmClient?.Disconnect());
             Exceptions.Ignore(() => Current?.FormHome?.Close());
 
             Current = null;
         }
 
-        public RmClient Client { get; private set; }
+        public DatagramMessenger DmClient { get; private set; }
+        public RmClient RmClient { get; private set; }
         public Guid AccountId { get; private set; }
         public string Username { get; private set; }
         public string DisplayName { get; set; }
@@ -42,10 +44,39 @@ namespace SecureChat.Client
         {
             Tray = tray;
             FormHome = formHome;
-            Client = client;
+            RmClient = client;
+            DmClient = new DatagramMessenger();
             Username = username;
             DisplayName = displayName;
             AccountId = accountId;
+        }
+
+        /// <summary>
+        /// Writes a datagram packet to the server
+        /// </summary>
+        public void DatagramDispatch(IDmNotification payload)
+        {
+            DmClient.Dispatch(
+#if DEBUG
+            "127.0.0.1",
+#else
+            Settings.Instance.ServerAddress,
+#endif
+            Settings.Instance.ServerPort, payload);
+        }
+
+        /// <summary>
+        /// Writes a datagram byte array to the server
+        /// </summary>
+        public void DatagramDispatch(byte[] bytes)
+        {
+            DmClient.Dispatch(
+#if DEBUG
+            "127.0.0.1",
+#else
+            Settings.Instance.ServerAddress,
+#endif
+            Settings.Instance.ServerPort, bytes);
         }
 
         public ActiveChat AddActiveChat(Guid peerToPeerId, Guid connectionId, Guid accountId, string displayName, byte[] sharedSecret)

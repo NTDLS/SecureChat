@@ -1,7 +1,6 @@
 ﻿using NTDLS.Helpers;
 using SecureChat.Client.Controls;
 using SecureChat.Client.Helpers;
-using SecureChat.Client.Models;
 using SecureChat.Library;
 using Serilog;
 using System.Diagnostics;
@@ -29,7 +28,7 @@ namespace SecureChat.Client.Forms
 
                 FormClosing += (object? sender, FormClosingEventArgs e) =>
                 {
-                    if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.Client.IsConnected)
+                    if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.RmClient.IsConnected)
                     {
                         return; //Close the dialog.
                     }
@@ -133,7 +132,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.Client.IsConnected)
+                if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.RmClient.IsConnected)
                 {
                     if (Visible == false)
                     {
@@ -379,7 +378,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.Client.IsConnected)
+                if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.RmClient.IsConnected)
                 {
                     AppendSystemMessageLine("Not connected.", Color.Red);
                     return;

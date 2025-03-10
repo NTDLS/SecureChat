@@ -1,5 +1,4 @@
-﻿using SecureChat.Client.Models;
-using SecureChat.Client.Properties;
+﻿using SecureChat.Client.Properties;
 using System.Media;
 
 namespace SecureChat.Client.Helpers

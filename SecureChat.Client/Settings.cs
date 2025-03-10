@@ -1,8 +1,9 @@
 ﻿using NTDLS.Persistence;
 using NTDLS.ReliableMessaging;
+using SecureChat.Client.Models;
 using SecureChat.Library;
 
-namespace SecureChat.Client.Models
+namespace SecureChat.Client
 {
     /// <summary>
     /// Settings that are saved to disk.
@@ -49,7 +50,7 @@ namespace SecureChat.Client.Models
         /// </summary>
         public Dictionary<string, PersistedUserState> Users = new(StringComparer.CurrentCultureIgnoreCase);
 
-        public RmClient CreateClient()
+        public RmClient CreateRmClient()
         {
             var client = new RmClient();
 #if DEBUG

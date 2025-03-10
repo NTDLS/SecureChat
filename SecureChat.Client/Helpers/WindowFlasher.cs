@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using SecureChat.Client.Models;
 using System.Runtime.InteropServices;
 
 namespace SecureChat.Client.Helpers

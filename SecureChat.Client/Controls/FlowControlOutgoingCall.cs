@@ -1,6 +1,6 @@
 ﻿namespace SecureChat.Client.Controls
 {
-    internal  partial class FlowControlOutgoingCall : UserControl
+    internal partial class FlowControlOutgoingCall : UserControl
     {
         private readonly FlowLayoutPanel _parent;
         private readonly ActiveChat _activeChat;

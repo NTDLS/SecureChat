@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using NTDLS.DatagramMessaging;
 using NTDLS.ReliableMessaging;
 using SecureChat.Library;
 using Serilog;
@@ -12,25 +13,28 @@ namespace SecureChat.Server
     internal class ChatService
     {
         private readonly RmServer _rmServer;
+        private readonly DatagramMessenger _dmServer;
         private readonly IConfiguration _configuration;
         private readonly DatabaseRepository _dbRepository;
         private readonly Dictionary<Guid, AccountSession> _sessions = new();
         public delegate void OnLogEvent(ChatService server, ScErrorLevel errorLevel, string message, Exception? ex = null);
 
         public RmServer RmServer { get => _rmServer; }
+        public DatagramMessenger DmServer { get => _dmServer; }
         public event OnLogEvent? OnLog;
 
         public ChatService(IConfiguration configuration)
         {
             _configuration = configuration;
-            _rmServer = new RmServer();
 
+            _rmServer = new RmServer();
             _rmServer.OnException += (RmContext? context, Exception ex, IRmPayload? payload) =>
                 OnLog?.Invoke(this, ScErrorLevel.Error, "Reliable messaging exception.", ex);
-
             _rmServer.OnDisconnected += RmServer_OnDisconnected;
-
             _rmServer.AddHandler(new ServerReliableMessageHandlers(configuration, this));
+
+            _dmServer = new DatagramMessenger();
+            _dmServer.AddHandler(new DatagramMessageHandlers());
 
             _dbRepository = new DatabaseRepository(configuration);
         }
@@ -54,16 +58,19 @@ namespace SecureChat.Server
         {
             var listenPort = _configuration.GetValue<int>("ListenPort");
 
-            Log.Verbose($"Starting service on port: {listenPort:n0}.");
+            Log.Information($"Starting TCP/IP service on port: {listenPort:n0}.");
             _rmServer.Start(listenPort);
-            Log.Verbose("Message started.");
+            Log.Information($"Starting UDP service on port: {listenPort:n0}.");
+            _dmServer.Start(listenPort);
+            Log.Information("Service started successfully.");
         }
 
         public void Stop()
         {
-            Log.Verbose("Stopping service.");
+            Log.Information("Stopping service.");
             _rmServer.Stop();
-            Log.Verbose("Message stopped.");
+            _dmServer.Stop();
+            Log.Information("Message stopped successfully.");
         }
 
         public void RegisterSession(Guid connectionId, ServerClientCryptographyProvider baselineCryptographyProvider)

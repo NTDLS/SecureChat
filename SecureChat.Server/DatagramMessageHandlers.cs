@@ -1,4 +1,5 @@
 ﻿using NTDLS.DatagramMessaging;
+using SecureChat.Library.DatagramMessages;
 
 namespace SecureChat.Server
 {
@@ -10,12 +11,10 @@ namespace SecureChat.Server
             //Console.WriteLine($"Received {bytes.Bytes.Length} bytes.");
         }
 
-        /*
-        public static void ProcessFrameNotificationCallback(DmContext context, MyFirstUDPPacket payload)
+        public static void InitiateNetworkAddressTranslationMessage(DmContext context, InitiateNetworkAddressTranslationMessage payload)
         {
             //context.WriteReplyMessage(payload); //Echo the payload back to the sender.
-            Console.WriteLine($"{payload.Message}->{payload.UID}->{payload.TimeStamp}");
+            Console.WriteLine($"{payload.ConnectionId}->{payload.PeerToPeerId}");
         }
-        */
     }
 }
