@@ -18,6 +18,33 @@ namespace SecureChat.Client
         }
 
         /// <summary>
+        /// The server is letting us know that it received the UDP steam initialization request and has completed it.
+        /// </summary>
+        public void DatagramStreamReadyNotification(RmContext context, DatagramStreamReadyNotification param)
+        {
+            try
+            {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+                if (LocalSession.Current == null)
+                    throw new Exception("Local connection is not established.");
+
+                var activeChat = LocalSession.Current.GetActiveChat(param.PeerToPeerId)
+                    ?? throw new Exception("Chat session was not found.");
+
+                if (activeChat.DatagramClient == null)
+                    throw new Exception("The datagram client is not initialized");
+
+                activeChat.DatagramClient.StartKeepAlive();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
         /// A client that requested a voice call with us is cancelling that request.
         /// </summary>
         public void CancelVoiceCallRequestNotification(RmContext context, CancelVoiceCallRequestNotification param)
@@ -53,7 +80,7 @@ namespace SecureChat.Client
         }
 
         /// <summary>
-        /// The client that we requested a voice call with has decliend that call.
+        /// The client that we requested a voice call with has declined that call.
         /// </summary>
         public void DeclineVoiceCallNotification(RmContext context, DeclineVoiceCallNotification param)
         {
@@ -85,6 +112,9 @@ namespace SecureChat.Client
 
                 var activeChat = LocalSession.Current.GetActiveChat(param.PeerToPeerId)
                     ?? throw new Exception("Chat session was not found.");
+
+                //Prop up the UDP connection:
+                activeChat.InitiateNetworkAddressTranslationMessage(param.PeerToPeerId, param.ConnectionId);
 
                 activeChat?.AlertOfIncomingCall();
             }

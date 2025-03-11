@@ -1,5 +1,7 @@
-﻿using NTDLS.NASCCL;
+﻿using NTDLS.DatagramMessaging;
+using NTDLS.NASCCL;
 using SecureChat.Client.Forms;
+using SecureChat.Library;
 using SecureChat.Library.DatagramMessages;
 using SecureChat.Library.ReliableMessages;
 using System.Text;
@@ -15,7 +17,7 @@ namespace SecureChat.Client
         public Guid ConnectionId { get; private set; }
         private readonly CryptoStream _streamCryptography;
         public Dictionary<Guid, FileReceiveBuffer> FileReceiveBuffers { get; set; } = new();
-
+        public DmClient? DatagramClient { get; private set; }
         public Guid PeerToPeerId { get; private set; }
 
         public ActiveChat(Guid peerToPeerId, Guid connectionId, Guid accountId, string displayName, byte[] sharedSecret)
@@ -57,6 +59,26 @@ namespace SecureChat.Client
             }
         }
 
+        /// <summary>
+        /// Sends a packet to the server letting it know that we will be using UPD.
+        /// This tells the server to establish encryption using the reliable messaging CryptographyProvider.
+        /// After this packet is sent, we also set the local datagram client to use the local reliable messaging CryptographyProvider.
+        /// </summary>
+        public void InitiateNetworkAddressTranslationMessage(Guid peerToPeerId, Guid connectionId)
+        {
+            DatagramClient = Settings.Instance.CreateDmClient();
+            DatagramClient.Dispatch(new InitiateNetworkAddressTranslationMessage(peerToPeerId, connectionId));
+
+            if (LocalSession.Current == null)
+                throw new Exception("Local connection is not established.");
+
+            //Obtain the public and private key-pair from the reliable connection so we can use it for the datagram messaging.
+            var rmCryptographyProvider = LocalSession.Current?.ReliableClient.GetCryptographyProvider() as ReliableCryptographyProvider
+                ?? throw new Exception("Reliable cryptography has not been initialized.");
+
+            DatagramClient.Context.SetCryptographyProvider(new DatagramCryptographyProvider(rmCryptographyProvider.PublicPrivateKeyPair));
+        }
+
         public void Terminate()
         {
             if (IsTerminated)
@@ -65,13 +87,15 @@ namespace SecureChat.Client
             }
             IsTerminated = true;
             LocalSession.Current?.ReliableClient.Notify(new TerminateChatNotification(ConnectionId, PeerToPeerId));
+            DatagramClient?.Stop();
             Form?.AppendSystemMessageLine($"Chat ended at {DateTime.Now}.", Color.Red);
         }
 
         public void RequestVoiceCall()
         {
             LocalSession.Current?.ReliableClient.Notify(new RequestVoiceCallNotification(PeerToPeerId, ConnectionId));
-            LocalSession.Current?.InitiateNetworkAddressTranslationMessage(PeerToPeerId, ConnectionId);
+            //Prop up the UDP connection:
+            InitiateNetworkAddressTranslationMessage(PeerToPeerId, ConnectionId);
         }
 
         public void CancelVoiceCallRequest()
@@ -82,7 +106,6 @@ namespace SecureChat.Client
         public void AcceptVoiceCallRequest()
         {
             LocalSession.Current?.ReliableClient.Notify(new AcceptVoiceCallNotification(PeerToPeerId, ConnectionId));
-            LocalSession.Current?.DatagramClient.Dispatch(new InitiateNetworkAddressTranslationMessage(PeerToPeerId, ConnectionId));
         }
 
         public void DeclineVoiceCallRequest()

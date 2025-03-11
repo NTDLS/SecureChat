@@ -36,6 +36,16 @@ namespace SecureChat.Server
             _dmServer = new DmServer();
             _dmServer.AddHandler(new DatagramMessageHandlers(configuration, this));
 
+            _dmServer.OnKeepAliveReceived += (DmContext context, IDmKeepAliveDatagram keepAlive) =>
+            {
+                Console.WriteLine($"Received keep-alive. Latency: {(DateTime.UtcNow - keepAlive.TimeStamp).TotalMilliseconds:n2}ms");
+            };
+
+            _dmServer.OnException += (DmContext? context, Exception ex) =>
+            {
+                Console.WriteLine($"OnException: {ex.Message}");
+            };
+
             _dbRepository = new DatabaseRepository(configuration);
         }
 

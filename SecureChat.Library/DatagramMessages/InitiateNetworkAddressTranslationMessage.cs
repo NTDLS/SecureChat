@@ -2,7 +2,7 @@
 
 namespace SecureChat.Library.DatagramMessages
 {
-    public class InitiateNetworkAddressTranslationMessage : IDmNotification
+    public class InitiateNetworkAddressTranslationMessage : IDmDatagram
     {
         public Guid ConnectionId { get; set; }
         public Guid PeerToPeerId { get; set; }

@@ -11,9 +11,15 @@ namespace SecureChat.Library
             => _publicPrivateKeyPair = publicPrivateKeyPair;
 
         public byte[] Decrypt(DmContext context, byte[] encryptedPayload)
-            => Crypto.AesDecryptBytes(encryptedPayload, _publicPrivateKeyPair.PrivateRsaKey);
+        {
+            return encryptedPayload;
+            //=> Crypto.AesDecryptBytes(encryptedPayload, _publicPrivateKeyPair.PrivateRsaKey);
+        }
 
         public byte[] Encrypt(DmContext context, byte[] payload)
-            => Crypto.AesEncryptBytes(payload, _publicPrivateKeyPair.PublicRsaKey);
+        {
+            return payload;
+            //=> Crypto.AesEncryptBytes(payload, _publicPrivateKeyPair.PublicRsaKey);
+        }
     }
 }

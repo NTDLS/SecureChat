@@ -1,11 +1,7 @@
-﻿using NTDLS.DatagramMessaging;
-using NTDLS.Helpers;
+﻿using NTDLS.Helpers;
 using NTDLS.ReliableMessaging;
 using SecureChat.Client.Forms;
-using SecureChat.Library;
-using SecureChat.Library.DatagramMessages;
 using SecureChat.Library.Models;
-using SecureChat.Library.ReliableMessages;
 using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client
@@ -30,7 +26,6 @@ namespace SecureChat.Client
             Current = null;
         }
 
-        public DmClient? DatagramClient { get; private set; }
         public RmClient ReliableClient { get; private set; }
         public Guid AccountId { get; private set; }
         public string Username { get; private set; }
@@ -51,23 +46,6 @@ namespace SecureChat.Client
             Username = username;
             DisplayName = displayName;
             AccountId = accountId;
-        }
-
-        /// <summary>
-        /// Sends a packet to the server letting it know that we will be using UPD.
-        /// This tells the server to establish encryption using the reliable messaging CryptographyProvider.
-        /// After this packet is sent, we also set the local datagram client to use the local reliable messaging CryptographyProvider.
-        /// </summary>
-        public void InitiateNetworkAddressTranslationMessage(Guid peerToPeerId, Guid connectionId)
-        {
-            DatagramClient = Settings.Instance.CreateDmClient();
-            DatagramClient.Dispatch(new InitiateNetworkAddressTranslationMessage(peerToPeerId, connectionId));
-
-            //Obtain the public and private key-pair from the reliable connection so we can use it for the datagram messaging.
-            var rmCryptographyProvider = ReliableClient.GetCryptographyProvider() as ReliableCryptographyProvider
-                ?? throw new Exception("Reliable cryptography has not been initialized.");
-
-            DatagramClient.Context.SetCryptographyProvider(new DatagramCryptographyProvider(rmCryptographyProvider.PublicPrivateKeyPair));
         }
 
         public ActiveChat AddActiveChat(Guid peerToPeerId, Guid connectionId, Guid accountId, string displayName, byte[] sharedSecret)

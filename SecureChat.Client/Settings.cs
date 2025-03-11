@@ -69,6 +69,17 @@ namespace SecureChat.Client
 #else
             var client = new DmClient(ServerAddress, ServerPort);
 #endif
+
+            dmClient.OnKeepAliveReceived += (DmContext context, IDmKeepAliveDatagram keepAlive) =>
+            {
+                Console.WriteLine($"Received keep-alive. Latency: {(DateTime.UtcNow - keepAlive.TimeStamp).TotalMilliseconds:n2}ms");
+            };
+
+            dmClient.OnException += (DmContext? context, Exception ex) =>
+            {
+                Console.WriteLine($"OnException: {ex.Message}");
+            };
+
             return dmClient;
         }
     }
