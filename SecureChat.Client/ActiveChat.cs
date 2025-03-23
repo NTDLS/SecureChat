@@ -1,10 +1,9 @@
 ﻿using NTDLS.DatagramMessaging;
-using NTDLS.NASCCL;
+using NTDLS.Permafrost;
 using SecureChat.Client.Forms;
 using SecureChat.Library;
 using SecureChat.Library.DatagramMessages;
 using SecureChat.Library.ReliableMessages;
-using System.Text;
 
 namespace SecureChat.Client
 {
@@ -15,7 +14,7 @@ namespace SecureChat.Client
         public Guid AccountId { get; private set; }
         public string DisplayName { get; private set; }
         public Guid ConnectionId { get; private set; }
-        private readonly CryptoStream _streamCryptography;
+        private readonly PermafrostCipher _streamCryptography;
         public Dictionary<Guid, FileReceiveBuffer> FileReceiveBuffers { get; set; } = new();
         public DmClient? DatagramClient { get; private set; }
         public Guid PeerToPeerId { get; private set; }
@@ -23,7 +22,7 @@ namespace SecureChat.Client
         public ActiveChat(Guid peerToPeerId, Guid connectionId, Guid accountId, string displayName, byte[] sharedSecret)
         {
             PeerToPeerId = peerToPeerId;
-            _streamCryptography = new CryptoStream(sharedSecret);
+            _streamCryptography = new PermafrostCipher(sharedSecret, PermafrostMode.AutoReset);
             ConnectionId = connectionId;
             AccountId = accountId;
             DisplayName = displayName;
@@ -33,9 +32,7 @@ namespace SecureChat.Client
         {
             lock (_streamCryptography)
             {
-                var plainTextBytes = _streamCryptography.Cipher(cipherText);
-                _streamCryptography.ResetStream();
-                return Encoding.UTF8.GetString(plainTextBytes);
+                return _streamCryptography.DecryptString(cipherText);
             }
         }
 
@@ -43,9 +40,7 @@ namespace SecureChat.Client
         {
             lock (_streamCryptography)
             {
-                var cipherText = _streamCryptography.Cipher(plainText);
-                _streamCryptography.ResetStream();
-                return cipherText;
+                return _streamCryptography.EncryptString(plainText);
             }
         }
 
@@ -53,9 +48,7 @@ namespace SecureChat.Client
         {
             lock (_streamCryptography)
             {
-                var cipherText = _streamCryptography.Cipher(bytes);
-                _streamCryptography.ResetStream();
-                return cipherText;
+                return _streamCryptography.Cipher(bytes);
             }
         }
 
