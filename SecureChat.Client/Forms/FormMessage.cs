@@ -488,16 +488,12 @@ namespace SecureChat.Client.Forms
 
         private void StartCallToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _activeChat.RequestVoiceCall();
-
-            /*
             using var formVoicePreCall = new FormVoicePreCall();
             if (formVoicePreCall.ShowDialog() == DialogResult.OK && formVoicePreCall.InputDeviceIndex != null && formVoicePreCall.OutputDeviceIndex != null)
             {
                 _activeChat.RequestVoiceCall();
                 AppendOutgoingCallRequest(_activeChat.DisplayName);
             }
-            */
         }
     }
 

@@ -83,11 +83,11 @@ namespace SecureChat.Client.Forms
 
                 Task.Run(() =>
                 {
-                    if (LocalSession.Current != null)
+                    if (ServerConnection.Current != null)
                     {
                         try
                         {
-                            LocalSession.Current.ReliableClient.Query(new RemoveContactQuery(contact.Id)).ContinueWith(o =>
+                            ServerConnection.Current.ReliableClient.Query(new RemoveContactQuery(contact.Id)).ContinueWith(o =>
                             {
                                 if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
                                 {
@@ -126,11 +126,11 @@ namespace SecureChat.Client.Forms
 
                 Task.Run(() =>
                 {
-                    if (LocalSession.Current != null)
+                    if (ServerConnection.Current != null)
                     {
                         try
                         {
-                            LocalSession.Current.ReliableClient.Query(new AcceptContactInviteQuery(contact.Id)).ContinueWith(o =>
+                            ServerConnection.Current.ReliableClient.Query(new AcceptContactInviteQuery(contact.Id)).ContinueWith(o =>
                             {
                                 if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
                                 {
@@ -161,15 +161,15 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (LocalSession.Current == null || !LocalSession.Current.ReliableClient.IsConnected)
+                if (ServerConnection.Current == null || !ServerConnection.Current.ReliableClient.IsConnected)
                 {
                     return null;
                 }
 
-                var rootName = LocalSession.Current.DisplayName;
-                if (string.IsNullOrEmpty(LocalSession.Current.Profile.Tagline) == false)
+                var rootName = ServerConnection.Current.DisplayName;
+                if (string.IsNullOrEmpty(ServerConnection.Current.Profile.Tagline) == false)
                 {
-                    rootName += $" - {LocalSession.Current.Profile.Tagline}";
+                    rootName += $" - {ServerConnection.Current.Profile.Tagline}";
                 }
 
                 if (treeViewContacts.Nodes.Count > 0)
@@ -178,7 +178,7 @@ namespace SecureChat.Client.Forms
 
                     existingRootNode.Text = rootName;
 
-                    if (LocalSession.Current.ExplicitAway)
+                    if (ServerConnection.Current.ExplicitAway)
                     {
                         existingRootNode.ImageKey = ScOnlineState.Away.ToString();
                         existingRootNode.SelectedImageKey = ScOnlineState.Away.ToString();
@@ -186,9 +186,9 @@ namespace SecureChat.Client.Forms
                     }
                     else
                     {
-                        existingRootNode.ImageKey = LocalSession.Current.State.ToString();
-                        existingRootNode.SelectedImageKey = LocalSession.Current.State.ToString();
-                        existingRootNode.ToolTipText = LocalSession.Current.State.ToString();
+                        existingRootNode.ImageKey = ServerConnection.Current.State.ToString();
+                        existingRootNode.SelectedImageKey = ServerConnection.Current.State.ToString();
+                        existingRootNode.ToolTipText = ServerConnection.Current.State.ToString();
                     }
 
                     return existingRootNode;
@@ -196,7 +196,7 @@ namespace SecureChat.Client.Forms
 
                 var rootNode = new TreeNode(rootName);
 
-                if (LocalSession.Current.ExplicitAway)
+                if (ServerConnection.Current.ExplicitAway)
                 {
                     rootNode.ImageKey = ScOnlineState.Away.ToString();
                     rootNode.SelectedImageKey = ScOnlineState.Away.ToString();
@@ -204,9 +204,9 @@ namespace SecureChat.Client.Forms
                 }
                 else
                 {
-                    rootNode.ImageKey = LocalSession.Current.State.ToString();
-                    rootNode.SelectedImageKey = LocalSession.Current.State.ToString();
-                    rootNode.ToolTipText = LocalSession.Current.State.ToString();
+                    rootNode.ImageKey = ServerConnection.Current.State.ToString();
+                    rootNode.SelectedImageKey = ServerConnection.Current.State.ToString();
+                    rootNode.ToolTipText = ServerConnection.Current.State.ToString();
                 }
 
                 treeViewContacts.Nodes.Add(rootNode);
@@ -246,22 +246,22 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (LocalSession.Current != null && LocalSession.Current.ReliableClient.IsConnected)
+                if (ServerConnection.Current != null && ServerConnection.Current.ReliableClient.IsConnected)
                 {
                     Repopulate();
 
                     var idleTime = IdleTime.GetIdleTime();
                     if (idleTime.TotalSeconds >= Settings.Instance.AutoAwayIdleSeconds)
                     {
-                        LocalSession.Current.ReliableClient.Notify(new UpdateAccountStateNotification(
-                                LocalSession.Current.AccountId,
+                        ServerConnection.Current.ReliableClient.Notify(new UpdateAccountStateNotification(
+                                ServerConnection.Current.AccountId,
                                 ScOnlineState.Away));
                     }
                     else
                     {
-                        LocalSession.Current.ReliableClient.Notify(new UpdateAccountStateNotification(
-                                LocalSession.Current.AccountId,
-                                LocalSession.Current.ExplicitAway ? ScOnlineState.Away : ScOnlineState.Online));
+                        ServerConnection.Current.ReliableClient.Notify(new UpdateAccountStateNotification(
+                                ServerConnection.Current.AccountId,
+                                ServerConnection.Current.ExplicitAway ? ScOnlineState.Away : ScOnlineState.Online));
                     }
                 }
             }
@@ -351,14 +351,14 @@ namespace SecureChat.Client.Forms
                     }
 
                     //Start the key exchange process then popup the chat window.
-                    if (LocalSession.Current == null || !LocalSession.Current.ReliableClient.IsConnected)
+                    if (ServerConnection.Current == null || !ServerConnection.Current.ReliableClient.IsConnected)
                     {
                         MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         this.InvokeClose(DialogResult.Cancel);
                         return;
                     }
 
-                    var activeChat = LocalSession.Current.GetActiveChatByAccountId(contactsModel.Id);
+                    var activeChat = ServerConnection.Current.GetActiveChatByAccountId(contactsModel.Id);
                     if (activeChat == null)
                     {
                         var peerToPeerId = Guid.NewGuid();
@@ -367,8 +367,8 @@ namespace SecureChat.Client.Forms
                         var negotiationToken = compoundNegotiator.GenerateNegotiationToken((int)(Math.Ceiling(ScConstants.EndToEndKeySize / 128.0)));
 
                         //The first thing we do when we get a connection is start a new key exchange process.
-                        var queryRequestKeyExchangeReply = LocalSession.Current.ReliableClient.Query(
-                            new InitiateEndToEndCryptographyQuery(peerToPeerId, LocalSession.Current.AccountId, contactsModel.Id, LocalSession.Current.DisplayName, negotiationToken))
+                        var queryRequestKeyExchangeReply = ServerConnection.Current.ReliableClient.Query(
+                            new InitiateEndToEndCryptographyQuery(peerToPeerId, ServerConnection.Current.AccountId, contactsModel.Id, ServerConnection.Current.DisplayName, negotiationToken))
                             .ContinueWith(o =>
                             {
                                 if (!o.IsFaulted && o.Result.IsSuccess)
@@ -383,7 +383,7 @@ namespace SecureChat.Client.Forms
                             //We received a reply to the secure key exchange, apply it.
                             compoundNegotiator.ApplyNegotiationResponseToken(queryRequestKeyExchangeReply.NegotiationToken);
 
-                            activeChat = LocalSession.Current.AddActiveChat(peerToPeerId,
+                            activeChat = ServerConnection.Current.AddActiveChat(peerToPeerId,
                                 queryRequestKeyExchangeReply.PeerConnectionId, contactsModel.Id, contactsModel.DisplayName, compoundNegotiator.SharedSecret);
 
                             activeChat.Form = new FormMessage(activeChat);
@@ -398,9 +398,9 @@ namespace SecureChat.Client.Forms
                     {
                         activeChat.Form.Show();
 
-                        if (LocalSession.Current.FormHome.WindowState == FormWindowState.Minimized)
+                        if (ServerConnection.Current.FormHome.WindowState == FormWindowState.Minimized)
                         {
-                            LocalSession.Current.FormHome.WindowState = FormWindowState.Normal;
+                            ServerConnection.Current.FormHome.WindowState = FormWindowState.Normal;
                         }
 
                         activeChat.Form.BringToFront();
@@ -420,7 +420,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (LocalSession.Current != null)
+                if (ServerConnection.Current != null)
                 {
                     e.Cancel = true;
                     Hide();
@@ -449,11 +449,11 @@ namespace SecureChat.Client.Forms
                     _repopulateInProgress = true;
                 }
 
-                if (LocalSession.Current == null || !LocalSession.Current.ReliableClient.IsConnected)
+                if (ServerConnection.Current == null || !ServerConnection.Current.ReliableClient.IsConnected)
                 {
                     //MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     this.InvokeClose(DialogResult.Cancel);
-                    LocalSession.Clear();
+                    ServerConnection.ClearCurrent();
                     return;
                 }
 
@@ -461,7 +461,7 @@ namespace SecureChat.Client.Forms
                 {
                     try
                     {
-                        LocalSession.Current.ReliableClient.Query(new GetContactsQuery()).ContinueWith(o =>
+                        ServerConnection.Current.ReliableClient.Query(new GetContactsQuery()).ContinueWith(o =>
                         {
                             try
                             {
@@ -501,7 +501,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (LocalSession.Current == null || !LocalSession.Current.ReliableClient.IsConnected)
+                if (ServerConnection.Current == null || !ServerConnection.Current.ReliableClient.IsConnected)
                 {
                     MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     this.InvokeClose(DialogResult.Cancel);
@@ -762,7 +762,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                Task.Run(() => LocalSession.Current?.ReliableClient?.Disconnect());
+                Task.Run(() => ServerConnection.Current?.ReliableClient?.Disconnect());
                 Exceptions.Ignore(() => LocalUserApplicationData.DeleteFromDisk(ScConstants.AppName, typeof(AutoLogin)));
             }
             catch (Exception ex)

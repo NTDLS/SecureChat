@@ -16,9 +16,9 @@ namespace SecureChat.Client.Helpers
                     player.Play();
                 }
             }
-            if (Settings.Instance.AlertToastWhenContactComesOnline && LocalSession.Current != null)
+            if (Settings.Instance.AlertToastWhenContactComesOnline && ServerConnection.Current != null)
             {
-                LocalSession.Current.Tray.ShowBalloon("", $"{contactName} is now online.");
+                ServerConnection.Current.Tray.ShowBalloon("", $"{contactName} is now online.");
             }
         }
 
@@ -33,9 +33,9 @@ namespace SecureChat.Client.Helpers
                     player.Play();
                 }
             }
-            if (Settings.Instance.AlertToastWhenMessageReceived && LocalSession.Current != null)
+            if (Settings.Instance.AlertToastWhenMessageReceived && ServerConnection.Current != null)
             {
-                LocalSession.Current.Tray.ShowBalloon("", $"{contactName} sent you a message.");
+                ServerConnection.Current.Tray.ShowBalloon("", $"{contactName} sent you a message.");
             }
         }
 
@@ -50,9 +50,9 @@ namespace SecureChat.Client.Helpers
                     player.Play();
                 }
             }
-            if (Settings.Instance.AlertToastWhenMessageReceived && LocalSession.Current != null)
+            if (Settings.Instance.AlertToastWhenMessageReceived && ServerConnection.Current != null)
             {
-                LocalSession.Current.Tray.ShowBalloon("", $"{contactName} is calling you.");
+                ServerConnection.Current.Tray.ShowBalloon("", $"{contactName} is calling you.");
             }
         }
     }

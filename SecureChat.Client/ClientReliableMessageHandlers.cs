@@ -27,10 +27,10 @@ namespace SecureChat.Client
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Cryptography has not been initialized.");
 
-                if (LocalSession.Current == null)
+                if (ServerConnection.Current == null)
                     throw new Exception("Local connection is not established.");
 
-                var activeChat = LocalSession.Current.GetActiveChat(param.PeerToPeerId)
+                var activeChat = ServerConnection.Current.GetActiveChat(param.PeerToPeerId)
                     ?? throw new Exception("Chat session was not found.");
 
                 if (activeChat.DatagramClient == null)
@@ -104,13 +104,13 @@ namespace SecureChat.Client
         {
             try
             {
-                if (LocalSession.Current == null)
+                if (ServerConnection.Current == null)
                     throw new Exception("Local connection is not established.");
 
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Cryptography has not been initialized.");
 
-                var activeChat = LocalSession.Current.GetActiveChat(param.PeerToPeerId)
+                var activeChat = ServerConnection.Current.GetActiveChat(param.PeerToPeerId)
                     ?? throw new Exception("Chat session was not found.");
 
                 //Prop up the UDP connection:
@@ -131,13 +131,13 @@ namespace SecureChat.Client
         {
             try
             {
-                if (LocalSession.Current == null)
+                if (ServerConnection.Current == null)
                     throw new Exception("Local connection is not established.");
 
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Cryptography has not been initialized.");
 
-                var activeChat = LocalSession.Current.GetActiveChat(param.PeerToPeerId)
+                var activeChat = ServerConnection.Current.GetActiveChat(param.PeerToPeerId)
                     ?? throw new Exception("Chat session was not found.");
 
                 activeChat.FileReceiveBuffers.Add(param.FileId, new FileReceiveBuffer(param.FileId, param.FileName, param.FileSize));
@@ -155,13 +155,13 @@ namespace SecureChat.Client
         {
             try
             {
-                if (LocalSession.Current == null)
+                if (ServerConnection.Current == null)
                     throw new Exception("Local connection is not established.");
 
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Cryptography has not been initialized.");
 
-                var activeChat = LocalSession.Current.GetActiveChat(param.PeerToPeerId)
+                var activeChat = ServerConnection.Current.GetActiveChat(param.PeerToPeerId)
                     ?? throw new Exception("Chat session was not found.");
 
                 if (activeChat.FileReceiveBuffers.TryGetValue(param.FileId, out var buffer))
@@ -186,13 +186,13 @@ namespace SecureChat.Client
         {
             try
             {
-                if (LocalSession.Current == null)
+                if (ServerConnection.Current == null)
                     throw new Exception("Local connection is not established.");
 
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Cryptography has not been initialized.");
 
-                var activeChat = LocalSession.Current.GetActiveChat(param.PeerToPeerId)
+                var activeChat = ServerConnection.Current.GetActiveChat(param.PeerToPeerId)
                     ?? throw new Exception("Chat session was not found.");
 
                 if (activeChat.FileReceiveBuffers.TryGetValue(param.FileId, out var buffer))
@@ -223,13 +223,13 @@ namespace SecureChat.Client
         {
             try
             {
-                if (LocalSession.Current == null)
+                if (ServerConnection.Current == null)
                     throw new Exception("Local connection is not established.");
 
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Cryptography has not been initialized.");
 
-                var activeChat = LocalSession.Current.GetActiveChat(param.PeerToPeerId)
+                var activeChat = ServerConnection.Current.GetActiveChat(param.PeerToPeerId)
                     ?? throw new Exception("Chat session was not found.");
 
                 activeChat?.Terminate();
@@ -247,13 +247,13 @@ namespace SecureChat.Client
         {
             try
             {
-                if (LocalSession.Current == null)
+                if (ServerConnection.Current == null)
                     throw new Exception("Local connection is not established.");
 
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Cryptography has not been initialized.");
 
-                var activeChat = LocalSession.Current.GetActiveChat(param.PeerToPeerId)
+                var activeChat = ServerConnection.Current.GetActiveChat(param.PeerToPeerId)
                     ?? throw new Exception("Chat session was not found.");
 
                 activeChat?.ReceiveMessage(param.CipherText);
@@ -276,7 +276,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (LocalSession.Current == null)
+                if (ServerConnection.Current == null)
                     throw new Exception("Local connection is not established.");
 
                 var compoundNegotiator = new CompoundNegotiator();
@@ -284,14 +284,14 @@ namespace SecureChat.Client
                 //Apply the diffie-hellman negotiation token.
                 var negotiationReplyToken = compoundNegotiator.ApplyNegotiationToken(param.NegotiationToken);
 
-                var activeChat = LocalSession.Current.AddActiveChat(
+                var activeChat = ServerConnection.Current.AddActiveChat(
                     param.PeerToPeerId,
                     param.PeerConnectionId,
                     param.SourceAccountId,
                     param.DisplayName,
                     compoundNegotiator.SharedSecret);
 
-                LocalSession.Current.FormHome.Invoke(() =>
+                ServerConnection.Current.FormHome.Invoke(() =>
                 {
                     //We have to create the form on the main window thread.
                     activeChat.Form = new FormMessage(activeChat);

@@ -79,26 +79,26 @@ namespace SecureChat.Client
         {
             try
             {
-                if (LocalSession.Current?.ReliableClient == null)
+                if (ServerConnection.Current?.ReliableClient == null)
                 {
                     Login();
                 }
                 else
                 {
-                    if (LocalSession.Current.FormHome == null)
+                    if (ServerConnection.Current.FormHome == null)
                     {
                         throw new Exception("Home form should not be null.");
                     }
-                    LocalSession.Current.FormHome.Show();
+                    ServerConnection.Current.FormHome.Show();
 
-                    if (LocalSession.Current.FormHome.WindowState == FormWindowState.Minimized)
+                    if (ServerConnection.Current.FormHome.WindowState == FormWindowState.Minimized)
                     {
-                        LocalSession.Current.FormHome.WindowState = FormWindowState.Normal;
+                        ServerConnection.Current.FormHome.WindowState = FormWindowState.Normal;
                     }
 
-                    LocalSession.Current.FormHome.BringToFront();
-                    LocalSession.Current.FormHome.Activate();
-                    LocalSession.Current.FormHome.Focus();
+                    ServerConnection.Current.FormHome.BringToFront();
+                    ServerConnection.Current.FormHome.Activate();
+                    ServerConnection.Current.FormHome.Focus();
                 }
             }
             catch (Exception ex)
@@ -112,7 +112,7 @@ namespace SecureChat.Client
         {
             try
             {
-                LocalSession.Clear();
+                ServerConnection.ClearCurrent();
 
                 if (_formLogin != null)
                 {
@@ -280,20 +280,15 @@ namespace SecureChat.Client
                 UpdateClientState(ScOnlineState.Online);
             }
 
-            var localSession = new LocalSession(
-                this,
-                formHome,
-                loginResult.ReliableClient,
-                loginResult.AccountId,
-                loginResult.Username,
-                loginResult.DisplayName)
+            var serverConnection = new ServerConnection(this, formHome, loginResult.ReliableClient,
+                loginResult.AccountId, loginResult.Username, loginResult.DisplayName)
             {
                 Profile = loginResult.Profile,
                 State = persistedUserState.ExplicitAway ? ScOnlineState.Away : ScOnlineState.Online,
                 ExplicitAway = persistedUserState.ExplicitAway
             };
 
-            LocalSession.Set(localSession);
+            ServerConnection.SetCurrent(serverConnection);
 
             _trayIcon.BalloonTipText = $"Welcome back {loginResult.DisplayName}, you are now logged in.";
             _trayIcon.ShowBalloonTip(3000);
@@ -313,7 +308,7 @@ namespace SecureChat.Client
             }
             try
             {
-                LocalSession.Clear();
+                ServerConnection.ClearCurrent();
                 UpdateClientState(ScOnlineState.Offline);
             }
             catch (Exception ex)
@@ -331,14 +326,14 @@ namespace SecureChat.Client
                 {
                     return;
                 }
-                if (state == LocalSession.Current?.State)
+                if (state == ServerConnection.Current?.State)
                 {
                     return;
                 }
-                if (LocalSession.Current != null)
+                if (ServerConnection.Current != null)
                 {
-                    LocalSession.Current.State = state;
-                    LocalSession.Current.FormHome.Repopulate();
+                    ServerConnection.Current.State = state;
+                    ServerConnection.Current.FormHome.Repopulate();
                 }
 
                 _trayIcon.ContextMenuStrip.EnsureNotNull();
@@ -416,22 +411,22 @@ namespace SecureChat.Client
         {
             try
             {
-                if (LocalSession.Current != null && sender is ToolStripMenuItem menuItem)
+                if (ServerConnection.Current != null && sender is ToolStripMenuItem menuItem)
                 {
-                    LocalSession.Current.ExplicitAway = !LocalSession.Current.ExplicitAway;
+                    ServerConnection.Current.ExplicitAway = !ServerConnection.Current.ExplicitAway;
 
-                    menuItem.Checked = LocalSession.Current.ExplicitAway; //Toggle the explicit away state.
+                    menuItem.Checked = ServerConnection.Current.ExplicitAway; //Toggle the explicit away state.
 
                     UpdateClientState(menuItem.Checked ? ScOnlineState.Away : ScOnlineState.Online);
 
-                    if (Settings.Instance.Users.TryGetValue(LocalSession.Current.Username, out var persistedUserState) == false)
+                    if (Settings.Instance.Users.TryGetValue(ServerConnection.Current.Username, out var persistedUserState) == false)
                     {
                         //Add a default state if its not already present.
                         persistedUserState = new();
-                        Settings.Instance.Users.Add(LocalSession.Current.Username, persistedUserState);
+                        Settings.Instance.Users.Add(ServerConnection.Current.Username, persistedUserState);
                     }
 
-                    persistedUserState.ExplicitAway = LocalSession.Current.ExplicitAway;
+                    persistedUserState.ExplicitAway = ServerConnection.Current.ExplicitAway;
                     Settings.Save();
                 }
             }
@@ -463,7 +458,7 @@ namespace SecureChat.Client
                 using var formProfile = new FormProfile(true);
                 if (formProfile.ShowDialog() == DialogResult.OK)
                 {
-                    LocalSession.Current?.FormHome.Repopulate();
+                    ServerConnection.Current?.FormHome.Repopulate();
                 }
             }
             catch (Exception ex)
@@ -477,10 +472,10 @@ namespace SecureChat.Client
         {
             try
             {
-                Task.Run(() => LocalSession.Current?.ReliableClient?.Disconnect());
+                Task.Run(() => ServerConnection.Current?.ReliableClient?.Disconnect());
                 Thread.Sleep(10);
                 UpdateClientState(ScOnlineState.Offline);
-                LocalSession.Clear();
+                ServerConnection.ClearCurrent();
                 Exceptions.Ignore(() => LocalUserApplicationData.DeleteFromDisk(ScConstants.AppName, typeof(AutoLogin)));
             }
             catch (Exception ex)
@@ -527,7 +522,7 @@ namespace SecureChat.Client
                 Exceptions.Ignore(() => _formLogin?.Close());
 
                 _trayIcon.Visible = false;
-                LocalSession.Clear();
+                ServerConnection.ClearCurrent();
                 Application.Exit();
             }
             catch (Exception ex)

@@ -28,7 +28,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (LocalSession.Current == null || !LocalSession.Current.ReliableClient.IsConnected)
+                if (ServerConnection.Current == null || !ServerConnection.Current.ReliableClient.IsConnected)
                 {
                     MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     this.InvokeClose(DialogResult.Cancel);
@@ -43,7 +43,7 @@ namespace SecureChat.Client.Forms
                         {
                             dataGridViewAccounts.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "Sending";
 
-                            LocalSession.Current.ReliableClient.Query(new InviteContactQuery(account.Id)).ContinueWith(o =>
+                            ServerConnection.Current.ReliableClient.Query(new InviteContactQuery(account.Id)).ContinueWith(o =>
                             {
                                 if (!o.IsFaulted && o.Result.IsSuccess)
                                 {
@@ -52,7 +52,7 @@ namespace SecureChat.Client.Forms
                                         dataGridViewAccounts.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "Remove";
                                     });
 
-                                    LocalSession.Current.FormHome.Repopulate();
+                                    ServerConnection.Current.FormHome.Repopulate();
                                 }
                             });
                         }
@@ -60,7 +60,7 @@ namespace SecureChat.Client.Forms
                         {
                             dataGridViewAccounts.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "Removing";
 
-                            LocalSession.Current.ReliableClient.Query(new RemoveContactQuery(account.Id)).ContinueWith(o =>
+                            ServerConnection.Current.ReliableClient.Query(new RemoveContactQuery(account.Id)).ContinueWith(o =>
                             {
                                 if (!o.IsFaulted && o.Result.IsSuccess)
                                 {
@@ -68,7 +68,7 @@ namespace SecureChat.Client.Forms
                                     {
                                         dataGridViewAccounts.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "Invite";
                                     });
-                                    LocalSession.Current.FormHome.Repopulate();
+                                    ServerConnection.Current.FormHome.Repopulate();
                                 }
                             });
 
@@ -92,7 +92,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (LocalSession.Current == null || !LocalSession.Current.ReliableClient.IsConnected)
+                if (ServerConnection.Current == null || !ServerConnection.Current.ReliableClient.IsConnected)
                 {
                     MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     this.InvokeClose(DialogResult.Cancel);
@@ -108,7 +108,7 @@ namespace SecureChat.Client.Forms
                     return;
                 }
 
-                LocalSession.Current.ReliableClient.Query(new AccountSearchQuery(displayName)).ContinueWith(o =>
+                ServerConnection.Current.ReliableClient.Query(new AccountSearchQuery(displayName)).ContinueWith(o =>
                 {
                     if (!o.IsFaulted && o.Result.IsSuccess)
                     {
@@ -118,7 +118,7 @@ namespace SecureChat.Client.Forms
                             {
                                 var button = new DataGridViewButtonCell();
 
-                                if (account.Id == LocalSession.Current.AccountId)
+                                if (account.Id == ServerConnection.Current.AccountId)
                                 {
                                     button.Value = "You";
                                 }

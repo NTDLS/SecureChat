@@ -9,16 +9,16 @@ namespace SecureChat.Client
     /// <summary>
     /// Used to store state information about the logged in session.
     /// </summary>
-    internal class LocalSession
+    internal class ServerConnection
     {
-        public static LocalSession? Current { get; private set; }
+        public static ServerConnection? Current { get; private set; }
 
-        public static void Set(LocalSession localSession)
+        public static void SetCurrent(ServerConnection localSession)
         {
             Current = localSession;
         }
 
-        public static void Clear()
+        public static void ClearCurrent()
         {
             Task.Run(() => Current?.ReliableClient?.Disconnect());
             Exceptions.Ignore(() => Current?.FormHome?.Close());
@@ -38,7 +38,7 @@ namespace SecureChat.Client
 
         public ScOnlineState State { get; set; } = ScOnlineState.Offline;
 
-        public LocalSession(TrayApp tray, FormHome formHome, RmClient reliableClient, Guid accountId, string username, string displayName)
+        public ServerConnection(TrayApp tray, FormHome formHome, RmClient reliableClient, Guid accountId, string username, string displayName)
         {
             Tray = tray;
             FormHome = formHome;
