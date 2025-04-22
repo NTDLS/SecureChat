@@ -62,11 +62,11 @@ namespace SecureChat.Client
             DatagramClient = Settings.Instance.CreateDmClient();
             DatagramClient.Dispatch(new InitiateNetworkAddressTranslationMessage(peerToPeerId, connectionId));
 
-            if (LocalSession.Current == null)
+            if (ServerConnection.Current == null)
                 throw new Exception("Local connection is not established.");
 
             //Obtain the public and private key-pair from the reliable connection so we can use it for the datagram messaging.
-            var rmCryptographyProvider = LocalSession.Current?.ReliableClient.GetCryptographyProvider() as ReliableCryptographyProvider
+            var rmCryptographyProvider = ServerConnection.Current?.ReliableClient.GetCryptographyProvider() as ReliableCryptographyProvider
                 ?? throw new Exception("Reliable cryptography has not been initialized.");
 
             DatagramClient.Context.SetCryptographyProvider(new DatagramCryptographyProvider(rmCryptographyProvider.PublicPrivateKeyPair));
@@ -79,31 +79,31 @@ namespace SecureChat.Client
                 return;
             }
             IsTerminated = true;
-            LocalSession.Current?.ReliableClient.Notify(new TerminateChatNotification(ConnectionId, PeerToPeerId));
+            ServerConnection.Current?.ReliableClient.Notify(new TerminateChatNotification(ConnectionId, PeerToPeerId));
             DatagramClient?.Stop();
             Form?.AppendSystemMessageLine($"Chat ended at {DateTime.Now}.", Color.Red);
         }
 
         public void RequestVoiceCall()
         {
-            LocalSession.Current?.ReliableClient.Notify(new RequestVoiceCallNotification(PeerToPeerId, ConnectionId));
+            ServerConnection.Current?.ReliableClient.Notify(new RequestVoiceCallNotification(PeerToPeerId, ConnectionId));
             //Prop up the UDP connection:
             InitiateNetworkAddressTranslationMessage(PeerToPeerId, ConnectionId);
         }
 
         public void CancelVoiceCallRequest()
         {
-            LocalSession.Current?.ReliableClient.Notify(new CancelVoiceCallRequestNotification(PeerToPeerId, ConnectionId));
+            ServerConnection.Current?.ReliableClient.Notify(new CancelVoiceCallRequestNotification(PeerToPeerId, ConnectionId));
         }
 
         public void AcceptVoiceCallRequest()
         {
-            LocalSession.Current?.ReliableClient.Notify(new AcceptVoiceCallNotification(PeerToPeerId, ConnectionId));
+            ServerConnection.Current?.ReliableClient.Notify(new AcceptVoiceCallNotification(PeerToPeerId, ConnectionId));
         }
 
         public void DeclineVoiceCallRequest()
         {
-            LocalSession.Current?.ReliableClient.Notify(new DeclineVoiceCallNotification(PeerToPeerId, ConnectionId));
+            ServerConnection.Current?.ReliableClient.Notify(new DeclineVoiceCallNotification(PeerToPeerId, ConnectionId));
         }
 
         public void ReceiveImage(byte[] imageBytes)
@@ -143,7 +143,7 @@ namespace SecureChat.Client
                 return false;
             }
 
-            return LocalSession.Current?.ReliableClient.Query(new ExchangeMessageTextQuery(PeerToPeerId,
+            return ServerConnection.Current?.ReliableClient.Query(new ExchangeMessageTextQuery(PeerToPeerId,
                     ConnectionId, EncryptString(plaintText))).ContinueWith(o =>
                     {
                         if (!o.IsFaulted && o.Result.IsSuccess)
@@ -158,7 +158,7 @@ namespace SecureChat.Client
         {
             var fileId = Guid.NewGuid();
 
-            LocalSession.Current?.ReliableClient.Notify(new FileTransmissionBeginNotification(PeerToPeerId, ConnectionId, fileId, fileName, fileBytes.Length));
+            ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionBeginNotification(PeerToPeerId, ConnectionId, fileId, fileName, fileBytes.Length));
 
             using (var memoryStream = new MemoryStream(fileBytes))
             {
@@ -175,16 +175,16 @@ namespace SecureChat.Client
                         Array.Copy(buffer, chunkToSend, bytesRead);
                     }
 
-                    LocalSession.Current?.ReliableClient.Notify(new FileTransmissionChunkNotification(PeerToPeerId, ConnectionId, fileId, Cipher(chunkToSend)));
+                    ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionChunkNotification(PeerToPeerId, ConnectionId, fileId, Cipher(chunkToSend)));
                 }
             }
 
-            LocalSession.Current?.ReliableClient.Query(new FileTransmissionEndQuery(PeerToPeerId, ConnectionId, fileId)).ContinueWith(o =>
+            ServerConnection.Current?.ReliableClient.Query(new FileTransmissionEndQuery(PeerToPeerId, ConnectionId, fileId)).ContinueWith(o =>
             {
                 if (!o.IsFaulted && o.Result.IsSuccess)
                 {
                     //Only show the image locally if the file was successfully transmitted.
-                    Form?.AppendImageMessage(LocalSession.Current.DisplayName, fileBytes, false);
+                    Form?.AppendImageMessage(ServerConnection.Current.DisplayName, fileBytes, false);
                 }
                 else
                 {

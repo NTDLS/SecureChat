@@ -28,7 +28,7 @@ namespace SecureChat.Client.Forms
 
                 FormClosing += (object? sender, FormClosingEventArgs e) =>
                 {
-                    if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.ReliableClient.IsConnected)
+                    if (ServerConnection.Current == null || _activeChat.IsTerminated || !ServerConnection.Current.ReliableClient.IsConnected)
                     {
                         return; //Close the dialog.
                     }
@@ -132,7 +132,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.ReliableClient.IsConnected)
+                if (ServerConnection.Current == null || _activeChat.IsTerminated || !ServerConnection.Current.ReliableClient.IsConnected)
                 {
                     if (Visible == false)
                     {
@@ -378,7 +378,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.ReliableClient.IsConnected)
+                if (ServerConnection.Current == null || _activeChat.IsTerminated || !ServerConnection.Current.ReliableClient.IsConnected)
                 {
                     AppendSystemMessageLine("Not connected.", Color.Red);
                     return;
@@ -399,7 +399,7 @@ namespace SecureChat.Client.Forms
 
                 if (_activeChat.SendMessage(text))
                 {
-                    AppendReceivedMessageLine(LocalSession.Current.DisplayName, text, false, Color.Blue);
+                    AppendReceivedMessageLine(ServerConnection.Current.DisplayName, text, false, Color.Blue);
                 }
                 else
                 {
