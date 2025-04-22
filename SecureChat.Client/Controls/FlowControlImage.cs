@@ -1,4 +1,5 @@
-﻿using SecureChat.Client.Forms;
+﻿using NTDLS.Helpers;
+using SecureChat.Client.Forms;
 using SecureChat.Client.Helpers;
 
 namespace SecureChat.Client.Controls
@@ -73,28 +74,24 @@ namespace SecureChat.Client.Controls
 
         private void OnRemoveImage(object? sender, EventArgs e)
         {
-            try
+            Exceptions.Ignore(() =>
             {
+
                 _pictureBox.Image = null;
                 _parent.Controls.Remove(this);
-            }
-            catch
-            {
-            }
+            });
         }
 
         private void OnCopyImage(object? sender, EventArgs e)
         {
-            try
+            Exceptions.Ignore(() =>
             {
+
                 if (_pictureBox.Image != null)
                 {
                     Clipboard.SetImage(_pictureBox.Image);
                 }
-            }
-            catch
-            {
-            }
+            });
         }
 
         private void Image_MouseLeave(object? sender, EventArgs e)

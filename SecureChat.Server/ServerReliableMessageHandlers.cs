@@ -33,8 +33,7 @@ namespace SecureChat.Server
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
+                var session = VetifyAndGetSession(context);
 
                 _chatService.RmServer.Notify(param.ConnectionId, param);
             }
@@ -52,8 +51,7 @@ namespace SecureChat.Server
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
+                var session = VetifyAndGetSession(context);
 
                 _chatService.RmServer.Notify(param.ConnectionId, param);
             }
@@ -71,8 +69,7 @@ namespace SecureChat.Server
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
+                var session = VetifyAndGetSession(context);
 
                 _chatService.RmServer.Notify(param.ConnectionId, param);
             }
@@ -90,8 +87,7 @@ namespace SecureChat.Server
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
+                var session = VetifyAndGetSession(context);
 
                 _chatService.RmServer.Notify(param.ConnectionId, param);
             }
@@ -108,11 +104,7 @@ namespace SecureChat.Server
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
-
-                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
-                    ?? throw new Exception("Session not found.");
+                var session = VetifyAndGetSession(context);
 
                 var account = _dbRepository.GetAccountById(session.AccountId.EnsureNotNull());
                 if (account.DisplayName != param.DisplayName)
@@ -138,11 +130,7 @@ namespace SecureChat.Server
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
-
-                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
-                    ?? throw new Exception("Session not found.");
+                var session = VetifyAndGetSession(context);
 
                 _dbRepository.AcceptContactInvite(param.AccountId, session.AccountId.EnsureNotNull());
 
@@ -162,11 +150,7 @@ namespace SecureChat.Server
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
-
-                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
-                    ?? throw new Exception("Session not found.");
+                var session = VetifyAndGetSession(context);
 
                 _dbRepository.RemoveContact(session.AccountId.EnsureNotNull(), param.AccountId);
 
@@ -186,11 +170,7 @@ namespace SecureChat.Server
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
-
-                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
-                    ?? throw new Exception("Session not found.");
+                var session = VetifyAndGetSession(context);
 
                 _dbRepository.AddContactInvite(session.AccountId.EnsureNotNull(), param.AccountId);
 
@@ -210,11 +190,7 @@ namespace SecureChat.Server
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
-
-                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
-                    ?? throw new Exception("Session not found.");
+                var session = VetifyAndGetSession(context);
 
                 var accounts = _dbRepository.AccountSearch(session.AccountId.EnsureNotNull(), param.DisplayName);
 
@@ -234,8 +210,7 @@ namespace SecureChat.Server
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
+                var session = VetifyAndGetSession(context);
 
                 _dbRepository.CreateAccount(param.Username, param.DisplayName, param.PasswordHash);
 
@@ -256,8 +231,7 @@ namespace SecureChat.Server
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
+                var session = VetifyAndGetSession(context);
 
                 _chatService.RmServer.Notify(param.ConnectionId, param);
             }
@@ -275,8 +249,7 @@ namespace SecureChat.Server
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
+                var session = VetifyAndGetSession(context);
 
                 _chatService.RmServer.Notify(param.ConnectionId, param);
             }
@@ -294,8 +267,7 @@ namespace SecureChat.Server
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
+                var session = VetifyAndGetSession(context);
 
                 return _chatService.RmServer.Query(param.ConnectionId, param).Result;
             }
@@ -314,8 +286,7 @@ namespace SecureChat.Server
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
+                var session = VetifyAndGetSession(context);
 
                 _chatService.RmServer.Notify(param.ConnectionId, param);
             }
@@ -332,8 +303,7 @@ namespace SecureChat.Server
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
+                var session = VetifyAndGetSession(context);
 
                 _dbRepository.UpdateAccountState(param.AccountId, param.State);
             }
@@ -403,11 +373,10 @@ namespace SecureChat.Server
                 if (context.GetCryptographyProvider() != null)
                     throw new Exception("Cryptography has already been initialized.");
 
-                var session = _chatService.GetSessionByConnectionId(context.ConnectionId);
-                if (session != null)
-                {
-                    context.SetCryptographyProvider(session.ServerClientCryptographyProvider);
-                }
+                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
+                    ?? throw new Exception("Session not found.");
+
+                context.SetCryptographyProvider(session.ServerClientCryptographyProvider);
             }
             catch (Exception ex)
             {
@@ -429,7 +398,6 @@ namespace SecureChat.Server
                 if (param.ClientVersion < ScConstants.MinClientVersion)
                     throw new Exception($"Client version is unsupported, use version {ScConstants.MinClientVersion} or greater.");
 
-
                 var localPublicPrivateKeyPair = Crypto.GeneratePublicPrivateKeyPair();
                 _chatService.RegisterSession(context.ConnectionId, new ReliableCryptographyProvider(param.PublicRsaKey, localPublicPrivateKeyPair.PrivateRsaKey));
                 return new ExchangePublicKeyQueryReply(localPublicPrivateKeyPair.PublicRsaKey);
@@ -447,11 +415,7 @@ namespace SecureChat.Server
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
-
-                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
-                    ?? throw new Exception("Session not found.");
+                var session = VetifyAndGetSession(context);
 
                 if (session.AccountId != null)
                 {
@@ -482,8 +446,7 @@ namespace SecureChat.Server
         {
             try
             {
-                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
-                    ?? throw new Exception("Session not found.");
+                var session = VetifyAndGetSession(context);
 
                 var contacts = _dbRepository.GetContacts(session.AccountId.EnsureNotNull());
 
@@ -493,6 +456,17 @@ namespace SecureChat.Server
             {
                 return new GetContactsQueryReply(ex.GetBaseException());
             }
+        }
+
+        public AccountSession VetifyAndGetSession(RmContext context)
+        {
+            if (context.GetCryptographyProvider() == null)
+                throw new Exception("Cryptography has not been initialized.");
+
+            var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
+                ?? throw new Exception("Session not found.");
+
+            return session;
         }
     }
 }

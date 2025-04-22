@@ -1,4 +1,5 @@
-﻿using SecureChat.Client.Helpers;
+﻿using NTDLS.Helpers;
+using SecureChat.Client.Helpers;
 using System.Diagnostics;
 
 namespace SecureChat.Client.Controls
@@ -25,6 +26,7 @@ namespace SecureChat.Client.Controls
                 Padding = new Padding(0),
                 Margin = new Padding(0)
             };
+            labelDisplayName.MouseClick += LabelMessage_MouseClick;
             Controls.Add(labelDisplayName);
 
             var labelMessage = new LinkLabel
@@ -46,7 +48,7 @@ namespace SecureChat.Client.Controls
         {
             if (e.Button == MouseButtons.Left)
             {
-                try
+                Exceptions.Ignore(() =>
                 {
                     if (sender is LinkLabel linkLabel)
                     {
@@ -56,10 +58,7 @@ namespace SecureChat.Client.Controls
                             UseShellExecute = true
                         });
                     }
-                }
-                catch
-                {
-                }
+                });
             }
         }
 
@@ -77,27 +76,23 @@ namespace SecureChat.Client.Controls
 
         private void OnRemove(object? sender, EventArgs e)
         {
-            try
+            Exceptions.Ignore(() =>
             {
+
                 _parent.Controls.Remove(this);
-            }
-            catch
-            {
-            }
+            });
         }
 
         private void OnCopy(object? sender, EventArgs e)
         {
-            try
+            Exceptions.Ignore(() =>
             {
+
                 if (sender is LinkLabel linkLabel)
                 {
                     Clipboard.SetText(linkLabel.Text);
                 }
-            }
-            catch
-            {
-            }
+            });
         }
     }
 }

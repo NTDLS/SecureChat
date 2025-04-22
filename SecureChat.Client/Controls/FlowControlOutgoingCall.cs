@@ -1,4 +1,6 @@
-﻿namespace SecureChat.Client.Controls
+﻿using NTDLS.Helpers;
+
+namespace SecureChat.Client.Controls
 {
     internal partial class FlowControlOutgoingCall : UserControl
     {
@@ -36,27 +38,21 @@
 
         private void OnRemove(object? sender, EventArgs e)
         {
-            try
+            Exceptions.Ignore(() =>
             {
                 _parent.Controls.Remove(this);
-            }
-            catch
-            {
-            }
+            });
         }
 
         private void OnCopy(object? sender, EventArgs e)
         {
-            try
+            Exceptions.Ignore(() =>
             {
                 if (sender is LinkLabel linkLabel)
                 {
                     Clipboard.SetText(linkLabel.Text);
                 }
-            }
-            catch
-            {
-            }
+            });
         }
     }
 }

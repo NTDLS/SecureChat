@@ -1,4 +1,5 @@
-﻿using SecureChat.Client.Helpers;
+﻿using NTDLS.Helpers;
+using SecureChat.Client.Helpers;
 
 namespace SecureChat.Client.Controls
 {
@@ -56,25 +57,20 @@ namespace SecureChat.Client.Controls
 
         private void OnRemove(object? sender, EventArgs e)
         {
-            try
+            Exceptions.Ignore(() =>
             {
+
                 _labelMessage.Text = string.Empty;
                 _parent.Controls.Remove(this);
-            }
-            catch
-            {
-            }
+            });
         }
 
         private void OnCopy(object? sender, EventArgs e)
         {
-            try
+            Exceptions.Ignore(() =>
             {
                 Clipboard.SetText(_labelMessage.Text);
-            }
-            catch
-            {
-            }
+            });
         }
     }
 }
