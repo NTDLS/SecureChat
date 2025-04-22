@@ -49,7 +49,7 @@ namespace SecureChat.Client.Controls
                 contextMenu.Items.Add("Copy", null, OnCopyImage);
                 contextMenu.Items.Add(new ToolStripSeparator());
                 contextMenu.Items.Add("Remove", null, OnRemoveImage);
-                contextMenu.Show(_pictureBox, e.Location);
+                contextMenu.Show((sender as Control) ?? this, e.Location);
             }
         }
 

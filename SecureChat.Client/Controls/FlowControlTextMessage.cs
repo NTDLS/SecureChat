@@ -25,6 +25,7 @@ namespace SecureChat.Client.Controls
                 Padding = new Padding(0),
                 Margin = new Padding(0)
             };
+            labelDisplayName.MouseClick += LabelMessage_MouseClick;
             Controls.Add(labelDisplayName);
 
             _labelMessage = new Label
@@ -37,8 +38,7 @@ namespace SecureChat.Client.Controls
                 Padding = new Padding(0),
                 Margin = new Padding(0)
             };
-
-            MouseClick += LabelMessage_MouseClick;
+            _labelMessage.MouseClick += LabelMessage_MouseClick;
             Controls.Add(_labelMessage);
         }
 
@@ -50,7 +50,7 @@ namespace SecureChat.Client.Controls
                 contextMenu.Items.Add("Copy", null, OnCopy);
                 contextMenu.Items.Add(new ToolStripSeparator());
                 contextMenu.Items.Add("Remove", null, OnRemove);
-                contextMenu.Show(_labelMessage, e.Location);
+                contextMenu.Show((sender as Control) ?? this, e.Location);
             }
         }
 

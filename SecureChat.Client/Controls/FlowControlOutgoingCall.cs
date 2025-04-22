@@ -30,7 +30,7 @@
                 contextMenu.Items.Add("Copy", null, (a, b) => OnCopy(sender, new EventArgs()));
                 contextMenu.Items.Add(new ToolStripSeparator());
                 contextMenu.Items.Add("Remove", null, OnRemove);
-                contextMenu.Show(sender as Control ?? this, e.Location);
+                contextMenu.Show((sender as Control) ?? this, e.Location);
             }
         }
 
