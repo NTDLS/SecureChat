@@ -57,11 +57,11 @@ namespace SecureChat.Client.Forms
             labelMaxMessages = new Label();
             labelAutoAwayIdleSeconds = new Label();
             tabPageNotifications = new TabPage();
-            checkBoxAlertToastWhenContactComesOnline = new CheckBox();
-            checkBoxAlertToastWhenMessageReceived = new CheckBox();
-            checkBoxPlaySoundWhenContactComesOnline = new CheckBox();
-            checkBoxPlaySoundWhenMessageReceived = new CheckBox();
             checkBoxFlashWindowWhenMessageReceived = new CheckBox();
+            checkBoxPlaySoundWhenMessageReceived = new CheckBox();
+            checkBoxPlaySoundWhenContactComesOnline = new CheckBox();
+            checkBoxAlertToastWhenMessageReceived = new CheckBox();
+            checkBoxAlertToastWhenContactComesOnline = new CheckBox();
             tabControlBody.SuspendLayout();
             tabPageMessages.SuspendLayout();
             ((ISupportInitialize)numericUpDownFontSize).BeginInit();
@@ -305,35 +305,15 @@ namespace SecureChat.Client.Forms
             tabPageNotifications.Text = "Notifications";
             tabPageNotifications.UseVisualStyleBackColor = true;
             // 
-            // checkBoxAlertToastWhenContactComesOnline
+            // checkBoxFlashWindowWhenMessageReceived
             // 
-            checkBoxAlertToastWhenContactComesOnline.AutoSize = true;
-            checkBoxAlertToastWhenContactComesOnline.Location = new Point(6, 6);
-            checkBoxAlertToastWhenContactComesOnline.Name = "checkBoxAlertToastWhenContactComesOnline";
-            checkBoxAlertToastWhenContactComesOnline.Size = new Size(232, 19);
-            checkBoxAlertToastWhenContactComesOnline.TabIndex = 0;
-            checkBoxAlertToastWhenContactComesOnline.Text = "Visual alert when contact comes online";
-            checkBoxAlertToastWhenContactComesOnline.UseVisualStyleBackColor = true;
-            // 
-            // checkBoxAlertToastWhenMessageReceived
-            // 
-            checkBoxAlertToastWhenMessageReceived.AutoSize = true;
-            checkBoxAlertToastWhenMessageReceived.Location = new Point(6, 31);
-            checkBoxAlertToastWhenMessageReceived.Name = "checkBoxAlertToastWhenMessageReceived";
-            checkBoxAlertToastWhenMessageReceived.Size = new Size(211, 19);
-            checkBoxAlertToastWhenMessageReceived.TabIndex = 1;
-            checkBoxAlertToastWhenMessageReceived.Text = "Visual alert when message received";
-            checkBoxAlertToastWhenMessageReceived.UseVisualStyleBackColor = true;
-            // 
-            // checkBoxPlaySoundWhenContactComesOnline
-            // 
-            checkBoxPlaySoundWhenContactComesOnline.AutoSize = true;
-            checkBoxPlaySoundWhenContactComesOnline.Location = new Point(6, 56);
-            checkBoxPlaySoundWhenContactComesOnline.Name = "checkBoxPlaySoundWhenContactComesOnline";
-            checkBoxPlaySoundWhenContactComesOnline.Size = new Size(215, 19);
-            checkBoxPlaySoundWhenContactComesOnline.TabIndex = 2;
-            checkBoxPlaySoundWhenContactComesOnline.Text = "Sound when contact comesOonline";
-            checkBoxPlaySoundWhenContactComesOnline.UseVisualStyleBackColor = true;
+            checkBoxFlashWindowWhenMessageReceived.AutoSize = true;
+            checkBoxFlashWindowWhenMessageReceived.Location = new Point(6, 106);
+            checkBoxFlashWindowWhenMessageReceived.Name = "checkBoxFlashWindowWhenMessageReceived";
+            checkBoxFlashWindowWhenMessageReceived.Size = new Size(226, 19);
+            checkBoxFlashWindowWhenMessageReceived.TabIndex = 4;
+            checkBoxFlashWindowWhenMessageReceived.Text = "Flash window when message received";
+            checkBoxFlashWindowWhenMessageReceived.UseVisualStyleBackColor = true;
             // 
             // checkBoxPlaySoundWhenMessageReceived
             // 
@@ -345,15 +325,35 @@ namespace SecureChat.Client.Forms
             checkBoxPlaySoundWhenMessageReceived.Text = "Sound when message received";
             checkBoxPlaySoundWhenMessageReceived.UseVisualStyleBackColor = true;
             // 
-            // checkBoxFlashWindowWhenMessageReceived
+            // checkBoxPlaySoundWhenContactComesOnline
             // 
-            checkBoxFlashWindowWhenMessageReceived.AutoSize = true;
-            checkBoxFlashWindowWhenMessageReceived.Location = new Point(6, 106);
-            checkBoxFlashWindowWhenMessageReceived.Name = "checkBoxFlashWindowWhenMessageReceived";
-            checkBoxFlashWindowWhenMessageReceived.Size = new Size(226, 19);
-            checkBoxFlashWindowWhenMessageReceived.TabIndex = 4;
-            checkBoxFlashWindowWhenMessageReceived.Text = "Flash window when message received";
-            checkBoxFlashWindowWhenMessageReceived.UseVisualStyleBackColor = true;
+            checkBoxPlaySoundWhenContactComesOnline.AutoSize = true;
+            checkBoxPlaySoundWhenContactComesOnline.Location = new Point(6, 56);
+            checkBoxPlaySoundWhenContactComesOnline.Name = "checkBoxPlaySoundWhenContactComesOnline";
+            checkBoxPlaySoundWhenContactComesOnline.Size = new Size(215, 19);
+            checkBoxPlaySoundWhenContactComesOnline.TabIndex = 2;
+            checkBoxPlaySoundWhenContactComesOnline.Text = "Sound when contact comesOonline";
+            checkBoxPlaySoundWhenContactComesOnline.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxAlertToastWhenMessageReceived
+            // 
+            checkBoxAlertToastWhenMessageReceived.AutoSize = true;
+            checkBoxAlertToastWhenMessageReceived.Location = new Point(6, 31);
+            checkBoxAlertToastWhenMessageReceived.Name = "checkBoxAlertToastWhenMessageReceived";
+            checkBoxAlertToastWhenMessageReceived.Size = new Size(211, 19);
+            checkBoxAlertToastWhenMessageReceived.TabIndex = 1;
+            checkBoxAlertToastWhenMessageReceived.Text = "Visual alert when message received";
+            checkBoxAlertToastWhenMessageReceived.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxAlertToastWhenContactComesOnline
+            // 
+            checkBoxAlertToastWhenContactComesOnline.AutoSize = true;
+            checkBoxAlertToastWhenContactComesOnline.Location = new Point(6, 6);
+            checkBoxAlertToastWhenContactComesOnline.Name = "checkBoxAlertToastWhenContactComesOnline";
+            checkBoxAlertToastWhenContactComesOnline.Size = new Size(232, 19);
+            checkBoxAlertToastWhenContactComesOnline.TabIndex = 0;
+            checkBoxAlertToastWhenContactComesOnline.Text = "Visual alert when contact comes online";
+            checkBoxAlertToastWhenContactComesOnline.UseVisualStyleBackColor = true;
             // 
             // FormSettings
             // 
@@ -365,7 +365,7 @@ namespace SecureChat.Client.Forms
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "FormSettings";
             ShowInTaskbar = false;
-            StartPosition = FormStartPosition.CenterParent;
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "Secure Chat";
             tabControlBody.ResumeLayout(false);
             tabPageMessages.ResumeLayout(false);
