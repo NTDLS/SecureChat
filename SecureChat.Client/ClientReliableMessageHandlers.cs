@@ -19,6 +19,7 @@ namespace SecureChat.Client
 
         /// <summary>
         /// The server is letting us know that it received the UDP steam initialization request and has completed it.
+        /// Sent from <see cref="SecureChat.Server.DatagramMessageHandlers.InitiateNetworkAddressTranslationMessage"/>
         /// </summary>
         public void DatagramStreamReadyNotification(RmContext context, DatagramStreamReadyNotification param)
         {
