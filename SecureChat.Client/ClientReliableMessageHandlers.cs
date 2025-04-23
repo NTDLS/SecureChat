@@ -24,14 +24,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
-
-                if (ServerConnection.Current == null)
-                    throw new Exception("Local connection is not established.");
-
-                var activeChat = ServerConnection.Current.GetActiveChat(param.PeerToPeerId)
-                    ?? throw new Exception("Chat session was not found.");
+                var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
 
                 if (activeChat.DatagramClient == null)
                     throw new Exception("The datagram client is not initialized");
@@ -51,8 +44,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
+                var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
 
             }
             catch (Exception ex)
@@ -68,9 +60,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
-
+                var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
 
             }
             catch (Exception ex)
@@ -86,10 +76,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
-
-
+                var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
             }
             catch (Exception ex)
             {
@@ -104,14 +91,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (ServerConnection.Current == null)
-                    throw new Exception("Local connection is not established.");
-
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
-
-                var activeChat = ServerConnection.Current.GetActiveChat(param.PeerToPeerId)
-                    ?? throw new Exception("Chat session was not found.");
+                var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
 
                 //Prop up the UDP connection:
                 activeChat.InitiateNetworkAddressTranslationMessage(param.PeerToPeerId, param.ConnectionId);
@@ -131,14 +111,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (ServerConnection.Current == null)
-                    throw new Exception("Local connection is not established.");
-
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
-
-                var activeChat = ServerConnection.Current.GetActiveChat(param.PeerToPeerId)
-                    ?? throw new Exception("Chat session was not found.");
+                var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
 
                 activeChat.FileReceiveBuffers.Add(param.FileId, new FileReceiveBuffer(param.FileId, param.FileName, param.FileSize));
             }
@@ -155,14 +128,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (ServerConnection.Current == null)
-                    throw new Exception("Local connection is not established.");
-
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
-
-                var activeChat = ServerConnection.Current.GetActiveChat(param.PeerToPeerId)
-                    ?? throw new Exception("Chat session was not found.");
+                var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
 
                 if (activeChat.FileReceiveBuffers.TryGetValue(param.FileId, out var buffer))
                 {
@@ -186,14 +152,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (ServerConnection.Current == null)
-                    throw new Exception("Local connection is not established.");
-
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
-
-                var activeChat = ServerConnection.Current.GetActiveChat(param.PeerToPeerId)
-                    ?? throw new Exception("Chat session was not found.");
+                var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
 
                 if (activeChat.FileReceiveBuffers.TryGetValue(param.FileId, out var buffer))
                 {
@@ -223,14 +182,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (ServerConnection.Current == null)
-                    throw new Exception("Local connection is not established.");
-
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
-
-                var activeChat = ServerConnection.Current.GetActiveChat(param.PeerToPeerId)
-                    ?? throw new Exception("Chat session was not found.");
+                var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
 
                 activeChat?.Terminate();
             }
@@ -247,14 +199,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (ServerConnection.Current == null)
-                    throw new Exception("Local connection is not established.");
-
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
-
-                var activeChat = ServerConnection.Current.GetActiveChat(param.PeerToPeerId)
-                    ?? throw new Exception("Chat session was not found.");
+                var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
 
                 activeChat?.ReceiveMessage(param.CipherText);
 
@@ -308,6 +253,20 @@ namespace SecureChat.Client
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 return new InitiateEndToEndCryptographyQueryReply(ex.GetBaseException());
             }
+        }
+
+        public ActiveChat VerifyAndActiveChat(RmContext context, Guid peerToPeerId)
+        {
+            if (ServerConnection.Current == null)
+                throw new Exception("Local connection is not established.");
+
+            if (context.GetCryptographyProvider() == null)
+                throw new Exception("Cryptography has not been initialized.");
+
+            var activeChat = ServerConnection.Current.GetActiveChat(peerToPeerId)
+                ?? throw new Exception("Chat session was not found.");
+
+            return activeChat;
         }
     }
 }

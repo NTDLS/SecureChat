@@ -84,6 +84,9 @@ namespace SecureChat.Client
             Form?.AppendSystemMessageLine($"Chat ended at {DateTime.Now}.", Color.Red);
         }
 
+        /// <summary>
+        /// Client is sending another client a request for a voice call.
+        /// </summary>
         public void RequestVoiceCall()
         {
             ServerConnection.Current?.ReliableClient.Notify(new RequestVoiceCallNotification(PeerToPeerId, ConnectionId));
@@ -91,16 +94,26 @@ namespace SecureChat.Client
             InitiateNetworkAddressTranslationMessage(PeerToPeerId, ConnectionId);
         }
 
+        /// <summary>
+        /// Original requesting client is canceling a voice call request.
+        /// </summary>
         public void CancelVoiceCallRequest()
         {
             ServerConnection.Current?.ReliableClient.Notify(new CancelVoiceCallRequestNotification(PeerToPeerId, ConnectionId));
         }
 
+        /// <summary>
+        /// Client which received the request for a voice call is is accepting the request.
+        /// </summary>
         public void AcceptVoiceCallRequest()
         {
             ServerConnection.Current?.ReliableClient.Notify(new AcceptVoiceCallNotification(PeerToPeerId, ConnectionId));
+            ServerConnection.Current?.InitializeVoiceSession();
         }
 
+        /// <summary>
+        /// Client which received the request for a voice call is is declining the request.
+        /// </summary>
         public void DeclineVoiceCallRequest()
         {
             ServerConnection.Current?.ReliableClient.Notify(new DeclineVoiceCallNotification(PeerToPeerId, ConnectionId));
