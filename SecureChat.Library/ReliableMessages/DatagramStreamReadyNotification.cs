@@ -10,14 +10,8 @@ namespace SecureChat.Library.ReliableMessages
         /// </summary>
         public Guid PeerConnectionId { get; set; }
 
-        /// <summary>
-        /// Identifies a unique session. If a session is ended and a new one is started, it will have a different PeerToPeerId.
-        /// </summary>
-        public Guid PeerToPeerId { get; set; }
-
-        public DatagramStreamReadyNotification(Guid peerToPeerId, Guid peerConnectionId)
+        public DatagramStreamReadyNotification(Guid peerConnectionId)
         {
-            PeerToPeerId = peerToPeerId;
             PeerConnectionId = peerConnectionId;
         }
     }

@@ -26,6 +26,30 @@ namespace SecureChat.Server
         }
 
         /// <summary>
+        /// The client is letting us know that it received the UDP reply message and
+        ///     has initialized the public-private key cryptography for this UDP context.
+        /// Sent from <see cref="SecureChat.Server.ServerDatagramMessageHandlers.InitiateNetworkAddressTranslationMessage"/>
+        /// </summary>
+        public void DatagramStreamReadyNotification(RmContext context, DatagramStreamReadyNotification param)
+        {
+            try
+            {
+                var session = VerifyAndGetSession(context);
+
+                if (session.DmContext == null)
+                    throw new Exception("Datagram context is not initialized.");
+
+                session.DmContext.SetCryptographyProvider(new DatagramCryptographyProvider(session.ServerClientCryptographyProvider.PublicPrivateKeyPair));
+
+                Console.WriteLine($"Peer: {param.PeerConnectionId} (crypto init'd)");
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
         /// A client is requesting a voice call with another client.
         /// Route the message to the appropriate connection.
         /// </summary>
@@ -399,7 +423,7 @@ namespace SecureChat.Server
                     throw new Exception($"Client version is unsupported, use version {ScConstants.MinClientVersion} or greater.");
 
                 var localPublicPrivateKeyPair = Crypto.GeneratePublicPrivateKeyPair();
-                _chatService.RegisterSession(context.ConnectionId, new ReliableCryptographyProvider(param.PublicRsaKey, localPublicPrivateKeyPair.PrivateRsaKey));
+                _chatService.RegisterSession(context.ConnectionId, param.PeerConnectionId, new ReliableCryptographyProvider(param.PublicRsaKey, localPublicPrivateKeyPair.PrivateRsaKey));
                 return new ExchangePublicKeyQueryReply(localPublicPrivateKeyPair.PublicRsaKey);
             }
             catch (Exception ex)

@@ -1,6 +1,8 @@
-﻿using NTDLS.Helpers;
+﻿using NTDLS.DatagramMessaging;
+using NTDLS.Helpers;
 using NTDLS.ReliableMessaging;
 using SecureChat.Client.Forms;
+using SecureChat.Library.DatagramMessages;
 using SecureChat.Library.Models;
 using static SecureChat.Library.ScConstants;
 
@@ -26,6 +28,8 @@ namespace SecureChat.Client
             Current = null;
         }
 
+        public bool IsTerminated { get; private set; } = false;
+        public DmClient DatagramClient { get; private set; }
         public RmClient ReliableClient { get; private set; }
         public Guid AccountId { get; private set; }
         public string Username { get; private set; }
@@ -46,7 +50,28 @@ namespace SecureChat.Client
             Username = username;
             DisplayName = displayName;
             AccountId = accountId;
+
+            DatagramClient = Settings.Instance.CreateDmClient();
+
+            var dmHelloThread = new Thread(() =>
+            {
+                while (!IsTerminated)
+                {
+                    try
+                    {
+                        DatagramClient.Dispatch(new HelloPacketMessage(reliableClient.ConnectionId.EnsureNotNull()));
+                    }
+                    catch (Exception ex)
+                    {
+                        //TODO: Log or report
+                    }
+                    Thread.Sleep(1000);
+                }
+            });
+
+            dmHelloThread.Start();
         }
+
 
         public ActiveChat AddActiveChat(Guid peerToPeerId, Guid peerConnectionId, Guid accountId, string displayName, byte[] sharedSecret)
         {

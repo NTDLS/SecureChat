@@ -18,27 +18,6 @@ namespace SecureChat.Client
         }
 
         /// <summary>
-        /// The server is letting us know that it received the UDP steam initialization request and has completed it.
-        /// Sent from <see cref="SecureChat.Server.DatagramMessageHandlers.InitiateNetworkAddressTranslationMessage"/>
-        /// </summary>
-        public void DatagramStreamReadyNotification(RmContext context, DatagramStreamReadyNotification param)
-        {
-            try
-            {
-                var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
-
-                if (activeChat.DatagramClient == null)
-                    throw new Exception("The datagram client is not initialized");
-
-                activeChat.DatagramClient.StartKeepAlive();
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-            }
-        }
-
-        /// <summary>
         /// A client that requested a voice call with us is cancelling that request.
         /// </summary>
         public void CancelVoiceCallRequestNotification(RmContext context, CancelVoiceCallRequestNotification param)
@@ -104,9 +83,6 @@ namespace SecureChat.Client
             try
             {
                 var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
-
-                //Prop up the UDP connection:
-                activeChat.InitiateNetworkAddressTranslationMessage(param.PeerToPeerId, param.PeerConnectionId);
 
                 activeChat?.AlertOfIncomingCall();
             }

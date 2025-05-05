@@ -1,4 +1,5 @@
-﻿using SecureChat.Library;
+﻿using NTDLS.DatagramMessaging;
+using SecureChat.Library;
 
 namespace SecureChat.Server
 {
@@ -8,12 +9,21 @@ namespace SecureChat.Server
     internal class AccountSession
     {
         public Guid ConnectionId { get; private set; }
+        public Guid PeerConnectionId { get; private set; }
+
         public Guid? AccountId { get; private set; } = null;
         public ReliableCryptographyProvider ServerClientCryptographyProvider { get; set; }
+        public DmContext? DmContext { get; set; }
 
-        public AccountSession(Guid connectionId, ReliableCryptographyProvider serverClientCryptographyProvider)
+        public void SetDmContext(DmContext context)
+        {
+            DmContext = context;
+        }
+
+        public AccountSession(Guid connectionId, Guid peerConnectionId, ReliableCryptographyProvider serverClientCryptographyProvider)
         {
             ConnectionId = connectionId;
+            PeerConnectionId = peerConnectionId;
             ServerClientCryptographyProvider = serverClientCryptographyProvider;
         }
 

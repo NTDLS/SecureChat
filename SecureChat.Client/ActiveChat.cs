@@ -6,7 +6,6 @@ using SecureChat.Client.Forms;
 using SecureChat.Library;
 using SecureChat.Library.DatagramMessages;
 using SecureChat.Library.ReliableMessages;
-using System.Diagnostics;
 
 namespace SecureChat.Client
 {
@@ -14,7 +13,6 @@ namespace SecureChat.Client
     {
         private readonly PermafrostCipher _streamCryptography;
         private AudioPump? _audioPump;
-
         private int _inputDeviceIndex;
         private int _outputDeviceIndex;
         private int _bitrate;
@@ -24,6 +22,7 @@ namespace SecureChat.Client
         /// We save it so we can remove it when the call is accepted or canceled.
         /// </summary>
         public FlowControlOutgoingCall? LastOutgoingCallControl { get; set; }
+        public PublicPrivateKeyPair PublicPrivateKeyPair { get; private set; }
         public bool IsTerminated { get; private set; } = false;
         public FormMessage? Form { get; set; }
         public Guid AccountId { get; private set; }
@@ -32,12 +31,20 @@ namespace SecureChat.Client
         public Dictionary<Guid, FileReceiveBuffer> FileReceiveBuffers { get; set; } = new();
         public Guid PeerToPeerId { get; private set; }
 
-        public DmClient? DatagramClient { get; private set; }
+        public DmContext? DmContext { get; set; }
 
         public ActiveChat(Guid peerToPeerId, Guid peerConnectionId, Guid accountId, string displayName, byte[] sharedSecret)
         {
+            if (ServerConnection.Current == null)
+                throw new Exception("Local connection is not established.");
+
+            //Obtain the public and private key-pair from the reliable connection so we can use it for the datagram messaging.
+            var rmCryptographyProvider = ServerConnection.Current?.ReliableClient.GetCryptographyProvider() as ReliableCryptographyProvider
+                ?? throw new Exception("Reliable cryptography has not been initialized.");
+
             PeerToPeerId = peerToPeerId;
             _streamCryptography = new PermafrostCipher(sharedSecret, PermafrostMode.AutoReset);
+            PublicPrivateKeyPair = rmCryptographyProvider.PublicPrivateKeyPair;
             PeerConnectionId = peerConnectionId;
             AccountId = accountId;
             DisplayName = displayName;
@@ -67,14 +74,21 @@ namespace SecureChat.Client
             }
         }
 
+        public void PlayAudioPacket(byte [] bytes)
+        {
+            //TODO: implement peer-to-peer encryption.
+            _audioPump?.IngestFrame(bytes);
+        }
+
         public void StartAudioPump()
         {
             _audioPump = new AudioPump(_inputDeviceIndex, _outputDeviceIndex, _bitrate);
 
             _audioPump.OnFrameProduced += (byte[] bytes, int byteCount) =>
             {
+                //var encrypted = Crypto.AesEncryptBytes(bytes, _publicPrivateKeyPair.PrivateRsaKey);
                 //Sends the recorded audio to the server, for dispatch to the correct client.
-                DatagramClient?.Dispatch(new VoicePacketMessage(PeerToPeerId, PeerConnectionId, bytes));
+                ServerConnection.Current?.DatagramClient?.Dispatch(new VoicePacketMessage(PeerToPeerId, PeerConnectionId, bytes));
             };
 
             _audioPump.StartCapture();
@@ -87,50 +101,6 @@ namespace SecureChat.Client
             _audioPump = null;
         }
 
-        /// <summary>
-        /// Plays the received audio packet.
-        /// </summary>
-        /// <param name="bytes"></param>
-        public void IngestAudioPacket(byte[] bytes)
-        {
-            _audioPump?.IngestFrame(bytes, bytes.Length);
-        }
-
-        /// <summary>
-        /// Sends a packet to the server letting it know that we will be using UPD.
-        /// This tells the server to establish encryption using the reliable messaging CryptographyProvider.
-        /// After this packet is sent, we also set the local datagram client to use the local reliable messaging CryptographyProvider.
-        /// 
-        /// This is called by the sender client via ActiveChat.RequestVoiceCall() and the
-        ///     recipient client via ClientReliableMessageHandlers.RequestVoiceCallNotification().
-        /// </summary>
-        public void InitiateNetworkAddressTranslationMessage(Guid peerToPeerId, Guid connectionId)
-        {
-            DatagramClient = Settings.Instance.CreateDmClient();
-
-            DatagramClient.OnDatagramReceived += DatagramClient_OnDatagramReceived;
-
-            DatagramClient.Dispatch(new InitiateNetworkAddressTranslationMessage(peerToPeerId, connectionId));
-
-            if (ServerConnection.Current == null)
-                throw new Exception("Local connection is not established.");
-
-            //Obtain the public and private key-pair from the reliable connection so we can use it for the datagram messaging.
-            var rmCryptographyProvider = ServerConnection.Current?.ReliableClient.GetCryptographyProvider() as ReliableCryptographyProvider
-                ?? throw new Exception("Reliable cryptography has not been initialized.");
-
-            //TODO: Test crypto!
-            DatagramClient.Context.SetCryptographyProvider(new DatagramCryptographyProvider(rmCryptographyProvider.PublicPrivateKeyPair));
-        }
-
-        private void DatagramClient_OnDatagramReceived(DmContext context, IDmDatagram datagram)
-        {
-            if (datagram is VoicePacketMessage voicePacket)
-            {
-                IngestAudioPacket(voicePacket.Bytes);
-            }
-        }
-
         public void Terminate()
         {
             if (IsTerminated)
@@ -139,8 +109,9 @@ namespace SecureChat.Client
             }
             IsTerminated = true;
             ServerConnection.Current?.ReliableClient.Notify(new TerminateChatNotification(PeerToPeerId, PeerConnectionId));
-            DatagramClient?.Stop();
+            ServerConnection.Current?.DatagramClient?.Stop();
             Form?.AppendSystemMessageLine($"Chat ended at {DateTime.Now}.", Color.Red);
+            StopAudioPump();
         }
 
         /// <summary>
@@ -153,9 +124,6 @@ namespace SecureChat.Client
             _bitrate = bitrate;
 
             ServerConnection.Current?.ReliableClient.Notify(new RequestVoiceCallNotification(PeerToPeerId, PeerConnectionId));
-
-            //Prop up the UDP connection:
-            InitiateNetworkAddressTranslationMessage(PeerToPeerId, PeerConnectionId);
         }
 
         /// <summary>

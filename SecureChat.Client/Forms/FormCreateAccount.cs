@@ -80,8 +80,10 @@ namespace SecureChat.Client.Forms
                         var client = Settings.Instance.CreateRmClient();
                         client.OnException += Client_OnException;
 
+                        var appVersion = (Assembly.GetEntryAssembly()?.GetName().Version).EnsureNotNull();
+
                         //Send our public key to the server and wait on a reply of their public key.
-                        var remotePublicKey = client.Query(new ExchangePublicKeyQuery((Assembly.GetEntryAssembly()?.GetName().Version).EnsureNotNull(), keyPair.PublicRsaKey))
+                        var remotePublicKey = client.Query(new ExchangePublicKeyQuery(client.ConnectionId.EnsureNotNull(), appVersion, keyPair.PublicRsaKey))
                             .ContinueWith(o =>
                             {
                                 if (o.IsFaulted || !o.Result.IsSuccess)
