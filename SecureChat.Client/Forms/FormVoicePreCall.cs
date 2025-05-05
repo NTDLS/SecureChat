@@ -11,9 +11,9 @@ namespace SecureChat.Client.Forms
         private AudioPump? _audioPump = null;
 
         private int? _inputDeviceIndex = null;
-        public int? InputDeviceIndex { get => _inputDeviceIndex; }
+        public int InputDeviceIndex { get => _inputDeviceIndex ?? 0; }
         private int? _outputDeviceIndex = null;
-        public int? OutputDeviceIndex { get => _outputDeviceIndex; }
+        public int OutputDeviceIndex { get => _outputDeviceIndex ?? 0; }
         private int _bitrate = 32 * 1000;
         public int Bitrate { get => _bitrate; }
 

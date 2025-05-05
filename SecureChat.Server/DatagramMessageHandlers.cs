@@ -19,8 +19,13 @@ namespace SecureChat.Server
 
         public void ProcessFrameNotificationCallback(DmContext context, DmBytesDatagram bytes)
         {
+            Console.WriteLine($"Received {bytes.Bytes.Length} bytes.");
+        }
+
+        public void ProcessFrameNotificationCallback(DmContext context, VoicePacketMessage datagram)
+        {
             //context.WriteReplyBytes(bytes.Bytes); //Echo the payload back to the sender.
-            //Console.WriteLine($"Received {bytes.Bytes.Length} bytes.");
+            Console.WriteLine($"Received {datagram.Bytes.Length} bytes from {datagram.ConnectionId}.");
         }
 
         public void InitiateNetworkAddressTranslationMessage(DmContext context, InitiateNetworkAddressTranslationMessage datagram)
@@ -35,7 +40,6 @@ namespace SecureChat.Server
             //We have to do this because we cant communicate on the UPD stream until we know encryption is established.
             _chatService.RmServer.Notify(session.ConnectionId, new DatagramStreamReadyNotification(datagram.PeerToPeerId, datagram.ConnectionId));
 
-            //context.WriteReplyMessage(payload); //Echo the payload back to the sender.
             Console.WriteLine($"{datagram.ConnectionId}->{datagram.PeerToPeerId}");
         }
     }

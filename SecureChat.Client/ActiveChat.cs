@@ -14,6 +14,10 @@ namespace SecureChat.Client
         private readonly PermafrostCipher _streamCryptography;
         private AudioPump? _audioPump;
 
+        private int _inputDeviceIndex;
+        private int _outputDeviceIndex;
+        private int _bitrate;
+
         /// <summary>
         /// When a voice call is sent, this will be the control that is displayed in the chat window.
         /// We save it so we can remove it when the call is accepted or canceled.
@@ -62,18 +66,33 @@ namespace SecureChat.Client
             }
         }
 
-        public void StartAudioPump(int inputDeviceIndex, int outputDeviceIndex, int bitrate)
+        public void StartAudioPump()
         {
-            _audioPump = new AudioPump(inputDeviceIndex, outputDeviceIndex, bitrate);
+            _audioPump = new AudioPump(_inputDeviceIndex, _outputDeviceIndex, _bitrate);
 
             _audioPump.OnFrameProduced += (byte[] bytes, int byteCount) =>
             {
-                //TODO: this should be sent to the remote client.
-                //_audioPump.IngestFrame(bytes, byteCount);
+                //Sends the recorded audio to the server, for dispatch to the correct client.
+                DatagramClient?.Dispatch(new VoicePacketMessage(PeerToPeerId, ConnectionId, bytes));
             };
 
             _audioPump.StartCapture();
             _audioPump.StartPlayback();
+        }
+
+        public void StopAudioPump()
+        {
+            _audioPump?.Stop();
+            _audioPump = null;
+        }
+
+        /// <summary>
+        /// Plays the received audio packet.
+        /// </summary>
+        /// <param name="bytes"></param>
+        public void IngestAudioPacket(byte [] bytes)
+        {
+            _audioPump?.IngestFrame(bytes, bytes.Length);
         }
 
         /// <summary>
@@ -114,9 +133,14 @@ namespace SecureChat.Client
         /// <summary>
         /// Client is sending another client a request for a voice call.
         /// </summary>
-        public void RequestVoiceCall()
+        public void RequestVoiceCall(int inputDeviceIndex, int outputDeviceIndex, int bitrate)
         {
+            _inputDeviceIndex = inputDeviceIndex;
+            _outputDeviceIndex = outputDeviceIndex;
+            _bitrate = bitrate;
+
             ServerConnection.Current?.ReliableClient.Notify(new RequestVoiceCallNotification(PeerToPeerId, ConnectionId));
+
             //Prop up the UDP connection:
             InitiateNetworkAddressTranslationMessage(PeerToPeerId, ConnectionId);
         }
@@ -132,10 +156,13 @@ namespace SecureChat.Client
         /// <summary>
         /// Client which received the request for a voice call is is accepting the request.
         /// </summary>
-        public void AcceptVoiceCallRequest()
+        public void AcceptVoiceCallRequest(int inputDeviceIndex, int outputDeviceIndex, int bitrate)
         {
+            _inputDeviceIndex = inputDeviceIndex;
+            _outputDeviceIndex = outputDeviceIndex;
+            _bitrate = bitrate;
+
             ServerConnection.Current?.ReliableClient.Notify(new AcceptVoiceCallNotification(PeerToPeerId, ConnectionId));
-            ServerConnection.Current?.InitializeVoiceSession();
         }
 
         /// <summary>

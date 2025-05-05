@@ -25,7 +25,7 @@ namespace SecureChat.Client
 
             Current = null;
         }
-        public VoiceChatSession? VoiceSession { get; private set; }
+
         public RmClient ReliableClient { get; private set; }
         public Guid AccountId { get; private set; }
         public string Username { get; private set; }
@@ -46,16 +46,6 @@ namespace SecureChat.Client
             Username = username;
             DisplayName = displayName;
             AccountId = accountId;
-        }
-
-        public void InitializeVoiceSession()
-        {
-            if (VoiceSession != null)
-            {
-                return;
-            }
-
-            VoiceSession = new VoiceChatSession();
         }
 
         public ActiveChat AddActiveChat(Guid peerToPeerId, Guid connectionId, Guid accountId, string displayName, byte[] sharedSecret)

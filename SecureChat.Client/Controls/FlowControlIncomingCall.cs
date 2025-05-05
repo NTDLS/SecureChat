@@ -22,13 +22,15 @@ namespace SecureChat.Client.Controls
         private void ButtonAccept_Click(object sender, EventArgs e)
         {
             using var formVoicePreCall = new FormVoicePreCall();
-            if (formVoicePreCall.ShowDialog() == DialogResult.OK && formVoicePreCall.InputDeviceIndex != null && formVoicePreCall.OutputDeviceIndex != null)
+            if (formVoicePreCall.ShowDialog() == DialogResult.OK)
             {
                 buttonAccept.Enabled = false;
                 buttonDecline.Enabled = false;
 
-                //TODO: Setup the call...
-                _activeChat.AcceptVoiceCallRequest();
+                _activeChat.AcceptVoiceCallRequest(formVoicePreCall.InputDeviceIndex, formVoicePreCall.OutputDeviceIndex, formVoicePreCall.Bitrate);
+
+                //TODO: Setup the call... Does this not do it? I think it does.
+                _activeChat.StartAudioPump();
             }
         }
 

@@ -74,9 +74,7 @@ namespace SecureChat.Client
                 activeChat.LastOutgoingCallControl.Disable();
 
                 //TODO: Setup the call...
-
-
-
+                activeChat.StartAudioPump();
             }
             catch (Exception ex)
             {

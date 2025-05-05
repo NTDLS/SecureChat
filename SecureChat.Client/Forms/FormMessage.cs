@@ -490,9 +490,9 @@ namespace SecureChat.Client.Forms
         private void StartCallToolStripMenuItem_Click(object sender, EventArgs e)
         {
             using var formVoicePreCall = new FormVoicePreCall();
-            if (formVoicePreCall.ShowDialog() == DialogResult.OK && formVoicePreCall.InputDeviceIndex != null && formVoicePreCall.OutputDeviceIndex != null)
+            if (formVoicePreCall.ShowDialog() == DialogResult.OK)
             {
-                _activeChat.RequestVoiceCall();
+                _activeChat.RequestVoiceCall(formVoicePreCall.InputDeviceIndex, formVoicePreCall.OutputDeviceIndex, formVoicePreCall.Bitrate);
                 AppendOutgoingCallRequest(_activeChat.DisplayName);
             }
         }
