@@ -12,14 +12,14 @@ namespace SecureChat.Library
 
         public byte[] Decrypt(DmContext context, byte[] encryptedPayload)
         {
-            return encryptedPayload;
-            //=> Crypto.AesDecryptBytes(encryptedPayload, _publicPrivateKeyPair.PrivateRsaKey);
+            //return encryptedPayload;
+            return Crypto.AesDecryptBytes(encryptedPayload, _publicPrivateKeyPair.PrivateRsaKey);
         }
 
         public byte[] Encrypt(DmContext context, byte[] payload)
         {
-            return payload;
-            //=> Crypto.AesEncryptBytes(payload, _publicPrivateKeyPair.PublicRsaKey);
+            //return payload;
+            return Crypto.AesEncryptBytes(payload, _publicPrivateKeyPair.PublicRsaKey);
         }
     }
 }

@@ -6,6 +6,7 @@ using SecureChat.Client.Forms;
 using SecureChat.Library;
 using SecureChat.Library.DatagramMessages;
 using SecureChat.Library.ReliableMessages;
+using System.Diagnostics;
 
 namespace SecureChat.Client
 {
@@ -118,8 +119,8 @@ namespace SecureChat.Client
             var rmCryptographyProvider = ServerConnection.Current?.ReliableClient.GetCryptographyProvider() as ReliableCryptographyProvider
                 ?? throw new Exception("Reliable cryptography has not been initialized.");
 
-            //TODO: Setup crypto.
-            //DatagramClient.Context.SetCryptographyProvider(new DatagramCryptographyProvider(rmCryptographyProvider.PublicPrivateKeyPair));
+            //TODO: Test crypto!
+            DatagramClient.Context.SetCryptographyProvider(new DatagramCryptographyProvider(rmCryptographyProvider.PublicPrivateKeyPair));
         }
 
         private void DatagramClient_OnDatagramReceived(DmContext context, IDmDatagram datagram)

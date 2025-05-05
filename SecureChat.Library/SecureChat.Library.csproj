@@ -12,9 +12,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NTDLS.DatagramMessaging" Version="1.7.2" />
     <PackageReference Include="NTDLS.ReliableMessaging" Version="2.1.6" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="9.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\NTDLS.DatagramMessaging\NTDLS.DatagramMessaging\NTDLS.DatagramMessaging.csproj" />
   </ItemGroup>
 
 </Project>
