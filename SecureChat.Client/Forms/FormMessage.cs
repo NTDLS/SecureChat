@@ -296,7 +296,8 @@ namespace SecureChat.Client.Forms
 
         public void AppendOutgoingCallRequest(string toName)
         {
-            AppendFlowControl(new FlowControlOutgoingCall(flowPanel, _activeChat, toName));
+            _activeChat.LastOutgoingCallControl = new FlowControlOutgoingCall(flowPanel, _activeChat, toName);
+            AppendFlowControl(_activeChat.LastOutgoingCallControl);
         }
 
         public void AppendReceivedMessageLine(string fromName, string plainText, bool playNotifications, Color? color = null)

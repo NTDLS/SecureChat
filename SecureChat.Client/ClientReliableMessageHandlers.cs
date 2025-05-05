@@ -1,5 +1,6 @@
 ﻿using NTDLS.ReliableMessaging;
 using NTDLS.SecureKeyExchange;
+using SecureChat.Client.Audio;
 using SecureChat.Client.Forms;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
@@ -54,6 +55,7 @@ namespace SecureChat.Client
             }
         }
 
+
         /// <summary>
         /// The client that we requested a voice call with has accepted that call.
         /// </summary>
@@ -62,6 +64,18 @@ namespace SecureChat.Client
             try
             {
                 var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
+                if (activeChat.LastOutgoingCallControl == null)
+                {
+                    throw new Exception("Last outgoing call does not exist.");
+                }
+
+                //Let the local user know that the call was accepted.
+                activeChat.LastOutgoingCallControl.Text = "Call accepted.";
+                activeChat.LastOutgoingCallControl.Disable();
+
+                //TODO: Setup the call...
+
+
 
             }
             catch (Exception ex)

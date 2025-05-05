@@ -1,4 +1,6 @@
 ﻿using NTDLS.Helpers;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SecureChat.Client.Controls
 {
@@ -6,6 +8,19 @@ namespace SecureChat.Client.Controls
     {
         private readonly FlowLayoutPanel _parent;
         private readonly ActiveChat _activeChat;
+
+        [AllowNull]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override string Text
+        {
+            get => labelOutgoingCallTo.Text;
+            set => labelOutgoingCallTo.Text = value;
+        }
+
+        public void Disable()
+        {
+            buttonCancel.Enabled = false;
+        }
 
         public FlowControlOutgoingCall(FlowLayoutPanel parent, ActiveChat activeChat, string toName)
         {

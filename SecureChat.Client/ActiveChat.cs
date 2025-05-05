@@ -1,5 +1,7 @@
 ﻿using NTDLS.DatagramMessaging;
 using NTDLS.Permafrost;
+using SecureChat.Client.Audio;
+using SecureChat.Client.Controls;
 using SecureChat.Client.Forms;
 using SecureChat.Library;
 using SecureChat.Library.DatagramMessages;
@@ -9,15 +11,23 @@ namespace SecureChat.Client
 {
     internal class ActiveChat
     {
+        private readonly PermafrostCipher _streamCryptography;
+        private AudioPump? _audioPump;
+
+        /// <summary>
+        /// When a voice call is sent, this will be the control that is displayed in the chat window.
+        /// We save it so we can remove it when the call is accepted or canceled.
+        /// </summary>
+        public FlowControlOutgoingCall? LastOutgoingCallControl { get; set; }
         public bool IsTerminated { get; private set; } = false;
         public FormMessage? Form { get; set; }
         public Guid AccountId { get; private set; }
         public string DisplayName { get; private set; }
         public Guid ConnectionId { get; private set; }
-        private readonly PermafrostCipher _streamCryptography;
         public Dictionary<Guid, FileReceiveBuffer> FileReceiveBuffers { get; set; } = new();
-        public DmClient? DatagramClient { get; private set; }
         public Guid PeerToPeerId { get; private set; }
+
+        public DmClient? DatagramClient { get; private set; }
 
         public ActiveChat(Guid peerToPeerId, Guid connectionId, Guid accountId, string displayName, byte[] sharedSecret)
         {
@@ -52,10 +62,27 @@ namespace SecureChat.Client
             }
         }
 
+        public void StartAudioPump(int inputDeviceIndex, int outputDeviceIndex, int bitrate)
+        {
+            _audioPump = new AudioPump(inputDeviceIndex, outputDeviceIndex, bitrate);
+
+            _audioPump.OnFrameProduced += (byte[] bytes, int byteCount) =>
+            {
+                //TODO: this should be sent to the remote client.
+                //_audioPump.IngestFrame(bytes, byteCount);
+            };
+
+            _audioPump.StartCapture();
+            _audioPump.StartPlayback();
+        }
+
         /// <summary>
         /// Sends a packet to the server letting it know that we will be using UPD.
         /// This tells the server to establish encryption using the reliable messaging CryptographyProvider.
         /// After this packet is sent, we also set the local datagram client to use the local reliable messaging CryptographyProvider.
+        /// 
+        /// This is called by the sender client via ActiveChat.RequestVoiceCall() and the
+        ///     recipient client via ClientReliableMessageHandlers.RequestVoiceCallNotification().
         /// </summary>
         public void InitiateNetworkAddressTranslationMessage(Guid peerToPeerId, Guid connectionId)
         {
