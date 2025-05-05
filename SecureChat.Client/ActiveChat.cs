@@ -30,7 +30,6 @@ namespace SecureChat.Client
         public Guid PeerConnectionId { get; private set; }
         public Dictionary<Guid, FileReceiveBuffer> FileReceiveBuffers { get; set; } = new();
         public Guid PeerToPeerId { get; private set; }
-
         public DmContext? DmContext { get; set; }
 
         public ActiveChat(Guid peerToPeerId, Guid peerConnectionId, Guid accountId, string displayName, byte[] sharedSecret)
@@ -76,8 +75,7 @@ namespace SecureChat.Client
 
         public void PlayAudioPacket(byte[] bytes)
         {
-            //TODO: implement peer-to-peer encryption.
-            _audioPump?.IngestFrame(bytes);
+            _audioPump?.IngestFrame(Cipher(bytes));
         }
 
         public void StartAudioPump()
@@ -86,9 +84,8 @@ namespace SecureChat.Client
 
             _audioPump.OnFrameProduced += (byte[] bytes, int byteCount) =>
             {
-                //var encrypted = Crypto.AesEncryptBytes(bytes, _publicPrivateKeyPair.PrivateRsaKey);
                 //Sends the recorded audio to the server, for dispatch to the correct client.
-                ServerConnection.Current?.DatagramClient?.Dispatch(new VoicePacketMessage(PeerToPeerId, PeerConnectionId, bytes));
+                ServerConnection.Current?.DatagramClient?.Dispatch(new VoicePacketMessage(PeerToPeerId, PeerConnectionId, Cipher(bytes)));
             };
 
             _audioPump.StartCapture();
