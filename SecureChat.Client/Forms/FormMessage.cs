@@ -1,7 +1,6 @@
 ﻿using NTDLS.Helpers;
 using SecureChat.Client.Controls;
 using SecureChat.Client.Helpers;
-using SecureChat.Client.Models;
 using SecureChat.Library;
 using Serilog;
 using System.Diagnostics;
@@ -23,14 +22,13 @@ namespace SecureChat.Client.Forms
 
             try
             {
-
                 _activeChat = activeChat;
 
                 Text = $"{activeChat.DisplayName} - {Text}";
 
                 FormClosing += (object? sender, FormClosingEventArgs e) =>
                 {
-                    if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.Client.IsConnected)
+                    if (ServerConnection.Current == null || _activeChat.IsTerminated || !ServerConnection.Current.ReliableClient.IsConnected)
                     {
                         return; //Close the dialog.
                     }
@@ -134,7 +132,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.Client.IsConnected)
+                if (ServerConnection.Current == null || _activeChat.IsTerminated || !ServerConnection.Current.ReliableClient.IsConnected)
                 {
                     if (Visible == false)
                     {
@@ -228,7 +226,7 @@ namespace SecureChat.Client.Forms
 
         #region Append Flow Controls.
 
-        public void AppendFlowControl(FlowLayoutPanel control)
+        private void AppendFlowControl(Control control)
         {
             try
             {
@@ -291,9 +289,15 @@ namespace SecureChat.Client.Forms
             AppendFlowControl(new FlowControlSystemText(flowPanel, message, color));
         }
 
-        public void AppendMessageLine(string message, Color? color = null)
+        public void AppendIncomingCallRequest(string fromName)
         {
-            AppendFlowControl(new FlowControlSystemText(flowPanel, message, color));
+            AppendFlowControl(new FlowControlIncomingCall(flowPanel, _activeChat, fromName));
+        }
+
+        public void AppendOutgoingCallRequest(string toName)
+        {
+            _activeChat.LastOutgoingCallControl = new FlowControlOutgoingCall(flowPanel, _activeChat, toName);
+            AppendFlowControl(_activeChat.LastOutgoingCallControl);
         }
 
         public void AppendReceivedMessageLine(string fromName, string plainText, bool playNotifications, Color? color = null)
@@ -336,21 +340,54 @@ namespace SecureChat.Client.Forms
             }
         }
 
+        public void AppendIncomingCall(string fromName, bool playNotifications, Color? color = null)
+        {
+            try
+            {
+                Invoke(() =>
+                {
+                    if (Visible == false)
+                    {
+                        //We want to show the dialog, but keep it minimized so that it does not jump in front of the user.
+                        WindowState = FormWindowState.Minimized;
+                        Visible = true;
+                    }
+
+                    if (playNotifications)
+                    {
+                        if (WindowFlasher.FlashWindow(this))
+                        {
+                            Notifications.IncomingCall(fromName);
+                        }
+                    }
+                });
+
+                _lastMessageReceived = DateTime.Now;
+
+                AppendIncomingCallRequest(fromName);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         #endregion
 
         private void ButtonSend_Click(object? sender, EventArgs e)
         {
             try
             {
-                if (LocalSession.Current == null || _activeChat.IsTerminated || !LocalSession.Current.Client.IsConnected)
+                if (ServerConnection.Current == null || _activeChat.IsTerminated || !ServerConnection.Current.ReliableClient.IsConnected)
                 {
-                    AppendMessageLine("Not connected.", Color.Red);
+                    AppendSystemMessageLine("Not connected.", Color.Red);
                     return;
                 }
 
                 if (_activeChat.IsTerminated)
                 {
-                    AppendMessageLine("Chat has ended.", Color.Red);
+                    AppendSystemMessageLine("Chat has ended.", Color.Red);
                     return;
                 }
 
@@ -363,11 +400,11 @@ namespace SecureChat.Client.Forms
 
                 if (_activeChat.SendMessage(text))
                 {
-                    AppendReceivedMessageLine(LocalSession.Current.DisplayName, text, false, Color.Blue);
+                    AppendReceivedMessageLine(ServerConnection.Current.DisplayName, text, false, Color.Blue);
                 }
                 else
                 {
-                    AppendMessageLine("Failed to send message.", Color.Red);
+                    AppendSystemMessageLine("Failed to send message.", Color.Red);
                 }
             }
             catch (Exception ex)
@@ -450,16 +487,16 @@ namespace SecureChat.Client.Forms
             }
         }
 
-        private void EndCallToolStripMenuItem_Click_1(object sender, EventArgs e)
-        {
-
-        }
-
         private void StartCallToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            using var formVoicePreCall = new FormVoicePreCall();
+            if (formVoicePreCall.ShowDialog() == DialogResult.OK)
+            {
+                _activeChat.RequestVoiceCall(formVoicePreCall.InputDeviceIndex, formVoicePreCall.OutputDeviceIndex, formVoicePreCall.Bitrate);
+                AppendOutgoingCallRequest(_activeChat.DisplayName);
+            }
         }
-
-        #endregion
     }
+
+    #endregion
 }

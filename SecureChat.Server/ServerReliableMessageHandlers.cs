@@ -26,21 +26,111 @@ namespace SecureChat.Server
         }
 
         /// <summary>
-        /// Client is sending an update to their display name and/or profile
+        /// The client is letting us know that it received the UDP reply message and
+        ///     has initialized the public-private key cryptography for this UDP context.
+        /// Sent from <see cref="SecureChat.Server.ServerDatagramMessageHandlers.InitiateNetworkAddressTranslationMessage"/>
         /// </summary>
-        public UpdateAccountProfileReply UpdateAccountProfile(RmContext context, UpdateAccountProfile param)
+        public void DatagramStreamReadyNotification(RmContext context, DatagramStreamReadyNotification param)
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
+                var session = VerifyAndGetSession(context);
 
-                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
-                    ?? throw new Exception("Session not found.");
+                if (session.DmContext == null)
+                    throw new Exception("Datagram context is not initialized.");
 
+                session.DmContext.SetCryptographyProvider(new DatagramCryptographyProvider(session.ServerClientCryptographyProvider.PublicPrivateKeyPair));
+
+                Console.WriteLine($"Peer: {param.PeerConnectionId} (crypto init'd)");
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// A client is requesting a voice call with another client.
+        /// Route the message to the appropriate connection.
+        /// </summary>
+        public void RequestVoiceCallNotification(RmContext context, RequestVoiceCallNotification param)
+        {
+            try
+            {
+                var session = VerifyAndGetSession(context);
+
+                _chatService.RmServer.Notify(param.PeerConnectionId, param);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// A client that requested a voice call is cancelling that request.
+        /// Route the message to the appropriate connection.
+        /// </summary>
+        public void CancelVoiceCallRequestNotification(RmContext context, CancelVoiceCallRequestNotification param)
+        {
+            try
+            {
+                var session = VerifyAndGetSession(context);
+
+                _chatService.RmServer.Notify(param.PeerConnectionId, param);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// A client that received a voice call request is accepting that request.
+        /// Route the message to the appropriate connection.
+        /// </summary>
+        public void AcceptVoiceCallNotification(RmContext context, AcceptVoiceCallNotification param)
+        {
+            try
+            {
+                var session = VerifyAndGetSession(context);
+
+                _chatService.RmServer.Notify(param.PeerConnectionId, param);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// A client that received a voice call request is declining that request.
+        /// Route the message to the appropriate connection.
+        /// </summary>
+        public void DeclineVoiceCallNotification(RmContext context, DeclineVoiceCallNotification param)
+        {
+            try
+            {
+                var session = VerifyAndGetSession(context);
+
+                _chatService.RmServer.Notify(param.PeerConnectionId, param);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Client is sending an update to their display name and/or profile
+        /// </summary>
+        public UpdateAccountProfileQueryReply UpdateAccountProfileQuery(RmContext context, UpdateAccountProfileQuery param)
+        {
+            try
+            {
+                var session = VerifyAndGetSession(context);
 
                 var account = _dbRepository.GetAccountById(session.AccountId.EnsureNotNull());
-
                 if (account.DisplayName != param.DisplayName)
                 {
                     _dbRepository.UpdateAccountDisplayName(session.AccountId.EnsureNotNull(), param.DisplayName);
@@ -48,36 +138,32 @@ namespace SecureChat.Server
 
                 _dbRepository.UpdateAccountProfile(session.AccountId.EnsureNotNull(), param.Profile);
 
-                return new UpdateAccountProfileReply();
+                return new UpdateAccountProfileQueryReply();
             }
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new UpdateAccountProfileReply(ex);
+                return new UpdateAccountProfileQueryReply(ex);
             }
         }
 
         /// <summary>
         /// Client is accepting a contact invite request.
         /// </summary>
-        public AcceptContactInviteReply AcceptContactInvite(RmContext context, AcceptContactInvite param)
+        public AcceptContactInviteQueryReply AcceptContactInviteQuery(RmContext context, AcceptContactInviteQuery param)
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
-
-                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
-                    ?? throw new Exception("Session not found.");
+                var session = VerifyAndGetSession(context);
 
                 _dbRepository.AcceptContactInvite(param.AccountId, session.AccountId.EnsureNotNull());
 
-                return new AcceptContactInviteReply();
+                return new AcceptContactInviteQueryReply();
             }
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new AcceptContactInviteReply(ex);
+                return new AcceptContactInviteQueryReply(ex);
             }
         }
 
@@ -88,11 +174,7 @@ namespace SecureChat.Server
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
-
-                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
-                    ?? throw new Exception("Session not found.");
+                var session = VerifyAndGetSession(context);
 
                 _dbRepository.RemoveContact(session.AccountId.EnsureNotNull(), param.AccountId);
 
@@ -112,11 +194,7 @@ namespace SecureChat.Server
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
-
-                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
-                    ?? throw new Exception("Session not found.");
+                var session = VerifyAndGetSession(context);
 
                 _dbRepository.AddContactInvite(session.AccountId.EnsureNotNull(), param.AccountId);
 
@@ -136,11 +214,7 @@ namespace SecureChat.Server
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
-
-                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
-                    ?? throw new Exception("Session not found.");
+                var session = VerifyAndGetSession(context);
 
                 var accounts = _dbRepository.AccountSearch(session.AccountId.EnsureNotNull(), param.DisplayName);
 
@@ -160,8 +234,7 @@ namespace SecureChat.Server
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
+                var session = VerifyAndGetSession(context);
 
                 _dbRepository.CreateAccount(param.Username, param.DisplayName, param.PasswordHash);
 
@@ -175,16 +248,16 @@ namespace SecureChat.Server
         }
 
         /// <summary>
-        /// The client is beginning to transmit a file. Relay it to the appropriate client.
+        /// A client is beginning to transmit a file.
+        /// Route the message to the appropriate connection.
         /// </summary>
-        public void FileTransmissionBegin(RmContext context, FileTransmissionBegin param)
+        public void FileTransmissionBeginNotification(RmContext context, FileTransmissionBeginNotification param)
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
+                var session = VerifyAndGetSession(context);
 
-                _chatService.RmServer.Notify(param.ConnectionId, param);
+                _chatService.RmServer.Notify(param.PeerConnectionId, param);
             }
             catch (Exception ex)
             {
@@ -193,16 +266,16 @@ namespace SecureChat.Server
         }
 
         /// <summary>
-        /// The client transmitting a file chunk. Relay it to the appropriate client.
+        /// A client transmitting a file chunk.
+        /// Route the message to the appropriate connection.
         /// </summary>
-        public void FileTransmissionChunk(RmContext context, FileTransmissionChunk param)
+        public void FileTransmissionChunkNotification(RmContext context, FileTransmissionChunkNotification param)
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
+                var session = VerifyAndGetSession(context);
 
-                _chatService.RmServer.Notify(param.ConnectionId, param);
+                _chatService.RmServer.Notify(param.PeerConnectionId, param);
             }
             catch (Exception ex)
             {
@@ -211,36 +284,35 @@ namespace SecureChat.Server
         }
 
         /// <summary>
-        /// The client has finished transmitting a file. Relay it to the appropriate client.
+        /// A client has finished transmitting a file.
+        /// Route the message to the appropriate connection.
         /// </summary>
-        public FileTransmissionEndReply FileTransmissionEnd(RmContext context, FileTransmissionEnd param)
+        public FileTransmissionEndQueryReply FileTransmissionEndQuery(RmContext context, FileTransmissionEndQuery param)
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
+                var session = VerifyAndGetSession(context);
 
-                return _chatService.RmServer.Query(param.ConnectionId, param).Result;
+                return _chatService.RmServer.Query(param.PeerConnectionId, param).Result;
             }
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new FileTransmissionEndReply(ex);
+                return new FileTransmissionEndQueryReply(ex);
             }
         }
 
         /// <summary>
         /// A client is letting the server know that they are terminating the chat.
-        /// Relay the message to the other client.
+        /// Route the message to the appropriate connection.
         /// </summary>
-        public void TerminateChat(RmContext context, TerminateChat param)
+        public void TerminateChatNotification(RmContext context, TerminateChatNotification param)
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
+                var session = VerifyAndGetSession(context);
 
-                _chatService.RmServer.Notify(param.ConnectionId, param);
+                _chatService.RmServer.Notify(param.PeerConnectionId, param);
             }
             catch (Exception ex)
             {
@@ -251,12 +323,11 @@ namespace SecureChat.Server
         /// <summary>
         /// A client is updating the server about their state/status.
         /// </summary>
-        public void UpdateAccountState(RmContext context, UpdateAccountState param)
+        public void UpdateAccountStateNotification(RmContext context, UpdateAccountStateNotification param)
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
+                var session = VerifyAndGetSession(context);
 
                 _dbRepository.UpdateAccountState(param.AccountId, param.State);
             }
@@ -268,27 +339,28 @@ namespace SecureChat.Server
 
         /// <summary>
         /// A client is sending a message to another client.
+        /// Route the message to the appropriate connection.
         /// </summary>
-        public ExchangePeerToPeerQueryReply ExchangePeerToPeerQuery(RmContext context, ExchangePeerToPeerQuery param)
+        public ExchangeMessageTextQueryReply ExchangeMessageTextQuery(RmContext context, ExchangeMessageTextQuery param)
         {
             try
             {
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Cryptography has not been initialized.");
 
-                return _chatService.RmServer.Query(param.ConnectionId, param).Result;
+                return _chatService.RmServer.Query(param.PeerConnectionId, param).Result;
             }
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new ExchangePeerToPeerQueryReply(ex);
+                return new ExchangeMessageTextQueryReply(ex);
             }
         }
 
         /// <summary>
         /// A client is telling the server that it would like to establish end-to-end encryption with another client.
         /// </summary>
-        public InitiateEndToEndCryptographyReply InitiateEndToEndCryptography(RmContext context, InitiateEndToEndCryptography param)
+        public InitiateEndToEndCryptographyQueryReply InitiateEndToEndCryptographyQuery(RmContext context, InitiateEndToEndCryptographyQuery param)
         {
             try
             {
@@ -310,7 +382,7 @@ namespace SecureChat.Server
             }
             catch (Exception ex)
             {
-                return new InitiateEndToEndCryptographyReply(ex.GetBaseException());
+                return new InitiateEndToEndCryptographyQueryReply(ex.GetBaseException());
             }
         }
 
@@ -318,18 +390,17 @@ namespace SecureChat.Server
         /// The remote service is letting us know that they are about to start using the
         /// cryptography provider, so we need to apply the one that we have ready on this end.
         /// </summary>
-        public void InitializeServerClientCryptography(RmContext context, InitializeServerClientCryptography notification)
+        public void InitializeServerClientCryptographyNotification(RmContext context, InitializeServerClientCryptographyNotification param)
         {
             try
             {
                 if (context.GetCryptographyProvider() != null)
                     throw new Exception("Cryptography has already been initialized.");
 
-                var session = _chatService.GetSessionByConnectionId(context.ConnectionId);
-                if (session != null)
-                {
-                    context.SetCryptographyProvider(session.ServerClientCryptographyProvider);
-                }
+                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
+                    ?? throw new Exception("Session not found.");
+
+                context.SetCryptographyProvider(session.ServerClientCryptographyProvider);
             }
             catch (Exception ex)
             {
@@ -352,7 +423,7 @@ namespace SecureChat.Server
                     throw new Exception($"Client version is unsupported, use version {ScConstants.MinClientVersion} or greater.");
 
                 var localPublicPrivateKeyPair = Crypto.GeneratePublicPrivateKeyPair();
-                _chatService.RegisterSession(context.ConnectionId, new ServerClientCryptographyProvider(param.PublicRsaKey, localPublicPrivateKeyPair.PrivateRsaKey));
+                _chatService.RegisterSession(context.ConnectionId, param.PeerConnectionId, new ReliableCryptographyProvider(param.PublicRsaKey, localPublicPrivateKeyPair.PrivateRsaKey));
                 return new ExchangePublicKeyQueryReply(localPublicPrivateKeyPair.PublicRsaKey);
             }
             catch (Exception ex)
@@ -368,11 +439,7 @@ namespace SecureChat.Server
         {
             try
             {
-                if (context.GetCryptographyProvider() == null)
-                    throw new Exception("Cryptography has not been initialized.");
-
-                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
-                    ?? throw new Exception("Session not found.");
+                var session = VerifyAndGetSession(context);
 
                 if (session.AccountId != null)
                 {
@@ -403,8 +470,7 @@ namespace SecureChat.Server
         {
             try
             {
-                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
-                    ?? throw new Exception("Session not found.");
+                var session = VerifyAndGetSession(context);
 
                 var contacts = _dbRepository.GetContacts(session.AccountId.EnsureNotNull());
 
@@ -414,6 +480,17 @@ namespace SecureChat.Server
             {
                 return new GetContactsQueryReply(ex.GetBaseException());
             }
+        }
+
+        public AccountSession VerifyAndGetSession(RmContext context)
+        {
+            if (context.GetCryptographyProvider() == null)
+                throw new Exception("Cryptography has not been initialized.");
+
+            var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
+                ?? throw new Exception("Session not found.");
+
+            return session;
         }
     }
 }

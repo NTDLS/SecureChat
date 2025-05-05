@@ -47,6 +47,11 @@ namespace SecureChat.Client.Audio
             _outputDeviceIndex = outputDeviceIndex;
         }
 
+        public void IngestFrame(byte[] bytes)
+        {
+            IngestFrame(bytes, bytes.Length);
+        }
+
         public void IngestFrame(byte[] bytes, int byteCount)
         {
             if (byteCount <= 0) return;

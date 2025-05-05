@@ -3,32 +3,32 @@ using SecureChat.Library.Models;
 
 namespace SecureChat.Library.ReliableMessages
 {
-    public class UpdateAccountProfile
-        : IRmQuery<UpdateAccountProfileReply>
+    public class UpdateAccountProfileQuery
+        : IRmQuery<UpdateAccountProfileQueryReply>
     {
         public string DisplayName { get; set; }
         public AccountProfileModel Profile { get; set; }
 
-        public UpdateAccountProfile(string displayName, AccountProfileModel profile)
+        public UpdateAccountProfileQuery(string displayName, AccountProfileModel profile)
         {
             DisplayName = displayName;
             Profile = profile;
         }
     }
 
-    public class UpdateAccountProfileReply
+    public class UpdateAccountProfileQueryReply
         : IRmQueryReply
     {
         public bool IsSuccess { get; set; }
         public string? ErrorMessage { get; set; }
 
-        public UpdateAccountProfileReply(Exception exception)
+        public UpdateAccountProfileQueryReply(Exception exception)
         {
             ErrorMessage = exception.GetBaseException().Message;
             IsSuccess = false;
         }
 
-        public UpdateAccountProfileReply()
+        public UpdateAccountProfileQueryReply()
         {
             IsSuccess = true;
         }

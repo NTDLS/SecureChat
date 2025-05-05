@@ -9,7 +9,7 @@ namespace SecureChat.Server
 {
     internal class DatabaseRepository
     {
-        private readonly ManagedDataStorageFactory _dbFactory;
+        private readonly SqliteManagedFactory _dbFactory;
 
         public DatabaseRepository(IConfiguration configuration)
         {
@@ -18,7 +18,7 @@ namespace SecureChat.Server
 #else
             var sqliteConnection = configuration.GetValue<string>("SQLiteConnection");
 #endif
-            _dbFactory = new ManagedDataStorageFactory($"Data Source={sqliteConnection}");
+            _dbFactory = new SqliteManagedFactory($"Data Source={sqliteConnection}");
         }
 
         public void CreateAccount(string username, string displayName, string passwordHash)
@@ -75,7 +75,7 @@ namespace SecureChat.Server
             _dbFactory.Ephemeral(o => UpdateAccountLastSeen(o, accountId));
         }
 
-        public void UpdateAccountLastSeen(ManagedDataStorageInstance instance, Guid accountId)
+        public void UpdateAccountLastSeen(SqliteManagedInstance instance, Guid accountId)
         {
             instance.Execute(@"SqlQueries\UpdateAccountLastSeen.sql", new
             {
@@ -89,7 +89,7 @@ namespace SecureChat.Server
             _dbFactory.Ephemeral(o => UpdateAccountState(o, accountId, state));
         }
 
-        public void UpdateAccountState(ManagedDataStorageInstance instance, Guid accountId, ScOnlineState state)
+        public void UpdateAccountState(SqliteManagedInstance instance, Guid accountId, ScOnlineState state)
         {
             _dbFactory.Execute(@"SqlQueries\UpdateAccountState.sql",
                 new

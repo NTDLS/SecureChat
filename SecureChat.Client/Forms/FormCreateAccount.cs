@@ -1,7 +1,6 @@
 ﻿using NTDLS.Helpers;
 using NTDLS.ReliableMessaging;
 using NTDLS.WinFormsHelpers;
-using SecureChat.Client.Models;
 using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
@@ -78,11 +77,13 @@ namespace SecureChat.Client.Forms
                         progressForm.SetHeaderText("Negotiating cryptography...");
 
                         var keyPair = Crypto.GeneratePublicPrivateKeyPair();
-                        var client = Settings.Instance.CreateClient();
+                        var client = Settings.Instance.CreateRmClient();
                         client.OnException += Client_OnException;
 
+                        var appVersion = (Assembly.GetEntryAssembly()?.GetName().Version).EnsureNotNull();
+
                         //Send our public key to the server and wait on a reply of their public key.
-                        var remotePublicKey = client.Query(new ExchangePublicKeyQuery((Assembly.GetEntryAssembly()?.GetName().Version).EnsureNotNull(), keyPair.PublicRsaKey))
+                        var remotePublicKey = client.Query(new ExchangePublicKeyQuery(client.ConnectionId.EnsureNotNull(), appVersion, keyPair.PublicRsaKey))
                             .ContinueWith(o =>
                             {
                                 if (o.IsFaulted || !o.Result.IsSuccess)
@@ -93,8 +94,8 @@ namespace SecureChat.Client.Forms
                                 return o.Result.PublicRsaKey;
                             }).Result;
 
-                        client.Notify(new InitializeServerClientCryptography());
-                        client.SetCryptographyProvider(new ServerClientCryptographyProvider(remotePublicKey, keyPair.PrivateRsaKey));
+                        client.Notify(new InitializeServerClientCryptographyNotification());
+                        client.SetCryptographyProvider(new ReliableCryptographyProvider(remotePublicKey, keyPair.PrivateRsaKey));
 
                         Thread.Sleep(1000); //Give the server a moment to initialize the cryptography.
 

@@ -8,6 +8,9 @@
     <Compile Update="Controls\DoubleBufferedTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Update="Controls\FlowControlIncomingCall.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="Forms\FormAbout.cs">
       <SubType>Form</SubType>
     </Compile>

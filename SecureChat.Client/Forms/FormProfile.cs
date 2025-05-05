@@ -13,7 +13,7 @@ namespace SecureChat.Client.Forms
         {
             InitializeComponent();
 
-            if (LocalSession.Current == null || !LocalSession.Current.Client.IsConnected)
+            if (ServerConnection.Current == null || !ServerConnection.Current.ReliableClient.IsConnected)
             {
                 return;
             }
@@ -31,16 +31,16 @@ namespace SecureChat.Client.Forms
                 TopMost = false;
             }
 
-            textBoxDisplayName.Text = LocalSession.Current.DisplayName;
-            textBoxTagline.Text = LocalSession.Current.Profile.Tagline;
-            textBoxBiography.Text = LocalSession.Current.Profile.Biography;
+            textBoxDisplayName.Text = ServerConnection.Current.DisplayName;
+            textBoxTagline.Text = ServerConnection.Current.Profile.Tagline;
+            textBoxBiography.Text = ServerConnection.Current.Profile.Biography;
         }
 
         private void ButtonSave_Click(object sender, EventArgs e)
         {
             try
             {
-                if (LocalSession.Current == null || !LocalSession.Current.Client.IsConnected)
+                if (ServerConnection.Current == null || !ServerConnection.Current.ReliableClient.IsConnected)
                 {
                     MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     this.InvokeClose(DialogResult.Cancel);
@@ -55,12 +55,12 @@ namespace SecureChat.Client.Forms
                     Biography = textBoxBiography.GetAndValidateText(0, 2500, "If a biography is supplied, it must not exceed [max] characters.")
                 };
 
-                LocalSession.Current.Client.Query(new UpdateAccountProfile(displayName, profile)).ContinueWith(o =>
+                ServerConnection.Current.ReliableClient.Query(new UpdateAccountProfileQuery(displayName, profile)).ContinueWith(o =>
                 {
                     if (!o.IsFaulted && o.Result.IsSuccess)
                     {
-                        LocalSession.Current.DisplayName = displayName;
-                        LocalSession.Current.Profile = profile;
+                        ServerConnection.Current.DisplayName = displayName;
+                        ServerConnection.Current.Profile = profile;
 
                         this.InvokeClose(DialogResult.OK);
                     }

@@ -1,4 +1,5 @@
-﻿using SecureChat.Client.Forms;
+﻿using NTDLS.Helpers;
+using SecureChat.Client.Forms;
 using SecureChat.Client.Helpers;
 
 namespace SecureChat.Client.Controls
@@ -49,7 +50,7 @@ namespace SecureChat.Client.Controls
                 contextMenu.Items.Add("Copy", null, OnCopyImage);
                 contextMenu.Items.Add(new ToolStripSeparator());
                 contextMenu.Items.Add("Remove", null, OnRemoveImage);
-                contextMenu.Show(_pictureBox, e.Location);
+                contextMenu.Show((sender as Control) ?? this, e.Location);
             }
         }
 
@@ -73,28 +74,24 @@ namespace SecureChat.Client.Controls
 
         private void OnRemoveImage(object? sender, EventArgs e)
         {
-            try
+            Exceptions.Ignore(() =>
             {
+
                 _pictureBox.Image = null;
                 _parent.Controls.Remove(this);
-            }
-            catch
-            {
-            }
+            });
         }
 
         private void OnCopyImage(object? sender, EventArgs e)
         {
-            try
+            Exceptions.Ignore(() =>
             {
+
                 if (_pictureBox.Image != null)
                 {
                     Clipboard.SetImage(_pictureBox.Image);
                 }
-            }
-            catch
-            {
-            }
+            });
         }
 
         private void Image_MouseLeave(object? sender, EventArgs e)

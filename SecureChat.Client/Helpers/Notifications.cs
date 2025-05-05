@@ -1,5 +1,4 @@
-﻿using SecureChat.Client.Models;
-using SecureChat.Client.Properties;
+﻿using SecureChat.Client.Properties;
 using System.Media;
 
 namespace SecureChat.Client.Helpers
@@ -13,13 +12,13 @@ namespace SecureChat.Client.Helpers
                 using var stream = new MemoryStream(Resources.ContactOnline);
                 if (stream != null)
                 {
-                    using SoundPlayer player = new SoundPlayer(stream);
+                    using var player = new SoundPlayer(stream);
                     player.Play();
                 }
             }
-            if (Settings.Instance.AlertToastWhenContactComesOnline && LocalSession.Current != null)
+            if (Settings.Instance.AlertToastWhenContactComesOnline && ServerConnection.Current != null)
             {
-                LocalSession.Current.Tray.ShowBalloon("", $"{contactName} is now online.");
+                ServerConnection.Current.Tray.ShowBalloon("", $"{contactName} is now online.");
             }
         }
 
@@ -30,15 +29,31 @@ namespace SecureChat.Client.Helpers
                 using var stream = new MemoryStream(Resources.MessageReceived);
                 if (stream != null)
                 {
-                    using SoundPlayer player = new SoundPlayer(stream);
+                    using var player = new SoundPlayer(stream);
                     player.Play();
                 }
             }
-            if (Settings.Instance.AlertToastWhenMessageReceived && LocalSession.Current != null)
+            if (Settings.Instance.AlertToastWhenMessageReceived && ServerConnection.Current != null)
             {
-                LocalSession.Current.Tray.ShowBalloon("", $"{contactName} sent you a message.");
+                ServerConnection.Current.Tray.ShowBalloon("", $"{contactName} sent you a message.");
             }
+        }
 
+        public static void IncomingCall(string contactName)
+        {
+            if (Settings.Instance.PlaySoundWhenMessageReceived)
+            {
+                using var stream = new MemoryStream(Resources.IncomingCall);
+                if (stream != null)
+                {
+                    using var player = new SoundPlayer(stream);
+                    player.Play();
+                }
+            }
+            if (Settings.Instance.AlertToastWhenMessageReceived && ServerConnection.Current != null)
+            {
+                ServerConnection.Current.Tray.ShowBalloon("", $"{contactName} is calling you.");
+            }
         }
     }
 }

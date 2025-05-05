@@ -2,30 +2,30 @@
 
 namespace SecureChat.Library.ReliableMessages
 {
-    public class AcceptContactInvite
-        : IRmQuery<AcceptContactInviteReply>
+    public class AcceptContactInviteQuery
+        : IRmQuery<AcceptContactInviteQueryReply>
     {
         public Guid AccountId { get; set; }
 
-        public AcceptContactInvite(Guid accountId)
+        public AcceptContactInviteQuery(Guid accountId)
         {
             AccountId = accountId;
         }
     }
 
-    public class AcceptContactInviteReply
+    public class AcceptContactInviteQueryReply
         : IRmQueryReply
     {
         public bool IsSuccess { get; set; }
         public string? ErrorMessage { get; set; }
 
-        public AcceptContactInviteReply(Exception exception)
+        public AcceptContactInviteQueryReply(Exception exception)
         {
             ErrorMessage = exception.GetBaseException().Message;
             IsSuccess = false;
         }
 
-        public AcceptContactInviteReply()
+        public AcceptContactInviteQueryReply()
         {
             IsSuccess = true;
         }

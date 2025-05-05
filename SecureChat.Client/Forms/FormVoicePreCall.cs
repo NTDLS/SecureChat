@@ -2,14 +2,20 @@
 using NAudio.Wave;
 using NTDLS.WinFormsHelpers;
 using SecureChat.Client.Audio;
+using SecureChat.Library;
 
 namespace SecureChat.Client.Forms
 {
     public partial class FormVoicePreCall : Form
     {
-        private int? _selectedInputDeviceIndex = null;
-        private int? _selectedIOutputDeviceIndex = null;
         private AudioPump? _audioPump = null;
+
+        private int? _inputDeviceIndex = null;
+        public int InputDeviceIndex { get => _inputDeviceIndex ?? 0; }
+        private int? _outputDeviceIndex = null;
+        public int OutputDeviceIndex { get => _outputDeviceIndex ?? 0; }
+        private int _bitrate = 32 * 1000;
+        public int Bitrate { get => _bitrate; }
 
         public FormVoicePreCall()
         {
@@ -58,45 +64,38 @@ namespace SecureChat.Client.Forms
         {
             if (sender is RadioButton radioButton && radioButton.Checked)
             {
+                if (radioButtonBitRateLow.Checked)
+                    _bitrate = 16 * 1000;
+                else if (radioButtonBitRateStandard.Checked)
+                    _bitrate = 32 * 1000;
+                else if (radioButtonBitRateBalanced.Checked)
+                    _bitrate = 64 * 1000;
+                else if (radioButtonBitRateHighFidelity.Checked)
+                    _bitrate = 96 * 1000;
+
                 PropUpAudio();
             }
         }
 
-        private int GetSelectedBitRate()
-        {
-            if (radioButtonBitRateLow.Checked)
-                return 16 * 1000;
-            else if (radioButtonBitRateStandard.Checked)
-                return 32 * 1000;
-            else if (radioButtonBitRateBalanced.Checked)
-                return 64 * 1000;
-            else if (radioButtonBitRateHighFidelity.Checked)
-                return 96 * 1000;
-
-            return 32 * 1000;
-        }
-
         private void ComboBoxAudioInputDevice_SelectedIndexChanged(object? sender, EventArgs e)
         {
-            _selectedInputDeviceIndex = (comboBoxAudioInputDevice.SelectedItem as AudioDeviceComboItem)?.DeviceIndex;
+            _inputDeviceIndex = (comboBoxAudioInputDevice.SelectedItem as AudioDeviceComboItem)?.DeviceIndex;
             PropUpAudio();
         }
 
         private void ComboBoxAudioOutputDevice_SelectedIndexChanged(object? sender, EventArgs e)
         {
-            _selectedIOutputDeviceIndex = (comboBoxAudioOutputDevice.SelectedItem as AudioDeviceComboItem)?.DeviceIndex;
+            _outputDeviceIndex = (comboBoxAudioOutputDevice.SelectedItem as AudioDeviceComboItem)?.DeviceIndex;
             PropUpAudio();
         }
 
         private void PropUpAudio()
         {
-            if (_selectedInputDeviceIndex != null && _selectedIOutputDeviceIndex != null)
+            if (_inputDeviceIndex != null && _outputDeviceIndex != null)
             {
                 _audioPump?.Stop();
 
-                int bitRate = GetSelectedBitRate();
-
-                _audioPump = new AudioPump(_selectedInputDeviceIndex.Value, _selectedIOutputDeviceIndex.Value, bitRate);
+                _audioPump = new AudioPump(_inputDeviceIndex.Value, _outputDeviceIndex.Value, _bitrate);
 
                 _audioPump.OnInputSample += (volume) =>
                 {
@@ -118,7 +117,12 @@ namespace SecureChat.Client.Forms
 
         private void ButtonOk_Click(object sender, EventArgs e)
         {
-            this.InvokeClose(DialogResult.OK);
+            if (_inputDeviceIndex != null && _outputDeviceIndex != null)
+            {
+                this.InvokeClose(DialogResult.OK);
+                return;
+            }
+            MessageBox.Show("You must select an input and output device.", ScConstants.AppName, MessageBoxButtons.OK);
         }
 
         private void ButtonCancel_Click(object sender, EventArgs e)

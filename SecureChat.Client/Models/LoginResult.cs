@@ -10,7 +10,7 @@ namespace SecureChat.Client.Models
     internal class LoginResult
     {
         public Guid AccountId { get; set; }
-        public RmClient Client { get; private set; }
+        public RmClient ReliableClient { get; private set; }
         public string DisplayName { get; private set; }
         public string Username { get; private set; }
         public string? ProfileJson { get; set; }
@@ -25,10 +25,10 @@ namespace SecureChat.Client.Models
             }
         }
 
-        public LoginResult(RmClient client, Guid accountId, string username, string displayName, string profileJson)
+        public LoginResult(RmClient reliableClient, Guid accountId, string username, string displayName, string profileJson)
         {
             AccountId = accountId;
-            Client = client;
+            ReliableClient = reliableClient;
             DisplayName = displayName;
             ProfileJson = profileJson;
             Username = username;

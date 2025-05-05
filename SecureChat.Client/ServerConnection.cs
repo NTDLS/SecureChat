@@ -1,6 +1,8 @@
-﻿using NTDLS.Helpers;
+﻿using NTDLS.DatagramMessaging;
+using NTDLS.Helpers;
 using NTDLS.ReliableMessaging;
 using SecureChat.Client.Forms;
+using SecureChat.Library.DatagramMessages;
 using SecureChat.Library.Models;
 using static SecureChat.Library.ScConstants;
 
@@ -9,24 +11,26 @@ namespace SecureChat.Client
     /// <summary>
     /// Used to store state information about the logged in session.
     /// </summary>
-    internal class LocalSession
+    internal class ServerConnection
     {
-        public static LocalSession? Current { get; private set; }
+        public static ServerConnection? Current { get; private set; }
 
-        public static void Set(LocalSession localSession)
+        public static void SetCurrent(ServerConnection localSession)
         {
             Current = localSession;
         }
 
-        public static void Clear()
+        public static void ClearCurrent()
         {
-            Task.Run(() => Current?.Client?.Disconnect());
+            Task.Run(() => Current?.ReliableClient?.Disconnect());
             Exceptions.Ignore(() => Current?.FormHome?.Close());
 
             Current = null;
         }
 
-        public RmClient Client { get; private set; }
+        public bool IsTerminated { get; private set; } = false;
+        public DmClient DatagramClient { get; private set; }
+        public RmClient ReliableClient { get; private set; }
         public Guid AccountId { get; private set; }
         public string Username { get; private set; }
         public string DisplayName { get; set; }
@@ -38,19 +42,40 @@ namespace SecureChat.Client
 
         public ScOnlineState State { get; set; } = ScOnlineState.Offline;
 
-        public LocalSession(TrayApp tray, FormHome formHome, RmClient client, Guid accountId, string username, string displayName)
+        public ServerConnection(TrayApp tray, FormHome formHome, RmClient reliableClient, Guid accountId, string username, string displayName)
         {
             Tray = tray;
             FormHome = formHome;
-            Client = client;
+            ReliableClient = reliableClient;
             Username = username;
             DisplayName = displayName;
             AccountId = accountId;
+
+            DatagramClient = Settings.Instance.CreateDmClient();
+
+            var dmHelloThread = new Thread(() =>
+            {
+                while (!IsTerminated)
+                {
+                    try
+                    {
+                        DatagramClient.Dispatch(new HelloPacketMessage(reliableClient.ConnectionId.EnsureNotNull()));
+                    }
+                    catch (Exception ex)
+                    {
+                        //TODO: Log or report
+                    }
+                    Thread.Sleep(1000);
+                }
+            });
+
+            dmHelloThread.Start();
         }
 
-        public ActiveChat AddActiveChat(Guid peerToPeerId, Guid connectionId, Guid accountId, string displayName, byte[] sharedSecret)
+
+        public ActiveChat AddActiveChat(Guid peerToPeerId, Guid peerConnectionId, Guid accountId, string displayName, byte[] sharedSecret)
         {
-            var activeChat = new ActiveChat(peerToPeerId, connectionId, accountId, displayName, sharedSecret);
+            var activeChat = new ActiveChat(peerToPeerId, peerConnectionId, accountId, displayName, sharedSecret);
             ActiveChats.Add(peerToPeerId, activeChat);
             return activeChat;
         }

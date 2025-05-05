@@ -1,8 +1,10 @@
-﻿using NTDLS.Persistence;
+﻿using NTDLS.DatagramMessaging;
+using NTDLS.Persistence;
 using NTDLS.ReliableMessaging;
+using SecureChat.Client.Models;
 using SecureChat.Library;
 
-namespace SecureChat.Client.Models
+namespace SecureChat.Client
 {
     /// <summary>
     /// Settings that are saved to disk.
@@ -49,15 +51,24 @@ namespace SecureChat.Client.Models
         /// </summary>
         public Dictionary<string, PersistedUserState> Users = new(StringComparer.CurrentCultureIgnoreCase);
 
-        public RmClient CreateClient()
+        public RmClient CreateRmClient()
         {
-            var client = new RmClient();
-#if DEBUG
-            client.Connect("127.0.0.1", ServerPort);
-#else
-            client.Connect(ServerAddress, ServerPort);
-#endif
-            return client;
+            var rmClient = new RmClient();
+            rmClient.Connect(ServerAddress, ServerPort);
+            return rmClient;
+        }
+
+        public DmClient CreateDmClient()
+        {
+            var dmClient = new DmClient(ServerAddress, ServerPort);
+            dmClient.AddHandler(new ClientDatagramMessageHandlers());
+
+            dmClient.OnException += (DmContext? context, Exception ex) =>
+            {
+                Console.WriteLine($"dmClient: {ex.Message}");
+            };
+
+            return dmClient;
         }
     }
 }

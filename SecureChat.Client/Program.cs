@@ -1,6 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using SecureChat.Client.Forms;
-using SecureChat.Client.Models;
 using Serilog;
 
 namespace SecureChat.Client
@@ -12,7 +10,6 @@ namespace SecureChat.Client
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            //Application.Run(new FormVoicePreCall());
 
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", false)
