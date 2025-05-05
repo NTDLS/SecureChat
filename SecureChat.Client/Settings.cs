@@ -54,30 +54,30 @@ namespace SecureChat.Client
         public RmClient CreateRmClient()
         {
             var rmClient = new RmClient();
-#if DEBUG
-            rmClient.Connect("127.0.0.1", ServerPort);
-#else
-            client.Connect(ServerAddress, ServerPort);
-#endif
+            //#if DEBUG
+            //            rmClient.Connect("127.0.0.1", ServerPort);
+            //#else
+            rmClient.Connect(ServerAddress, ServerPort);
+            //#endif
             return rmClient;
         }
 
         public DmClient CreateDmClient()
         {
-#if DEBUG
-            var dmClient = new DmClient("127.0.0.1", ServerPort);
-#else
-            var client = new DmClient(ServerAddress, ServerPort);
-#endif
+            //#if DEBUG
+            //var dmClient = new DmClient("127.0.0.1", ServerPort);
+            //#else
+            var dmClient = new DmClient(ServerAddress, ServerPort);
+            //#endif
 
             dmClient.OnKeepAliveReceived += (DmContext context, IDmKeepAliveDatagram keepAlive) =>
             {
-                Console.WriteLine($"Received keep-alive. Latency: {(DateTime.UtcNow - keepAlive.TimeStamp).TotalMilliseconds:n2}ms");
+                //Console.WriteLine($"Received keep-alive. Latency: {(DateTime.UtcNow - keepAlive.TimeStamp).TotalMilliseconds:n2}ms");
             };
 
             dmClient.OnException += (DmContext? context, Exception ex) =>
             {
-                Console.WriteLine($"OnException: {ex.Message}");
+                Console.WriteLine($"dmClient: {ex.Message}");
             };
 
             return dmClient;

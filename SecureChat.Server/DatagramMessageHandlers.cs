@@ -55,7 +55,7 @@ namespace SecureChat.Server
                 {
                     //Dispatch the UPD datagram to the other endpoint.
                     _chatService.DmServer.Client.Dispatch(context, otherEndpoint, datagram);
-                    Console.WriteLine($"Received {datagram.Bytes.Length} bytes from {datagram.PeerConnectionId}.");
+                    //Console.WriteLine($"Received {datagram.Bytes.Length} bytes from {datagram.PeerConnectionId}.");
                 }
             }
 
