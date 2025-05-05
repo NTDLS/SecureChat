@@ -1,7 +1,5 @@
 ﻿using NTDLS.DatagramMessaging;
 using NTDLS.Helpers;
-using NTDLS.ReliableMessaging;
-using SecureChat.Client.Audio;
 using SecureChat.Library;
 using SecureChat.Library.DatagramMessages;
 using SecureChat.Library.ReliableMessages;

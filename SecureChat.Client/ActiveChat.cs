@@ -74,7 +74,7 @@ namespace SecureChat.Client
             }
         }
 
-        public void PlayAudioPacket(byte [] bytes)
+        public void PlayAudioPacket(byte[] bytes)
         {
             //TODO: implement peer-to-peer encryption.
             _audioPump?.IngestFrame(bytes);

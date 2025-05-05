@@ -2,7 +2,6 @@
 using NTDLS.DatagramMessaging;
 using NTDLS.DatagramMessaging.Framing;
 using SecureChat.Library.DatagramMessages;
-using System.Net;
 
 namespace SecureChat.Server
 {
@@ -22,12 +21,12 @@ namespace SecureChat.Server
             Console.WriteLine($"Received {bytes.Bytes.Length} bytes.");
         }
 
-        //TODO: This should probably be stored in the session.
-        private readonly Dictionary<Guid, HashSet<DmContext>> _ipEndPoints = new();
-
         public void VoicePacketMessage(DmContext context, VoicePacketMessage datagram)
         {
-            if (_ipEndPoints.TryGetValue(datagram.PeerToPeerId, out var endpoints))
+            var session = _chatService.GetSessionByPeerConnectionId(datagram.PeerConnectionId)
+                ?? throw new Exception("Session not found.");
+
+            if (session.DmContexts.TryGetValue(datagram.PeerToPeerId, out var endpoints))
             {
                 if (context.Endpoint != null && endpoints.Count != 2) //We should only ever have 2 endpoints.
                 {
@@ -40,7 +39,7 @@ namespace SecureChat.Server
                 {
                     HashSet<DmContext> newContext = new();
                     newContext.Add(context);
-                    _ipEndPoints.Add(datagram.PeerToPeerId, newContext);
+                    session.DmContexts.Add(datagram.PeerToPeerId, newContext);
                 }
             }
 
@@ -52,7 +51,6 @@ namespace SecureChat.Server
                 {
                     //Dispatch the UPD datagram to the other endpoint.
                     _chatService.DmServer.Client.Dispatch(otherEndpoint, otherEndpoint.Endpoint, datagram);
-                    //Console.WriteLine($"Received {datagram.Bytes.Length} bytes from {datagram.PeerConnectionId}.");
                 }
             }
         }
