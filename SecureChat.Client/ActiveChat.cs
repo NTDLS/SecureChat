@@ -27,17 +27,17 @@ namespace SecureChat.Client
         public FormMessage? Form { get; set; }
         public Guid AccountId { get; private set; }
         public string DisplayName { get; private set; }
-        public Guid ConnectionId { get; private set; }
+        public Guid PeerConnectionId { get; private set; }
         public Dictionary<Guid, FileReceiveBuffer> FileReceiveBuffers { get; set; } = new();
         public Guid PeerToPeerId { get; private set; }
 
         public DmClient? DatagramClient { get; private set; }
 
-        public ActiveChat(Guid peerToPeerId, Guid connectionId, Guid accountId, string displayName, byte[] sharedSecret)
+        public ActiveChat(Guid peerToPeerId, Guid peerConnectionId, Guid accountId, string displayName, byte[] sharedSecret)
         {
             PeerToPeerId = peerToPeerId;
             _streamCryptography = new PermafrostCipher(sharedSecret, PermafrostMode.AutoReset);
-            ConnectionId = connectionId;
+            PeerConnectionId = peerConnectionId;
             AccountId = accountId;
             DisplayName = displayName;
         }
@@ -73,7 +73,7 @@ namespace SecureChat.Client
             _audioPump.OnFrameProduced += (byte[] bytes, int byteCount) =>
             {
                 //Sends the recorded audio to the server, for dispatch to the correct client.
-                DatagramClient?.Dispatch(new VoicePacketMessage(PeerToPeerId, ConnectionId, bytes));
+                DatagramClient?.Dispatch(new VoicePacketMessage(PeerToPeerId, PeerConnectionId, bytes));
             };
 
             _audioPump.StartCapture();
@@ -90,7 +90,7 @@ namespace SecureChat.Client
         /// Plays the received audio packet.
         /// </summary>
         /// <param name="bytes"></param>
-        public void IngestAudioPacket(byte [] bytes)
+        public void IngestAudioPacket(byte[] bytes)
         {
             _audioPump?.IngestFrame(bytes, bytes.Length);
         }
@@ -106,6 +106,9 @@ namespace SecureChat.Client
         public void InitiateNetworkAddressTranslationMessage(Guid peerToPeerId, Guid connectionId)
         {
             DatagramClient = Settings.Instance.CreateDmClient();
+
+            DatagramClient.OnDatagramReceived += DatagramClient_OnDatagramReceived;
+
             DatagramClient.Dispatch(new InitiateNetworkAddressTranslationMessage(peerToPeerId, connectionId));
 
             if (ServerConnection.Current == null)
@@ -118,6 +121,11 @@ namespace SecureChat.Client
             DatagramClient.Context.SetCryptographyProvider(new DatagramCryptographyProvider(rmCryptographyProvider.PublicPrivateKeyPair));
         }
 
+        private void DatagramClient_OnDatagramReceived(DmContext context, IDmDatagram datagram)
+        {
+
+        }
+
         public void Terminate()
         {
             if (IsTerminated)
@@ -125,7 +133,7 @@ namespace SecureChat.Client
                 return;
             }
             IsTerminated = true;
-            ServerConnection.Current?.ReliableClient.Notify(new TerminateChatNotification(ConnectionId, PeerToPeerId));
+            ServerConnection.Current?.ReliableClient.Notify(new TerminateChatNotification(PeerToPeerId, PeerConnectionId));
             DatagramClient?.Stop();
             Form?.AppendSystemMessageLine($"Chat ended at {DateTime.Now}.", Color.Red);
         }
@@ -139,10 +147,10 @@ namespace SecureChat.Client
             _outputDeviceIndex = outputDeviceIndex;
             _bitrate = bitrate;
 
-            ServerConnection.Current?.ReliableClient.Notify(new RequestVoiceCallNotification(PeerToPeerId, ConnectionId));
+            ServerConnection.Current?.ReliableClient.Notify(new RequestVoiceCallNotification(PeerToPeerId, PeerConnectionId));
 
             //Prop up the UDP connection:
-            InitiateNetworkAddressTranslationMessage(PeerToPeerId, ConnectionId);
+            InitiateNetworkAddressTranslationMessage(PeerToPeerId, PeerConnectionId);
         }
 
         /// <summary>
@@ -150,7 +158,7 @@ namespace SecureChat.Client
         /// </summary>
         public void CancelVoiceCallRequest()
         {
-            ServerConnection.Current?.ReliableClient.Notify(new CancelVoiceCallRequestNotification(PeerToPeerId, ConnectionId));
+            ServerConnection.Current?.ReliableClient.Notify(new CancelVoiceCallRequestNotification(PeerToPeerId, PeerConnectionId));
         }
 
         /// <summary>
@@ -162,7 +170,7 @@ namespace SecureChat.Client
             _outputDeviceIndex = outputDeviceIndex;
             _bitrate = bitrate;
 
-            ServerConnection.Current?.ReliableClient.Notify(new AcceptVoiceCallNotification(PeerToPeerId, ConnectionId));
+            ServerConnection.Current?.ReliableClient.Notify(new AcceptVoiceCallNotification(PeerToPeerId, PeerConnectionId));
         }
 
         /// <summary>
@@ -170,7 +178,7 @@ namespace SecureChat.Client
         /// </summary>
         public void DeclineVoiceCallRequest()
         {
-            ServerConnection.Current?.ReliableClient.Notify(new DeclineVoiceCallNotification(PeerToPeerId, ConnectionId));
+            ServerConnection.Current?.ReliableClient.Notify(new DeclineVoiceCallNotification(PeerToPeerId, PeerConnectionId));
         }
 
         public void ReceiveImage(byte[] imageBytes)
@@ -211,7 +219,7 @@ namespace SecureChat.Client
             }
 
             return ServerConnection.Current?.ReliableClient.Query(new ExchangeMessageTextQuery(PeerToPeerId,
-                    ConnectionId, EncryptString(plaintText))).ContinueWith(o =>
+                    PeerConnectionId, EncryptString(plaintText))).ContinueWith(o =>
                     {
                         if (!o.IsFaulted && o.Result.IsSuccess)
                         {
@@ -225,7 +233,7 @@ namespace SecureChat.Client
         {
             var fileId = Guid.NewGuid();
 
-            ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionBeginNotification(PeerToPeerId, ConnectionId, fileId, fileName, fileBytes.Length));
+            ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionBeginNotification(PeerToPeerId, PeerConnectionId, fileId, fileName, fileBytes.Length));
 
             using (var memoryStream = new MemoryStream(fileBytes))
             {
@@ -242,11 +250,11 @@ namespace SecureChat.Client
                         Array.Copy(buffer, chunkToSend, bytesRead);
                     }
 
-                    ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionChunkNotification(PeerToPeerId, ConnectionId, fileId, Cipher(chunkToSend)));
+                    ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionChunkNotification(PeerToPeerId, PeerConnectionId, fileId, Cipher(chunkToSend)));
                 }
             }
 
-            ServerConnection.Current?.ReliableClient.Query(new FileTransmissionEndQuery(PeerToPeerId, ConnectionId, fileId)).ContinueWith(o =>
+            ServerConnection.Current?.ReliableClient.Query(new FileTransmissionEndQuery(PeerToPeerId, PeerConnectionId, fileId)).ContinueWith(o =>
             {
                 if (!o.IsFaulted && o.Result.IsSuccess)
                 {

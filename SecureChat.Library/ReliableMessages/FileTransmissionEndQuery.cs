@@ -6,13 +6,21 @@ namespace SecureChat.Library.ReliableMessages
         : IRmQuery<FileTransmissionEndQueryReply>
     {
         public Guid FileId { get; set; }
-        public Guid ConnectionId { get; set; }
+
+        /// <summary>
+        /// The connection id of the remote peer that this message is being sent to.
+        /// </summary>
+        public Guid PeerConnectionId { get; set; }
+
+        /// <summary>
+        /// Identifies a unique session. If a session is ended and a new one is started, it will have a different PeerToPeerId.
+        /// </summary>
         public Guid PeerToPeerId { get; set; }
 
-        public FileTransmissionEndQuery(Guid peerToPeerId, Guid connectionId, Guid fileId)
+        public FileTransmissionEndQuery(Guid peerToPeerId, Guid peerConnectionId, Guid fileId)
         {
             PeerToPeerId = peerToPeerId;
-            ConnectionId = connectionId;
+            PeerConnectionId = peerConnectionId;
             FileId = fileId;
         }
     }

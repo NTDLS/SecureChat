@@ -48,9 +48,9 @@ namespace SecureChat.Client
             AccountId = accountId;
         }
 
-        public ActiveChat AddActiveChat(Guid peerToPeerId, Guid connectionId, Guid accountId, string displayName, byte[] sharedSecret)
+        public ActiveChat AddActiveChat(Guid peerToPeerId, Guid peerConnectionId, Guid accountId, string displayName, byte[] sharedSecret)
         {
-            var activeChat = new ActiveChat(peerToPeerId, connectionId, accountId, displayName, sharedSecret);
+            var activeChat = new ActiveChat(peerToPeerId, peerConnectionId, accountId, displayName, sharedSecret);
             ActiveChats.Add(peerToPeerId, activeChat);
             return activeChat;
         }

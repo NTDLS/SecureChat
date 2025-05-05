@@ -1,6 +1,5 @@
 ﻿using NTDLS.ReliableMessaging;
 using NTDLS.SecureKeyExchange;
-using SecureChat.Client.Audio;
 using SecureChat.Client.Forms;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
@@ -107,7 +106,7 @@ namespace SecureChat.Client
                 var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
 
                 //Prop up the UDP connection:
-                activeChat.InitiateNetworkAddressTranslationMessage(param.PeerToPeerId, param.ConnectionId);
+                activeChat.InitiateNetworkAddressTranslationMessage(param.PeerToPeerId, param.PeerConnectionId);
 
                 activeChat?.AlertOfIncomingCall();
             }

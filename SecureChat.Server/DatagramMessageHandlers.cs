@@ -3,6 +3,7 @@ using NTDLS.DatagramMessaging;
 using SecureChat.Library;
 using SecureChat.Library.DatagramMessages;
 using SecureChat.Library.ReliableMessages;
+using System.Net;
 
 namespace SecureChat.Server
 {
@@ -17,20 +18,35 @@ namespace SecureChat.Server
             _chatService = chatService;
         }
 
-        public void ProcessFrameNotificationCallback(DmContext context, DmBytesDatagram bytes)
+        public void DmBytesDatagram(DmContext context, DmBytesDatagram bytes)
         {
             Console.WriteLine($"Received {bytes.Bytes.Length} bytes.");
         }
 
-        public void ProcessFrameNotificationCallback(DmContext context, VoicePacketMessage datagram)
+        Dictionary<Guid, IPEndPoint> _ipEndPoints = new();
+
+        public void VoicePacketMessage(DmContext context, VoicePacketMessage datagram)
         {
+            if (_ipEndPoints.TryGetValue(datagram.PeerConnectionId, out var endpoint))
+            {
+                Console.WriteLine($"Received {datagram.Bytes.Length} bytes from {endpoint.Address}:{endpoint.Port}.");
+            }
+            else
+            {
+                _ipEndPoints.Add(datagram.PeerConnectionId, new IPEndPoint(IPAddress.Parse(datagram.PeerToPeerId.ToString()), 0));
+            }
+
+            //context.Endpoint
+
+            //_chatService.DmServer.Client.Dispatch(
+
             //context.WriteReplyBytes(bytes.Bytes); //Echo the payload back to the sender.
-            Console.WriteLine($"Received {datagram.Bytes.Length} bytes from {datagram.ConnectionId}.");
+            Console.WriteLine($"Received {datagram.Bytes.Length} bytes from {datagram.PeerConnectionId}.");
         }
 
         public void InitiateNetworkAddressTranslationMessage(DmContext context, InitiateNetworkAddressTranslationMessage datagram)
         {
-            var session = _chatService.GetSessionByConnectionId(datagram.ConnectionId)
+            var session = _chatService.GetSessionByConnectionId(datagram.PeerConnectionId)
                 ?? throw new Exception("Session not found.");
 
             //Tell the datagram messaging context to use the private key-pair from the reliable connection.
@@ -38,9 +54,9 @@ namespace SecureChat.Server
 
             //Let the client know that we received the initialization request and have completed it.
             //We have to do this because we cant communicate on the UPD stream until we know encryption is established.
-            _chatService.RmServer.Notify(session.ConnectionId, new DatagramStreamReadyNotification(datagram.PeerToPeerId, datagram.ConnectionId));
+            _chatService.RmServer.Notify(session.ConnectionId, new DatagramStreamReadyNotification(datagram.PeerToPeerId, datagram.PeerConnectionId));
 
-            Console.WriteLine($"{datagram.ConnectionId}->{datagram.PeerToPeerId}");
+            Console.WriteLine($"{datagram.PeerConnectionId}->{datagram.PeerToPeerId}");
         }
     }
 }

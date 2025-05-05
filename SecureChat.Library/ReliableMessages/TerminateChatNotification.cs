@@ -8,12 +8,16 @@ namespace SecureChat.Library.ReliableMessages
         /// <summary>
         /// ConnectionId of the remote client to terminate the chat with.
         /// </summary>
-        public Guid ConnectionId { get; set; }
+        public Guid PeerConnectionId { get; set; }
+
+        /// <summary>
+        /// Identifies a unique session. If a session is ended and a new one is started, it will have a different PeerToPeerId.
+        /// </summary>
         public Guid PeerToPeerId { get; set; }
 
-        public TerminateChatNotification(Guid connectionId, Guid peerToPeerId)
+        public TerminateChatNotification(Guid peerToPeerId, Guid peerConnectionId)
         {
-            ConnectionId = connectionId;
+            PeerConnectionId = peerConnectionId;
             PeerToPeerId = peerToPeerId;
         }
     }

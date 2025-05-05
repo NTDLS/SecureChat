@@ -6,13 +6,21 @@ namespace SecureChat.Library.ReliableMessages
         : IRmQuery<ExchangeMessageTextQueryReply>
     {
         public byte[] CipherText { get; set; }
-        public Guid ConnectionId { get; set; }
+
+        /// <summary>
+        /// The connection id of the remote peer that this message is being sent to.
+        /// </summary>
+        public Guid PeerConnectionId { get; set; }
+
+        /// <summary>
+        /// Identifies a unique session. If a session is ended and a new one is started, it will have a different PeerToPeerId.
+        /// </summary>
         public Guid PeerToPeerId { get; set; }
 
-        public ExchangeMessageTextQuery(Guid peerToPeerId, Guid connectionId, byte[] cipherText)
+        public ExchangeMessageTextQuery(Guid peerToPeerId, Guid peerConnectionId, byte[] cipherText)
         {
             PeerToPeerId = peerToPeerId;
-            ConnectionId = connectionId;
+            PeerConnectionId = peerConnectionId;
             CipherText = cipherText;
         }
     }

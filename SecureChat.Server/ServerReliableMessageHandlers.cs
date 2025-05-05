@@ -35,7 +35,7 @@ namespace SecureChat.Server
             {
                 var session = VerifyAndGetSession(context);
 
-                _chatService.RmServer.Notify(param.ConnectionId, param);
+                _chatService.RmServer.Notify(param.PeerConnectionId, param);
             }
             catch (Exception ex)
             {
@@ -53,7 +53,7 @@ namespace SecureChat.Server
             {
                 var session = VerifyAndGetSession(context);
 
-                _chatService.RmServer.Notify(param.ConnectionId, param);
+                _chatService.RmServer.Notify(param.PeerConnectionId, param);
             }
             catch (Exception ex)
             {
@@ -71,7 +71,7 @@ namespace SecureChat.Server
             {
                 var session = VerifyAndGetSession(context);
 
-                _chatService.RmServer.Notify(param.ConnectionId, param);
+                _chatService.RmServer.Notify(param.PeerConnectionId, param);
             }
             catch (Exception ex)
             {
@@ -89,7 +89,7 @@ namespace SecureChat.Server
             {
                 var session = VerifyAndGetSession(context);
 
-                _chatService.RmServer.Notify(param.ConnectionId, param);
+                _chatService.RmServer.Notify(param.PeerConnectionId, param);
             }
             catch (Exception ex)
             {
@@ -233,7 +233,7 @@ namespace SecureChat.Server
             {
                 var session = VerifyAndGetSession(context);
 
-                _chatService.RmServer.Notify(param.ConnectionId, param);
+                _chatService.RmServer.Notify(param.PeerConnectionId, param);
             }
             catch (Exception ex)
             {
@@ -251,7 +251,7 @@ namespace SecureChat.Server
             {
                 var session = VerifyAndGetSession(context);
 
-                _chatService.RmServer.Notify(param.ConnectionId, param);
+                _chatService.RmServer.Notify(param.PeerConnectionId, param);
             }
             catch (Exception ex)
             {
@@ -269,7 +269,7 @@ namespace SecureChat.Server
             {
                 var session = VerifyAndGetSession(context);
 
-                return _chatService.RmServer.Query(param.ConnectionId, param).Result;
+                return _chatService.RmServer.Query(param.PeerConnectionId, param).Result;
             }
             catch (Exception ex)
             {
@@ -288,7 +288,7 @@ namespace SecureChat.Server
             {
                 var session = VerifyAndGetSession(context);
 
-                _chatService.RmServer.Notify(param.ConnectionId, param);
+                _chatService.RmServer.Notify(param.PeerConnectionId, param);
             }
             catch (Exception ex)
             {
@@ -324,7 +324,7 @@ namespace SecureChat.Server
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Cryptography has not been initialized.");
 
-                return _chatService.RmServer.Query(param.ConnectionId, param).Result;
+                return _chatService.RmServer.Query(param.PeerConnectionId, param).Result;
             }
             catch (Exception ex)
             {
