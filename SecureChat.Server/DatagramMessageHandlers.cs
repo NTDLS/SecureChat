@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using NTDLS.DatagramMessaging;
+using NTDLS.DatagramMessaging.Framing;
 using SecureChat.Library;
 using SecureChat.Library.DatagramMessages;
 using SecureChat.Library.ReliableMessages;
@@ -23,25 +24,42 @@ namespace SecureChat.Server
             Console.WriteLine($"Received {bytes.Bytes.Length} bytes.");
         }
 
-        Dictionary<Guid, IPEndPoint> _ipEndPoints = new();
+        private readonly Dictionary<Guid, HashSet<IPEndPoint>> _ipEndPoints = new();
 
         public void VoicePacketMessage(DmContext context, VoicePacketMessage datagram)
         {
-            if (_ipEndPoints.TryGetValue(datagram.PeerConnectionId, out var endpoint))
+            if (_ipEndPoints.TryGetValue(datagram.PeerToPeerId, out var endpoints))
             {
-                Console.WriteLine($"Received {datagram.Bytes.Length} bytes from {endpoint.Address}:{endpoint.Port}.");
+                if (context.Endpoint != null)
+                {
+                    //TODO: probably do not need to do this constantly.
+                    endpoints.Add(context.Endpoint);
+                }
+                //Console.WriteLine($"Received {datagram.Bytes.Length} bytes from {context.Endpoint?.Address}:{context.Endpoint?.Port}.");
             }
             else
             {
-                _ipEndPoints.Add(datagram.PeerConnectionId, new IPEndPoint(IPAddress.Parse(datagram.PeerToPeerId.ToString()), 0));
+                if (context.Endpoint != null)
+                {
+                    HashSet<IPEndPoint> newEndpoints = new();
+                    newEndpoints.Add(context.Endpoint);
+                    _ipEndPoints.Add(datagram.PeerToPeerId, newEndpoints);
+                }
             }
 
-            //context.Endpoint
-
-            //_chatService.DmServer.Client.Dispatch(
+            if (_chatService.DmServer.Client != null && endpoints != null)
+            {
+                //Find the other endpoint, assuming it has been set.
+                var otherEndpoint = endpoints.SingleOrDefault(o => o != context.Endpoint);
+                if (otherEndpoint != null)
+                {
+                    //Dispatch the UPD datagram to the other endpoint.
+                    _chatService.DmServer.Client.Dispatch(context, otherEndpoint, datagram);
+                    Console.WriteLine($"Received {datagram.Bytes.Length} bytes from {datagram.PeerConnectionId}.");
+                }
+            }
 
             //context.WriteReplyBytes(bytes.Bytes); //Echo the payload back to the sender.
-            Console.WriteLine($"Received {datagram.Bytes.Length} bytes from {datagram.PeerConnectionId}.");
         }
 
         public void InitiateNetworkAddressTranslationMessage(DmContext context, InitiateNetworkAddressTranslationMessage datagram)

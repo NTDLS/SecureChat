@@ -118,12 +118,16 @@ namespace SecureChat.Client
             var rmCryptographyProvider = ServerConnection.Current?.ReliableClient.GetCryptographyProvider() as ReliableCryptographyProvider
                 ?? throw new Exception("Reliable cryptography has not been initialized.");
 
-            DatagramClient.Context.SetCryptographyProvider(new DatagramCryptographyProvider(rmCryptographyProvider.PublicPrivateKeyPair));
+            //TODO: Setup crypto.
+            //DatagramClient.Context.SetCryptographyProvider(new DatagramCryptographyProvider(rmCryptographyProvider.PublicPrivateKeyPair));
         }
 
         private void DatagramClient_OnDatagramReceived(DmContext context, IDmDatagram datagram)
         {
-
+            if (datagram is VoicePacketMessage voicePacket)
+            {
+                IngestAudioPacket(voicePacket.Bytes);
+            }
         }
 
         public void Terminate()
