@@ -23,7 +23,7 @@ namespace SecureChat.Server
 
         public void VoicePacketMessage(DmContext context, VoicePacketMessage datagram)
         {
-            var session = _chatService.GetSessionByPeerConnectionId(datagram.PeerConnectionId)
+            var session = _chatService.GetSessionByConnectionId(datagram.PeerConnectionId)
                 ?? throw new Exception("Session not found.");
 
             if (session.DmContexts.TryGetValue(datagram.PeerToPeerId, out var endpoints))
