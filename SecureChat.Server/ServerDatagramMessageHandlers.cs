@@ -16,12 +16,7 @@ namespace SecureChat.Server
             _chatService = chatService;
         }
 
-        public void DmBytesDatagram(DmContext context, DmBytesDatagram bytes)
-        {
-            Console.WriteLine($"Received {bytes.Bytes.Length} bytes.");
-        }
-
-        public void VoicePacketMessage(DmContext context, VoicePacketMessage datagram)
+        public void VoicePacketDatagram(DmContext context, VoicePacketDatagram datagram)
         {
             var accountConnection = _chatService.GetAccountConnectionByConnectionId(datagram.PeerConnectionId)
                 ?? throw new Exception("Session not found.");
@@ -33,13 +28,13 @@ namespace SecureChat.Server
         }
 
         /// <summary>
-        /// The hello message is sent by the client after the reliable message connection is established.
+        /// The message is sent by the client after the reliable message connection is established.
         /// NAT should now be established, so reply to the UDP packet so that the client knows we received it.
         /// This serves two purposes:
         /// 1) Allows us to associate the UPD endpoint with a session.
         /// 2) This functions as a two-way keepalive.
         /// </summary>
-        public void HelloPacketMessage(DmContext context, HelloPacketMessage datagram)
+        public void ConnectionKeepAliveDatagram(DmContext context, ConnectionKeepAliveDatagram datagram)
         {
             var accountConnection = _chatService.GetAccountConnectionByPeerConnectionId(datagram.PeerConnectionId)
                 ?? throw new Exception("Session not found.");
@@ -50,10 +45,9 @@ namespace SecureChat.Server
                 accountConnection.SetDmEndpoint(context.Endpoint);
             }
 
-            //Echo the hello packet back to the sender.
-            context.Dispatch(new HelloReplyMessage(datagram.PeerConnectionId));
+            context.Dispatch(datagram); //Echo the hello packet back to the sender.
 
-            Console.WriteLine($"Hello received from: {context.Endpoint}, Peer: {datagram.PeerConnectionId}");
+            Console.WriteLine($"UDP keep-alive from: {context.Endpoint}, Peer: {datagram.PeerConnectionId}");
         }
     }
 }

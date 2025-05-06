@@ -51,7 +51,7 @@ namespace SecureChat.Client
             AccountId = accountId;
             DisplayName = displayName;
 
-            var thread = new Thread(() =>
+            var keepAliveThread = new Thread(() =>
             {
                 while (!IsTerminated)
                 {
@@ -109,7 +109,7 @@ namespace SecureChat.Client
             _audioPump.OnFrameProduced += (byte[] bytes, int byteCount) =>
             {
                 //Sends the recorded audio to the server, for dispatch to the correct client.
-                ServerConnection.Current?.DatagramClient?.Dispatch(new VoicePacketMessage(SessionId, PeerConnectionId, Cipher(bytes)));
+                ServerConnection.Current?.DatagramClient?.Dispatch(new VoicePacketDatagram(SessionId, PeerConnectionId, Cipher(bytes)));
             };
 
             _audioPump.StartCapture();

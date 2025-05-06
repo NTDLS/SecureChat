@@ -2,7 +2,7 @@
 
 namespace SecureChat.Library.DatagramMessages
 {
-    public class VoicePacketMessage : IDmDatagram
+    public class VoicePacketDatagram : IDmDatagram
     {
         /// <summary>
         /// The connection id of the remote peer that this message is being sent to.
@@ -16,7 +16,7 @@ namespace SecureChat.Library.DatagramMessages
         public Guid SessionId { get; set; }
         public byte[] Bytes { get; set; }
 
-        public VoicePacketMessage(Guid sessionId, Guid peerConnectionId, byte[] bytes)
+        public VoicePacketDatagram(Guid sessionId, Guid peerConnectionId, byte[] bytes)
         {
             SessionId = sessionId;
             PeerConnectionId = peerConnectionId;

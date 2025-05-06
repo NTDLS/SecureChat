@@ -24,7 +24,7 @@ namespace SecureChat.Client
             return activeChat;
         }
 
-        public void VoicePacketMessage(DmContext context, VoicePacketMessage datagram)
+        public void VoicePacketDatagram(DmContext context, VoicePacketDatagram datagram)
         {
             if (ServerConnection.Current == null)
                 throw new Exception("Local connection is not established.");
@@ -36,12 +36,12 @@ namespace SecureChat.Client
         }
 
         /// <summary>
-        /// We have received a reply to our UDP hello packet, this means that NAT transversal is complete.
+        /// We have received a reply to our UDP keep-alive packet, this means that NAT transversal is complete.
         /// This functions as a two-way keepalive.
         /// </summary>
-        public void HelloReplyMessage(DmContext context, HelloReplyMessage datagram)
+        public void ConnectionKeepAliveDatagram(DmContext context, ConnectionKeepAliveDatagram datagram)
         {
-            Console.WriteLine($"Reply received from: {context.Endpoint}, Peer: {datagram.PeerConnectionId}");
+            Console.WriteLine($"UDP keep-alive reply from: {context.Endpoint}, Peer: {datagram.PeerConnectionId}");
         }
     }
 }

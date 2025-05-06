@@ -57,13 +57,13 @@ namespace SecureChat.Client
 
             DatagramClient = Settings.Instance.CreateDmClient();
 
-            var dmHelloThread = new Thread(() =>
+            var keepAliveThread = new Thread(() =>
             {
                 while (!IsTerminated)
                 {
                     try
                     {
-                        DatagramClient.Dispatch(new HelloPacketMessage(reliableClient.ConnectionId.EnsureNotNull()));
+                        DatagramClient.Dispatch(new ConnectionKeepAliveDatagram(reliableClient.ConnectionId.EnsureNotNull()));
                     }
                     catch (Exception ex)
                     {
@@ -78,7 +78,7 @@ namespace SecureChat.Client
                 }
             });
 
-            dmHelloThread.Start();
+            keepAliveThread.Start();
         }
 
         public ActiveChat AddActiveChat(Guid sessionId, Guid peerConnectionId, Guid accountId, string displayName, byte[] sharedSecret)
