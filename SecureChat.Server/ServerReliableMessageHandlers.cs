@@ -344,6 +344,8 @@ namespace SecureChat.Server
                 var requestedSession = _chatService.GetSessionByAccountId(param.TargetAccountId)
                     ?? throw new Exception("Remote session not found.");
 
+                //param.SessionId
+
                 //Send the ConnectionId to the other peer.
                 param.PeerConnectionId = context.ConnectionId;
 

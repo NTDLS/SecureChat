@@ -14,14 +14,16 @@ namespace SecureChat.Library.ReliableMessages
         public Guid PeerConnectionId { get; set; }
 
         public string FileName { get; set; }
-        /// <summary>
-        /// Identifies a unique session. If a session is ended and a new one is started, it will have a different PeerToPeerId.
-        /// </summary>
-        public Guid PeerToPeerId { get; set; }
 
-        public FileTransmissionBeginNotification(Guid peerToPeerId, Guid peerConnectionId, Guid fileId, string fileName, int fileSize)
+        /// <summary>
+        /// Identifies this chat session. This is used to identify the chat session when sending messages.
+        /// If the session is ended and a new one is started, it will have a different SessionId - even if it is the same contact.
+        /// </summary>
+        public Guid SessionId { get; set; }
+
+        public FileTransmissionBeginNotification(Guid sessionId, Guid peerConnectionId, Guid fileId, string fileName, int fileSize)
         {
-            PeerToPeerId = peerToPeerId;
+            SessionId = sessionId;
             PeerConnectionId = peerConnectionId;
             FileId = fileId;
             FileSize = fileSize;

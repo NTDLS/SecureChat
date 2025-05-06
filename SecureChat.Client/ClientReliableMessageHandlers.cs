@@ -24,7 +24,7 @@ namespace SecureChat.Client
         {
             try
             {
-                var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
+                var activeChat = VerifyAndActiveChat(context, param.SessionId);
 
             }
             catch (Exception ex)
@@ -41,7 +41,7 @@ namespace SecureChat.Client
         {
             try
             {
-                var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
+                var activeChat = VerifyAndActiveChat(context, param.SessionId);
                 if (activeChat.LastOutgoingCallControl == null)
                 {
                     throw new Exception("Last outgoing call does not exist.");
@@ -67,7 +67,7 @@ namespace SecureChat.Client
         {
             try
             {
-                var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
+                var activeChat = VerifyAndActiveChat(context, param.SessionId);
             }
             catch (Exception ex)
             {
@@ -82,7 +82,7 @@ namespace SecureChat.Client
         {
             try
             {
-                var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
+                var activeChat = VerifyAndActiveChat(context, param.SessionId);
 
                 activeChat?.AlertOfIncomingCall();
             }
@@ -99,7 +99,7 @@ namespace SecureChat.Client
         {
             try
             {
-                var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
+                var activeChat = VerifyAndActiveChat(context, param.SessionId);
 
                 activeChat.FileReceiveBuffers.Add(param.FileId, new FileReceiveBuffer(param.FileId, param.FileName, param.FileSize));
             }
@@ -116,7 +116,7 @@ namespace SecureChat.Client
         {
             try
             {
-                var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
+                var activeChat = VerifyAndActiveChat(context, param.SessionId);
 
                 if (activeChat.FileReceiveBuffers.TryGetValue(param.FileId, out var buffer))
                 {
@@ -140,7 +140,7 @@ namespace SecureChat.Client
         {
             try
             {
-                var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
+                var activeChat = VerifyAndActiveChat(context, param.SessionId);
 
                 if (activeChat.FileReceiveBuffers.TryGetValue(param.FileId, out var buffer))
                 {
@@ -170,7 +170,7 @@ namespace SecureChat.Client
         {
             try
             {
-                var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
+                var activeChat = VerifyAndActiveChat(context, param.SessionId);
 
                 activeChat?.Terminate();
             }
@@ -187,7 +187,7 @@ namespace SecureChat.Client
         {
             try
             {
-                var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
+                var activeChat = VerifyAndActiveChat(context, param.SessionId);
 
                 activeChat?.ReceiveMessage(param.CipherText);
 
@@ -218,7 +218,7 @@ namespace SecureChat.Client
                 var negotiationReplyToken = compoundNegotiator.ApplyNegotiationToken(param.NegotiationToken);
 
                 var activeChat = ServerConnection.Current.AddActiveChat(
-                    param.PeerToPeerId,
+                    param.SessionId,
                     param.PeerConnectionId,
                     param.SourceAccountId,
                     param.DisplayName,
@@ -243,7 +243,7 @@ namespace SecureChat.Client
             }
         }
 
-        public ActiveChat VerifyAndActiveChat(RmContext context, Guid peerToPeerId)
+        public ActiveChat VerifyAndActiveChat(RmContext context, Guid sessionId)
         {
             if (ServerConnection.Current == null)
                 throw new Exception("Local connection is not established.");
@@ -251,7 +251,7 @@ namespace SecureChat.Client
             if (context.GetCryptographyProvider() == null)
                 throw new Exception("Cryptography has not been initialized.");
 
-            var activeChat = ServerConnection.Current.GetActiveChat(peerToPeerId)
+            var activeChat = ServerConnection.Current.GetActiveChat(sessionId)
                 ?? throw new Exception("Chat session was not found.");
 
             return activeChat;

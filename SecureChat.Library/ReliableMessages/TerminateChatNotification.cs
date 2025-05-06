@@ -11,14 +11,15 @@ namespace SecureChat.Library.ReliableMessages
         public Guid PeerConnectionId { get; set; }
 
         /// <summary>
-        /// Identifies a unique session. If a session is ended and a new one is started, it will have a different PeerToPeerId.
+        /// Identifies this chat session. This is used to identify the chat session when sending messages.
+        /// If the session is ended and a new one is started, it will have a different SessionId - even if it is the same contact.
         /// </summary>
-        public Guid PeerToPeerId { get; set; }
+        public Guid SessionId { get; set; }
 
-        public TerminateChatNotification(Guid peerToPeerId, Guid peerConnectionId)
+        public TerminateChatNotification(Guid sessionId, Guid peerConnectionId)
         {
             PeerConnectionId = peerConnectionId;
-            PeerToPeerId = peerToPeerId;
+            SessionId = sessionId;
         }
     }
 }

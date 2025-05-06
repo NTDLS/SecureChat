@@ -10,7 +10,7 @@ namespace SecureChat.Client
             //_chatService = chatService;
         }
 
-        public ActiveChat VerifyAndActiveChat(DmContext context, Guid peerToPeerId)
+        public ActiveChat VerifyAndActiveChat(DmContext context, Guid sessionId)
         {
             if (ServerConnection.Current == null)
                 throw new Exception("Local connection is not established.");
@@ -18,7 +18,7 @@ namespace SecureChat.Client
             if (context.GetCryptographyProvider() == null)
                 throw new Exception("Cryptography has not been initialized.");
 
-            var activeChat = ServerConnection.Current.GetActiveChat(peerToPeerId)
+            var activeChat = ServerConnection.Current.GetActiveChat(sessionId)
                 ?? throw new Exception("Chat session was not found.");
 
             return activeChat;
@@ -29,7 +29,7 @@ namespace SecureChat.Client
             if (ServerConnection.Current == null)
                 throw new Exception("Local connection is not established.");
 
-            var activeChat = ServerConnection.Current.GetActiveChat(datagram.PeerToPeerId)
+            var activeChat = ServerConnection.Current.GetActiveChat(datagram.SessionId)
                 ?? throw new Exception("Chat session was not found.");
 
             activeChat.PlayAudioPacket(datagram.Bytes);

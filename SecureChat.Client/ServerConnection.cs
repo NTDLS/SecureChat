@@ -81,16 +81,16 @@ namespace SecureChat.Client
             dmHelloThread.Start();
         }
 
-        public ActiveChat AddActiveChat(Guid peerToPeerId, Guid peerConnectionId, Guid accountId, string displayName, byte[] sharedSecret)
+        public ActiveChat AddActiveChat(Guid sessionId, Guid peerConnectionId, Guid accountId, string displayName, byte[] sharedSecret)
         {
-            var activeChat = new ActiveChat(peerToPeerId, peerConnectionId, accountId, displayName, sharedSecret);
-            ActiveChats.Add(peerToPeerId, activeChat);
+            var activeChat = new ActiveChat(sessionId, peerConnectionId, accountId, displayName, sharedSecret);
+            ActiveChats.Add(sessionId, activeChat);
             return activeChat;
         }
 
-        public ActiveChat? GetActiveChat(Guid peerToPeerId)
+        public ActiveChat? GetActiveChat(Guid sessionId)
         {
-            ActiveChats.TryGetValue(peerToPeerId, out var activeChat);
+            ActiveChats.TryGetValue(sessionId, out var activeChat);
             return activeChat;
         }
 

@@ -28,9 +28,14 @@ namespace SecureChat.Client
         public string DisplayName { get; private set; }
         public Guid PeerConnectionId { get; private set; }
         public Dictionary<Guid, FileReceiveBuffer> FileReceiveBuffers { get; set; } = new();
-        public Guid PeerToPeerId { get; private set; }
 
-        public ActiveChat(Guid peerToPeerId, Guid peerConnectionId, Guid accountId, string displayName, byte[] sharedSecret)
+        /// <summary>
+        /// Identifies this chat session. This is used to identify the chat session when sending messages.
+        /// If the session is ended and a new one is started, it will have a different SessionId - even if it is the same contact.
+        /// </summary>
+        public Guid SessionId { get; private set; }
+
+        public ActiveChat(Guid sessionId, Guid peerConnectionId, Guid accountId, string displayName, byte[] sharedSecret)
         {
             if (ServerConnection.Current == null)
                 throw new Exception("Local connection is not established.");
@@ -39,7 +44,7 @@ namespace SecureChat.Client
             var rmCryptographyProvider = ServerConnection.Current?.ReliableClient.GetCryptographyProvider() as ReliableCryptographyProvider
                 ?? throw new Exception("Reliable cryptography has not been initialized.");
 
-            PeerToPeerId = peerToPeerId;
+            SessionId = sessionId;
             _streamCryptography = new PermafrostCipher(sharedSecret, PermafrostMode.AutoReset);
             PublicPrivateKeyPair = rmCryptographyProvider.PublicPrivateKeyPair;
             PeerConnectionId = peerConnectionId;
@@ -83,7 +88,7 @@ namespace SecureChat.Client
             _audioPump.OnFrameProduced += (byte[] bytes, int byteCount) =>
             {
                 //Sends the recorded audio to the server, for dispatch to the correct client.
-                ServerConnection.Current?.DatagramClient?.Dispatch(new VoicePacketMessage(PeerToPeerId, PeerConnectionId, Cipher(bytes)));
+                ServerConnection.Current?.DatagramClient?.Dispatch(new VoicePacketMessage(SessionId, PeerConnectionId, Cipher(bytes)));
             };
 
             _audioPump.StartCapture();
@@ -103,7 +108,7 @@ namespace SecureChat.Client
                 return;
             }
             IsTerminated = true;
-            ServerConnection.Current?.ReliableClient.Notify(new TerminateChatNotification(PeerToPeerId, PeerConnectionId));
+            ServerConnection.Current?.ReliableClient.Notify(new TerminateChatNotification(SessionId, PeerConnectionId));
             ServerConnection.Current?.DatagramClient?.Stop();
             Form?.AppendSystemMessageLine($"Chat ended at {DateTime.Now}.", Color.Red);
             StopAudioPump();
@@ -118,7 +123,7 @@ namespace SecureChat.Client
             _outputDeviceIndex = outputDeviceIndex;
             _bitrate = bitrate;
 
-            ServerConnection.Current?.ReliableClient.Notify(new RequestVoiceCallNotification(PeerToPeerId, PeerConnectionId));
+            ServerConnection.Current?.ReliableClient.Notify(new RequestVoiceCallNotification(SessionId, PeerConnectionId));
         }
 
         /// <summary>
@@ -126,7 +131,7 @@ namespace SecureChat.Client
         /// </summary>
         public void CancelVoiceCallRequest()
         {
-            ServerConnection.Current?.ReliableClient.Notify(new CancelVoiceCallRequestNotification(PeerToPeerId, PeerConnectionId));
+            ServerConnection.Current?.ReliableClient.Notify(new CancelVoiceCallRequestNotification(SessionId, PeerConnectionId));
         }
 
         /// <summary>
@@ -138,7 +143,7 @@ namespace SecureChat.Client
             _outputDeviceIndex = outputDeviceIndex;
             _bitrate = bitrate;
 
-            ServerConnection.Current?.ReliableClient.Notify(new AcceptVoiceCallNotification(PeerToPeerId, PeerConnectionId));
+            ServerConnection.Current?.ReliableClient.Notify(new AcceptVoiceCallNotification(SessionId, PeerConnectionId));
         }
 
         /// <summary>
@@ -146,7 +151,7 @@ namespace SecureChat.Client
         /// </summary>
         public void DeclineVoiceCallRequest()
         {
-            ServerConnection.Current?.ReliableClient.Notify(new DeclineVoiceCallNotification(PeerToPeerId, PeerConnectionId));
+            ServerConnection.Current?.ReliableClient.Notify(new DeclineVoiceCallNotification(SessionId, PeerConnectionId));
         }
 
         public void ReceiveImage(byte[] imageBytes)
@@ -186,7 +191,7 @@ namespace SecureChat.Client
                 return false;
             }
 
-            return ServerConnection.Current?.ReliableClient.Query(new ExchangeMessageTextQuery(PeerToPeerId,
+            return ServerConnection.Current?.ReliableClient.Query(new ExchangeMessageTextQuery(SessionId,
                     PeerConnectionId, EncryptString(plaintText))).ContinueWith(o =>
                     {
                         if (!o.IsFaulted && o.Result.IsSuccess)
@@ -201,7 +206,7 @@ namespace SecureChat.Client
         {
             var fileId = Guid.NewGuid();
 
-            ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionBeginNotification(PeerToPeerId, PeerConnectionId, fileId, fileName, fileBytes.Length));
+            ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionBeginNotification(SessionId, PeerConnectionId, fileId, fileName, fileBytes.Length));
 
             using (var memoryStream = new MemoryStream(fileBytes))
             {
@@ -218,11 +223,11 @@ namespace SecureChat.Client
                         Array.Copy(buffer, chunkToSend, bytesRead);
                     }
 
-                    ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionChunkNotification(PeerToPeerId, PeerConnectionId, fileId, Cipher(chunkToSend)));
+                    ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionChunkNotification(SessionId, PeerConnectionId, fileId, Cipher(chunkToSend)));
                 }
             }
 
-            ServerConnection.Current?.ReliableClient.Query(new FileTransmissionEndQuery(PeerToPeerId, PeerConnectionId, fileId)).ContinueWith(o =>
+            ServerConnection.Current?.ReliableClient.Query(new FileTransmissionEndQuery(SessionId, PeerConnectionId, fileId)).ContinueWith(o =>
             {
                 if (!o.IsFaulted && o.Result.IsSuccess)
                 {

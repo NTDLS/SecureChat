@@ -18,19 +18,21 @@ namespace SecureChat.Library.ReliableMessages
         public byte[] NegotiationToken { get; set; }
 
         /// <summary>
-        /// Identifies a unique session. If a session is ended and a new one is started, it will have a different PeerToPeerId.
+        /// Identifies this chat session. This is used to identify the chat session when sending messages.
+        /// If the session is ended and a new one is started, it will have a different SessionId - even if it is the same contact.
         /// </summary>
-        public Guid PeerToPeerId { get; set; }
+        public Guid SessionId { get; set; }
 
         /// <summary>
         /// The ConnectionId that we need to tell the server to route the messages to.
-        /// This is enriched at the server before dispatching the query to the client by the AccountId
+        /// This is enriched at the server via the handler for InitiateEndToEndCryptographyQuery()
+        ///     before dispatching the query to the client by the AccountId.
         /// </summary>
         public Guid PeerConnectionId { get; set; }
 
-        public InitiateEndToEndCryptographyQuery(Guid peerToPeerId, Guid sourceAccountId, Guid targetAccountId, string displayName, byte[] negotiationToken)
+        public InitiateEndToEndCryptographyQuery(Guid sessionId, Guid sourceAccountId, Guid targetAccountId, string displayName, byte[] negotiationToken)
         {
-            PeerToPeerId = peerToPeerId;
+            SessionId = sessionId;
             SourceAccountId = sourceAccountId;
             TargetAccountId = targetAccountId;
             DisplayName = displayName;
