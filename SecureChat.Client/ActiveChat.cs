@@ -71,6 +71,8 @@ namespace SecureChat.Client
                     }
                 }
             });
+
+            keepAliveThread.Start();
         }
 
         public string DecryptString(byte[] cipherText)

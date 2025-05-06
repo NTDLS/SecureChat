@@ -19,7 +19,7 @@ namespace SecureChat.Client
         private bool _applicationClosing = false;
         private readonly NotifyIcon _trayIcon;
         private FormLogin? _formLogin;
-        private System.Windows.Forms.Timer? _firstShownTimer = new();
+        private readonly System.Windows.Forms.Timer? _firstShownTimer = new();
 
         public TrayApp()
         {
@@ -112,7 +112,7 @@ namespace SecureChat.Client
         {
             try
             {
-                ServerConnection.ClearCurrent();
+                ServerConnection.TerminateCurrent();
 
                 if (_formLogin != null)
                 {
@@ -310,7 +310,7 @@ namespace SecureChat.Client
             }
             try
             {
-                ServerConnection.ClearCurrent();
+                ServerConnection.TerminateCurrent();
                 UpdateClientState(ScOnlineState.Offline);
             }
             catch (Exception ex)
@@ -477,7 +477,7 @@ namespace SecureChat.Client
                 Task.Run(() => ServerConnection.Current?.ReliableClient?.Disconnect());
                 Thread.Sleep(10);
                 UpdateClientState(ScOnlineState.Offline);
-                ServerConnection.ClearCurrent();
+                ServerConnection.TerminateCurrent();
                 Exceptions.Ignore(() => LocalUserApplicationData.DeleteFromDisk(ScConstants.AppName, typeof(AutoLogin)));
             }
             catch (Exception ex)
@@ -524,7 +524,7 @@ namespace SecureChat.Client
                 Exceptions.Ignore(() => _formLogin?.Close());
 
                 _trayIcon.Visible = false;
-                ServerConnection.ClearCurrent();
+                ServerConnection.TerminateCurrent();
                 Application.Exit();
             }
             catch (Exception ex)

@@ -453,7 +453,7 @@ namespace SecureChat.Client.Forms
                 {
                     //MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     this.InvokeClose(DialogResult.Cancel);
-                    ServerConnection.ClearCurrent();
+                    ServerConnection.TerminateCurrent();
                     return;
                 }
 

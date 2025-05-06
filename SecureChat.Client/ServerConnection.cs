@@ -20,13 +20,14 @@ namespace SecureChat.Client
             Current = localSession;
         }
 
-        public static void ClearCurrent()
+        public static void TerminateCurrent()
         {
             if (Current != null)
             {
                 Exceptions.Ignore(() => Current.IsTerminated = true);
-                Task.Run(() => Exceptions.Ignore(() => Current?.ReliableClient?.Disconnect()));
-                Exceptions.Ignore(() => Current?.FormHome?.Close());
+                Exceptions.Ignore(() => Current.DatagramClient.Stop());
+                Task.Run(() => Exceptions.Ignore(() => Current.ReliableClient?.Disconnect()));
+                Exceptions.Ignore(() => Current.FormHome?.Close());
             }
 
             Current = null;
