@@ -59,10 +59,10 @@ namespace SecureChat.Client
 
                 context.SetCryptographyProvider(new DatagramCryptographyProvider(rmCryptographyProvider.PublicPrivateKeyPair));
 
-                Console.WriteLine($"Reply received from: {context.Endpoint}, Peer: {datagram.PeerConnectionId} (crypto init'd)");
-
                 ServerConnection.Current?.ReliableClient.Notify(new DatagramStreamReadyNotification(rmConnectionId));
             }
+
+            Console.WriteLine($"Reply received from: {context.Endpoint}, Peer: {datagram.PeerConnectionId} (crypto init'd)");
         }
     }
 }

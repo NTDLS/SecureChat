@@ -72,7 +72,6 @@ namespace SecureChat.Client
             dmHelloThread.Start();
         }
 
-
         public ActiveChat AddActiveChat(Guid peerToPeerId, Guid peerConnectionId, Guid accountId, string displayName, byte[] sharedSecret)
         {
             var activeChat = new ActiveChat(peerToPeerId, peerConnectionId, accountId, displayName, sharedSecret);

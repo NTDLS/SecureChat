@@ -21,12 +21,15 @@ namespace SecureChat.Server
             Console.WriteLine($"Received {bytes.Bytes.Length} bytes.");
         }
 
+        //TODO: this seriously needs some cleanup or to be stored with a peer-to-peer id.
+        public Dictionary<Guid, HashSet<DmContext>> DmContexts { get; private set; } = new();
+
         public void VoicePacketMessage(DmContext context, VoicePacketMessage datagram)
         {
             var session = _chatService.GetSessionByConnectionId(datagram.PeerConnectionId)
                 ?? throw new Exception("Session not found.");
 
-            if (session.DmContexts.TryGetValue(datagram.PeerToPeerId, out var endpoints))
+            if (DmContexts.TryGetValue(datagram.PeerToPeerId, out var endpoints))
             {
                 if (context.Endpoint != null && endpoints.Count != 2) //We should only ever have 2 endpoints.
                 {
@@ -39,7 +42,7 @@ namespace SecureChat.Server
                 {
                     HashSet<DmContext> newContext = new();
                     newContext.Add(context);
-                    session.DmContexts.Add(datagram.PeerToPeerId, newContext);
+                    DmContexts.Add(datagram.PeerToPeerId, newContext);
                 }
             }
 
@@ -70,15 +73,15 @@ namespace SecureChat.Server
             {
                 //Set the datagram messaging context for this session.
                 session.SetDmContext(context);
-
-                if (_chatService.DmServer.Client != null && context.Endpoint != null)
-                {
-                    //Echo the hello packet back to the sender.
-                    _chatService.DmServer.Client.Dispatch(context, context.Endpoint, new HelloReplyMessage(datagram.PeerConnectionId));
-                }
-
-                Console.WriteLine($"Hello received from: {context.Endpoint}, Peer: {datagram.PeerConnectionId}");
             }
+
+            if (_chatService.DmServer.Client != null && context.Endpoint != null)
+            {
+                //Echo the hello packet back to the sender.
+                _chatService.DmServer.Client.Dispatch(context, context.Endpoint, new HelloReplyMessage(datagram.PeerConnectionId));
+            }
+
+            Console.WriteLine($"Hello received from: {context.Endpoint}, Peer: {datagram.PeerConnectionId}");
         }
     }
 }
