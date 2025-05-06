@@ -26,6 +26,8 @@ namespace SecureChat.Server
         /// </summary>
         public IPEndPoint? DmEndpoint { get; private set; }
 
+        public DateTime LastActivityUTC { get; set; } = DateTime.UtcNow;
+
         public void SetDmEndpoint(IPEndPoint dmEndpoint)
         {
             DmEndpoint = dmEndpoint;

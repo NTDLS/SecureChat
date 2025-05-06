@@ -320,8 +320,8 @@ namespace SecureChat.Server
         {
             try
             {
-                var accountConnection = VerifyAndGetAccountConnection(context);
-                //TODO: Slide the session expiration.
+                //Verify the session is still alive and update the last activity time.
+                _ = VerifyAndGetAccountConnection(context);
             }
             catch (Exception ex)
             {
@@ -358,7 +358,7 @@ namespace SecureChat.Server
             try
             {
                 //Find the session for the requested account (if they are logged in).
-                var requestedSession = _chatService.GetSessionByAccountId(param.TargetAccountId)
+                var accountConnection = _chatService.GetAccountConnectionByAccountId(param.TargetAccountId)
                     ?? throw new Exception("Remote session not found.");
 
                 //Send the ConnectionId to the other peer.
@@ -366,10 +366,10 @@ namespace SecureChat.Server
 
                 //Relay the query to the requested session and reply to the requester with the other clients reply.
                 //This can be found in: ClientReliableMessageHandlers
-                var reply = _chatService.RmServer.Query(requestedSession.ConnectionId, param).Result;
+                var reply = _chatService.RmServer.Query(accountConnection.ConnectionId, param).Result;
 
                 //Reply with the ConnectionId to the requested peer.
-                reply.PeerConnectionId = requestedSession.ConnectionId;
+                reply.PeerConnectionId = accountConnection.ConnectionId;
 
                 return reply;
             }
@@ -390,10 +390,10 @@ namespace SecureChat.Server
                 if (context.GetCryptographyProvider() != null)
                     throw new Exception("Cryptography has already been initialized.");
 
-                var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
+                var accountConnection = _chatService.GetAccountConnectionByConnectionId(context.ConnectionId)
                     ?? throw new Exception("Session not found.");
 
-                context.SetCryptographyProvider(session.ServerClientCryptographyProvider);
+                context.SetCryptographyProvider(accountConnection.ServerClientCryptographyProvider);
             }
             catch (Exception ex)
             {
@@ -480,10 +480,10 @@ namespace SecureChat.Server
             if (context.GetCryptographyProvider() == null)
                 throw new Exception("Cryptography has not been initialized.");
 
-            var session = _chatService.GetSessionByConnectionId(context.ConnectionId)
+            var accountConnection = _chatService.GetAccountConnectionByConnectionId(context.ConnectionId)
                 ?? throw new Exception("Session not found.");
 
-            return session;
+            return accountConnection;
         }
     }
 }

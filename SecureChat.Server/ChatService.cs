@@ -16,7 +16,7 @@ namespace SecureChat.Server
         private readonly DmServer _dmServer;
         private readonly IConfiguration _configuration;
         private readonly DatabaseRepository _dbRepository;
-        private readonly Dictionary<Guid, AccountConnection> _forwardLookup = new();
+        private readonly Dictionary<Guid, AccountConnection> _accountConnections = new();
         public delegate void OnLogEvent(ChatService server, ScErrorLevel errorLevel, string message, Exception? ex = null);
 
         public RmServer RmServer { get => _rmServer; }
@@ -49,13 +49,13 @@ namespace SecureChat.Server
 
         private void RmServer_OnDisconnected(RmContext context)
         {
-            var session = GetSessionByConnectionId(context.ConnectionId);
+            var accountConnection = GetAccountConnectionByConnectionId(context.ConnectionId);
 
             DeregisterSession(context.ConnectionId);
 
-            if (session != null && session.AccountId != null)
+            if (accountConnection != null && accountConnection.AccountId != null)
             {
-                _dbRepository.UpdateAccountState(session.AccountId.Value, ScOnlineState.Offline);
+                _dbRepository.UpdateAccountState(accountConnection.AccountId.Value, ScOnlineState.Offline);
             }
         }
 
@@ -80,40 +80,48 @@ namespace SecureChat.Server
 
         public void RegisterSession(Guid connectionId, Guid peerConnectionId, ReliableCryptographyProvider baselineCryptographyProvider)
         {
-            var session = new AccountConnection(connectionId, peerConnectionId, baselineCryptographyProvider);
+            var accountConnection = new AccountConnection(connectionId, peerConnectionId, baselineCryptographyProvider);
 
-            _forwardLookup.Add(connectionId, session);
+            _accountConnections.Add(connectionId, accountConnection);
         }
 
         public void DeregisterSession(Guid connectionId)
         {
-            _forwardLookup.Remove(connectionId);
+            _accountConnections.Remove(connectionId);
         }
 
         /// <summary>
         /// Gets the session by the ReliableMessaging ConnectionID at the remote peer.
         /// </summary>
-        public AccountConnection? GetSessionByPeerConnectionId(Guid peerConnectionId)
+        public AccountConnection? GetAccountConnectionByPeerConnectionId(Guid peerConnectionId)
         {
-            return _forwardLookup.SingleOrDefault(x => x.Value.PeerConnectionId == peerConnectionId).Value;
+            return _accountConnections.SingleOrDefault(x => x.Value.PeerConnectionId == peerConnectionId).Value;
         }
 
         /// <summary>
         /// Gets the session by the ReliableMessaging ConnectionID at this server.
         /// </summary>
-        public AccountConnection? GetSessionByConnectionId(Guid connectionId)
+        public AccountConnection? GetAccountConnectionByConnectionId(Guid connectionId)
         {
-            _forwardLookup.TryGetValue(connectionId, out var session);
-            return session;
+            if (_accountConnections.TryGetValue(connectionId, out var accountConnection))
+            {
+                accountConnection.LastActivityUTC = DateTime.UtcNow;
+                return accountConnection;
+            }
+            else
+            {
+                Log.Information($"Session not found for connection ID: {connectionId}");
+            }
+            return accountConnection;
         }
 
-        public AccountConnection? GetSessionByAccountId(Guid accountId)
+        public AccountConnection? GetAccountConnectionByAccountId(Guid accountId)
         {
-            foreach (var session in _forwardLookup)
+            foreach (var accountConnection in _accountConnections)
             {
-                if (session.Value.AccountId == accountId)
+                if (accountConnection.Value.AccountId == accountId)
                 {
-                    return session.Value;
+                    return accountConnection.Value;
                 }
             }
             return null;

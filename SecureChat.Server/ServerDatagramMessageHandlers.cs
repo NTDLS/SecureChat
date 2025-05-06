@@ -23,12 +23,12 @@ namespace SecureChat.Server
 
         public void VoicePacketMessage(DmContext context, VoicePacketMessage datagram)
         {
-            var session = _chatService.GetSessionByConnectionId(datagram.PeerConnectionId)
+            var accountConnection = _chatService.GetAccountConnectionByConnectionId(datagram.PeerConnectionId)
                 ?? throw new Exception("Session not found.");
 
-            if (_chatService.DmServer.Client != null && session.DmEndpoint != null)
+            if (_chatService.DmServer.Client != null && accountConnection.DmEndpoint != null)
             {
-                _chatService.DmServer.Client.Dispatch(context, session.DmEndpoint, datagram);
+                _chatService.DmServer.Client.Dispatch(context, accountConnection.DmEndpoint, datagram);
             }
         }
 
@@ -41,13 +41,13 @@ namespace SecureChat.Server
         /// </summary>
         public void HelloPacketMessage(DmContext context, HelloPacketMessage datagram)
         {
-            var session = _chatService.GetSessionByPeerConnectionId(datagram.PeerConnectionId)
+            var accountConnection = _chatService.GetAccountConnectionByPeerConnectionId(datagram.PeerConnectionId)
                 ?? throw new Exception("Session not found.");
 
-            if (context.Endpoint != null && session.DmEndpoint != context.Endpoint)
+            if (context.Endpoint != null && accountConnection.DmEndpoint != context.Endpoint)
             {
                 //Save the DmEndpoint for this session.
-                session.SetDmEndpoint(context.Endpoint);
+                accountConnection.SetDmEndpoint(context.Endpoint);
             }
 
             //Echo the hello packet back to the sender.
