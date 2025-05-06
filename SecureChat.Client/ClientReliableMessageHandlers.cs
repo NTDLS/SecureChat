@@ -205,7 +205,7 @@ namespace SecureChat.Client
         /// They have supplied a Diffie-Hellman negotiation token, so apply it and reply with the result.
         /// This is also where we prop up the chat session.
         /// </summary>
-        public InitiatePeerToPeerSessionQueryReply InitiateEndToEndCryptographyQuery(RmContext context, InitiatePeerToPeerSessionQuery param)
+        public InitiatePeerToPeerSessionQueryReply InitiatePeerToPeerSessionQuery(RmContext context, InitiatePeerToPeerSessionQuery param)
         {
             try
             {

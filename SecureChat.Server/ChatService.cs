@@ -91,7 +91,9 @@ namespace SecureChat.Server
         }
 
         /// <summary>
-        /// Gets the session by the ReliableMessaging ConnectionID at the remote peer.
+        /// Reverse lookup by the ConnectionId of the ReliableMessaging at the remote peer.
+        /// We know the remote ConnectionId because it is supplied in via ExchangePublicKeyQuery
+        ///     when the client makes the initial connect to the server.
         /// </summary>
         public AccountConnection? GetAccountConnectionByPeerConnectionId(Guid peerConnectionId)
         {
@@ -99,18 +101,13 @@ namespace SecureChat.Server
         }
 
         /// <summary>
-        /// Gets the session by the ReliableMessaging ConnectionID at this server.
+        /// Forward lookup by the local ReliableMessaging ConnectionId.
         /// </summary>
         public AccountConnection? GetAccountConnectionByConnectionId(Guid connectionId)
         {
             if (_accountConnections.TryGetValue(connectionId, out var accountConnection))
             {
                 accountConnection.LastActivityUTC = DateTime.UtcNow;
-                return accountConnection;
-            }
-            else
-            {
-                Log.Information($"Session not found for connection ID: {connectionId}");
             }
             return accountConnection;
         }

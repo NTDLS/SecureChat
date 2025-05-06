@@ -25,7 +25,7 @@ namespace SecureChat.Library.ReliableMessages
 
         /// <summary>
         /// The ConnectionId that we need to tell the server to route the messages to.
-        /// This is enriched at the server via the handler for InitiateEndToEndCryptographyQuery()
+        /// This is enriched at the server via the handler for InitiatePeerToPeerSessionQuery()
         ///     before dispatching the query to the client by the AccountId.
         /// </summary>
         public Guid PeerConnectionId { get; set; }

@@ -320,8 +320,10 @@ namespace SecureChat.Server
         {
             try
             {
-                //Verify the session is still alive and update the last activity time.
+                //Verify the connection is still alive and update the last activity time.
                 _ = VerifyAndGetAccountConnection(context);
+
+                //TODO: Update the last activity time of the session too (which we do not have yet).
             }
             catch (Exception ex)
             {
@@ -352,6 +354,8 @@ namespace SecureChat.Server
         /// <summary>
         /// A client is telling the server that it would like to establish a new session and
         ///     initialize end-to-end encryption with another client based on its account id.
+        ///     
+        /// The server really doesn't need to do anything here, but relay the message to the appropriate client.
         /// </summary>
         public InitiatePeerToPeerSessionQueryReply InitiatePeerToPeerSessionQuery(RmContext context, InitiatePeerToPeerSessionQuery param)
         {
@@ -364,7 +368,7 @@ namespace SecureChat.Server
                 //Send the ConnectionId to the other peer.
                 param.PeerConnectionId = context.ConnectionId;
 
-                //Relay the query to the requested session and reply to the requester with the other clients reply.
+                //Relay the query to the requested client connection and reply to the requester with the other clients reply.
                 //This can be found in: ClientReliableMessageHandlers
                 var reply = _chatService.RmServer.Query(accountConnection.ConnectionId, param).Result;
 

@@ -130,7 +130,6 @@ namespace SecureChat.Client
             }
             IsTerminated = true;
             ServerConnection.Current?.ReliableClient.Notify(new TerminateChatNotification(SessionId, PeerConnectionId));
-            ServerConnection.Current?.DatagramClient?.Stop();
             Form?.AppendSystemMessageLine($"Chat ended at {DateTime.Now}.", Color.Red);
             StopAudioPump();
         }
