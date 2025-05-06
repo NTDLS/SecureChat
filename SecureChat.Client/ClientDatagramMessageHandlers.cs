@@ -37,9 +37,7 @@ namespace SecureChat.Client
 
         /// <summary>
         /// We have received a reply to our UDP hello packet, this means that NAT transversal is complete.
-        ///     So lets set the datagram messaging context to use the private key-pair from the reliable
-        ///     connection and let the server know via reliable messaging that we have done so,
-        ///     so that it can also set the public-private-key context for its UPD datagram messaging.
+        /// This functions as a two-way keepalive.
         /// </summary>
         public void HelloReplyMessage(DmContext context, HelloReplyMessage datagram)
         {
