@@ -26,9 +26,9 @@ namespace SecureChat.Server
             var session = _chatService.GetSessionByConnectionId(datagram.PeerConnectionId)
                 ?? throw new Exception("Session not found.");
 
-            if (_chatService.DmServer.Client != null && session.DmContext?.Endpoint != null)
+            if (_chatService.DmServer.Client != null && session.DmEndpoint != null)
             {
-                _chatService.DmServer.Client.Dispatch(session.DmContext, session.DmContext.Endpoint, datagram);
+                _chatService.DmServer.Client.Dispatch(context, session.DmEndpoint, datagram);
             }
         }
 
@@ -42,17 +42,14 @@ namespace SecureChat.Server
             var session = _chatService.GetSessionByPeerConnectionId(datagram.PeerConnectionId)
                 ?? throw new Exception("Session not found.");
 
-            if (session.DmContext == null)
+            if (context.Endpoint != null && session.DmEndpoint != context.Endpoint)
             {
-                //Set the datagram messaging context for this session.
-                session.SetDmContext(context);
+                //Save the DmEndpoint for this session.
+                session.SetDmEndpoint(context.Endpoint);
             }
 
-            if (_chatService.DmServer.Client != null && context.Endpoint != null)
-            {
-                //Echo the hello packet back to the sender.
-                _chatService.DmServer.Client.Dispatch(context, context.Endpoint, new HelloReplyMessage(datagram.PeerConnectionId));
-            }
+            //Echo the hello packet back to the sender.
+            context.Dispatch(new HelloReplyMessage(datagram.PeerConnectionId));
 
             Console.WriteLine($"Hello received from: {context.Endpoint}, Peer: {datagram.PeerConnectionId}");
         }

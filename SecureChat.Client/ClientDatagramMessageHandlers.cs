@@ -41,7 +41,7 @@ namespace SecureChat.Client
         /// </summary>
         public void HelloReplyMessage(DmContext context, HelloReplyMessage datagram)
         {
-            Console.WriteLine($"Reply received from: {context.Endpoint}, Peer: {datagram.PeerConnectionId} (crypto init'd)");
+            Console.WriteLine($"Reply received from: {context.Endpoint}, Peer: {datagram.PeerConnectionId}");
         }
     }
 }
