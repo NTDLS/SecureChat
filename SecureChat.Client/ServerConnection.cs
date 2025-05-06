@@ -22,8 +22,12 @@ namespace SecureChat.Client
 
         public static void ClearCurrent()
         {
-            Task.Run(() => Current?.ReliableClient?.Disconnect());
-            Exceptions.Ignore(() => Current?.FormHome?.Close());
+            if (Current != null)
+            {
+                Exceptions.Ignore(() => Current.IsTerminated = true);
+                Task.Run(() => Exceptions.Ignore(() => Current?.ReliableClient?.Disconnect()));
+                Exceptions.Ignore(() => Current?.FormHome?.Close());
+            }
 
             Current = null;
         }
@@ -65,7 +69,12 @@ namespace SecureChat.Client
                     {
                         //TODO: Log or report
                     }
-                    Thread.Sleep(1000);
+
+                    var breakTime = DateTime.UtcNow.AddSeconds(10);
+                    while (!IsTerminated && DateTime.UtcNow < breakTime)
+                    {
+                        Thread.Sleep(500);
+                    }
                 }
             });
 

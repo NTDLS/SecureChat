@@ -1,8 +1,5 @@
 ﻿using NTDLS.DatagramMessaging;
-using NTDLS.Helpers;
-using SecureChat.Library;
 using SecureChat.Library.DatagramMessages;
-using SecureChat.Library.ReliableMessages;
 
 namespace SecureChat.Client
 {
@@ -32,7 +29,8 @@ namespace SecureChat.Client
             if (ServerConnection.Current == null)
                 throw new Exception("Local connection is not established.");
 
-            var activeChat = VerifyAndActiveChat(context, datagram.PeerToPeerId);
+            var activeChat = ServerConnection.Current.GetActiveChat(datagram.PeerToPeerId)
+                ?? throw new Exception("Chat session was not found.");
 
             activeChat.PlayAudioPacket(datagram.Bytes);
         }
@@ -45,23 +43,6 @@ namespace SecureChat.Client
         /// </summary>
         public void HelloReplyMessage(DmContext context, HelloReplyMessage datagram)
         {
-            //TODO: Check datagram to ensure that everything matches. For anti-spoofing.
-
-            if (context.GetCryptographyProvider() == null)
-            {
-                if (ServerConnection.Current == null)
-                    throw new Exception("Local connection is not established.");
-
-                var rmConnectionId = ServerConnection.Current.ReliableClient.ConnectionId.EnsureNotNull();
-
-                var rmCryptographyProvider = ServerConnection.Current.ReliableClient.GetCryptographyProvider() as ReliableCryptographyProvider
-                    ?? throw new Exception("Reliable cryptography has not been initialized.");
-
-                context.SetCryptographyProvider(new DatagramCryptographyProvider(rmCryptographyProvider.PublicPrivateKeyPair));
-
-                ServerConnection.Current?.ReliableClient.Notify(new DatagramStreamReadyNotification(rmConnectionId));
-            }
-
             Console.WriteLine($"Reply received from: {context.Endpoint}, Peer: {datagram.PeerConnectionId} (crypto init'd)");
         }
     }

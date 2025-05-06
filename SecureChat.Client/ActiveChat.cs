@@ -1,5 +1,4 @@
-﻿using NTDLS.DatagramMessaging;
-using NTDLS.Permafrost;
+﻿using NTDLS.Permafrost;
 using SecureChat.Client.Audio;
 using SecureChat.Client.Controls;
 using SecureChat.Client.Forms;
@@ -30,7 +29,6 @@ namespace SecureChat.Client
         public Guid PeerConnectionId { get; private set; }
         public Dictionary<Guid, FileReceiveBuffer> FileReceiveBuffers { get; set; } = new();
         public Guid PeerToPeerId { get; private set; }
-        public DmContext? DmContext { get; set; }
 
         public ActiveChat(Guid peerToPeerId, Guid peerConnectionId, Guid accountId, string displayName, byte[] sharedSecret)
         {

@@ -17,7 +17,6 @@ namespace SecureChat.Server
         private readonly IConfiguration _configuration;
         private readonly DatabaseRepository _dbRepository;
         private readonly Dictionary<Guid, AccountSession> _forwardLookup = new();
-        private readonly Dictionary<Guid, AccountSession> _reverseLookup = new();
         public delegate void OnLogEvent(ChatService server, ScErrorLevel errorLevel, string message, Exception? ex = null);
 
         public RmServer RmServer { get => _rmServer; }
@@ -36,17 +35,6 @@ namespace SecureChat.Server
 
             _dmServer = new DmServer();
             _dmServer.AddHandler(new ServerDatagramMessageHandlers(configuration, this));
-
-            /*
-            _dmServer.OnKeepAliveReceived += (DmContext context, IDmKeepAliveDatagram keepAlive) =>
-            {
-                GetSessionByConnectionId(DmContext
-
-                var activeChat = VerifyAndActiveChat(context, param.PeerToPeerId);
-
-                Console.WriteLine($"Received keep-alive. Latency: {(DateTime.UtcNow - keepAlive.TimeStamp).TotalMilliseconds:n2}ms");
-            };
-            */
 
             _dmServer.OnException += (DmContext? context, Exception ex) =>
             {
@@ -95,16 +83,11 @@ namespace SecureChat.Server
             var session = new AccountSession(connectionId, peerConnectionId, baselineCryptographyProvider);
 
             _forwardLookup.Add(connectionId, session);
-            _reverseLookup.Add(peerConnectionId, session);
         }
 
         public void DeregisterSession(Guid connectionId)
         {
             _forwardLookup.Remove(connectionId);
-
-            _reverseLookup.Where(o => o.Value.ConnectionId == connectionId)
-                .ToList()
-                .ForEach(o => _reverseLookup.Remove(o.Key));
         }
 
         /// <summary>
@@ -112,8 +95,7 @@ namespace SecureChat.Server
         /// </summary>
         public AccountSession? GetSessionByPeerConnectionId(Guid peerConnectionId)
         {
-            _reverseLookup.TryGetValue(peerConnectionId, out var session);
-            return session;
+            return _forwardLookup.SingleOrDefault(x => x.Value.PeerConnectionId == peerConnectionId).Value;
         }
 
         /// <summary>

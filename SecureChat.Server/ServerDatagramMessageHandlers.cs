@@ -21,48 +21,22 @@ namespace SecureChat.Server
             Console.WriteLine($"Received {bytes.Bytes.Length} bytes.");
         }
 
-        //TODO: this seriously needs some cleanup or to be stored with a peer-to-peer id.
-        public Dictionary<Guid, HashSet<DmContext>> DmContexts { get; private set; } = new();
-
         public void VoicePacketMessage(DmContext context, VoicePacketMessage datagram)
         {
             var session = _chatService.GetSessionByConnectionId(datagram.PeerConnectionId)
                 ?? throw new Exception("Session not found.");
 
-            if (DmContexts.TryGetValue(datagram.PeerToPeerId, out var endpoints))
+            if (_chatService.DmServer.Client != null
+                && session.DmContext != null
+                && session.DmContext.Endpoint != null)
             {
-                if (context.Endpoint != null && endpoints.Count != 2) //We should only ever have 2 endpoints.
-                {
-                    endpoints.Add(context);
-                }
-            }
-            else
-            {
-                if (context.Endpoint != null)
-                {
-                    HashSet<DmContext> newContext = new();
-                    newContext.Add(context);
-                    DmContexts.Add(datagram.PeerToPeerId, newContext);
-                }
-            }
-
-            if (_chatService.DmServer.Client != null && endpoints != null)
-            {
-                //Find the other endpoint, assuming it has been set.
-                var otherEndpoint = endpoints.SingleOrDefault(o => o != context);
-                if (otherEndpoint != null && otherEndpoint.Endpoint != null)
-                {
-                    //Dispatch the UPD datagram to the other endpoint.
-                    _chatService.DmServer.Client.Dispatch(otherEndpoint, otherEndpoint.Endpoint, datagram);
-                }
+                _chatService.DmServer.Client.Dispatch(session.DmContext, session.DmContext.Endpoint, datagram);
             }
         }
 
         /// <summary>
         /// The hello message is sent by the client after the reliable message connection is established.
         /// NAT should now be established, so reply to the UDP packet so that the client knows we received it.
-        /// Once the client receives the hello reply, it will set the cryptography context for the UPD connection
-        ///     and let us know via reliable message: DatagramStreamReadyNotification
         /// </summary>
         public void HelloPacketMessage(DmContext context, HelloPacketMessage datagram)
         {

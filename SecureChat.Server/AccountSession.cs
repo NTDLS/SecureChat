@@ -13,8 +13,8 @@ namespace SecureChat.Server
 
         public Guid? AccountId { get; private set; } = null;
         public ReliableCryptographyProvider ServerClientCryptographyProvider { get; set; }
-        public DmContext? DmContext { get; set; }
-        //public Dictionary<Guid, HashSet<DmContext>> DmContexts { get; private set; } = new();
+
+        public DmContext? DmContext { get; private set; }
 
         public void SetDmContext(DmContext context)
         {
