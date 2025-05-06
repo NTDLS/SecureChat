@@ -35,7 +35,9 @@ namespace SecureChat.Server
         /// <summary>
         /// The hello message is sent by the client after the reliable message connection is established.
         /// NAT should now be established, so reply to the UDP packet so that the client knows we received it.
-        /// This functions as a two-way keepalive.
+        /// This serves two purposes:
+        /// 1) Allows us to associate the UPD endpoint with a session.
+        /// 2) This functions as a two-way keepalive.
         /// </summary>
         public void HelloPacketMessage(DmContext context, HelloPacketMessage datagram)
         {
