@@ -33,7 +33,7 @@ namespace SecureChat.Server
         {
             try
             {
-                var session = VerifyAndGetSession(context);
+                var accountConnection = VerifyAndGetAccountConnection(context);
 
                 _chatService.RmServer.Notify(param.PeerConnectionId, param);
             }
@@ -51,7 +51,7 @@ namespace SecureChat.Server
         {
             try
             {
-                var session = VerifyAndGetSession(context);
+                var accountConnection = VerifyAndGetAccountConnection(context);
 
                 _chatService.RmServer.Notify(param.PeerConnectionId, param);
             }
@@ -69,7 +69,7 @@ namespace SecureChat.Server
         {
             try
             {
-                var session = VerifyAndGetSession(context);
+                var accountConnection = VerifyAndGetAccountConnection(context);
 
                 _chatService.RmServer.Notify(param.PeerConnectionId, param);
             }
@@ -87,7 +87,7 @@ namespace SecureChat.Server
         {
             try
             {
-                var session = VerifyAndGetSession(context);
+                var accountConnection = VerifyAndGetAccountConnection(context);
 
                 _chatService.RmServer.Notify(param.PeerConnectionId, param);
             }
@@ -104,15 +104,15 @@ namespace SecureChat.Server
         {
             try
             {
-                var session = VerifyAndGetSession(context);
+                var accountConnection = VerifyAndGetAccountConnection(context);
 
-                var account = _dbRepository.GetAccountById(session.AccountId.EnsureNotNull());
+                var account = _dbRepository.GetAccountById(accountConnection.AccountId.EnsureNotNull());
                 if (account.DisplayName != param.DisplayName)
                 {
-                    _dbRepository.UpdateAccountDisplayName(session.AccountId.EnsureNotNull(), param.DisplayName);
+                    _dbRepository.UpdateAccountDisplayName(accountConnection.AccountId.EnsureNotNull(), param.DisplayName);
                 }
 
-                _dbRepository.UpdateAccountProfile(session.AccountId.EnsureNotNull(), param.Profile);
+                _dbRepository.UpdateAccountProfile(accountConnection.AccountId.EnsureNotNull(), param.Profile);
 
                 return new UpdateAccountProfileQueryReply();
             }
@@ -130,9 +130,9 @@ namespace SecureChat.Server
         {
             try
             {
-                var session = VerifyAndGetSession(context);
+                var accountConnection = VerifyAndGetAccountConnection(context);
 
-                _dbRepository.AcceptContactInvite(param.AccountId, session.AccountId.EnsureNotNull());
+                _dbRepository.AcceptContactInvite(param.AccountId, accountConnection.AccountId.EnsureNotNull());
 
                 return new AcceptContactInviteQueryReply();
             }
@@ -150,9 +150,9 @@ namespace SecureChat.Server
         {
             try
             {
-                var session = VerifyAndGetSession(context);
+                var accountConnection = VerifyAndGetAccountConnection(context);
 
-                _dbRepository.RemoveContact(session.AccountId.EnsureNotNull(), param.AccountId);
+                _dbRepository.RemoveContact(accountConnection.AccountId.EnsureNotNull(), param.AccountId);
 
                 return new RemoveContactQueryReply();
             }
@@ -170,9 +170,9 @@ namespace SecureChat.Server
         {
             try
             {
-                var session = VerifyAndGetSession(context);
+                var accountConnection = VerifyAndGetAccountConnection(context);
 
-                _dbRepository.AddContactInvite(session.AccountId.EnsureNotNull(), param.AccountId);
+                _dbRepository.AddContactInvite(accountConnection.AccountId.EnsureNotNull(), param.AccountId);
 
                 return new InviteContactQueryReply();
             }
@@ -190,9 +190,9 @@ namespace SecureChat.Server
         {
             try
             {
-                var session = VerifyAndGetSession(context);
+                var accountConnection = VerifyAndGetAccountConnection(context);
 
-                var accounts = _dbRepository.AccountSearch(session.AccountId.EnsureNotNull(), param.DisplayName);
+                var accounts = _dbRepository.AccountSearch(accountConnection.AccountId.EnsureNotNull(), param.DisplayName);
 
                 return new AccountSearchQueryReply(accounts);
             }
@@ -210,7 +210,7 @@ namespace SecureChat.Server
         {
             try
             {
-                var session = VerifyAndGetSession(context);
+                var accountConnection = VerifyAndGetAccountConnection(context);
 
                 _dbRepository.CreateAccount(param.Username, param.DisplayName, param.PasswordHash);
 
@@ -231,7 +231,7 @@ namespace SecureChat.Server
         {
             try
             {
-                var session = VerifyAndGetSession(context);
+                var accountConnection = VerifyAndGetAccountConnection(context);
 
                 _chatService.RmServer.Notify(param.PeerConnectionId, param);
             }
@@ -249,7 +249,7 @@ namespace SecureChat.Server
         {
             try
             {
-                var session = VerifyAndGetSession(context);
+                var accountConnection = VerifyAndGetAccountConnection(context);
 
                 _chatService.RmServer.Notify(param.PeerConnectionId, param);
             }
@@ -267,7 +267,7 @@ namespace SecureChat.Server
         {
             try
             {
-                var session = VerifyAndGetSession(context);
+                var accountConnection = VerifyAndGetAccountConnection(context);
 
                 return _chatService.RmServer.Query(param.PeerConnectionId, param).Result;
             }
@@ -286,7 +286,7 @@ namespace SecureChat.Server
         {
             try
             {
-                var session = VerifyAndGetSession(context);
+                var accountConnection = VerifyAndGetAccountConnection(context);
 
                 _chatService.RmServer.Notify(param.PeerConnectionId, param);
             }
@@ -303,9 +303,25 @@ namespace SecureChat.Server
         {
             try
             {
-                var session = VerifyAndGetSession(context);
+                var accountConnection = VerifyAndGetAccountConnection(context);
 
                 _dbRepository.UpdateAccountState(param.AccountId, param.State);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Remote client is letting us know that the session is still alive.
+        /// </summary>
+        public void SessionKeepAliveNotification(RmContext context, SessionKeepAliveNotification param)
+        {
+            try
+            {
+                var accountConnection = VerifyAndGetAccountConnection(context);
+                //TODO: Slide the session expiration.
             }
             catch (Exception ex)
             {
@@ -416,9 +432,9 @@ namespace SecureChat.Server
         {
             try
             {
-                var session = VerifyAndGetSession(context);
+                var accountConnection = VerifyAndGetAccountConnection(context);
 
-                if (session.AccountId != null)
+                if (accountConnection.AccountId != null)
                 {
                     throw new Exception("Session is already logged in.");
                 }
@@ -426,7 +442,7 @@ namespace SecureChat.Server
                 var login = _dbRepository.Login(param.Username, param.PasswordHash, param.ExplicitAway)
                     ?? throw new Exception("Invalid username or password.");
 
-                session.SetAccountId(login.Id);
+                accountConnection.SetAccountId(login.Id);
 
                 return new LoginQueryReply(
                     login.Id.EnsureNotNull(),
@@ -447,9 +463,9 @@ namespace SecureChat.Server
         {
             try
             {
-                var session = VerifyAndGetSession(context);
+                var accountConnection = VerifyAndGetAccountConnection(context);
 
-                var contacts = _dbRepository.GetContacts(session.AccountId.EnsureNotNull());
+                var contacts = _dbRepository.GetContacts(accountConnection.AccountId.EnsureNotNull());
 
                 return new GetContactsQueryReply(contacts);
             }
@@ -459,7 +475,7 @@ namespace SecureChat.Server
             }
         }
 
-        public AccountSession VerifyAndGetSession(RmContext context)
+        public AccountConnection VerifyAndGetAccountConnection(RmContext context)
         {
             if (context.GetCryptographyProvider() == null)
                 throw new Exception("Cryptography has not been initialized.");

@@ -50,6 +50,27 @@ namespace SecureChat.Client
             PeerConnectionId = peerConnectionId;
             AccountId = accountId;
             DisplayName = displayName;
+
+            var thread = new Thread(() =>
+            {
+                while (!IsTerminated)
+                {
+                    try
+                    {
+                        ServerConnection.Current?.ReliableClient.Notify(new SessionKeepAliveNotification(SessionId));
+                    }
+                    catch (Exception ex)
+                    {
+                        //TODO: Log or report
+                    }
+
+                    var breakTime = DateTime.UtcNow.AddSeconds(10);
+                    while (!IsTerminated && DateTime.UtcNow < breakTime)
+                    {
+                        Thread.Sleep(500);
+                    }
+                }
+            });
         }
 
         public string DecryptString(byte[] cipherText)

@@ -6,7 +6,7 @@ namespace SecureChat.Server
     /// <summary>
     /// Used to store information about connected client.
     /// </summary>
-    internal class AccountSession
+    internal class AccountConnection
     {
         /// <summary>
         /// The connection ID of the client.
@@ -31,7 +31,7 @@ namespace SecureChat.Server
             DmEndpoint = dmEndpoint;
         }
 
-        public AccountSession(Guid connectionId, Guid peerConnectionId, ReliableCryptographyProvider serverClientCryptographyProvider)
+        public AccountConnection(Guid connectionId, Guid peerConnectionId, ReliableCryptographyProvider serverClientCryptographyProvider)
         {
             ConnectionId = connectionId;
             PeerConnectionId = peerConnectionId;

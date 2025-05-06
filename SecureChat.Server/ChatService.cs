@@ -16,7 +16,7 @@ namespace SecureChat.Server
         private readonly DmServer _dmServer;
         private readonly IConfiguration _configuration;
         private readonly DatabaseRepository _dbRepository;
-        private readonly Dictionary<Guid, AccountSession> _forwardLookup = new();
+        private readonly Dictionary<Guid, AccountConnection> _forwardLookup = new();
         public delegate void OnLogEvent(ChatService server, ScErrorLevel errorLevel, string message, Exception? ex = null);
 
         public RmServer RmServer { get => _rmServer; }
@@ -80,7 +80,7 @@ namespace SecureChat.Server
 
         public void RegisterSession(Guid connectionId, Guid peerConnectionId, ReliableCryptographyProvider baselineCryptographyProvider)
         {
-            var session = new AccountSession(connectionId, peerConnectionId, baselineCryptographyProvider);
+            var session = new AccountConnection(connectionId, peerConnectionId, baselineCryptographyProvider);
 
             _forwardLookup.Add(connectionId, session);
         }
@@ -93,7 +93,7 @@ namespace SecureChat.Server
         /// <summary>
         /// Gets the session by the ReliableMessaging ConnectionID at the remote peer.
         /// </summary>
-        public AccountSession? GetSessionByPeerConnectionId(Guid peerConnectionId)
+        public AccountConnection? GetSessionByPeerConnectionId(Guid peerConnectionId)
         {
             return _forwardLookup.SingleOrDefault(x => x.Value.PeerConnectionId == peerConnectionId).Value;
         }
@@ -101,13 +101,13 @@ namespace SecureChat.Server
         /// <summary>
         /// Gets the session by the ReliableMessaging ConnectionID at this server.
         /// </summary>
-        public AccountSession? GetSessionByConnectionId(Guid connectionId)
+        public AccountConnection? GetSessionByConnectionId(Guid connectionId)
         {
             _forwardLookup.TryGetValue(connectionId, out var session);
             return session;
         }
 
-        public AccountSession? GetSessionByAccountId(Guid accountId)
+        public AccountConnection? GetSessionByAccountId(Guid accountId)
         {
             foreach (var session in _forwardLookup)
             {
