@@ -368,7 +368,7 @@ namespace SecureChat.Client.Forms
 
                         //The first thing we do when we get a connection is start a new key exchange process.
                         var queryRequestKeyExchangeReply = ServerConnection.Current.ReliableClient.Query(
-                            new InitiateEndToEndCryptographyQuery(sessionId, ServerConnection.Current.AccountId, contactsModel.Id, ServerConnection.Current.DisplayName, negotiationToken))
+                            new InitiatePeerToPeerSessionQuery(sessionId, ServerConnection.Current.AccountId, contactsModel.Id, ServerConnection.Current.DisplayName, negotiationToken))
                             .ContinueWith(o =>
                             {
                                 if (!o.IsFaulted && o.Result.IsSuccess)

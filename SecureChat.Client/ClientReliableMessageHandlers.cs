@@ -205,7 +205,7 @@ namespace SecureChat.Client
         /// They have supplied a Diffie-Hellman negotiation token, so apply it and reply with the result.
         /// This is also where we prop up the chat session.
         /// </summary>
-        public InitiateEndToEndCryptographyQueryReply InitiateEndToEndCryptographyQuery(RmContext context, InitiateEndToEndCryptographyQuery param)
+        public InitiatePeerToPeerSessionQueryReply InitiateEndToEndCryptographyQuery(RmContext context, InitiatePeerToPeerSessionQuery param)
         {
             try
             {
@@ -234,12 +234,12 @@ namespace SecureChat.Client
                 });
 
                 //Reply with the applied negotiation token so that the requester can arrive at the same shared secret.
-                return new InitiateEndToEndCryptographyQueryReply(negotiationReplyToken);
+                return new InitiatePeerToPeerSessionQueryReply(negotiationReplyToken);
             }
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new InitiateEndToEndCryptographyQueryReply(ex.GetBaseException());
+                return new InitiatePeerToPeerSessionQueryReply(ex.GetBaseException());
             }
         }
 

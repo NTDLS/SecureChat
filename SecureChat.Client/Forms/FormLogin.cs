@@ -96,9 +96,12 @@ namespace SecureChat.Client.Forms
                                 return o.Result.PublicRsaKey;
                             }).Result;
 
+                        progressForm.SetHeaderText("Applying cryptography...");
+
                         rmClient.Notify(new InitializeServerClientCryptographyNotification());
                         rmClient.SetCryptographyProvider(new ReliableCryptographyProvider(remotePublicKey, keyPair.PrivateRsaKey));
 
+                        progressForm.SetHeaderText("Waiting for server...");
                         Thread.Sleep(1000); //Give the server a moment to initialize the cryptography.
 
                         bool explicitAway = false;

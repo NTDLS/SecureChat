@@ -334,17 +334,16 @@ namespace SecureChat.Server
         }
 
         /// <summary>
-        /// A client is telling the server that it would like to establish end-to-end encryption with another client.
+        /// A client is telling the server that it would like to establish a new session and
+        ///     initialize end-to-end encryption with another client based on its account id.
         /// </summary>
-        public InitiateEndToEndCryptographyQueryReply InitiateEndToEndCryptographyQuery(RmContext context, InitiateEndToEndCryptographyQuery param)
+        public InitiatePeerToPeerSessionQueryReply InitiatePeerToPeerSessionQuery(RmContext context, InitiatePeerToPeerSessionQuery param)
         {
             try
             {
                 //Find the session for the requested account (if they are logged in).
                 var requestedSession = _chatService.GetSessionByAccountId(param.TargetAccountId)
                     ?? throw new Exception("Remote session not found.");
-
-                //param.SessionId
 
                 //Send the ConnectionId to the other peer.
                 param.PeerConnectionId = context.ConnectionId;
@@ -360,7 +359,7 @@ namespace SecureChat.Server
             }
             catch (Exception ex)
             {
-                return new InitiateEndToEndCryptographyQueryReply(ex.GetBaseException());
+                return new InitiatePeerToPeerSessionQueryReply(ex.GetBaseException());
             }
         }
 
