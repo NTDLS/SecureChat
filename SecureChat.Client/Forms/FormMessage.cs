@@ -55,7 +55,9 @@ namespace SecureChat.Client.Forms
                 textBoxMessage.AllowDrop = true;
                 textBoxMessage.KeyDown += TextBoxMessage_KeyDown;
                 textBoxMessage.DragEnter += TextBoxMessage_DragEnter;
+                flowPanel.DragEnter += TextBoxMessage_DragEnter;
                 textBoxMessage.DragDrop += TextBoxMessage_DragDrop;
+                flowPanel.DragDrop += TextBoxMessage_DragDrop;
                 textBoxMessage.Focus();
 
                 var timer = new System.Windows.Forms.Timer

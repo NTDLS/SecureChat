@@ -71,6 +71,7 @@
             // 
             // flowPanel
             // 
+            flowPanel.AllowDrop = true;
             flowPanel.AutoScroll = true;
             flowPanel.AutoSize = true;
             flowPanel.BorderStyle = BorderStyle.Fixed3D;
