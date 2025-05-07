@@ -9,7 +9,7 @@
         //TODO: Use the timestamp to cleanup abandoned file transfers.
         public DateTime BeginTimestamp { get; private set; } = DateTime.UtcNow;
 
-        private MemoryStream _memoryStream = new();
+        private readonly MemoryStream _memoryStream = new();
 
         public FileReceiveBuffer(Guid fileId, string fileName, long fileSize)
         {
@@ -25,14 +25,6 @@
 
         public byte[] GetFileBytes()
         {
-            /*
-            int retryCount = 0;
-            while (_memoryStream.Length != FileSize && retryCount++ < 100)
-            {
-                Thread.Sleep(10);
-            }
-            */
-
             if (_memoryStream.Length != FileSize)
             {
                 throw new InvalidOperationException("File corruption detected.");
