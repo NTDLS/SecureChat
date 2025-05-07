@@ -248,6 +248,7 @@ namespace SecureChat.Client
 
         private void TransmitFile(string fileName, byte[] fileBytes)
         {
+            bool isImage = ScConstants.ImageFileTypes.Contains(Path.GetExtension(fileName), StringComparer.InvariantCultureIgnoreCase);
             var fileId = Guid.NewGuid();
 
             ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionBeginNotification(SessionId, PeerConnectionId, fileId, fileName, fileBytes.Length));
@@ -275,8 +276,17 @@ namespace SecureChat.Client
             {
                 if (!o.IsFaulted && o.Result.IsSuccess)
                 {
-                    //Only show the image locally if the file was successfully transmitted.
-                    Form?.AppendImageMessage(ServerConnection.Current.DisplayName, fileBytes, false);
+                    //Only show the attachment locally if the file was successfully transmitted.
+
+                    if (isImage)
+                    {
+                        Form?.AppendImageMessage(ServerConnection.Current.DisplayName, fileBytes, false);
+                    }
+                    else
+                    {
+                        //TODO: add support for file attachments.
+                        //Form?.AppendFileMessage(ServerConnection.Current.DisplayName, fileName, fileBytes.Length, true);
+                    }
                 }
                 else
                 {
