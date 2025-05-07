@@ -9,11 +9,26 @@ namespace SecureChat.Client.Controls
         private readonly FlowLayoutPanel _parent;
         private readonly PictureBox _pictureBox;
 
-        public FlowControlImage(FlowLayoutPanel parent, byte[] imageBytes)
+        public FlowControlImage(FlowLayoutPanel parent, string displayName, byte[] imageBytes, Color? color)
         {
             _parent = parent;
+            FlowDirection = FlowDirection.TopDown;
             AutoSize = true;
-            Margin = new Padding(1);
+            Margin = new Padding(0);
+            Padding = new Padding(0);
+
+            var labelDisplayName = new Label
+            {
+                Text = displayName,
+                AutoSize = true,
+                ForeColor = color ?? Color.Black,
+                Font = Fonts.Instance.Bold,
+                //BackColor = Color.Gray,
+                Padding = new Padding(0),
+                Margin = new Padding(0)
+            };
+            labelDisplayName.MouseClick += Image_MouseClick;
+            Controls.Add(labelDisplayName);
 
             using var ms = new MemoryStream(imageBytes);
             var image = Image.FromStream(ms);

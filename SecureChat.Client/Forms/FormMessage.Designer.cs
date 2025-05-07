@@ -38,10 +38,10 @@
             toolStripSeparator1 = new ToolStripSeparator();
             toolStripButtonAttachFile = new ToolStripButton();
             toolStripButtonVoiceCall = new ToolStripButton();
+            toolStripButtonVoiceCallEnd = new ToolStripButton();
             toolStripSeparator2 = new ToolStripSeparator();
             toolStripButtonExport = new ToolStripButton();
             toolStripButtonProperties = new ToolStripButton();
-            toolStripButtonVoiceCallEnd = new ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -52,6 +52,7 @@
             // splitContainer1
             // 
             splitContainer1.Dock = DockStyle.Fill;
+            splitContainer1.FixedPanel = FixedPanel.Panel2;
             splitContainer1.Location = new Point(5, 25);
             splitContainer1.Name = "splitContainer1";
             splitContainer1.Orientation = Orientation.Horizontal;
@@ -83,6 +84,7 @@
             // 
             // textBoxMessage
             // 
+            textBoxMessage.BorderStyle = BorderStyle.None;
             textBoxMessage.Dock = DockStyle.Fill;
             textBoxMessage.Location = new Point(0, 0);
             textBoxMessage.Multiline = true;
@@ -146,6 +148,17 @@
             toolStripButtonVoiceCall.Text = "Voice Call";
             toolStripButtonVoiceCall.Click += ToolStripButtonVoiceCall_Click;
             // 
+            // toolStripButtonVoiceCallEnd
+            // 
+            toolStripButtonVoiceCallEnd.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            toolStripButtonVoiceCallEnd.Enabled = false;
+            toolStripButtonVoiceCallEnd.Image = (Image)resources.GetObject("toolStripButtonVoiceCallEnd.Image");
+            toolStripButtonVoiceCallEnd.ImageTransparentColor = Color.Magenta;
+            toolStripButtonVoiceCallEnd.Name = "toolStripButtonVoiceCallEnd";
+            toolStripButtonVoiceCallEnd.Size = new Size(23, 22);
+            toolStripButtonVoiceCallEnd.Text = "End Voice Call";
+            toolStripButtonVoiceCallEnd.Click += ToolStripButtonVoiceCallEnd_Click;
+            // 
             // toolStripSeparator2
             // 
             toolStripSeparator2.Name = "toolStripSeparator2";
@@ -170,17 +183,6 @@
             toolStripButtonProperties.Size = new Size(23, 22);
             toolStripButtonProperties.Text = "Properties";
             toolStripButtonProperties.Click += ToolStripButtonProperties_Click;
-            // 
-            // toolStripButtonVoiceCallEnd
-            // 
-            toolStripButtonVoiceCallEnd.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            toolStripButtonVoiceCallEnd.Enabled = false;
-            toolStripButtonVoiceCallEnd.Image = (Image)resources.GetObject("toolStripButtonVoiceCallEnd.Image");
-            toolStripButtonVoiceCallEnd.ImageTransparentColor = Color.Magenta;
-            toolStripButtonVoiceCallEnd.Name = "toolStripButtonVoiceCallEnd";
-            toolStripButtonVoiceCallEnd.Size = new Size(23, 22);
-            toolStripButtonVoiceCallEnd.Text = "End Voice Call";
-            toolStripButtonVoiceCallEnd.Click += ToolStripButtonVoiceCallEnd_Click;
             // 
             // FormMessage
             // 

@@ -90,10 +90,12 @@ namespace SecureChat.Client.Forms
             try
             {
                 var files = (string[]?)e.Data?.GetData(DataFormats.FileDrop);
-
-                if (files?.Length == 1)
+                if (files != null)
                 {
-                    _activeChat.TransmitFileAsync(files[0]);
+                    foreach (var file in files)
+                    {
+                        _activeChat.TransmitFileAsync(file);
+                    }
                 }
             }
             catch (Exception ex)
@@ -109,7 +111,7 @@ namespace SecureChat.Client.Forms
                 if (e.Data?.GetDataPresent(DataFormats.FileDrop) != null)
                 {
                     var files = (string[]?)e.Data.GetData(DataFormats.FileDrop);
-                    if (files?.Length == 1)
+                    if (files?.Length <= ScConstants.DefaultMaxFileDrops)
                     {
                         e.Effect = DragDropEffects.Copy; // Allow drop
                     }
@@ -248,7 +250,7 @@ namespace SecureChat.Client.Forms
 
                 if (_activeChat.SendMessage(text))
                 {
-                    _activeChat.AppendReceivedMessageLine(ServerConnection.Current.DisplayName, text, false, Color.Blue);
+                    _activeChat.AppendReceivedMessageLine(ServerConnection.Current.DisplayName, text, false, ScConstants.FromMeColor);
                 }
                 else
                 {

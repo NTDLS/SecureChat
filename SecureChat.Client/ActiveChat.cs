@@ -241,7 +241,7 @@ namespace SecureChat.Client
                 return;
             }
 
-            AppendImageMessage(DisplayName, imageBytes, true);
+            AppendImageMessage(DisplayName, imageBytes, true, ScConstants.FromRemoteColor);
         }
 
         public void AlertOfIncomingCall()
@@ -261,7 +261,7 @@ namespace SecureChat.Client
                 return;
             }
 
-            AppendReceivedMessageLine(DisplayName, DecryptString(cipherText), true, Color.DarkRed);
+            AppendReceivedMessageLine(DisplayName, DecryptString(cipherText), true, ScConstants.FromRemoteColor);
         }
 
         public bool SendMessage(string plaintText)
@@ -371,7 +371,7 @@ namespace SecureChat.Client
                             {
                                 // Load the image only after successful transmission
                                 var imageData = File.ReadAllBytes(fileName);
-                                AppendImageMessage(ServerConnection.Current.DisplayName, imageData, false);
+                                AppendImageMessage(ServerConnection.Current.DisplayName, imageData, false, ScConstants.FromMeColor);
                             }
                             else
                             {
@@ -430,7 +430,7 @@ namespace SecureChat.Client
             }
         }
 
-        public void AppendImageMessage(string fromName, byte[] imageBytes, bool playNotifications)
+        public void AppendImageMessage(string fromName, byte[] imageBytes, bool playNotifications, Color color)
         {
             try
             {
@@ -439,13 +439,16 @@ namespace SecureChat.Client
                     return;
                 }
 
-                AppendFlowControl(new FlowControlImage(Form.FlowPanel, imageBytes));
+                AppendFlowControl(new FlowControlImage(Form.FlowPanel, fromName, imageBytes, color));
 
                 Form.Invoke(() =>
                 {
-                    //We want to show the dialog, but keep it minimized so that it does not jump in front of the user.
-                    Form.WindowState = FormWindowState.Minimized;
-                    Form.Visible = true;
+                    if (Form.Visible == false)
+                    {
+                        //We want to show the dialog, but keep it minimized so that it does not jump in front of the user.
+                        Form.WindowState = FormWindowState.Minimized;
+                        Form.Visible = true;
+                    }
 
                     if (playNotifications)
                     {
