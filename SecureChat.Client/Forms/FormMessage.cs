@@ -417,7 +417,8 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (MessageBox.Show(Text, ScConstants.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                if (MessageBox.Show($"End the chat session with {_activeChat.DisplayName}?",
+                    ScConstants.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                 {
                     _activeChat.Terminate();
                 }
