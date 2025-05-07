@@ -39,7 +39,6 @@ namespace SecureChat.Client
         public int AutoAwayIdleSeconds { get; set; } = ScConstants.DefaultAutoAwayIdleSeconds;
         public int MaxMessages { get; set; } = ScConstants.DefaultMaxMessages;
         public int FileTransmissionChunkSize { get; set; } = ScConstants.DefaultFileTransmissionChunkSize;
-        public int MaxFileTransmissionSize { get; set; } = ScConstants.DefaultMaxFileTransmissionSize;
 
         public bool AlertToastWhenContactComesOnline { get; set; } = true;
         public bool AlertToastWhenMessageReceived { get; set; } = true;

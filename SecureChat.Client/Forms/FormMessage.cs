@@ -202,17 +202,11 @@ namespace SecureChat.Client.Forms
                     }
                     else if (Clipboard.ContainsFileDropList()) // If clipboard contains file(s)
                     {
-                        string[] files = Clipboard.GetFileDropList().Cast<string>().ToArray();
+                        var fileNames = Clipboard.GetFileDropList().Cast<string>().ToArray();
 
-                        if (files.Length == 1)
+                        foreach (var fileName in fileNames)
                         {
-                            string filename = files[0];
-                            if (ScConstants.ImageFileTypes.Contains(Path.GetExtension(filename), StringComparer.InvariantCultureIgnoreCase))
-                            {
-                                Image image = Image.FromFile(filename);
-                                var imageBytes = Imaging.ImageToPngBytes(image);
-                                _activeChat.TransmitFileAsync("clipboard.png", imageBytes);
-                            }
+                            _activeChat.TransmitFileAsync(fileName);
                         }
                     }
                     else
@@ -288,7 +282,7 @@ namespace SecureChat.Client.Forms
             try
             {
                 using OpenFileDialog openFileDialog = new OpenFileDialog();
-                openFileDialog.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.gif";
+                openFileDialog.Filter = "All Files (*.*)|*.*|Image Files (*.bmp; *.jpg; *.jpeg; *.png; *.gif)|*.bmp;*.jpg;*.jpeg;*.png;*.gif";
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     _activeChat.TransmitFileAsync(openFileDialog.FileName);

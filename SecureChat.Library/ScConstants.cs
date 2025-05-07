@@ -10,7 +10,6 @@ namespace SecureChat.Library
         public const int AesKeySize = 256;
         public const int DefaultAutoAwayIdleSeconds = 600;
         public const int DefaultFileTransmissionChunkSize = 1024 * 8;
-        public const int DefaultMaxFileTransmissionSize = 1024 * 1024 * 10;
         public const int DefaultMaxMessages = 100;
         public const int DefaultMaxFileDrops = 10;
         public const int DefaultServerPort = 13265;

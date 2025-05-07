@@ -292,36 +292,22 @@ namespace SecureChat.Client
         {
             long fileSize = (new FileInfo(fileName)).Length;
 
-            if (fileSize > Settings.Instance.MaxFileTransmissionSize)
+            Task.Run(() =>
             {
-                AppendErrorLine($"File is too large {Formatters.FileSize(fileSize)}, max size is {Formatters.FileSize(Settings.Instance.MaxFileTransmissionSize)}.");
-            }
-            else if (fileSize > 0)
-            {
-                Task.Run(() =>
-                {
-                    using var fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-                    TransmitFile(fileName, fileSize, fileStream);
-                });
-            }
+                using var fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+                TransmitFile(fileName, fileSize, fileStream);
+            });
         }
 
         public void TransmitFileAsync(string fileName, byte[] fileBytes)
         {
             long fileSize = fileBytes.LongLength;
 
-            if (fileSize > Settings.Instance.MaxFileTransmissionSize)
+            Task.Run(() =>
             {
-                AppendErrorLine($"File is too large {Formatters.FileSize(fileSize)}, max size is {Formatters.FileSize(Settings.Instance.MaxFileTransmissionSize)}.");
-            }
-            else if (fileSize > 0)
-            {
-                Task.Run(() =>
-                {
-                    using var stream = new MemoryStream(fileBytes);
-                    TransmitFile(fileName, fileBytes.LongLength, stream);
-                });
-            }
+                using var stream = new MemoryStream(fileBytes);
+                TransmitFile(fileName, fileBytes.LongLength, stream);
+            });
         }
 
         private void TransmitFile(string fileName, long fileSize, Stream fileStream)

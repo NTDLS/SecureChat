@@ -48,11 +48,9 @@ namespace SecureChat.Client.Forms
             textBoxServerAddress = new TextBox();
             tabPageAdvanced = new TabPage();
             checkBoxAutoStartAtWindowsLogin = new CheckBox();
-            textBoxMaxFileTransmissionSize = new TextBox();
             textBoxFileTransmissionChunkSize = new TextBox();
             textBoxMaxMessages = new TextBox();
             textBoxAutoAwayIdleSeconds = new TextBox();
-            labelMaxFileTransmissionSize = new Label();
             labelFileTransmissionChunkSize = new Label();
             labelMaxMessages = new Label();
             labelAutoAwayIdleSeconds = new Label();
@@ -201,11 +199,9 @@ namespace SecureChat.Client.Forms
             // tabPageAdvanced
             // 
             tabPageAdvanced.Controls.Add(checkBoxAutoStartAtWindowsLogin);
-            tabPageAdvanced.Controls.Add(textBoxMaxFileTransmissionSize);
             tabPageAdvanced.Controls.Add(textBoxFileTransmissionChunkSize);
             tabPageAdvanced.Controls.Add(textBoxMaxMessages);
             tabPageAdvanced.Controls.Add(textBoxAutoAwayIdleSeconds);
-            tabPageAdvanced.Controls.Add(labelMaxFileTransmissionSize);
             tabPageAdvanced.Controls.Add(labelFileTransmissionChunkSize);
             tabPageAdvanced.Controls.Add(labelMaxMessages);
             tabPageAdvanced.Controls.Add(labelAutoAwayIdleSeconds);
@@ -225,13 +221,6 @@ namespace SecureChat.Client.Forms
             checkBoxAutoStartAtWindowsLogin.TabIndex = 4;
             checkBoxAutoStartAtWindowsLogin.Text = "Auto-start at windows login?";
             checkBoxAutoStartAtWindowsLogin.UseVisualStyleBackColor = true;
-            // 
-            // textBoxMaxFileTransmissionSize
-            // 
-            textBoxMaxFileTransmissionSize.Location = new Point(8, 170);
-            textBoxMaxFileTransmissionSize.Name = "textBoxMaxFileTransmissionSize";
-            textBoxMaxFileTransmissionSize.Size = new Size(117, 23);
-            textBoxMaxFileTransmissionSize.TabIndex = 3;
             // 
             // textBoxFileTransmissionChunkSize
             // 
@@ -253,15 +242,6 @@ namespace SecureChat.Client.Forms
             textBoxAutoAwayIdleSeconds.Name = "textBoxAutoAwayIdleSeconds";
             textBoxAutoAwayIdleSeconds.Size = new Size(117, 23);
             textBoxAutoAwayIdleSeconds.TabIndex = 0;
-            // 
-            // labelMaxFileTransmissionSize
-            // 
-            labelMaxFileTransmissionSize.AutoSize = true;
-            labelMaxFileTransmissionSize.Location = new Point(8, 152);
-            labelMaxFileTransmissionSize.Name = "labelMaxFileTransmissionSize";
-            labelMaxFileTransmissionSize.Size = new Size(73, 15);
-            labelMaxFileTransmissionSize.TabIndex = 3;
-            labelMaxFileTransmissionSize.Text = "Max File Size";
             // 
             // labelFileTransmissionChunkSize
             // 
@@ -393,11 +373,9 @@ namespace SecureChat.Client.Forms
         private Label labelServerAddress;
         private TextBox textBoxServerPort;
         private TextBox textBoxServerAddress;
-        private TextBox textBoxMaxFileTransmissionSize;
         private TextBox textBoxFileTransmissionChunkSize;
         private TextBox textBoxMaxMessages;
         private TextBox textBoxAutoAwayIdleSeconds;
-        private Label labelMaxFileTransmissionSize;
         private Label labelFileTransmissionChunkSize;
         private Label labelMaxMessages;
         private Label labelAutoAwayIdleSeconds;
