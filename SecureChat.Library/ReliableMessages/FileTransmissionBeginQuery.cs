@@ -2,11 +2,11 @@
 
 namespace SecureChat.Library.ReliableMessages
 {
-    public class FileTransmissionBeginNotification
-        : IRmNotification
+    public class FileTransmissionBeginQuery
+        : IRmQuery<FileTransmissionBeginQueryReply>
     {
         public Guid FileId { get; set; }
-        public int FileSize { get; set; }
+        public long FileSize { get; set; }
 
         /// <summary>
         /// The connection id of the remote peer that this message is being sent to.
@@ -21,13 +21,31 @@ namespace SecureChat.Library.ReliableMessages
         /// </summary>
         public Guid SessionId { get; set; }
 
-        public FileTransmissionBeginNotification(Guid sessionId, Guid peerConnectionId, Guid fileId, string fileName, int fileSize)
+        public FileTransmissionBeginQuery(Guid sessionId, Guid peerConnectionId, Guid fileId, string fileName, long fileSize)
         {
             SessionId = sessionId;
             PeerConnectionId = peerConnectionId;
             FileId = fileId;
             FileSize = fileSize;
             FileName = fileName;
+        }
+    }
+
+    public class FileTransmissionBeginQueryReply
+        : IRmQueryReply
+    {
+        public bool IsSuccess { get; set; }
+        public string? ErrorMessage { get; set; }
+
+        public FileTransmissionBeginQueryReply(Exception exception)
+        {
+            IsSuccess = false;
+            ErrorMessage = exception.GetBaseException().Message;
+        }
+
+        public FileTransmissionBeginQueryReply()
+        {
+            IsSuccess = true;
         }
     }
 }

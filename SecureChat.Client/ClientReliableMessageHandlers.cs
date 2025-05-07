@@ -109,15 +109,14 @@ namespace SecureChat.Client
         }
 
         /// <summary>
-        /// A client is beginning to transmit a file to us.
+        /// Client has requested that a file transfer be cancelled.
         /// </summary>
-        public void FileTransmissionBeginNotification(RmContext context, FileTransmissionBeginNotification param)
+        public void FileTransmissionCancelNotification(RmContext context, FileTransmissionCancelNotification param)
         {
             try
             {
                 var activeChat = VerifyAndActiveChat(context, param.SessionId);
-
-                activeChat.FileReceiveBuffers.Add(param.FileId, new FileReceiveBuffer(param.FileId, param.FileName, param.FileSize));
+                activeChat.FileReceiveBuffers.Remove(param.FileId);
             }
             catch (Exception ex)
             {
@@ -126,9 +125,27 @@ namespace SecureChat.Client
         }
 
         /// <summary>
+        /// A client is beginning to transmit a file to us.
+        /// </summary>
+        public FileTransmissionBeginQueryReply FileTransmissionBeginQuery(RmContext context, FileTransmissionBeginQuery param)
+        {
+            try
+            {
+                var activeChat = VerifyAndActiveChat(context, param.SessionId);
+                activeChat.FileReceiveBuffers.Add(param.FileId, new FileReceiveBuffer(param.FileId, param.FileName, param.FileSize));
+                return new FileTransmissionBeginQueryReply();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                return new FileTransmissionBeginQueryReply(ex);
+            }
+        }
+
+        /// <summary>
         /// A client is transmitting a file chunk to us.
         /// </summary>
-        public void FileTransmissionChunkNotification(RmContext context, FileTransmissionChunkNotification param)
+        public FileTransmissionChunkQueryReply FileTransmissionChunkQuery(RmContext context, FileTransmissionChunkQuery param)
         {
             try
             {
@@ -137,15 +154,17 @@ namespace SecureChat.Client
                 if (activeChat.FileReceiveBuffers.TryGetValue(param.FileId, out var buffer))
                 {
                     buffer.AppendData(activeChat.Cipher(param.Bytes));
+                    return new FileTransmissionChunkQueryReply();
                 }
                 else
                 {
-                    throw new Exception("File buffer not found.");
+                    throw new Exception("File buffer not found, transmission cancelled?.");
                 }
             }
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                return new FileTransmissionChunkQueryReply(ex);
             }
         }
 
@@ -167,7 +186,7 @@ namespace SecureChat.Client
                 }
                 else
                 {
-                    throw new Exception("File buffer not found.");
+                    throw new Exception("File buffer not found, transmission cancelled?.");
                 }
 
                 return new FileTransmissionEndQueryReply();

@@ -41,7 +41,7 @@ namespace SecureChat.Client
         /// </summary>
         public void ConnectionKeepAliveDatagram(DmContext context, ConnectionKeepAliveDatagram datagram)
         {
-            Console.WriteLine($"UDP keep-alive reply from: {context.Endpoint}, Peer: {datagram.PeerConnectionId}");
+            //Console.WriteLine($"UDP keep-alive reply from: {context.Endpoint}, Peer: {datagram.PeerConnectionId}");
         }
     }
 }

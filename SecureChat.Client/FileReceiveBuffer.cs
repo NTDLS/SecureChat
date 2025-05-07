@@ -3,7 +3,7 @@
     internal class FileReceiveBuffer : IDisposable
     {
         public Guid FileId { get; private set; }
-        public int FileSize { get; private set; }
+        public long FileSize { get; private set; }
         public string FileName { get; private set; }
 
         //TODO: Use the timestamp to cleanup abandoned file transfers.
@@ -11,7 +11,7 @@
 
         private MemoryStream _memoryStream = new();
 
-        public FileReceiveBuffer(Guid fileId, string fileName, int fileSize)
+        public FileReceiveBuffer(Guid fileId, string fileName, long fileSize)
         {
             FileId = fileId;
             FileName = fileName;

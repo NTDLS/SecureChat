@@ -47,7 +47,7 @@ namespace SecureChat.Server
 
             context.Dispatch(datagram); //Echo the hello packet back to the sender.
 
-            Console.WriteLine($"UDP keep-alive from: {context.Endpoint}, Peer: {datagram.PeerConnectionId}");
+            //Console.WriteLine($"UDP keep-alive from: {context.Endpoint}, Peer: {datagram.PeerConnectionId}");
         }
     }
 }

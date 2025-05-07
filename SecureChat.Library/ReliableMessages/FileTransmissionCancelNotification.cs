@@ -2,7 +2,7 @@
 
 namespace SecureChat.Library.ReliableMessages
 {
-    public class FileTransmissionChunkNotification
+    public class FileTransmissionCancelNotification
         : IRmNotification
     {
         public Guid FileId { get; set; }
@@ -11,7 +11,6 @@ namespace SecureChat.Library.ReliableMessages
         /// The connection id of the remote peer that this message is being sent to.
         /// </summary>
         public Guid PeerConnectionId { get; set; }
-        public byte[] Bytes { get; set; }
 
         /// <summary>
         /// Identifies this chat session. This is used to identify the chat session when sending messages.
@@ -19,12 +18,11 @@ namespace SecureChat.Library.ReliableMessages
         /// </summary>
         public Guid SessionId { get; set; }
 
-        public FileTransmissionChunkNotification(Guid sessionId, Guid peerConnectionId, Guid fileId, byte[] bytes)
+        public FileTransmissionCancelNotification(Guid sessionId, Guid peerConnectionId, Guid fileId)
         {
             SessionId = sessionId;
             PeerConnectionId = peerConnectionId;
             FileId = fileId;
-            Bytes = bytes;
         }
     }
 }

@@ -3,6 +3,7 @@ using NTDLS.Persistence;
 using NTDLS.ReliableMessaging;
 using SecureChat.Client.Models;
 using SecureChat.Library;
+using Serilog;
 
 namespace SecureChat.Client
 {
@@ -65,7 +66,8 @@ namespace SecureChat.Client
 
             dmClient.OnException += (DmContext? context, Exception ex) =>
             {
-                Console.WriteLine($"dmClient: {ex.Message}");
+                var baseException = ex.GetBaseException();
+                Log.Error(baseException, baseException.Message);
             };
 
             return dmClient;

@@ -241,15 +241,13 @@ namespace SecureChat.Server
         }
 
         /// <summary>
-        /// A client is beginning to transmit a file.
-        /// Route the message to the appropriate connection.
+        /// Client has requested that a file transfer be cancelled.
         /// </summary>
-        public void FileTransmissionBeginNotification(RmContext context, FileTransmissionBeginNotification param)
+        public void FileTransmissionCancelNotification(RmContext context, FileTransmissionCancelNotification param)
         {
             try
             {
                 var accountConnection = VerifyAndGetAccountConnection(context);
-
                 _chatService.RmServer.Notify(param.PeerConnectionId, param);
             }
             catch (Exception ex)
@@ -259,20 +257,39 @@ namespace SecureChat.Server
         }
 
         /// <summary>
+        /// A client is beginning to transmit a file.
+        /// Route the message to the appropriate connection.
+        /// </summary>
+        public FileTransmissionBeginQueryReply FileTransmissionBeginQuery(RmContext context, FileTransmissionBeginQuery param)
+        {
+            try
+            {
+                var accountConnection = VerifyAndGetAccountConnection(context);
+                return _chatService.RmServer.Query(param.PeerConnectionId, param).Result;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                return new FileTransmissionBeginQueryReply(ex);
+            }
+        }
+
+        /// <summary>
         /// A client transmitting a file chunk.
         /// Route the message to the appropriate connection.
         /// </summary>
-        public void FileTransmissionChunkNotification(RmContext context, FileTransmissionChunkNotification param)
+        public FileTransmissionChunkQueryReply FileTransmissionChunkQuery(RmContext context, FileTransmissionChunkQuery param)
         {
             try
             {
                 var accountConnection = VerifyAndGetAccountConnection(context);
 
-                _chatService.RmServer.Notify(param.PeerConnectionId, param);
+                return _chatService.RmServer.Query(param.PeerConnectionId, param).Result;
             }
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                return new FileTransmissionChunkQueryReply(ex);
             }
         }
 

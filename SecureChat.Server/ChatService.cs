@@ -38,7 +38,8 @@ namespace SecureChat.Server
 
             _dmServer.OnException += (DmContext? context, Exception ex) =>
             {
-                Console.WriteLine($"OnException: {ex.Message}");
+                var baseException = ex.GetBaseException();
+                Log.Error(baseException, baseException.Message);
             };
 
             _dbRepository = new DatabaseRepository(configuration);

@@ -8,6 +8,9 @@ using SecureChat.Library;
 using SecureChat.Library.DatagramMessages;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
+using Serilog.Sinks.File;
+using System.IO;
+using System.IO.Pipes;
 
 namespace SecureChat.Client
 {
@@ -205,6 +208,15 @@ namespace SecureChat.Client
         }
 
         /// <summary>
+        /// Tell the remote client that we are canceling the file transmission.
+        /// </summary>
+        /// <param name="fileId"></param>
+        public void CancelFileTransmission(Guid fileId)
+        {
+            ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionCancelNotification(SessionId, PeerConnectionId, fileId));
+        }
+
+        /// <summary>
         /// Client which received the request for a voice call is is accepting the request.
         /// </summary>
         public void AcceptVoiceCallRequest(int inputDeviceIndex, int outputDeviceIndex, int bitrate)
@@ -273,9 +285,15 @@ namespace SecureChat.Client
                     }).Result ?? false;
         }
 
-        public void TransmitFileAsync(string filename)
+        public void CancelTransmitFile()
         {
-            long fileSize = (new FileInfo(filename)).Length;
+            ServerConnection.Current?.ReliableClient.Notify(new CancelVoiceCallRequestNotification(SessionId, PeerConnectionId));
+        }
+
+
+        public void TransmitFileAsync(string fileName)
+        {
+            long fileSize = (new FileInfo(fileName)).Length;
 
             if (fileSize > Settings.Instance.MaxFileTransmissionSize)
             {
@@ -283,65 +301,107 @@ namespace SecureChat.Client
             }
             else if (fileSize > 0)
             {
-                var imageBytes = File.ReadAllBytes(filename);
-
-                Task.Run(() => TransmitFile(filename, imageBytes));
+                Task.Run(() =>
+                {
+                    using var fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+                    TransmitFile(fileName, fileSize, fileStream);
+                });
             }
         }
 
         public void TransmitFileAsync(string fileName, byte[] fileBytes)
         {
-            Task.Run(() => TransmitFile(fileName, fileBytes));
+            long fileSize = fileBytes.LongLength;
+
+            if (fileSize > Settings.Instance.MaxFileTransmissionSize)
+            {
+                AppendErrorLine($"File is too large {Formatters.FileSize(fileSize)}, max size is {Formatters.FileSize(Settings.Instance.MaxFileTransmissionSize)}.");
+            }
+            else if (fileSize > 0)
+            {
+                Task.Run(() =>
+                {
+                    using var stream = new MemoryStream(fileBytes);
+                    TransmitFile(fileName, fileBytes.LongLength, stream);
+                });
+            }
         }
 
-        private void TransmitFile(string fileName, byte[] fileBytes)
+        private void TransmitFile(string fileName, long fileSize, Stream fileStream)
         {
             bool isImage = ScConstants.ImageFileTypes.Contains(Path.GetExtension(fileName), StringComparer.InvariantCultureIgnoreCase);
             var fileId = Guid.NewGuid();
 
-            ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionBeginNotification(SessionId, PeerConnectionId, fileId, fileName, fileBytes.Length));
+            var progressControl = AppendFileTransmissionProgress(fileId, fileName, fileSize);
+            if (progressControl == null)
+            {
+                return;
+            }
 
-            using (var memoryStream = new MemoryStream(fileBytes))
+            ServerConnection.Current?.ReliableClient.Query(new FileTransmissionBeginQuery(SessionId, PeerConnectionId, fileId, fileName, fileSize));
+
+            double totalBytesSent = 0;
+
+            try
             {
                 var buffer = new byte[Settings.Instance.FileTransmissionChunkSize];
-
                 int bytesRead;
 
-                while ((bytesRead = memoryStream.Read(buffer, 0, buffer.Length)) > 0)
+                while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) > 0 && !progressControl.IsCancelled)
                 {
-                    var chunkToSend = buffer; // Default: Full buffer
-                    if (bytesRead < buffer.Length) // Handle last partial chunk
+                    var chunkToSend = buffer;
+                    if (bytesRead < buffer.Length) // Handle the last partial chunk
                     {
                         chunkToSend = new byte[bytesRead];
                         Array.Copy(buffer, chunkToSend, bytesRead);
                     }
 
-                    ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionChunkNotification(SessionId, PeerConnectionId, fileId, Cipher(chunkToSend)));
+                    totalBytesSent += bytesRead;
+                    double completionPercentage = (totalBytesSent / fileSize) * 100.0;
+                    progressControl.SetProgressValue((int)completionPercentage);
+
+                    // Transmit the current chunk
+                    ServerConnection.Current?.ReliableClient.Query(new FileTransmissionChunkQuery(SessionId, PeerConnectionId, fileId, Cipher(chunkToSend)));
                 }
-            }
 
-            ServerConnection.Current?.ReliableClient.Query(new FileTransmissionEndQuery(SessionId, PeerConnectionId, fileId)).ContinueWith(o =>
-            {
-                if (!o.IsFaulted && o.Result.IsSuccess)
+                if (!progressControl.IsCancelled)
                 {
-                    //Only show the attachment locally if the file was successfully transmitted.
-
-                    if (isImage)
+                    ServerConnection.Current?.ReliableClient.Query(new FileTransmissionEndQuery(SessionId, PeerConnectionId, fileId)).ContinueWith(o =>
                     {
-                        AppendImageMessage(ServerConnection.Current.DisplayName, fileBytes, false);
-                    }
-                    else
-                    {
-                        //TODO: add support for file attachments.
-                        //Form?.AppendFileMessage(ServerConnection.Current.DisplayName, fileName, fileBytes.Length, true);
-                    }
+                        if (!o.IsFaulted && o.Result.IsSuccess)
+                        {
+                            if (isImage)
+                            {
+                                // Load the image only after successful transmission
+                                var imageData = File.ReadAllBytes(fileName);
+                                AppendImageMessage(ServerConnection.Current.DisplayName, imageData, false);
+                            }
+                            else
+                            {
+                                AppendSystemMessageLine($"File '{fileName}' transmitted successfully.", Color.Green);
+                            }
+                        }
+                        else
+                        {
+                            AppendErrorLine($"Failed to transmit file '{fileName}'.", Color.Red);
+                        }
+                    });
                 }
                 else
                 {
-                    AppendErrorLine($"Failed to transmit file.", Color.Red);
+                    AppendSystemMessageLine($"File transmission canceled.", Color.Red);
                 }
-            });
+            }
+            catch (Exception ex)
+            {
+                AppendErrorLine($"Error transmitting file: {ex.Message}", Color.Red);
+            }
+            finally
+            {
+                progressControl.Remove();
+            }
         }
+
 
         #region Append Flow Controls.
 
@@ -403,6 +463,19 @@ namespace SecureChat.Client
             {
                 AppendErrorLine(ex);
             }
+        }
+
+        public FlowControlFileTransmissionProgress? AppendFileTransmissionProgress(Guid fileId, string fileName, long fileSize)
+        {
+            if (Form == null || Form.FlowPanel == null)
+            {
+                return null;
+            }
+
+            var control = new FlowControlFileTransmissionProgress(Form.FlowPanel, this, fileId, fileName, fileSize);
+            AppendFlowControl(control);
+
+            return control;
         }
 
         public void AppendErrorLine(Exception ex, Color? color = null)
