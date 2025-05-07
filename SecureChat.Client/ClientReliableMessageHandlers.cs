@@ -52,7 +52,7 @@ namespace SecureChat.Client
                 activeChat.LastOutgoingCallControl.Disable();
 
                 activeChat.StartAudioPump();
-                activeChat.AppendSystemMessageLine("You are now connected to voice chat.");
+                activeChat.AppendSystemMessageLine("The voice call is now connected.");
             }
             catch (Exception ex)
             {

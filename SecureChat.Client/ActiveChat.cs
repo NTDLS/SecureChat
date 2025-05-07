@@ -136,7 +136,7 @@ namespace SecureChat.Client
             }
             IsTerminated = true;
             ServerConnection.Current?.ReliableClient.Notify(new TerminateChatNotification(SessionId, PeerConnectionId));
-            AppendSystemMessageLine($"Chat ended at {DateTime.Now}.");
+            AppendSystemMessageLine($"Conversation has ended.");
             StopAudioPump();
         }
 
@@ -176,7 +176,7 @@ namespace SecureChat.Client
                 }
 
                 Form?.ToggleVoiceCallButtons(true);
-                AppendSystemMessageLine($"Voice call ended at {DateTime.Now}.");
+                AppendSystemMessageLine($"Voice call ended.");
             }
             catch (Exception ex)
             {
@@ -214,7 +214,7 @@ namespace SecureChat.Client
             _bitrate = bitrate;
 
             ServerConnection.Current?.ReliableClient.Notify(new AcceptVoiceCallNotification(SessionId, PeerConnectionId));
-            AppendSystemMessageLine("You are now connected to voice chat.");
+            AppendSystemMessageLine("Voice call is now connected.");
         }
 
         /// <summary>

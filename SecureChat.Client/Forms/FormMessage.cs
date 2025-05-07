@@ -62,7 +62,7 @@ namespace SecureChat.Client.Forms
                 timer.Tick += Timer_Tick;
                 timer.Enabled = true;
 
-                _activeChat.AppendSystemMessageLine($"Chat with {_activeChat.DisplayName} started at {DateTime.Now}.");
+                _activeChat.AppendSystemMessageLine($"Conversation with {_activeChat.DisplayName} started.");
             }
             catch (Exception ex)
             {
@@ -232,7 +232,7 @@ namespace SecureChat.Client.Forms
 
                 if (_activeChat.IsTerminated)
                 {
-                    _activeChat.AppendSystemMessageLine("Chat has ended.");
+                    _activeChat.AppendSystemMessageLine("Conversation has ended.");
                     return;
                 }
 
@@ -264,7 +264,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (MessageBox.Show($"End the chat session with {_activeChat.DisplayName}?",
+                if (MessageBox.Show($"End the conversation with {_activeChat.DisplayName}?",
                     ScConstants.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                 {
                     _activeChat.Terminate();
@@ -314,12 +314,23 @@ namespace SecureChat.Client.Forms
 
         private void ToolStripButtonVoiceCallEnd_Click(object sender, EventArgs e)
         {
-            //Disable the buttons to prevent multiple clicks.
-            //We will re-enable it when the call is successfully ended.
-            toolStripButtonVoiceCall.Enabled = false;
-            toolStripButtonVoiceCallEnd.Enabled = false;
+            try
+            {
+                if (MessageBox.Show($"End the voice call with {_activeChat.DisplayName}?",
+                    ScConstants.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                {
+                    //Disable the buttons to prevent multiple clicks.
+                    //We will re-enable it when the call is successfully ended.
+                    toolStripButtonVoiceCall.Enabled = false;
+                    toolStripButtonVoiceCallEnd.Enabled = false;
 
-            _activeChat.RequestTerminateVoiceCall();
+                    _activeChat.RequestTerminateVoiceCall();
+                }
+            }
+            catch (Exception ex)
+            {
+                _activeChat.AppendErrorLine(ex);
+            }
         }
 
         private void ToolStripButtonExport_Click(object sender, EventArgs e)
