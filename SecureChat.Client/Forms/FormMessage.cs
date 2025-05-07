@@ -10,13 +10,8 @@ namespace SecureChat.Client.Forms
     {
         private readonly int DefaultHeight = 550;
         private readonly int DefaultWidth = 550;
-
         private readonly ActiveChat _activeChat;
-
-        public FlowLayoutPanel FlowPanel
-        {
-            get => flowPanel;
-        }
+        public FlowLayoutPanel FlowPanel => flowPanel;
 
         internal FormMessage(ActiveChat activeChat)
         {
@@ -74,6 +69,17 @@ namespace SecureChat.Client.Forms
                 Log.Fatal($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 throw;
             }
+        }
+
+        public void ToggleVoiceCallButtons(bool isCallingEnabled)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => ToggleVoiceCallButtons(isCallingEnabled)));
+                return;
+            }
+            toolStripButtonVoiceCall.Enabled = isCallingEnabled;
+            toolStripButtonVoiceCallEnd.Enabled = !isCallingEnabled;
         }
 
         private void TextBoxMessage_DragDrop(object? sender, DragEventArgs e)
@@ -220,13 +226,13 @@ namespace SecureChat.Client.Forms
             {
                 if (ServerConnection.Current == null || _activeChat.IsTerminated || !ServerConnection.Current.ReliableClient.IsConnected)
                 {
-                    _activeChat.AppendSystemMessageLine("Not connected.", Color.Red);
+                    _activeChat.AppendSystemMessageLine("Not connected.");
                     return;
                 }
 
                 if (_activeChat.IsTerminated)
                 {
-                    _activeChat.AppendSystemMessageLine("Chat has ended.", Color.Red);
+                    _activeChat.AppendSystemMessageLine("Chat has ended.");
                     return;
                 }
 
@@ -243,7 +249,7 @@ namespace SecureChat.Client.Forms
                 }
                 else
                 {
-                    _activeChat.AppendSystemMessageLine("Failed to send message.", Color.Red);
+                    _activeChat.AppendErrorLine("Failed to send message.");
                 }
             }
             catch (Exception ex)
@@ -289,12 +295,31 @@ namespace SecureChat.Client.Forms
 
         private void ToolStripButtonVoiceCall_Click(object sender, EventArgs e)
         {
+            toolStripButtonVoiceCall.Enabled = false;
+            toolStripButtonVoiceCallEnd.Enabled = false;
+
             using var formVoicePreCall = new FormVoicePreCall();
             if (formVoicePreCall.ShowDialog() == DialogResult.OK)
             {
+                ToggleVoiceCallButtons(false);
+
                 _activeChat.RequestVoiceCall(formVoicePreCall.InputDeviceIndex, formVoicePreCall.OutputDeviceIndex, formVoicePreCall.Bitrate);
                 _activeChat.AppendOutgoingCallRequest(_activeChat.DisplayName);
             }
+            else
+            {
+                ToggleVoiceCallButtons(true);
+            }
+        }
+
+        private void ToolStripButtonVoiceCallEnd_Click(object sender, EventArgs e)
+        {
+            //Disable the buttons to prevent multiple clicks.
+            //We will re-enable it when the call is successfully ended.
+            toolStripButtonVoiceCall.Enabled = false;
+            toolStripButtonVoiceCallEnd.Enabled = false;
+
+            _activeChat.RequestTerminateVoiceCall();
         }
 
         private void ToolStripButtonExport_Click(object sender, EventArgs e)

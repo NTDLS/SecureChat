@@ -93,6 +93,22 @@ namespace SecureChat.Client
         }
 
         /// <summary>
+        /// A client is requesting that an active voice call be terminated.
+        /// </summary>
+        public void TerminateVoiceCallNotification(RmContext context, TerminateVoiceCallNotification param)
+        {
+            try
+            {
+                var activeChat = VerifyAndActiveChat(context, param.SessionId);
+                activeChat?.TerminateVoiceCall();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
         /// A client is beginning to transmit a file to us.
         /// </summary>
         public void FileTransmissionBeginNotification(RmContext context, FileTransmissionBeginNotification param)

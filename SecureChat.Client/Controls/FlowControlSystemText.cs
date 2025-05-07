@@ -19,7 +19,7 @@ namespace SecureChat.Client.Controls
             {
                 Text = message,
                 AutoSize = true,
-                ForeColor = color ?? Color.Gray,
+                ForeColor = color ?? Color.Maroon,
                 Font = Fonts.Instance.Italic,
                 Padding = new Padding(0)
             };

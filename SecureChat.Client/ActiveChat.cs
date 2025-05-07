@@ -136,8 +136,52 @@ namespace SecureChat.Client
             }
             IsTerminated = true;
             ServerConnection.Current?.ReliableClient.Notify(new TerminateChatNotification(SessionId, PeerConnectionId));
-            AppendSystemMessageLine($"Chat ended at {DateTime.Now}.", Color.Red);
+            AppendSystemMessageLine($"Chat ended at {DateTime.Now}.");
             StopAudioPump();
+        }
+
+        /// <summary>
+        /// Let the remote client know that we are terminating the voice call.
+        /// </summary>
+        public void RequestTerminateVoiceCall()
+        {
+            try
+            {
+                if (_audioPump != null)
+                {
+                    ServerConnection.Current?.ReliableClient.Notify(new TerminateVoiceCallNotification(SessionId, PeerConnectionId));
+                }
+                TerminateVoiceCall();
+            }
+            catch (Exception ex)
+            {
+                AppendErrorLine(ex);
+            }
+        }
+
+        /// <summary>
+        /// Terminate the voice call. This is called when the remote client has terminated the voice call.
+        /// </summary>
+        public void TerminateVoiceCall()
+        {
+            try
+            {
+                if (_audioPump != null)
+                {
+                    _audioPump?.Stop();
+                    _audioPump = null;
+                    _inputDeviceIndex = 0;
+                    _outputDeviceIndex = 0;
+                    _bitrate = 0;
+                }
+
+                Form?.ToggleVoiceCallButtons(true);
+                AppendSystemMessageLine($"Voice call ended at {DateTime.Now}.");
+            }
+            catch (Exception ex)
+            {
+                AppendErrorLine(ex);
+            }
         }
 
         /// <summary>

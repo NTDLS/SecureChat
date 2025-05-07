@@ -44,6 +44,23 @@ namespace SecureChat.Server
         }
 
         /// <summary>
+        /// A client is requesting that an active voice call be terminated.
+        /// Route the message to the appropriate connection.
+        /// </summary>
+        public void TerminateVoiceCallNotification(RmContext context, TerminateVoiceCallNotification param)
+        {
+            try
+            {
+                var accountConnection = VerifyAndGetAccountConnection(context);
+                _chatService.RmServer.Notify(param.PeerConnectionId, param);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
         /// A client that requested a voice call is cancelling that request.
         /// Route the message to the appropriate connection.
         /// </summary>

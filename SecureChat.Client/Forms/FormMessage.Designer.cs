@@ -41,6 +41,7 @@
             toolStripSeparator2 = new ToolStripSeparator();
             toolStripButtonExport = new ToolStripButton();
             toolStripButtonProperties = new ToolStripButton();
+            toolStripButtonVoiceCallEnd = new ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -102,7 +103,7 @@
             // 
             // toolStrip1
             // 
-            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButtonTerminate, toolStripSeparator1, toolStripButtonAttachFile, toolStripButtonVoiceCall, toolStripSeparator2, toolStripButtonExport, toolStripButtonProperties });
+            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButtonTerminate, toolStripSeparator1, toolStripButtonAttachFile, toolStripButtonVoiceCall, toolStripButtonVoiceCallEnd, toolStripSeparator2, toolStripButtonExport, toolStripButtonProperties });
             toolStrip1.Location = new Point(5, 0);
             toolStrip1.Name = "toolStrip1";
             toolStrip1.Size = new Size(524, 25);
@@ -170,6 +171,17 @@
             toolStripButtonProperties.Text = "Properties";
             toolStripButtonProperties.Click += ToolStripButtonProperties_Click;
             // 
+            // toolStripButtonVoiceCallEnd
+            // 
+            toolStripButtonVoiceCallEnd.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            toolStripButtonVoiceCallEnd.Enabled = false;
+            toolStripButtonVoiceCallEnd.Image = (Image)resources.GetObject("toolStripButtonVoiceCallEnd.Image");
+            toolStripButtonVoiceCallEnd.ImageTransparentColor = Color.Magenta;
+            toolStripButtonVoiceCallEnd.Name = "toolStripButtonVoiceCallEnd";
+            toolStripButtonVoiceCallEnd.Size = new Size(23, 22);
+            toolStripButtonVoiceCallEnd.Text = "End Voice Call";
+            toolStripButtonVoiceCallEnd.Click += ToolStripButtonVoiceCallEnd_Click;
+            // 
             // FormMessage
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -209,5 +221,6 @@
         private ToolStripSeparator toolStripSeparator1;
         private ToolStripSeparator toolStripSeparator2;
         private ToolStripButton toolStripButtonExport;
+        private ToolStripButton toolStripButtonVoiceCallEnd;
     }
 }
