@@ -11,6 +11,7 @@ namespace SecureChat.Client.Forms
         private readonly int DefaultHeight = 550;
         private readonly int DefaultWidth = 550;
         private readonly ActiveChat _activeChat;
+
         public FlowLayoutPanel FlowPanel => flowPanel;
 
         internal FormMessage(ActiveChat activeChat)
@@ -57,10 +58,12 @@ namespace SecureChat.Client.Forms
                 textBoxMessage.DragDrop += TextBoxMessage_DragDrop;
                 textBoxMessage.Focus();
 
-                var timer = new System.Windows.Forms.Timer();
-                timer.Interval = 5000;
+                var timer = new System.Windows.Forms.Timer
+                {
+                    Interval = 5000,
+                    Enabled = true
+                };
                 timer.Tick += Timer_Tick;
-                timer.Enabled = true;
 
                 _activeChat.AppendSystemMessageLine($"Conversation with {_activeChat.DisplayName} started.");
             }
