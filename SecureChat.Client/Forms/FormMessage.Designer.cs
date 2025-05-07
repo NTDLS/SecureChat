@@ -33,27 +33,25 @@
             flowPanel = new FlowLayoutPanel();
             textBoxMessage = new TextBox();
             buttonSend = new Button();
-            menuStrip1 = new MenuStrip();
-            fileToolStripMenuItem = new ToolStripMenuItem();
-            exportToolStripMenuItem = new ToolStripMenuItem();
-            attachFileToolStripMenuItem = new ToolStripMenuItem();
-            imageToolStripMenuItem = new ToolStripMenuItem();
-            connectionToolStripMenuItem = new ToolStripMenuItem();
-            terminateToolStripMenuItem = new ToolStripMenuItem();
-            propertiesToolStripMenuItem = new ToolStripMenuItem();
-            voiceToolStripMenuItem = new ToolStripMenuItem();
-            startCallToolStripMenuItem = new ToolStripMenuItem();
+            toolStrip1 = new ToolStrip();
+            toolStripButtonTerminate = new ToolStripButton();
+            toolStripSeparator1 = new ToolStripSeparator();
+            toolStripButtonAttachFile = new ToolStripButton();
+            toolStripButtonVoiceCall = new ToolStripButton();
+            toolStripSeparator2 = new ToolStripSeparator();
+            toolStripButtonExport = new ToolStripButton();
+            toolStripButtonProperties = new ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
             splitContainer1.SuspendLayout();
-            menuStrip1.SuspendLayout();
+            toolStrip1.SuspendLayout();
             SuspendLayout();
             // 
             // splitContainer1
             // 
             splitContainer1.Dock = DockStyle.Fill;
-            splitContainer1.Location = new Point(5, 24);
+            splitContainer1.Location = new Point(5, 25);
             splitContainer1.Name = "splitContainer1";
             splitContainer1.Orientation = Orientation.Horizontal;
             // 
@@ -65,8 +63,8 @@
             // 
             splitContainer1.Panel2.Controls.Add(textBoxMessage);
             splitContainer1.Panel2.Controls.Add(buttonSend);
-            splitContainer1.Size = new Size(524, 482);
-            splitContainer1.SplitterDistance = 424;
+            splitContainer1.Size = new Size(524, 481);
+            splitContainer1.SplitterDistance = 423;
             splitContainer1.TabIndex = 2;
             // 
             // flowPanel
@@ -78,7 +76,7 @@
             flowPanel.FlowDirection = FlowDirection.TopDown;
             flowPanel.Location = new Point(0, 0);
             flowPanel.Name = "flowPanel";
-            flowPanel.Size = new Size(524, 424);
+            flowPanel.Size = new Size(524, 423);
             flowPanel.TabIndex = 2;
             flowPanel.WrapContents = false;
             // 
@@ -102,75 +100,75 @@
             buttonSend.UseVisualStyleBackColor = true;
             buttonSend.Click += ButtonSend_Click;
             // 
-            // menuStrip1
+            // toolStrip1
             // 
-            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, connectionToolStripMenuItem, voiceToolStripMenuItem });
-            menuStrip1.Location = new Point(5, 0);
-            menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(524, 24);
-            menuStrip1.TabIndex = 3;
-            menuStrip1.Text = "menuStrip1";
+            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButtonTerminate, toolStripSeparator1, toolStripButtonAttachFile, toolStripButtonVoiceCall, toolStripSeparator2, toolStripButtonExport, toolStripButtonProperties });
+            toolStrip1.Location = new Point(5, 0);
+            toolStrip1.Name = "toolStrip1";
+            toolStrip1.Size = new Size(524, 25);
+            toolStrip1.TabIndex = 4;
+            toolStrip1.Text = "toolStrip1";
             // 
-            // fileToolStripMenuItem
+            // toolStripButtonTerminate
             // 
-            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToolStripMenuItem, attachFileToolStripMenuItem });
-            fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            fileToolStripMenuItem.Size = new Size(37, 20);
-            fileToolStripMenuItem.Text = "File";
+            toolStripButtonTerminate.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            toolStripButtonTerminate.Image = (Image)resources.GetObject("toolStripButtonTerminate.Image");
+            toolStripButtonTerminate.ImageTransparentColor = Color.Magenta;
+            toolStripButtonTerminate.Name = "toolStripButtonTerminate";
+            toolStripButtonTerminate.Size = new Size(23, 22);
+            toolStripButtonTerminate.Text = "Terminate";
+            toolStripButtonTerminate.ToolTipText = "Terminate";
+            toolStripButtonTerminate.Click += ToolStripButtonTerminate_Click;
             // 
-            // exportToolStripMenuItem
+            // toolStripSeparator1
             // 
-            exportToolStripMenuItem.Name = "exportToolStripMenuItem";
-            exportToolStripMenuItem.Size = new Size(130, 22);
-            exportToolStripMenuItem.Text = "Export";
+            toolStripSeparator1.Name = "toolStripSeparator1";
+            toolStripSeparator1.Size = new Size(6, 25);
             // 
-            // attachFileToolStripMenuItem
+            // toolStripButtonAttachFile
             // 
-            attachFileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { imageToolStripMenuItem });
-            attachFileToolStripMenuItem.Name = "attachFileToolStripMenuItem";
-            attachFileToolStripMenuItem.Size = new Size(130, 22);
-            attachFileToolStripMenuItem.Text = "Attach File";
+            toolStripButtonAttachFile.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            toolStripButtonAttachFile.Image = (Image)resources.GetObject("toolStripButtonAttachFile.Image");
+            toolStripButtonAttachFile.ImageTransparentColor = Color.Magenta;
+            toolStripButtonAttachFile.Name = "toolStripButtonAttachFile";
+            toolStripButtonAttachFile.Size = new Size(23, 22);
+            toolStripButtonAttachFile.Text = "Attach File";
+            toolStripButtonAttachFile.Click += ToolStripButtonAttachFile_Click;
             // 
-            // imageToolStripMenuItem
+            // toolStripButtonVoiceCall
             // 
-            imageToolStripMenuItem.Name = "imageToolStripMenuItem";
-            imageToolStripMenuItem.Size = new Size(107, 22);
-            imageToolStripMenuItem.Text = "Image";
-            imageToolStripMenuItem.Click += ImageToolStripMenuItem_Click;
+            toolStripButtonVoiceCall.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            toolStripButtonVoiceCall.Image = (Image)resources.GetObject("toolStripButtonVoiceCall.Image");
+            toolStripButtonVoiceCall.ImageTransparentColor = Color.Magenta;
+            toolStripButtonVoiceCall.Name = "toolStripButtonVoiceCall";
+            toolStripButtonVoiceCall.Size = new Size(23, 22);
+            toolStripButtonVoiceCall.Text = "Voice Call";
+            toolStripButtonVoiceCall.Click += ToolStripButtonVoiceCall_Click;
             // 
-            // connectionToolStripMenuItem
+            // toolStripSeparator2
             // 
-            connectionToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { terminateToolStripMenuItem, propertiesToolStripMenuItem });
-            connectionToolStripMenuItem.Name = "connectionToolStripMenuItem";
-            connectionToolStripMenuItem.Size = new Size(81, 20);
-            connectionToolStripMenuItem.Text = "Connection";
+            toolStripSeparator2.Name = "toolStripSeparator2";
+            toolStripSeparator2.Size = new Size(6, 25);
             // 
-            // terminateToolStripMenuItem
+            // toolStripButtonExport
             // 
-            terminateToolStripMenuItem.Name = "terminateToolStripMenuItem";
-            terminateToolStripMenuItem.Size = new Size(127, 22);
-            terminateToolStripMenuItem.Text = "Terminate";
-            terminateToolStripMenuItem.Click += TerminateToolStripMenuItem_Click;
+            toolStripButtonExport.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            toolStripButtonExport.Image = (Image)resources.GetObject("toolStripButtonExport.Image");
+            toolStripButtonExport.ImageTransparentColor = Color.Magenta;
+            toolStripButtonExport.Name = "toolStripButtonExport";
+            toolStripButtonExport.Size = new Size(23, 22);
+            toolStripButtonExport.Text = "Export";
+            toolStripButtonExport.Click += ToolStripButtonExport_Click;
             // 
-            // propertiesToolStripMenuItem
+            // toolStripButtonProperties
             // 
-            propertiesToolStripMenuItem.Name = "propertiesToolStripMenuItem";
-            propertiesToolStripMenuItem.Size = new Size(127, 22);
-            propertiesToolStripMenuItem.Text = "Properties";
-            // 
-            // voiceToolStripMenuItem
-            // 
-            voiceToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { startCallToolStripMenuItem });
-            voiceToolStripMenuItem.Name = "voiceToolStripMenuItem";
-            voiceToolStripMenuItem.Size = new Size(47, 20);
-            voiceToolStripMenuItem.Text = "Voice";
-            // 
-            // startCallToolStripMenuItem
-            // 
-            startCallToolStripMenuItem.Name = "startCallToolStripMenuItem";
-            startCallToolStripMenuItem.Size = new Size(180, 22);
-            startCallToolStripMenuItem.Text = "Start Call";
-            startCallToolStripMenuItem.Click += StartCallToolStripMenuItem_Click;
+            toolStripButtonProperties.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            toolStripButtonProperties.Image = (Image)resources.GetObject("toolStripButtonProperties.Image");
+            toolStripButtonProperties.ImageTransparentColor = Color.Magenta;
+            toolStripButtonProperties.Name = "toolStripButtonProperties";
+            toolStripButtonProperties.Size = new Size(23, 22);
+            toolStripButtonProperties.Text = "Properties";
+            toolStripButtonProperties.Click += ToolStripButtonProperties_Click;
             // 
             // FormMessage
             // 
@@ -178,9 +176,8 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(534, 511);
             Controls.Add(splitContainer1);
-            Controls.Add(menuStrip1);
+            Controls.Add(toolStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");
-            MainMenuStrip = menuStrip1;
             Name = "FormMessage";
             Opacity = 0.95D;
             Padding = new Padding(5, 0, 5, 5);
@@ -193,8 +190,8 @@
             splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
             splitContainer1.ResumeLayout(false);
-            menuStrip1.ResumeLayout(false);
-            menuStrip1.PerformLayout();
+            toolStrip1.ResumeLayout(false);
+            toolStrip1.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -203,16 +200,14 @@
         private SplitContainer splitContainer1;
         private TextBox textBoxMessage;
         private Button buttonSend;
-        private MenuStrip menuStrip1;
-        private ToolStripMenuItem fileToolStripMenuItem;
-        private ToolStripMenuItem exportToolStripMenuItem;
-        private ToolStripMenuItem attachFileToolStripMenuItem;
-        private ToolStripMenuItem connectionToolStripMenuItem;
-        private ToolStripMenuItem terminateToolStripMenuItem;
-        private ToolStripMenuItem propertiesToolStripMenuItem;
-        private ToolStripMenuItem imageToolStripMenuItem;
         private FlowLayoutPanel flowPanel;
-        private ToolStripMenuItem voiceToolStripMenuItem;
-        private ToolStripMenuItem startCallToolStripMenuItem;
+        private ToolStrip toolStrip1;
+        private ToolStripButton toolStripButtonAttachFile;
+        private ToolStripButton toolStripButtonTerminate;
+        private ToolStripButton toolStripButtonProperties;
+        private ToolStripButton toolStripButtonVoiceCall;
+        private ToolStripSeparator toolStripSeparator1;
+        private ToolStripSeparator toolStripSeparator2;
+        private ToolStripButton toolStripButtonExport;
     }
 }

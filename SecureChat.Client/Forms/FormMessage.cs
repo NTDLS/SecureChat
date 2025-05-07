@@ -13,7 +13,6 @@ namespace SecureChat.Client.Forms
         private readonly int DefaultWidth = 550;
 
         private readonly ActiveChat _activeChat;
-        private readonly string[] allowedFileTypes = { "bmp", "jpg", "jpeg", "png", "gif" };
         private DateTime? _lastMessageReceived;
 
         internal FormMessage(ActiveChat activeChat)
@@ -82,13 +81,12 @@ namespace SecureChat.Client.Forms
 
                 if (files?.Length == 1)
                 {
-                    TransmitFileToRemoteClient(files[0]);
+                    _activeChat.TransmitFileAsync(files[0]);
                 }
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AppendErrorLine(ex);
             }
         }
 
@@ -101,14 +99,6 @@ namespace SecureChat.Client.Forms
                     var files = (string[]?)e.Data.GetData(DataFormats.FileDrop);
                     if (files?.Length == 1)
                     {
-                        var fileExtension = Path.GetExtension(files[0]).ToLower();
-
-                        if (!allowedFileTypes.Contains(fileExtension.Substring(1)))
-                        {
-                            e.Effect = DragDropEffects.None;
-                            return;
-                        }
-
                         e.Effect = DragDropEffects.Copy; // Allow drop
                     }
                     else
@@ -123,8 +113,7 @@ namespace SecureChat.Client.Forms
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AppendErrorLine(ex);
             }
         }
 
@@ -160,7 +149,7 @@ namespace SecureChat.Client.Forms
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                AppendErrorLine(ex);
             }
         }
 
@@ -191,7 +180,7 @@ namespace SecureChat.Client.Forms
                         if (image != null)
                         {
                             var imageBytes = Imaging.ImageToPngBytes(image);
-                            Task.Run(() => _activeChat.TransmitFile("clipboard.png", imageBytes));
+                            _activeChat.TransmitFileAsync("clipboard.png", imageBytes);
                         }
                         e.SuppressKeyPress = true;
                     }
@@ -202,12 +191,11 @@ namespace SecureChat.Client.Forms
                         if (files.Length == 1)
                         {
                             string filename = files[0];
-                            var fileExtension = Path.GetExtension(filename).ToLower();
-                            if (allowedFileTypes.Contains(fileExtension.Substring(1)))
+                            if (ScConstants.ImageFileTypes.Contains(Path.GetExtension(filename), StringComparer.InvariantCultureIgnoreCase))
                             {
                                 Image image = Image.FromFile(filename);
                                 var imageBytes = Imaging.ImageToPngBytes(image);
-                                Task.Run(() => _activeChat.TransmitFile("clipboard.png", imageBytes));
+                                _activeChat.TransmitFileAsync("clipboard.png", imageBytes);
                             }
                         }
                     }
@@ -219,8 +207,7 @@ namespace SecureChat.Client.Forms
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AppendErrorLine(ex);
             }
         }
 
@@ -248,8 +235,7 @@ namespace SecureChat.Client.Forms
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AppendErrorLine(ex);
             }
         }
 
@@ -279,9 +265,21 @@ namespace SecureChat.Client.Forms
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AppendErrorLine(ex);
             }
+        }
+
+        public void AppendErrorLine(Exception ex, Color? color = null)
+        {
+            var baseException = ex.GetBaseException();
+            AppendFlowControl(new FlowControlSystemText(flowPanel, baseException.Message, color ?? Color.Red));
+            Log.Error(baseException, baseException.Message);
+        }
+
+        public void AppendErrorLine(string message, Color? color = null)
+        {
+            AppendFlowControl(new FlowControlSystemText(flowPanel, message, color ?? Color.Red));
+            Log.Error(message);
         }
 
         public void AppendSystemMessageLine(string message, Color? color = null)
@@ -335,8 +333,7 @@ namespace SecureChat.Client.Forms
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AppendErrorLine(ex);
             }
         }
 
@@ -368,8 +365,7 @@ namespace SecureChat.Client.Forms
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AppendErrorLine(ex);
             }
         }
 
@@ -409,35 +405,30 @@ namespace SecureChat.Client.Forms
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AppendErrorLine(ex);
             }
         }
 
         #region Toolbar Menu
 
-        private void CallToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-        }
 
-        private void EndCallToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-        }
 
-        private void TerminateToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ToolStripButtonTerminate_Click(object sender, EventArgs e)
         {
             try
             {
-                _activeChat.Terminate();
+                if (MessageBox.Show(Text, ScConstants.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                {
+                    _activeChat.Terminate();
+                }
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AppendErrorLine(ex);
             }
         }
 
-        private void ImageToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ToolStripButtonAttachFile_Click(object sender, EventArgs e)
         {
             try
             {
@@ -445,49 +436,16 @@ namespace SecureChat.Client.Forms
                 openFileDialog.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.gif";
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    TransmitFileToRemoteClient(openFileDialog.FileName);
+                    _activeChat.TransmitFileAsync(openFileDialog.FileName);
                 }
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AppendErrorLine(ex);
             }
         }
 
-        private void TransmitFileToRemoteClient(string filename)
-        {
-            try
-            {
-                var fileExtension = Path.GetExtension(filename).ToLower();
-
-                if (!allowedFileTypes.Contains(fileExtension.Substring(1)))
-                {
-                    AppendSystemMessageLine($"Unsupported file type: {fileExtension}.", Color.Red);
-                    return;
-                }
-
-                long fileSize = (new FileInfo(filename)).Length;
-
-                if (fileSize > Settings.Instance.MaxFileTransmissionSize)
-                {
-                    AppendSystemMessageLine($"File is too large {Formatters.FileSize(fileSize)}, max size is {Formatters.FileSize(Settings.Instance.MaxFileTransmissionSize)}.", Color.Red);
-                }
-                else if (fileSize > 0)
-                {
-                    var imageBytes = File.ReadAllBytes(filename);
-
-                    Task.Run(() => _activeChat.TransmitFile(filename, imageBytes));
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void StartCallToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ToolStripButtonVoiceCall_Click(object sender, EventArgs e)
         {
             using var formVoicePreCall = new FormVoicePreCall();
             if (formVoicePreCall.ShowDialog() == DialogResult.OK)
@@ -495,6 +453,16 @@ namespace SecureChat.Client.Forms
                 _activeChat.RequestVoiceCall(formVoicePreCall.InputDeviceIndex, formVoicePreCall.OutputDeviceIndex, formVoicePreCall.Bitrate);
                 AppendOutgoingCallRequest(_activeChat.DisplayName);
             }
+        }
+
+        private void ToolStripButtonExport_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Export not implemented.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void ToolStripButtonProperties_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Properties not implemented.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 

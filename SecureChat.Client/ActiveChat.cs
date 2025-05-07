@@ -1,4 +1,5 @@
-﻿using NTDLS.Permafrost;
+﻿using NTDLS.Helpers;
+using NTDLS.Permafrost;
 using SecureChat.Client.Audio;
 using SecureChat.Client.Controls;
 using SecureChat.Client.Forms;
@@ -224,7 +225,28 @@ namespace SecureChat.Client
                     }).Result ?? false;
         }
 
-        public void TransmitFile(string fileName, byte[] fileBytes)
+        public void TransmitFileAsync(string filename)
+        {
+            long fileSize = (new FileInfo(filename)).Length;
+
+            if (fileSize > Settings.Instance.MaxFileTransmissionSize)
+            {
+                Form?.AppendErrorLine($"File is too large {Formatters.FileSize(fileSize)}, max size is {Formatters.FileSize(Settings.Instance.MaxFileTransmissionSize)}.");
+            }
+            else if (fileSize > 0)
+            {
+                var imageBytes = File.ReadAllBytes(filename);
+
+                Task.Run(() => TransmitFile(filename, imageBytes));
+            }
+        }
+
+        public void TransmitFileAsync(string fileName, byte[] fileBytes)
+        {
+            Task.Run(() => TransmitFile(fileName, fileBytes));
+        }
+
+        private void TransmitFile(string fileName, byte[] fileBytes)
         {
             var fileId = Guid.NewGuid();
 
@@ -258,7 +280,7 @@ namespace SecureChat.Client
                 }
                 else
                 {
-                    Form?.AppendSystemMessageLine($"Failed to transmit file.", Color.Red);
+                    Form?.AppendErrorLine($"Failed to transmit file.", Color.Red);
                 }
             });
         }

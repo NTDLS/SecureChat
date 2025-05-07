@@ -2,6 +2,8 @@
 {
     public static class ScConstants
     {
+        public static string[] ImageFileTypes = { ".bmp", ".jpg", ".jpeg", ".png", ".gif" };
+
         public const float DefaultFontSize = 10.0f;
         public const int AesKeySize = 256;
         public const int DefaultAutoAwayIdleSeconds = 600;
