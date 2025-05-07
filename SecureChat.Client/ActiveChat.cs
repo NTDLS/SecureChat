@@ -8,9 +8,6 @@ using SecureChat.Library;
 using SecureChat.Library.DatagramMessages;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
-using Serilog.Sinks.File;
-using System.IO;
-using System.IO.Pipes;
 
 namespace SecureChat.Client
 {
