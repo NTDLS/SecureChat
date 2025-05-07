@@ -51,8 +51,8 @@ namespace SecureChat.Client
                 activeChat.LastOutgoingCallControl.Text = "Call accepted.";
                 activeChat.LastOutgoingCallControl.Disable();
 
-                //TODO: Setup the call...
                 activeChat.StartAudioPump();
+                activeChat.AppendSystemMessageLine("You are now connected to voice chat.");
             }
             catch (Exception ex)
             {

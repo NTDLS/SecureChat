@@ -3,9 +3,11 @@ using NTDLS.Permafrost;
 using SecureChat.Client.Audio;
 using SecureChat.Client.Controls;
 using SecureChat.Client.Forms;
+using SecureChat.Client.Helpers;
 using SecureChat.Library;
 using SecureChat.Library.DatagramMessages;
 using SecureChat.Library.ReliableMessages;
+using Serilog;
 
 namespace SecureChat.Client
 {
@@ -29,6 +31,7 @@ namespace SecureChat.Client
         public string DisplayName { get; private set; }
         public Guid PeerConnectionId { get; private set; }
         public Dictionary<Guid, FileReceiveBuffer> FileReceiveBuffers { get; set; } = new();
+        public DateTime? LastMessageReceived { get; set; }
 
         /// <summary>
         /// Identifies this chat session. This is used to identify the chat session when sending messages.
@@ -133,7 +136,7 @@ namespace SecureChat.Client
             }
             IsTerminated = true;
             ServerConnection.Current?.ReliableClient.Notify(new TerminateChatNotification(SessionId, PeerConnectionId));
-            Form?.AppendSystemMessageLine($"Chat ended at {DateTime.Now}.", Color.Red);
+            AppendSystemMessageLine($"Chat ended at {DateTime.Now}.", Color.Red);
             StopAudioPump();
         }
 
@@ -167,6 +170,7 @@ namespace SecureChat.Client
             _bitrate = bitrate;
 
             ServerConnection.Current?.ReliableClient.Notify(new AcceptVoiceCallNotification(SessionId, PeerConnectionId));
+            AppendSystemMessageLine("You are now connected to voice chat.");
         }
 
         /// <summary>
@@ -184,7 +188,7 @@ namespace SecureChat.Client
                 return;
             }
 
-            Form?.AppendImageMessage(DisplayName, imageBytes, true);
+            AppendImageMessage(DisplayName, imageBytes, true);
         }
 
         public void AlertOfIncomingCall()
@@ -194,7 +198,7 @@ namespace SecureChat.Client
                 return;
             }
 
-            Form?.AppendIncomingCall(DisplayName, true, Color.Blue);
+            AppendIncomingCall(DisplayName, true, Color.Blue);
         }
 
         public void ReceiveMessage(byte[] cipherText)
@@ -204,7 +208,7 @@ namespace SecureChat.Client
                 return;
             }
 
-            Form?.AppendReceivedMessageLine(DisplayName, DecryptString(cipherText), true, Color.DarkRed);
+            AppendReceivedMessageLine(DisplayName, DecryptString(cipherText), true, Color.DarkRed);
         }
 
         public bool SendMessage(string plaintText)
@@ -231,7 +235,7 @@ namespace SecureChat.Client
 
             if (fileSize > Settings.Instance.MaxFileTransmissionSize)
             {
-                Form?.AppendErrorLine($"File is too large {Formatters.FileSize(fileSize)}, max size is {Formatters.FileSize(Settings.Instance.MaxFileTransmissionSize)}.");
+                AppendErrorLine($"File is too large {Formatters.FileSize(fileSize)}, max size is {Formatters.FileSize(Settings.Instance.MaxFileTransmissionSize)}.");
             }
             else if (fileSize > 0)
             {
@@ -280,7 +284,7 @@ namespace SecureChat.Client
 
                     if (isImage)
                     {
-                        Form?.AppendImageMessage(ServerConnection.Current.DisplayName, fileBytes, false);
+                        AppendImageMessage(ServerConnection.Current.DisplayName, fileBytes, false);
                     }
                     else
                     {
@@ -290,9 +294,208 @@ namespace SecureChat.Client
                 }
                 else
                 {
-                    Form?.AppendErrorLine($"Failed to transmit file.", Color.Red);
+                    AppendErrorLine($"Failed to transmit file.", Color.Red);
                 }
             });
         }
+
+        #region Append Flow Controls.
+
+        private void AppendFlowControl(Control control)
+        {
+            try
+            {
+                if (Form == null || Form.FlowPanel == null)
+                {
+                    return;
+                }
+
+                Form.Invoke(() =>
+                {
+                    lock (Form.FlowPanel)
+                    {
+                        Form.FlowPanel.Controls.Add(control);
+                        while (Form.FlowPanel.Controls.Count > Settings.Instance.MaxMessages)
+                        {
+                            Form.FlowPanel.Controls.RemoveAt(0);
+                        }
+                        Form.FlowPanel.ScrollControlIntoView(control);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                AppendErrorLine(ex);
+            }
+        }
+
+        public void AppendImageMessage(string fromName, byte[] imageBytes, bool playNotifications)
+        {
+            try
+            {
+                if (Form == null || Form.FlowPanel == null)
+                {
+                    return;
+                }
+
+                AppendFlowControl(new FlowControlImage(Form.FlowPanel, imageBytes));
+
+                Form.Invoke(() =>
+                {
+                    //We want to show the dialog, but keep it minimized so that it does not jump in front of the user.
+                    Form.WindowState = FormWindowState.Minimized;
+                    Form.Visible = true;
+
+                    if (playNotifications)
+                    {
+                        if (WindowFlasher.FlashWindow(Form))
+                        {
+                            Notifications.MessageReceived(fromName);
+                        }
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                AppendErrorLine(ex);
+            }
+        }
+
+        public void AppendErrorLine(Exception ex, Color? color = null)
+        {
+            if (Form == null || Form.FlowPanel == null)
+            {
+                return;
+            }
+
+            var baseException = ex.GetBaseException();
+            AppendFlowControl(new FlowControlSystemText(Form.FlowPanel, baseException.Message, color ?? Color.Red));
+            Log.Error(baseException, baseException.Message);
+        }
+
+        public void AppendErrorLine(string message, Color? color = null)
+        {
+            if (Form == null || Form.FlowPanel == null)
+            {
+                return;
+            }
+
+            AppendFlowControl(new FlowControlSystemText(Form.FlowPanel, message, color ?? Color.Red));
+            Log.Error(message);
+        }
+
+        public void AppendSystemMessageLine(string message, Color? color = null)
+        {
+            if (Form == null || Form.FlowPanel == null)
+            {
+                return;
+            }
+
+            AppendFlowControl(new FlowControlSystemText(Form.FlowPanel, message, color));
+        }
+
+        public void AppendIncomingCallRequest(string fromName)
+        {
+            if (Form == null || Form.FlowPanel == null)
+            {
+                return;
+            }
+
+            AppendFlowControl(new FlowControlIncomingCall(Form.FlowPanel, this, fromName));
+        }
+
+        public void AppendOutgoingCallRequest(string toName)
+        {
+            if (Form == null || Form.FlowPanel == null)
+            {
+                return;
+            }
+
+            LastOutgoingCallControl = new FlowControlOutgoingCall(Form.FlowPanel, this, toName);
+            AppendFlowControl(LastOutgoingCallControl);
+        }
+
+        public void AppendReceivedMessageLine(string fromName, string plainText, bool playNotifications, Color? color = null)
+        {
+            try
+            {
+                if (Form == null || Form.FlowPanel == null)
+                {
+                    return;
+                }
+
+                Form.Invoke(() =>
+                {
+                    if (Form.Visible == false)
+                    {
+                        //We want to show the dialog, but keep it minimized so that it does not jump in front of the user.
+                        Form.WindowState = FormWindowState.Minimized;
+                        Form.Visible = true;
+                    }
+
+                    if (playNotifications)
+                    {
+                        if (WindowFlasher.FlashWindow(Form))
+                        {
+                            Notifications.MessageReceived(fromName);
+                        }
+                    }
+                });
+
+                LastMessageReceived = DateTime.Now;
+
+                if (plainText.StartsWith("http://") || plainText.StartsWith("https://"))
+                {
+                    AppendFlowControl(new FlowControlHyperlink(Form.FlowPanel, fromName, plainText, color));
+                }
+                else
+                {
+                    AppendFlowControl(new FlowControlTextMessage(Form.FlowPanel, fromName, plainText, color));
+                }
+            }
+            catch (Exception ex)
+            {
+                AppendErrorLine(ex);
+            }
+        }
+
+        public void AppendIncomingCall(string fromName, bool playNotifications, Color? color = null)
+        {
+            try
+            {
+                if (Form == null || Form.FlowPanel == null)
+                {
+                    return;
+                }
+
+                Form.Invoke(() =>
+                {
+                    if (Form.Visible == false)
+                    {
+                        //We want to show the dialog, but keep it minimized so that it does not jump in front of the user.
+                        Form.WindowState = FormWindowState.Minimized;
+                        Form.Visible = true;
+                    }
+
+                    if (playNotifications)
+                    {
+                        if (WindowFlasher.FlashWindow(Form))
+                        {
+                            Notifications.IncomingCall(fromName);
+                        }
+                    }
+                });
+
+                LastMessageReceived = DateTime.Now;
+
+                AppendIncomingCallRequest(fromName);
+            }
+            catch (Exception ex)
+            {
+                AppendErrorLine(ex);
+            }
+        }
+
+        #endregion
     }
 }

@@ -1,5 +1,4 @@
 ﻿using NTDLS.Helpers;
-using SecureChat.Client.Controls;
 using SecureChat.Client.Helpers;
 using SecureChat.Library;
 using Serilog;
@@ -13,7 +12,11 @@ namespace SecureChat.Client.Forms
         private readonly int DefaultWidth = 550;
 
         private readonly ActiveChat _activeChat;
-        private DateTime? _lastMessageReceived;
+
+        public FlowLayoutPanel FlowPanel
+        {
+            get => flowPanel;
+        }
 
         internal FormMessage(ActiveChat activeChat)
         {
@@ -64,7 +67,7 @@ namespace SecureChat.Client.Forms
                 timer.Tick += Timer_Tick;
                 timer.Enabled = true;
 
-                AppendSystemMessageLine($"Chat with {_activeChat.DisplayName} started at {DateTime.Now}.");
+                _activeChat.AppendSystemMessageLine($"Chat with {_activeChat.DisplayName} started at {DateTime.Now}.");
             }
             catch (Exception ex)
             {
@@ -86,7 +89,7 @@ namespace SecureChat.Client.Forms
             }
             catch (Exception ex)
             {
-                AppendErrorLine(ex);
+                _activeChat.AppendErrorLine(ex);
             }
         }
 
@@ -113,7 +116,7 @@ namespace SecureChat.Client.Forms
             }
             catch (Exception ex)
             {
-                AppendErrorLine(ex);
+                _activeChat.AppendErrorLine(ex);
             }
         }
 
@@ -138,18 +141,18 @@ namespace SecureChat.Client.Forms
                     return;
                 }
 
-                if (_lastMessageReceived != null)
+                if (_activeChat.LastMessageReceived != null)
                 {
-                    if ((DateTime.Now - (DateTime)_lastMessageReceived).TotalSeconds > 60)
+                    if ((DateTime.Now - (DateTime)_activeChat.LastMessageReceived).TotalSeconds > 60)
                     {
-                        AppendSystemMessageLine($"Last message received {_lastMessageReceived}.");
-                        _lastMessageReceived = null;
+                        _activeChat.AppendSystemMessageLine($"Last message received {_activeChat.LastMessageReceived}.");
+                        _activeChat.LastMessageReceived = null;
                     }
                 }
             }
             catch (Exception ex)
             {
-                AppendErrorLine(ex);
+                _activeChat.AppendErrorLine(ex);
             }
         }
 
@@ -207,169 +210,9 @@ namespace SecureChat.Client.Forms
             }
             catch (Exception ex)
             {
-                AppendErrorLine(ex);
+                _activeChat.AppendErrorLine(ex);
             }
         }
-
-        #region Append Flow Controls.
-
-        private void AppendFlowControl(Control control)
-        {
-            try
-            {
-                if (InvokeRequired)
-                {
-                    Invoke(AppendFlowControl, [control]);
-                    return;
-                }
-
-                lock (flowPanel)
-                {
-                    flowPanel.Controls.Add(control);
-                    while (flowPanel.Controls.Count > Settings.Instance.MaxMessages)
-                    {
-                        flowPanel.Controls.RemoveAt(0);
-                    }
-                    flowPanel.ScrollControlIntoView(control);
-                }
-            }
-            catch (Exception ex)
-            {
-                AppendErrorLine(ex);
-            }
-        }
-
-        public void AppendImageMessage(string fromName, byte[] imageBytes, bool playNotifications)
-        {
-            try
-            {
-                AppendFlowControl(new FlowControlImage(flowPanel, imageBytes));
-
-                Invoke(() =>
-                {
-                    if (Visible == false)
-                    {
-                        //We want to show the dialog, but keep it minimized so that it does not jump in front of the user.
-                        WindowState = FormWindowState.Minimized;
-                        Visible = true;
-                    }
-
-                    if (playNotifications)
-                    {
-                        if (WindowFlasher.FlashWindow(this))
-                        {
-                            Notifications.MessageReceived(fromName);
-                        }
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                AppendErrorLine(ex);
-            }
-        }
-
-        public void AppendErrorLine(Exception ex, Color? color = null)
-        {
-            var baseException = ex.GetBaseException();
-            AppendFlowControl(new FlowControlSystemText(flowPanel, baseException.Message, color ?? Color.Red));
-            Log.Error(baseException, baseException.Message);
-        }
-
-        public void AppendErrorLine(string message, Color? color = null)
-        {
-            AppendFlowControl(new FlowControlSystemText(flowPanel, message, color ?? Color.Red));
-            Log.Error(message);
-        }
-
-        public void AppendSystemMessageLine(string message, Color? color = null)
-        {
-            AppendFlowControl(new FlowControlSystemText(flowPanel, message, color));
-        }
-
-        public void AppendIncomingCallRequest(string fromName)
-        {
-            AppendFlowControl(new FlowControlIncomingCall(flowPanel, _activeChat, fromName));
-        }
-
-        public void AppendOutgoingCallRequest(string toName)
-        {
-            _activeChat.LastOutgoingCallControl = new FlowControlOutgoingCall(flowPanel, _activeChat, toName);
-            AppendFlowControl(_activeChat.LastOutgoingCallControl);
-        }
-
-        public void AppendReceivedMessageLine(string fromName, string plainText, bool playNotifications, Color? color = null)
-        {
-            try
-            {
-                Invoke(() =>
-                {
-                    if (Visible == false)
-                    {
-                        //We want to show the dialog, but keep it minimized so that it does not jump in front of the user.
-                        WindowState = FormWindowState.Minimized;
-                        Visible = true;
-                    }
-
-                    if (playNotifications)
-                    {
-                        if (WindowFlasher.FlashWindow(this))
-                        {
-                            Notifications.MessageReceived(fromName);
-                        }
-                    }
-                });
-
-                _lastMessageReceived = DateTime.Now;
-
-                if (plainText.StartsWith("http://") || plainText.StartsWith("https://"))
-                {
-                    AppendFlowControl(new FlowControlHyperlink(flowPanel, fromName, plainText, color));
-                }
-                else
-                {
-                    AppendFlowControl(new FlowControlTextMessage(flowPanel, fromName, plainText, color));
-                }
-            }
-            catch (Exception ex)
-            {
-                AppendErrorLine(ex);
-            }
-        }
-
-        public void AppendIncomingCall(string fromName, bool playNotifications, Color? color = null)
-        {
-            try
-            {
-                Invoke(() =>
-                {
-                    if (Visible == false)
-                    {
-                        //We want to show the dialog, but keep it minimized so that it does not jump in front of the user.
-                        WindowState = FormWindowState.Minimized;
-                        Visible = true;
-                    }
-
-                    if (playNotifications)
-                    {
-                        if (WindowFlasher.FlashWindow(this))
-                        {
-                            Notifications.IncomingCall(fromName);
-                        }
-                    }
-                });
-
-                _lastMessageReceived = DateTime.Now;
-
-                AppendIncomingCallRequest(fromName);
-            }
-            catch (Exception ex)
-            {
-                AppendErrorLine(ex);
-            }
-        }
-
-        #endregion
 
         private void ButtonSend_Click(object? sender, EventArgs e)
         {
@@ -377,13 +220,13 @@ namespace SecureChat.Client.Forms
             {
                 if (ServerConnection.Current == null || _activeChat.IsTerminated || !ServerConnection.Current.ReliableClient.IsConnected)
                 {
-                    AppendSystemMessageLine("Not connected.", Color.Red);
+                    _activeChat.AppendSystemMessageLine("Not connected.", Color.Red);
                     return;
                 }
 
                 if (_activeChat.IsTerminated)
                 {
-                    AppendSystemMessageLine("Chat has ended.", Color.Red);
+                    _activeChat.AppendSystemMessageLine("Chat has ended.", Color.Red);
                     return;
                 }
 
@@ -396,22 +239,20 @@ namespace SecureChat.Client.Forms
 
                 if (_activeChat.SendMessage(text))
                 {
-                    AppendReceivedMessageLine(ServerConnection.Current.DisplayName, text, false, Color.Blue);
+                    _activeChat.AppendReceivedMessageLine(ServerConnection.Current.DisplayName, text, false, Color.Blue);
                 }
                 else
                 {
-                    AppendSystemMessageLine("Failed to send message.", Color.Red);
+                    _activeChat.AppendSystemMessageLine("Failed to send message.", Color.Red);
                 }
             }
             catch (Exception ex)
             {
-                AppendErrorLine(ex);
+                _activeChat.AppendErrorLine(ex);
             }
         }
 
         #region Toolbar Menu
-
-
 
         private void ToolStripButtonTerminate_Click(object sender, EventArgs e)
         {
@@ -425,7 +266,7 @@ namespace SecureChat.Client.Forms
             }
             catch (Exception ex)
             {
-                AppendErrorLine(ex);
+                _activeChat.AppendErrorLine(ex);
             }
         }
 
@@ -442,7 +283,7 @@ namespace SecureChat.Client.Forms
             }
             catch (Exception ex)
             {
-                AppendErrorLine(ex);
+                _activeChat.AppendErrorLine(ex);
             }
         }
 
@@ -452,7 +293,7 @@ namespace SecureChat.Client.Forms
             if (formVoicePreCall.ShowDialog() == DialogResult.OK)
             {
                 _activeChat.RequestVoiceCall(formVoicePreCall.InputDeviceIndex, formVoicePreCall.OutputDeviceIndex, formVoicePreCall.Bitrate);
-                AppendOutgoingCallRequest(_activeChat.DisplayName);
+                _activeChat.AppendOutgoingCallRequest(_activeChat.DisplayName);
             }
         }
 
