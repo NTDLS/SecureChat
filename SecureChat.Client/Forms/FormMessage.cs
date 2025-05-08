@@ -11,6 +11,7 @@ namespace SecureChat.Client.Forms
         private readonly int DefaultHeight = 550;
         private readonly int DefaultWidth = 550;
         private readonly ActiveChat _activeChat;
+        private bool _closing = false;
 
         public FlowLayoutPanel FlowPanel => flowPanel;
 
@@ -28,6 +29,7 @@ namespace SecureChat.Client.Forms
                 {
                     if (ServerConnection.Current == null || _activeChat.IsTerminated || !ServerConnection.Current.ReliableClient.IsConnected)
                     {
+                        _closing = true;
                         return; //Close the dialog.
                     }
 
@@ -49,8 +51,20 @@ namespace SecureChat.Client.Forms
                 };
 
                 Shown += (object? sender, EventArgs e) => textBoxMessage.Focus();
-                Activated += (object? sender, EventArgs e) => Exceptions.Ignore(() => Opacity = 1.0);
-                Deactivate += (object? sender, EventArgs e) => Exceptions.Ignore(() => Opacity = 0.95);
+                Activated += (object? sender, EventArgs e) => Exceptions.Ignore(() =>
+                {
+                    if (!_closing)
+                    {
+                        Opacity = 1.0;
+                    }
+                });
+                Deactivate += (object? sender, EventArgs e) => Exceptions.Ignore(() =>
+                {
+                    if (!_closing)
+                    {
+                        Opacity = 1.0;
+                    }
+                });
 
                 textBoxMessage.AllowDrop = true;
                 textBoxMessage.KeyDown += TextBoxMessage_KeyDown;

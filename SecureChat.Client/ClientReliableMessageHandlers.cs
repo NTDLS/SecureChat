@@ -3,7 +3,6 @@ using NTDLS.SecureKeyExchange;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
 using System.Diagnostics;
-using System.Security.Cryptography.Xml;
 
 namespace SecureChat.Client
 {

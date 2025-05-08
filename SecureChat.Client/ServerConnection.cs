@@ -26,7 +26,8 @@ namespace SecureChat.Client
             {
                 Exceptions.Ignore(() => Current.IsTerminated = true);
                 Exceptions.Ignore(() => Current.DatagramClient.Stop());
-                Task.Run(() => Exceptions.Ignore(() => Current.ReliableClient?.Disconnect()));
+                //Task.Run(() => Exceptions.Ignore(() => Current.ReliableClient?.Disconnect())); //Do we need to do this?
+                Exceptions.Ignore(() => Current.ReliableClient?.Disconnect());
                 Exceptions.Ignore(() => Current.FormHome?.Close());
             }
 
