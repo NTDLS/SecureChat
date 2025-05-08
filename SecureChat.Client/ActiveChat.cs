@@ -277,6 +277,21 @@ namespace SecureChat.Client
         }
 
         /// <summary>
+        /// A file transfer was completed for what is presumably a non-image, show the user a link to the file.
+        /// </summary>
+        public void ReceiveFileMessage(string? saveAsFileName)
+        {
+            if (IsTerminated)
+            {
+                return;
+            }
+
+            AppendFolderLinkMessage(DisplayName, Path.GetFileName(saveAsFileName) ?? "Open File Location",
+                 Path.GetDirectoryName(saveAsFileName) ?? Environment.GetEnvironmentVariable("SystemDrive") ?? string.Empty,
+                 true, ScConstants.FromRemoteColor);
+        }
+
+        /// <summary>
         /// A file transfer was completed for an image, show it to the user.
         /// </summary>
         public void ReceiveImageMessage(byte[] imageBytes)
@@ -514,6 +529,43 @@ namespace SecureChat.Client
                         }
                     }
                 });
+            }
+            catch (Exception ex)
+            {
+                AppendErrorLine(ex);
+            }
+        }
+
+        private void AppendFolderLinkMessage(string fromName, string displayText, string folderPath, bool playNotifications, Color color)
+        {
+            try
+            {
+                if (Form == null || Form.FlowPanel == null)
+                {
+                    return;
+                }
+
+                Form.Invoke(() =>
+                {
+                    if (Form.Visible == false)
+                    {
+                        //We want to show the dialog, but keep it minimized so that it does not jump in front of the user.
+                        Form.WindowState = FormWindowState.Minimized;
+                        Form.Visible = true;
+                    }
+
+                    if (playNotifications)
+                    {
+                        if (WindowFlasher.FlashWindow(Form))
+                        {
+                            Notifications.MessageReceived(fromName);
+                        }
+                    }
+                });
+
+                LastMessageReceived = DateTime.Now;
+
+                AppendFlowControl(new FlowControlFolderHyperlink(Form.FlowPanel, fromName, displayText, folderPath, color));
             }
             catch (Exception ex)
             {

@@ -44,6 +44,9 @@
     <Compile Update="Controls\FlowControlFileTransferReceiveProgress.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="Controls\FlowControlFolderHyperlink.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Update="Controls\FlowControlHyperlink.cs">
       <SubType>Component</SubType>
     </Compile>

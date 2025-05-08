@@ -6,8 +6,9 @@ namespace SecureChat.Client
     {
         public Guid FileId { get; private set; }
         public long FileSize { get; private set; }
-        public long ReceivedByteCount { get; set; }
+        public long ReceivedByteCount { get; private set; }
         public int PercentComplete => (int)((ReceivedByteCount / (double)FileSize) * 100.0);
+        public string? SaveAsFileName { get; private set; }
 
         /// <summary>
         /// Name of the file as reported by the sender.
@@ -38,6 +39,7 @@ namespace SecureChat.Client
         /// </summary>
         public FileReceiveBuffer(Guid fileId, string fileName, long fileSize, bool isImage, string saveAsFileName)
         {
+            SaveAsFileName = saveAsFileName;
             FileId = fileId;
             FileName = fileName;
             FileSize = fileSize;

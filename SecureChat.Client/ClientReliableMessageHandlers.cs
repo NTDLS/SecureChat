@@ -270,6 +270,7 @@ namespace SecureChat.Client
                     {
                         //The file is not an image, so we need to show the control with a link to the local file.
                         //control.Remove(); //We should probably remove these controls when finished.
+                        activeChat.ReceiveFileMessage(control.Transfer.SaveAsFileName);
                     }
 
                     control.Remove();
