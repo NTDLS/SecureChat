@@ -1,5 +1,4 @@
-﻿using NTDLS.Helpers;
-using NTDLS.Permafrost;
+﻿using NTDLS.Permafrost;
 using SecureChat.Client.Audio;
 using SecureChat.Client.Controls;
 using SecureChat.Client.Forms;

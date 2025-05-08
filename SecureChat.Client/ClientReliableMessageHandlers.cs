@@ -156,7 +156,7 @@ namespace SecureChat.Client
             try
             {
                 var activeChat = VerifyAndActiveChat(context, param.SessionId);
-                if(activeChat.FileReceiveBuffers.ContainsKey(param.FileId) == false)
+                if (activeChat.FileReceiveBuffers.ContainsKey(param.FileId) == false)
                 {
                     activeChat.FileReceiveBuffers.Add(param.FileId, new FileReceiveBuffer(param.FileId, param.FileName, param.FileSize));
                 }
