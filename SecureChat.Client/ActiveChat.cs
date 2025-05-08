@@ -49,6 +49,7 @@ namespace SecureChat.Client
 
         public Dictionary<Guid, FlowControlFileTransferReceiveProgress> InboundFileTransfers { get; set; } = new();
         public Dictionary<Guid, FlowControlFileTransferSendProgress> OutboundFileTransfers { get; set; } = new();
+        public Dictionary<Guid, FlowControlFileTransferRequest> PendingFileTransfers { get; set; } = new();
         public DateTime? LastMessageReceived { get; set; }
 
         /// <summary>
@@ -311,7 +312,6 @@ namespace SecureChat.Client
         /// <param name="fileId"></param>
         public void DeclineFileTransfer(FlowControlFileTransferRequest ftc)
         {
-            AppendSystemMessageLine($"File transfer '{Path.GetFileName(ftc.FileName)}' declined.");
             ServerConnection.Current?.ReliableClient.Notify(new FileTransferDeclineRequestNotification(SessionId, PeerConnectionId, ftc.FileId));
         }
 
@@ -340,7 +340,7 @@ namespace SecureChat.Client
             if (OutboundFileTransfers.TryGetValue(fileId, out var ftc))
             {
                 ftc.Remove();
-                AppendSystemMessageLine($"File transfer '{ftc.Transfer.FileName}' declined.");
+                AppendSystemMessageLine($"File transfer '{Path.GetFileName(ftc.Transfer.FileName)}' declined.");
             }
             else
             {
@@ -396,7 +396,7 @@ namespace SecureChat.Client
                 var buffer = new byte[Settings.Instance.FileTransferChunkSize];
                 int bytesRead;
 
-                while ((bytesRead = ftc.Transfer.Stream.Read(buffer, 0, buffer.Length)) > 0 && !ftc.IsCancelled)
+                while (!ftc.IsCancelled && (bytesRead = ftc.Transfer.Stream.Read(buffer, 0, buffer.Length)) > 0)
                 {
                     var chunkToSend = buffer;
                     if (bytesRead < buffer.Length) // Handle the last partial chunk
@@ -436,14 +436,13 @@ namespace SecureChat.Client
                         }
                     });
                 }
-                else
-                {
-                    AppendSystemMessageLine($"File transfer canceled.", Color.Red);
-                }
             }
             catch (Exception ex)
             {
-                AppendErrorLine($"Error transferring file: {ex.Message}", Color.Red);
+                if (ftc.IsCancelled == false)
+                {
+                    AppendErrorLine($"Error transferring file: {ex.Message}", Color.Red);
+                }
             }
             finally
             {

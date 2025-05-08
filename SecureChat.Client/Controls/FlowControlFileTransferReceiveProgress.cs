@@ -48,11 +48,24 @@ namespace SecureChat.Client.Controls
             labelHeaderText.Text = $"{Formatters.FileSize(Transfer.FileSize)} {fileNameOnly}";
         }
 
-        private void ButtonDecline_Click(object sender, EventArgs e)
+        private void ButtonCancel_Click(object sender, EventArgs e)
         {
+            Cancel();
+            Remove();
+            _activeChat.CancelFileTransfer(Transfer.FileId);
+            _activeChat.AppendSystemMessageLine($"File transfer cancelled: {Transfer.FileName}");
+        }
+
+        public void Cancel()
+        {
+            if (InvokeRequired)
+            {
+                Invoke(() => Cancel());
+                return;
+            }
+
             buttonCancel.Enabled = false;
             IsCancelled = true;
-            _activeChat.CancelFileTransfer(Transfer.FileId);
         }
 
         public void SetProgressValue(int value)

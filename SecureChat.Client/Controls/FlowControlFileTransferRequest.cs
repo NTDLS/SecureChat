@@ -1,6 +1,7 @@
 ﻿using NTDLS.Helpers;
 using System.ComponentModel;
 using System.Security.Cryptography.Xml;
+using static System.Net.WebRequestMethods;
 
 namespace SecureChat.Client.Controls
 {
@@ -17,6 +18,8 @@ namespace SecureChat.Client.Controls
         public long FileSize { get; private set; }
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsImage { get; private set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool IsCancelled { get; private set; }
 
         public FlowControlFileTransferRequest(FlowLayoutPanel parent, ActiveChat activeChat, string fromName,
             Guid fileId, string fileName, long fileSize, bool isImage, Color color)
@@ -59,10 +62,23 @@ namespace SecureChat.Client.Controls
 
         private void ButtonDecline_Click(object sender, EventArgs e)
         {
+            Cancel();
+            Remove();
+            _activeChat.DeclineFileTransfer(this);
+            _activeChat.AppendSystemMessageLine($"File transfer '{Path.GetFileName(FileName)}' declined.");
+        }
+
+        public void Cancel()
+        {
+            if (InvokeRequired)
+            {
+                Invoke(() => Cancel());
+                return;
+            }
+
             buttonAccept.Enabled = false;
             buttonDecline.Enabled = false;
-            _activeChat.DeclineFileTransfer(this);
-            Remove();
+            IsCancelled = true;
         }
 
         public void Remove()

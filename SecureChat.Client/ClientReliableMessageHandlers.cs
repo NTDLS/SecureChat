@@ -3,6 +3,7 @@ using NTDLS.SecureKeyExchange;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
 using System.Diagnostics;
+using System.Security.Cryptography.Xml;
 
 namespace SecureChat.Client
 {
@@ -166,7 +167,31 @@ namespace SecureChat.Client
             try
             {
                 var activeChat = VerifyAndActiveChat(context, param.SessionId);
-                activeChat.InboundFileTransfers.Remove(param.FileId);
+
+                if (activeChat.PendingFileTransfers.TryGetValue(param.FileId, out var pendingControl))
+                {
+                    pendingControl.Cancel();
+                    pendingControl.Remove();
+                    activeChat.InboundFileTransfers.Remove(param.FileId);
+                    activeChat.AppendSystemMessageLine($"File transfer cancelled: {Path.GetFileName(pendingControl.FileName)}");
+                }
+
+                if (activeChat.InboundFileTransfers.TryGetValue(param.FileId, out var inboundControl))
+                {
+                    inboundControl.Cancel();
+                    inboundControl.Remove();
+                    activeChat.InboundFileTransfers.Remove(param.FileId);
+                    activeChat.AppendSystemMessageLine($"File transfer cancelled: {Path.GetFileName(inboundControl.Transfer.FileName)}");
+                }
+
+                if (activeChat.OutboundFileTransfers.TryGetValue(param.FileId, out var outboundControl))
+                {
+                    outboundControl.Cancel();
+                    outboundControl.Remove();
+                    activeChat.OutboundFileTransfers.Remove(param.FileId);
+                    activeChat.AppendSystemMessageLine($"File transfer cancelled: {Path.GetFileName(outboundControl.Transfer.FileName)}");
+                }
+
             }
             catch (Exception ex)
             {

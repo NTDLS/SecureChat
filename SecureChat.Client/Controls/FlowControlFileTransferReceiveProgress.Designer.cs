@@ -54,7 +54,7 @@
             buttonCancel.TabIndex = 4;
             buttonCancel.Text = "Cancel";
             buttonCancel.UseVisualStyleBackColor = true;
-            buttonCancel.Click += ButtonDecline_Click;
+            buttonCancel.Click += ButtonCancel_Click;
             // 
             // progressBarCompletion
             // 
