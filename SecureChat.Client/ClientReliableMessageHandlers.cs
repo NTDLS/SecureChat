@@ -1,6 +1,5 @@
 ﻿using NTDLS.ReliableMessaging;
 using NTDLS.SecureKeyExchange;
-using SecureChat.Client.Controls;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
 using System.Diagnostics;
@@ -103,7 +102,7 @@ namespace SecureChat.Client
                 activeChat.LastOutgoingCallControl.Disable();
 
                 activeChat.StartAudioPump();
-                activeChat.AppendSystemMessageLine("The voice call is now connected.");
+                activeChat.AppendSuccessMessageLine("The voice call is now connected.");
             }
             catch (Exception ex)
             {

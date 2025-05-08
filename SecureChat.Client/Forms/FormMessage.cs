@@ -67,7 +67,7 @@ namespace SecureChat.Client.Forms
                 };
                 timer.Tick += Timer_Tick;
 
-                _activeChat.AppendSystemMessageLine($"Conversation with {_activeChat.DisplayName} started.");
+                _activeChat.AppendSuccessMessageLine($"Conversation with {_activeChat.DisplayName} started.");
             }
             catch (Exception ex)
             {

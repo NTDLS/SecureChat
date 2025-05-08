@@ -427,7 +427,7 @@ namespace SecureChat.Client
                             }
                             else
                             {
-                                AppendSystemMessageLine($"File '{Path.GetFileName(ftc.Transfer.FileName)}' transferred successfully.");
+                                AppendSuccessMessageLine($"File '{Path.GetFileName(ftc.Transfer.FileName)}' transferred successfully.");
                             }
                         }
                         else
@@ -614,6 +614,18 @@ namespace SecureChat.Client
 
         public void AppendSystemMessageLine(string message, Color? color = null)
         {
+            if (Form == null || Form.FlowPanel == null)
+            {
+                return;
+            }
+
+            AppendFlowControl(new FlowControlSystemText(Form.FlowPanel, message, color));
+        }
+
+        public void AppendSuccessMessageLine(string message, Color? color = null)
+        {
+            color ??= Color.Green;
+
             if (Form == null || Form.FlowPanel == null)
             {
                 return;
