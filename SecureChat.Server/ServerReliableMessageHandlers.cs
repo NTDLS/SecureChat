@@ -316,7 +316,7 @@ namespace SecureChat.Server
         /// Remote client is requesting that another client accept a large or binary file
         /// where we need to give the remote client a chance to select a save location.
         /// </summary>
-        public void FileTransmissionBeginRequestNotification(RmContext context, TerminateChatNotification param)
+        public void FileTransmissionBeginRequestNotification(RmContext context, FileTransmissionBeginRequestNotification param)
         {
             try
             {

@@ -292,17 +292,26 @@ namespace SecureChat.Client
         {
             var fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
 
-            var progressControl = AppendFileTransmissionProgress(fileName, (new FileInfo(fileName)).Length, fileStream);
-            if (progressControl == null)
+            var ftc = AppendFileTransmissionProgress(fileName, (new FileInfo(fileName)).Length, fileStream);
+            if (ftc == null)
             {
                 return;
             }
-            OutboundFileTransfers.Add(progressControl.Transfer.FileId, progressControl);
+            OutboundFileTransfers.Add(ftc.Transfer.FileId, ftc);
 
-            Task.Run(() =>
+            if (ftc.Transfer.IsImage)
             {
-                Task.Run(() => TransmitFile(progressControl));
-            });
+                //if this is an image, then we just transfer it because we can store it in the remote clients window.
+
+                Task.Run(() => TransmitFile(ftc));
+            }
+            else
+            {
+                //If this is another typo of file, then we need to request the remote
+                //  client to accept the file so they can select a location to save it.
+                ServerConnection.Current?.ReliableClient.Notify(
+                new FileTransmissionBeginRequestNotification(SessionId, PeerConnectionId, ftc.Transfer.FileId, ftc.Transfer.FileName, ftc.Transfer.FileSize));
+            }
         }
 
         public void TransmitFileAsync(string fileName, byte[] fileBytes)

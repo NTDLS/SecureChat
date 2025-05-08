@@ -31,6 +31,7 @@
             labelHeaderText = new Label();
             buttonCancel = new Button();
             progressBarCompletion = new ProgressBar();
+            labelWaitingStatus = new Label();
             SuspendLayout();
             // 
             // labelHeaderText
@@ -62,10 +63,20 @@
             progressBarCompletion.Size = new Size(223, 10);
             progressBarCompletion.TabIndex = 6;
             // 
+            // labelStatus
+            // 
+            labelWaitingStatus.AutoSize = true;
+            labelWaitingStatus.Location = new Point(9, 21);
+            labelWaitingStatus.Name = "labelStatus";
+            labelWaitingStatus.Size = new Size(131, 15);
+            labelWaitingStatus.TabIndex = 7;
+            labelWaitingStatus.Text = "Waiting on acceptance.";
+            // 
             // FlowControlFileTransmissionProgress
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(labelWaitingStatus);
             Controls.Add(progressBarCompletion);
             Controls.Add(labelHeaderText);
             Controls.Add(buttonCancel);
@@ -80,5 +91,6 @@
         private Label labelHeaderText;
         private Button buttonCancel;
         private ProgressBar progressBarCompletion;
+        private Label labelWaitingStatus;
     }
 }

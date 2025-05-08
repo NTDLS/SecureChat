@@ -25,6 +25,19 @@ namespace SecureChat.Client.Controls
 
             var fileNameOnly = Path.GetFileName(Transfer.FileName);
 
+            if (Transfer.IsImage)
+            {
+                //We will just start transferring images.
+                labelWaitingStatus.Visible = false;
+                progressBarCompletion.Visible = true;
+            }
+            else
+            {
+                //If this is not an image, then we are waiting on the remote client to accept it.
+                labelWaitingStatus.Visible = true;
+                progressBarCompletion.Visible = false;
+            }
+
             labelHeaderText.Text = $"{Formatters.FileSize(Transfer.FileSize)} {fileNameOnly}";
         }
 
@@ -50,6 +63,13 @@ namespace SecureChat.Client.Controls
             else if (value > 100)
             {
                 value = 100;
+            }
+
+            if (progressBarCompletion.Visible == false)
+            {
+                //We are no longer waiting on the remote client to accept the file.
+                labelWaitingStatus.Visible = false;
+                progressBarCompletion.Visible = true;
             }
 
             progressBarCompletion.Value = value;
