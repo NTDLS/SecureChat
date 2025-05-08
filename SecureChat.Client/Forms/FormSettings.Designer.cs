@@ -303,9 +303,9 @@ namespace SecureChat.Client.Forms
             checkBoxPlaySoundWhenContactComesOnline.AutoSize = true;
             checkBoxPlaySoundWhenContactComesOnline.Location = new Point(6, 56);
             checkBoxPlaySoundWhenContactComesOnline.Name = "checkBoxPlaySoundWhenContactComesOnline";
-            checkBoxPlaySoundWhenContactComesOnline.Size = new Size(215, 19);
+            checkBoxPlaySoundWhenContactComesOnline.Size = new Size(209, 19);
             checkBoxPlaySoundWhenContactComesOnline.TabIndex = 2;
-            checkBoxPlaySoundWhenContactComesOnline.Text = "Sound when contact comesOonline";
+            checkBoxPlaySoundWhenContactComesOnline.Text = "Sound when contact comes online";
             checkBoxPlaySoundWhenContactComesOnline.UseVisualStyleBackColor = true;
             // 
             // textBoxAutoAwayIdleSeconds
