@@ -1,4 +1,5 @@
-﻿using NTDLS.Permafrost;
+﻿using NTDLS.Helpers;
+using NTDLS.Permafrost;
 using SecureChat.Client.Audio;
 using SecureChat.Client.Controls;
 using SecureChat.Client.Forms;
@@ -77,9 +78,9 @@ namespace SecureChat.Client
             Form = ServerConnection.Current?.FormHome.CreateMessageForm(this)
                 ?? throw new Exception("Unable to create message form. Server connection is not established.");
 
-            var keepAliveThread = new Thread(() =>
+            new Thread(() =>
             {
-                while (!IsTerminated)
+                while (!IsTerminated && ServerConnection.Current?.ReliableClient.IsConnected == true)
                 {
                     try
                     {
@@ -87,18 +88,16 @@ namespace SecureChat.Client
                     }
                     catch (Exception ex)
                     {
-                        //TODO: Log or report
+                        Log.Error(ex, "Error sending session keep-alive notification.");
                     }
 
                     var breakTime = DateTime.UtcNow.AddSeconds(10);
-                    while (!IsTerminated && DateTime.UtcNow < breakTime)
+                    while (!IsTerminated && ServerConnection.Current?.ReliableClient.IsConnected == true && DateTime.UtcNow < breakTime)
                     {
                         Thread.Sleep(500);
                     }
                 }
-            });
-
-            keepAliveThread.Start();
+            }).Start();
         }
 
         public void Terminate()
@@ -108,9 +107,15 @@ namespace SecureChat.Client
                 return;
             }
             IsTerminated = true;
-            ServerConnection.Current?.ReliableClient.Notify(new TerminateChatNotification(SessionId, PeerConnectionId));
-            AppendSystemMessageLine($"Conversation has ended.");
-            StopAudioPump();
+
+            if (ServerConnection.Current?.ReliableClient?.IsConnected == true)
+            {
+                Exceptions.Ignore(() =>
+                ServerConnection.Current.ReliableClient.Notify(new TerminateChatNotification(SessionId, PeerConnectionId)));
+            }
+
+            Exceptions.Ignore(() => AppendSystemMessageLine($"Conversation has ended."));
+            Exceptions.Ignore(() => StopAudioPump());
         }
 
         public void ReceiveTextMessage(byte[] cipherText)

@@ -9,11 +9,17 @@ namespace SecureChat.Library.ReliableMessages
         public Version ClientVersion { get; set; }
         public byte[] PublicRsaKey { get; set; }
 
-        public ExchangePublicKeyQuery(Guid peerConnectionId, Version clientVersion, byte[] publicRsaKey)
+        public int RsaKeySize { get; set; }
+        public int AesKeySize { get; set; }
+
+
+        public ExchangePublicKeyQuery(Guid peerConnectionId, Version clientVersion, byte[] publicRsaKey, int rsaKeySize, int aesKeySize)
         {
             PeerConnectionId = peerConnectionId;
             PublicRsaKey = publicRsaKey;
             ClientVersion = clientVersion;
+            RsaKeySize = rsaKeySize;
+            AesKeySize = aesKeySize;
         }
     }
 

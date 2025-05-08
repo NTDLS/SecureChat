@@ -7,13 +7,20 @@ namespace SecureChat.Library
     {
         public PublicPrivateKeyPair PublicPrivateKeyPair { get; private set; }
 
-        public ReliableCryptographyProvider(byte[] publicRsaKey, byte[] privateRsaKey)
-            => PublicPrivateKeyPair = new PublicPrivateKeyPair(publicRsaKey, privateRsaKey);
+        public int RsaKeySize { get; private set; }
+        public int AesKeySize { get; private set; }
+
+        public ReliableCryptographyProvider(int rsaKeySize, int aesKeySize, byte[] publicRsaKey, byte[] privateRsaKey)
+        {
+            RsaKeySize = rsaKeySize;
+            AesKeySize = aesKeySize;
+            PublicPrivateKeyPair = new PublicPrivateKeyPair(publicRsaKey, privateRsaKey);
+        }
 
         public byte[] Decrypt(RmContext context, byte[] encryptedPayload)
-            => Crypto.AesDecryptBytes(encryptedPayload, PublicPrivateKeyPair.PrivateRsaKey);
+            => Crypto.AesDecryptBytes(RsaKeySize, encryptedPayload, PublicPrivateKeyPair.PrivateRsaKey);
 
         public byte[] Encrypt(RmContext context, byte[] payload)
-            => Crypto.AesEncryptBytes(payload, PublicPrivateKeyPair.PublicRsaKey);
+            => Crypto.AesEncryptBytes(RsaKeySize, AesKeySize, payload, PublicPrivateKeyPair.PublicRsaKey);
     }
 }

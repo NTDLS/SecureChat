@@ -378,7 +378,7 @@ namespace SecureChat.Client.Forms
                         var sessionId = Guid.NewGuid();
 
                         var compoundNegotiator = new CompoundNegotiator();
-                        var negotiationToken = compoundNegotiator.GenerateNegotiationToken((int)(Math.Ceiling(ScConstants.EndToEndKeySize / 128.0)));
+                        var negotiationToken = compoundNegotiator.GenerateNegotiationToken((int)(Math.Ceiling(Settings.Instance.SymmetricKeySize / 128.0)));
 
                         //The first thing we do when we get a connection is start a new key exchange process.
                         var queryRequestKeyExchangeReply = ServerConnection.Current.ReliableClient.Query(

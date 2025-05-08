@@ -507,8 +507,9 @@ namespace SecureChat.Server
                 if (param.ClientVersion < ScConstants.MinClientVersion)
                     throw new Exception($"Client version is unsupported, use version {ScConstants.MinClientVersion} or greater.");
 
-                var localPublicPrivateKeyPair = Crypto.GeneratePublicPrivateKeyPair();
-                _chatService.RegisterSession(context.ConnectionId, param.PeerConnectionId, new ReliableCryptographyProvider(param.PublicRsaKey, localPublicPrivateKeyPair.PrivateRsaKey));
+                var localPublicPrivateKeyPair = Crypto.GeneratePublicPrivateKeyPair(param.RsaKeySize);
+                _chatService.RegisterSession(context.ConnectionId, param.PeerConnectionId,
+                    new ReliableCryptographyProvider(param.RsaKeySize, param.AesKeySize, param.PublicRsaKey, localPublicPrivateKeyPair.PrivateRsaKey));
                 return new ExchangePublicKeyQueryReply(localPublicPrivateKeyPair.PublicRsaKey);
             }
             catch (Exception ex)

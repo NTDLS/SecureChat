@@ -40,6 +40,10 @@ namespace SecureChat.Client
         public int MaxMessages { get; set; } = ScConstants.DefaultMaxMessages;
         public int FileTransferChunkSize { get; set; } = ScConstants.DefaultFileTransferChunkSize;
 
+        public int RsaKeySize { get; set; } = ScConstants.DefaultRsaKeySize;
+        public int AesKeySize { get; set; } = ScConstants.DefaultAesKeySize;
+        public int SymmetricKeySize { get; set; } = ScConstants.DefaultSymmetricKeySize;
+
         public bool AlertToastWhenContactComesOnline { get; set; } = true;
         public bool AlertToastWhenMessageReceived { get; set; } = true;
         public bool PlaySoundWhenContactComesOnline { get; set; } = true;

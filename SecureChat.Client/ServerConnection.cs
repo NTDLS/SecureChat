@@ -4,6 +4,7 @@ using NTDLS.ReliableMessaging;
 using SecureChat.Client.Forms;
 using SecureChat.Library.DatagramMessages;
 using SecureChat.Library.Models;
+using Serilog;
 using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client
@@ -22,15 +23,7 @@ namespace SecureChat.Client
 
         public static void TerminateCurrent()
         {
-            if (Current != null)
-            {
-                Exceptions.Ignore(() => Current.IsTerminated = true);
-                Exceptions.Ignore(() => Current.DatagramClient.Stop());
-                //Task.Run(() => Exceptions.Ignore(() => Current.ReliableClient?.Disconnect())); //Do we need to do this?
-                Exceptions.Ignore(() => Current.ReliableClient?.Disconnect());
-                Exceptions.Ignore(() => Current.FormHome?.Close());
-            }
-
+            Exceptions.Ignore(() => Current?.Terminate());
             Current = null;
         }
 
@@ -58,9 +51,9 @@ namespace SecureChat.Client
 
             DatagramClient = Settings.Instance.CreateDmClient();
 
-            var keepAliveThread = new Thread(() =>
+            new Thread(() =>
             {
-                while (!IsTerminated)
+                while (!IsTerminated && ReliableClient.IsConnected == true)
                 {
                     try
                     {
@@ -68,18 +61,32 @@ namespace SecureChat.Client
                     }
                     catch (Exception ex)
                     {
-                        //TODO: Log or report
+                        Log.Error(ex, "Error sending connection keep-alive notification.");
                     }
 
                     var breakTime = DateTime.UtcNow.AddSeconds(10);
-                    while (!IsTerminated && DateTime.UtcNow < breakTime)
+                    while (!IsTerminated && ReliableClient.IsConnected == true && DateTime.UtcNow < breakTime)
                     {
                         Thread.Sleep(500);
                     }
                 }
-            });
+            }).Start();
+        }
 
-            keepAliveThread.Start();
+        public void Terminate()
+        {
+            foreach (var activeChat in ActiveChats)
+            {
+                activeChat.Value.Terminate();
+                Exceptions.Ignore(() => activeChat.Value.Form.Close(true));
+
+            }
+            ActiveChats.Clear();
+
+            Exceptions.Ignore(() => IsTerminated = true);
+            Exceptions.Ignore(() => DatagramClient.Stop());
+            Exceptions.Ignore(() => ReliableClient?.Disconnect(false));
+            Exceptions.Ignore(() => FormHome?.Close());
         }
 
         public ActiveChat AddActiveChat(Guid sessionId, Guid peerConnectionId, Guid accountId, string displayName, byte[] sharedSecret)

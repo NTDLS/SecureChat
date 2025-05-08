@@ -11,7 +11,8 @@ namespace SecureChat.Client.Forms
         private readonly int DefaultHeight = 550;
         private readonly int DefaultWidth = 550;
         private readonly ActiveChat _activeChat;
-        private bool _closing = false;
+        private bool _isFormClosing = false;
+        private readonly System.Windows.Forms.Timer _timer;
 
         public FlowLayoutPanel FlowPanel => flowPanel;
 
@@ -27,12 +28,15 @@ namespace SecureChat.Client.Forms
 
                 FormClosing += (object? sender, FormClosingEventArgs e) =>
                 {
-                    if (ServerConnection.Current == null || _activeChat.IsTerminated || !ServerConnection.Current.ReliableClient.IsConnected)
+                    if (_isFormClosing || ServerConnection.Current == null || _activeChat.IsTerminated || !ServerConnection.Current.ReliableClient.IsConnected)
                     {
-                        _closing = true;
+                        _timer?.Stop();
+                        _timer?.Dispose();
+                        _isFormClosing = true;
                         return; //Close the dialog.
                     }
 
+                    //Just hide the form because we keep the session alive until the user explicitly terminates it.
                     e.Cancel = true;
                     Hide();
                 };
@@ -53,14 +57,14 @@ namespace SecureChat.Client.Forms
                 Shown += (object? sender, EventArgs e) => textBoxMessage.Focus();
                 Activated += (object? sender, EventArgs e) => Exceptions.Ignore(() =>
                 {
-                    if (!_closing)
+                    if (!_isFormClosing)
                     {
                         Opacity = 1.0;
                     }
                 });
                 Deactivate += (object? sender, EventArgs e) => Exceptions.Ignore(() =>
                 {
-                    if (!_closing)
+                    if (!_isFormClosing)
                     {
                         Opacity = 1.0;
                     }
@@ -74,12 +78,12 @@ namespace SecureChat.Client.Forms
                 flowPanel.DragDrop += TextBoxMessage_DragDrop;
                 textBoxMessage.Focus();
 
-                var timer = new System.Windows.Forms.Timer
+                _timer = new System.Windows.Forms.Timer
                 {
                     Interval = 5000,
                     Enabled = true
                 };
-                timer.Tick += Timer_Tick;
+                _timer.Tick += Timer_Tick;
 
                 _activeChat.AppendSuccessMessageLine($"Conversation with {_activeChat.DisplayName} started.");
             }
@@ -88,6 +92,18 @@ namespace SecureChat.Client.Forms
                 Log.Fatal($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 throw;
             }
+        }
+
+        public void Close(bool force)
+        {
+            if(InvokeRequired)
+            {
+                Invoke(new Action(() => Close(force)));
+                return;
+            }
+
+            _isFormClosing = true;
+            Close();
         }
 
         public void ToggleVoiceCallButtons(bool isCallingEnabled)

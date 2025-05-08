@@ -76,14 +76,15 @@ namespace SecureChat.Client.Forms
                     {
                         progressForm.SetHeaderText("Negotiating cryptography...");
 
-                        var keyPair = Crypto.GeneratePublicPrivateKeyPair();
+                        var keyPair = Crypto.GeneratePublicPrivateKeyPair(Settings.Instance.RsaKeySize);
                         var client = Settings.Instance.CreateRmClient();
                         client.OnException += Client_OnException;
 
                         var appVersion = (Assembly.GetEntryAssembly()?.GetName().Version).EnsureNotNull();
 
                         //Send our public key to the server and wait on a reply of their public key.
-                        var remotePublicKey = client.Query(new ExchangePublicKeyQuery(client.ConnectionId.EnsureNotNull(), appVersion, keyPair.PublicRsaKey))
+                        var remotePublicKey = client.Query(new ExchangePublicKeyQuery(client.ConnectionId.EnsureNotNull(),
+                            appVersion, keyPair.PublicRsaKey, Settings.Instance.RsaKeySize, Settings.Instance.AesKeySize))
                             .ContinueWith(o =>
                             {
                                 if (o.IsFaulted || !o.Result.IsSuccess)
@@ -97,7 +98,8 @@ namespace SecureChat.Client.Forms
                         progressForm.SetHeaderText("Applying cryptography...");
 
                         client.Notify(new InitializeServerClientCryptographyNotification());
-                        client.SetCryptographyProvider(new ReliableCryptographyProvider(remotePublicKey, keyPair.PrivateRsaKey));
+                        client.SetCryptographyProvider(new ReliableCryptographyProvider(
+                            Settings.Instance.RsaKeySize, Settings.Instance.AesKeySize, remotePublicKey, keyPair.PrivateRsaKey));
 
                         progressForm.SetHeaderText("Waiting for server...");
                         Thread.Sleep(1000); //Give the server a moment to initialize the cryptography.

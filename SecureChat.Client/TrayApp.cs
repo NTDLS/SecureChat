@@ -132,14 +132,15 @@ namespace SecureChat.Client
                     {
                         Task.Run(() =>
                         {
-                            var keyPair = Crypto.GeneratePublicPrivateKeyPair();
+                            var keyPair = Crypto.GeneratePublicPrivateKeyPair(Settings.Instance.RsaKeySize);
                             var rmClient = Settings.Instance.CreateRmClient();
                             rmClient.OnException += Client_OnException;
 
                             var appVersion = (Assembly.GetEntryAssembly()?.GetName().Version).EnsureNotNull();
 
                             //Send our public key to the server and wait on a reply of their public key.
-                            var remotePublicKey = rmClient.Query(new ExchangePublicKeyQuery(rmClient.ConnectionId.EnsureNotNull(), appVersion, keyPair.PublicRsaKey))
+                            var remotePublicKey = rmClient.Query(new ExchangePublicKeyQuery(rmClient.ConnectionId.EnsureNotNull(), appVersion,
+                                keyPair.PublicRsaKey, Settings.Instance.RsaKeySize, Settings.Instance.AesKeySize))
                                 .ContinueWith(o =>
                                 {
                                     if (o.IsFaulted || !o.Result.IsSuccess)
@@ -151,7 +152,8 @@ namespace SecureChat.Client
                                 }).Result;
 
                             rmClient.Notify(new InitializeServerClientCryptographyNotification());
-                            rmClient.SetCryptographyProvider(new ReliableCryptographyProvider(remotePublicKey, keyPair.PrivateRsaKey));
+                            rmClient.SetCryptographyProvider(new ReliableCryptographyProvider(
+                                Settings.Instance.RsaKeySize, Settings.Instance.AesKeySize, remotePublicKey, keyPair.PrivateRsaKey));
 
                             Thread.Sleep(1000); //Give the server a moment to initialize the cryptography.
 

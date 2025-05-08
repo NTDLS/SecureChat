@@ -7,16 +7,16 @@ namespace SecureChat.Library
         public static readonly string[] ImageFileTypes = { ".bmp", ".jpg", ".jpeg", ".png", ".gif" };
 
         public const float DefaultFontSize = 10.0f;
-        public const int AesKeySize = 256;
+        public const int DefaultAesKeySize = 256;
         public const int DefaultAutoAwayIdleSeconds = 600;
         public const int DefaultFileTransferChunkSize = 1024 * 8;
         public const int DefaultMaxMessages = 100;
         public const int DefaultMaxFileDrops = 10;
         public const int DefaultServerPort = 13265;
-        public const int EndToEndKeySize = 4096;
+        public const int DefaultSymmetricKeySize = 4096;
         public const int MinPasswordLength = 8;
         public const int OfflineLastSeenSeconds = 60;
-        public const int RsaKeySize = 4096;
+        public const int DefaultRsaKeySize = 4096;
         public const string AppName = "Secure Chat";
         public const string DefaultFont = "Cascadia Mono SemiLight";
         public const string DefaultServerAddress = "securechat.ntdls.com";
