@@ -6,6 +6,8 @@ namespace SecureChat.Client
     {
         public Guid FileId { get; private set; }
         public long FileSize { get; private set; }
+        public long ReceivedByteCount { get; set; }
+        public int PercentComplete => (int)((ReceivedByteCount / (double)FileSize) * 100.0);
 
         /// <summary>
         /// Name of the file as reported by the sender.
@@ -46,6 +48,7 @@ namespace SecureChat.Client
 
         public void AppendData(byte[] data)
         {
+            ReceivedByteCount += data.Length;
             _stream.Write(data, 0, data.Length);
         }
 

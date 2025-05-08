@@ -1,4 +1,5 @@
 ﻿using NTDLS.Helpers;
+using System.ComponentModel;
 
 namespace SecureChat.Client.Controls
 {
@@ -6,22 +7,25 @@ namespace SecureChat.Client.Controls
     {
         private readonly FlowLayoutPanel _parent;
         private readonly ActiveChat _activeChat;
-        private readonly Guid _fileId;
-        private readonly string _fileName;
-        private readonly long _fileSize;
-        private readonly bool _isImage;
 
-        public string FileName => _fileName;
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Guid FileId { get; private set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public string FileName { get; private set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public long FileSize { get; private set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool IsImage { get; private set; }
 
         public FlowControlFileTransmissionRequest(FlowLayoutPanel parent, ActiveChat activeChat, string fromName,
             Guid fileId, string fileName, long fileSize, bool isImage, Color color)
         {
             _activeChat = activeChat;
             _parent = parent;
-            _fileId = fileId;
-            _fileName = fileName;
-            _fileSize = fileSize;
-            _isImage = isImage;
+            FileId = fileId;
+            FileName = fileName;
+            FileSize = fileSize;
+            IsImage = isImage;
 
             InitializeComponent();
 
@@ -36,15 +40,17 @@ namespace SecureChat.Client.Controls
             using var sfd = new SaveFileDialog();
             sfd.Filter = $"{ext} Files|*.{ext}| All Files (*.*)|*.*";
             sfd.Title = "Save Attachment As";
-            sfd.FileName = _fileName;
+            sfd.FileName = FileName;
 
             if (sfd.ShowDialog() == DialogResult.OK)
             {
                 buttonAccept.Enabled = false;
                 buttonDecline.Enabled = false;
 
-                _activeChat.FileReceiveBuffers.Add(_fileId, new FileReceiveBuffer(_fileId, _fileName, _fileSize, _isImage, sfd.FileName));
-                _activeChat.AcceptFileTransmission(_fileId);
+                //Add the receive control to the chat with the path of the file.
+                var control = _activeChat.AppendFileTransmissionReceiveProgress(FileId, FileName, FileSize, IsImage, sfd.FileName);
+                _activeChat.InboundFileTransfers.Add(FileId, control);
+                _activeChat.AcceptFileTransmission(FileId);
             }
         }
 

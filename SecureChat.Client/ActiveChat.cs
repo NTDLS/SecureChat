@@ -47,8 +47,8 @@ namespace SecureChat.Client
         /// </summary>
         public Guid PeerConnectionId { get; private set; }
 
-        public Dictionary<Guid, FileReceiveBuffer> FileReceiveBuffers { get; set; } = new();
-        public Dictionary<Guid, IFileTransmissionControl> OutboundFileTransfers { get; set; } = new();
+        public Dictionary<Guid, FlowControlFileTransmissionReceiveProgress> InboundFileTransfers { get; set; } = new();
+        public Dictionary<Guid, FlowControlFileTransmissionSendProgress> OutboundFileTransfers { get; set; } = new();
         public DateTime? LastMessageReceived { get; set; }
 
         /// <summary>
@@ -265,7 +265,7 @@ namespace SecureChat.Client
         /// Remote client has sent a request for a file transmission.
         /// Show the user a message to accept or decline the file.
         /// </summary>
-        public void ReceiveFileRequestMessage(Guid fileId, string fileName, long fileSize, bool isImage)
+        public void ReceiveFileTransferRequestMessage(Guid fileId, string fileName, long fileSize, bool isImage)
         {
             if (IsTerminated)
             {
@@ -312,7 +312,7 @@ namespace SecureChat.Client
         public void DeclineFileTransmission(FlowControlFileTransmissionRequest ftc)
         {
             AppendSystemMessageLine($"File transfer '{ftc.FileName}' declined.");
-            ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionDeclineRequestNotification(SessionId, PeerConnectionId, fileId));
+            ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionDeclineRequestNotification(SessionId, PeerConnectionId, ftc.FileId));
         }
 
         /// <summary>
@@ -368,10 +368,6 @@ namespace SecureChat.Client
         private void TransmitFileAsync(string fileName, long fileSize, Stream stream)
         {
             var ftc = AppendFileTransmissionSendProgress(fileName, fileSize, stream);
-            if (ftc == null)
-            {
-                return;
-            }
             OutboundFileTransfers.Add(ftc.Transfer.FileId, ftc);
 
             if (ftc.Transfer.IsImage)
@@ -388,7 +384,7 @@ namespace SecureChat.Client
             }
         }
 
-        private void TransmitFileChunks(IFileTransmissionControl ftc)
+        private void TransmitFileChunks(FlowControlFileTransmissionSendProgress ftc)
         {
             try
             {
@@ -563,14 +559,14 @@ namespace SecureChat.Client
         /// Adds a control to monitor the inbound file transmission progress.
         /// </summary>
         /// <returns></returns>
-        public IFileTransmissionControl? AppendFileTransmissionReceiveProgress(string fileName, long fileSize)
+        public FlowControlFileTransmissionReceiveProgress AppendFileTransmissionReceiveProgress(Guid fileId, string fileName, long fileSize, bool isImage, string? saveAsFileName = null)
         {
             if (Form == null || Form.FlowPanel == null)
             {
-                return null;
+                throw new Exception("Form is not initialized.");
             }
 
-            var control = new FlowControlFileTransmissionReceiveProgress(Form.FlowPanel, this, fileName, fileSize);
+            var control = new FlowControlFileTransmissionReceiveProgress(Form.FlowPanel, this, fileId, fileName, fileSize, isImage, saveAsFileName);
             AppendFlowControl(control);
 
             return control;
@@ -580,11 +576,11 @@ namespace SecureChat.Client
         /// Adds a control to monitor the outbound file transmission progress.
         /// </summary>
         /// <returns></returns>
-        public IFileTransmissionControl? AppendFileTransmissionSendProgress(string fileName, long fileSize, Stream stream)
+        public FlowControlFileTransmissionSendProgress AppendFileTransmissionSendProgress(string fileName, long fileSize, Stream stream)
         {
             if (Form == null || Form.FlowPanel == null)
             {
-                return null;
+                throw new Exception("Form is not initialized.");
             }
 
             var control = new FlowControlFileTransmissionSendProgress(Form.FlowPanel, this, fileName, fileSize, stream);

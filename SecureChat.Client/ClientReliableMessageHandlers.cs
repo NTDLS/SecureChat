@@ -59,10 +59,7 @@ namespace SecureChat.Client
             {
                 var activeChat = VerifyAndActiveChat(context, param.SessionId);
 
-                activeChat.AppendFileTransmissionSendProgress(Path.GetFileName(param.FileName), param.FileSize);
-
-
-                activeChat.ReceiveFileRequestMessage(param.FileId, param.FileName, param.FileSize, param.IsImage);
+                activeChat.ReceiveFileTransferRequestMessage(param.FileId, param.FileName, param.FileSize, param.IsImage);
             }
             catch (Exception ex)
             {
@@ -170,7 +167,7 @@ namespace SecureChat.Client
             try
             {
                 var activeChat = VerifyAndActiveChat(context, param.SessionId);
-                activeChat.FileReceiveBuffers.Remove(param.FileId);
+                activeChat.InboundFileTransfers.Remove(param.FileId);
             }
             catch (Exception ex)
             {
@@ -186,9 +183,10 @@ namespace SecureChat.Client
             try
             {
                 var activeChat = VerifyAndActiveChat(context, param.SessionId);
-                if (activeChat.FileReceiveBuffers.ContainsKey(param.FileId) == false)
+                if (activeChat.InboundFileTransfers.ContainsKey(param.FileId) == false)
                 {
-                    activeChat.FileReceiveBuffers.Add(param.FileId, new FileReceiveBuffer(param.FileId, param.FileName, param.FileSize, param.IsImage));
+                    var control = activeChat.AppendFileTransmissionReceiveProgress(param.FileId, param.FileName, param.FileSize, param.IsImage);
+                    activeChat.InboundFileTransfers.Add(param.FileId, control);
                 }
 
                 return new FileTransmissionBeginQueryReply();
@@ -209,9 +207,10 @@ namespace SecureChat.Client
             {
                 var activeChat = VerifyAndActiveChat(context, param.SessionId);
 
-                if (activeChat.FileReceiveBuffers.TryGetValue(param.FileId, out var buffer))
+                if (activeChat.InboundFileTransfers.TryGetValue(param.FileId, out var control))
                 {
-                    buffer.AppendData(activeChat.Cipher(param.Bytes));
+                    control.Transfer.AppendData(activeChat.Cipher(param.Bytes));
+                    control.SetProgressValue(control.Transfer.PercentComplete);
                     return new FileTransmissionChunkQueryReply();
                 }
                 else
@@ -235,21 +234,22 @@ namespace SecureChat.Client
             {
                 var activeChat = VerifyAndActiveChat(context, param.SessionId);
 
-                if (activeChat.FileReceiveBuffers.TryGetValue(param.FileId, out var buffer))
+                if (activeChat.InboundFileTransfers.TryGetValue(param.FileId, out var control))
                 {
-                    if (buffer.IsImage)
+                    if (control.Transfer.IsImage)
                     {
                         //The file is an image, so we need to display it.
-                        activeChat.ReceiveImageMessage(buffer.GetFileBytes());
+                        activeChat.ReceiveImageMessage(control.Transfer.GetFileBytes());
+                        //control.Remove(); //We should probably remove these controls when finished.
                     }
                     else
                     {
                         //The file is not an image, so we need to show the control with a link to the local file.
-                        //TODO: Show the control.
+                        //control.Remove(); //We should probably remove these controls when finished.
                     }
 
-                    buffer.Dispose();
-                    activeChat.FileReceiveBuffers.Remove(param.FileId);
+                    control.Remove();
+                    activeChat.InboundFileTransfers.Remove(param.FileId);
                 }
                 else
                 {

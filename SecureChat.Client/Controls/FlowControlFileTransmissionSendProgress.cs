@@ -4,7 +4,7 @@ using System.ComponentModel;
 namespace SecureChat.Client.Controls
 {
     internal partial class FlowControlFileTransmissionSendProgress
-        : UserControl, IFileTransmissionControl
+        : UserControl
     {
         private readonly FlowLayoutPanel _parent;
         private readonly ActiveChat _activeChat;
