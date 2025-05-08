@@ -1,4 +1,4 @@
-﻿using static System.Runtime.InteropServices.JavaScript.JSType;
+﻿using NTDLS.Helpers;
 
 namespace SecureChat.Client
 {
@@ -18,6 +18,9 @@ namespace SecureChat.Client
 
         private readonly Stream _stream;
 
+        /// <summary>
+        /// Buffered file data.
+        /// </summary>
         public FileReceiveBuffer(Guid fileId, string fileName, long fileSize, bool isImage)
         {
             FileId = fileId;
@@ -26,6 +29,19 @@ namespace SecureChat.Client
             IsImage = isImage;
 
             _stream = new MemoryStream();
+        }
+
+        /// <summary>
+        /// Physical file data.
+        /// </summary>
+        public FileReceiveBuffer(Guid fileId, string fileName, long fileSize, bool isImage, string saveAsFileName)
+        {
+            FileId = fileId;
+            FileName = fileName;
+            FileSize = fileSize;
+            IsImage = isImage;
+
+            _stream = new FileStream(saveAsFileName, FileMode.Create, FileAccess.Write);
         }
 
         public void AppendData(byte[] data)
@@ -50,7 +66,9 @@ namespace SecureChat.Client
 
         public void Dispose()
         {
-            _stream.Dispose();
+            Exceptions.Ignore(() => _stream.Flush());
+            Exceptions.Ignore(() => _stream.Close());
+            Exceptions.Ignore(() => _stream.Dispose());
         }
     }
 }

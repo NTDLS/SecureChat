@@ -382,6 +382,44 @@ namespace SecureChat.Server
         }
 
         /// <summary>
+        /// A client is letting the server know that they are accepting a file transmission request.
+        /// Route the message to the appropriate connection.
+        /// </summary>
+        public void FileTransmissionAcceptRequestNotification(RmContext context, FileTransmissionAcceptRequestNotification param)
+        {
+            try
+            {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+                _chatService.RmServer.Notify(param.PeerConnectionId, param);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// A client is letting the server know that they are declining a file transmission request.
+        /// Route the message to the appropriate connection.
+        /// </summary>
+        public void FileTransmissionDeclineRequestNotification(RmContext context, FileTransmissionDeclineRequestNotification param)
+        {
+            try
+            {
+                if (context.GetCryptographyProvider() == null)
+                    throw new Exception("Cryptography has not been initialized.");
+
+                _chatService.RmServer.Notify(param.PeerConnectionId, param);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
         /// A client is sending a message to another client.
         /// Route the message to the appropriate connection.
         /// </summary>

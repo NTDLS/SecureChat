@@ -262,6 +262,20 @@ namespace SecureChat.Client
         #region File Transmission.
 
         /// <summary>
+        /// Remote client has sent a request for a file transmission.
+        /// Show the user a message to accept or decline the file.
+        /// </summary>
+        public void ReceiveFileRequestMessage(Guid fileId, string fileName, long fileSize, bool isImage)
+        {
+            if (IsTerminated)
+            {
+                return;
+            }
+
+            AppendFileTransferRequestMessage(DisplayName, fileId, fileName, fileSize, isImage, true, ScConstants.FromRemoteColor);
+        }
+
+        /// <summary>
         /// A file transfer was completed for an image, show it to the user.
         /// </summary>
         public void ReceiveImageMessage(byte[] imageBytes)
@@ -274,13 +288,31 @@ namespace SecureChat.Client
             AppendImageMessage(DisplayName, imageBytes, true, ScConstants.FromRemoteColor);
         }
 
-
         /// <summary>
         /// Tell the remote client that we are canceling the file transmission.
         /// </summary>
         public void CancelFileTransmission(Guid fileId)
         {
             ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionCancelNotification(SessionId, PeerConnectionId, fileId));
+        }
+
+        /// <summary>
+        /// Tell the remote client that we are accepting the file transmission.
+        /// </summary>
+        /// <param name="fileId"></param>
+        public void AcceptFileTransmission(Guid fileId)
+        {
+            ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionAcceptRequestNotification(SessionId, PeerConnectionId, fileId));
+        }
+
+        /// <summary>
+        /// Tell the remote client that we are declining the file transmission.
+        /// </summary>
+        /// <param name="fileId"></param>
+        public void DeclineFileTransmission(FlowControlFileTransmissionRequest ftc)
+        {
+            AppendSystemMessageLine($"File transfer '{ftc.FileName}' declined.");
+            ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionDeclineRequestNotification(SessionId, PeerConnectionId, fileId));
         }
 
         /// <summary>
@@ -294,9 +326,25 @@ namespace SecureChat.Client
             }
             else
             {
-                AppendErrorLine($"Accepted file transmission not found.");
+                AppendErrorLine($"Accepted file transfer not found.");
                 //Tell the remote client that we are canceling the file transmission.
                 CancelFileTransmission(fileId);
+            }
+        }
+
+        /// <summary>
+        /// The remote client has declined the file transmission.
+        /// </summary>
+        public void FileTransmissionDeclined(Guid fileId)
+        {
+            if (OutboundFileTransfers.TryGetValue(fileId, out var ftc))
+            {
+                ftc.Remove();
+                AppendSystemMessageLine($"File transfer '{ftc.Transfer.FileName}' declined.");
+            }
+            else
+            {
+                AppendErrorLine($"Accepted file transfer not found.");
             }
         }
 
@@ -383,24 +431,23 @@ namespace SecureChat.Client
                             }
                             else
                             {
-                                AppendSystemMessageLine($"File '{ftc.Transfer.FileName}' transmitted successfully.", Color.Green);
+                                AppendSystemMessageLine($"File '{Path.GetFileName(ftc.Transfer.FileName)}' transferred successfully.");
                             }
                         }
                         else
                         {
-                            AppendErrorLine($"Failed to transmit file '{ftc.Transfer.FileName}'.", Color.Red);
+                            AppendErrorLine($"Failed to transfer file '{Path.GetFileName(ftc.Transfer.FileName)}'.");
                         }
                     });
                 }
                 else
                 {
-                    AppendSystemMessageLine($"File transmission canceled.", Color.Red);
+                    AppendSystemMessageLine($"File transfer canceled.", Color.Red);
                 }
-
             }
             catch (Exception ex)
             {
-                AppendErrorLine($"Error transmitting file: {ex.Message}", Color.Red);
+                AppendErrorLine($"Error transferring file: {ex.Message}", Color.Red);
             }
             finally
             {
@@ -441,7 +488,43 @@ namespace SecureChat.Client
             }
         }
 
-        public void AppendImageMessage(string fromName, byte[] imageBytes, bool playNotifications, Color color)
+        private void AppendFileTransferRequestMessage(string fromName, Guid fileId,
+            string fileName, long fileSize, bool isImage, bool playNotifications, Color color)
+        {
+            try
+            {
+                if (Form == null || Form.FlowPanel == null)
+                {
+                    return;
+                }
+
+                AppendFlowControl(new FlowControlFileTransmissionRequest(Form.FlowPanel, this, fromName, fileId, fileName, fileSize, isImage, color));
+
+                Form.Invoke(() =>
+                {
+                    if (Form.Visible == false)
+                    {
+                        //We want to show the dialog, but keep it minimized so that it does not jump in front of the user.
+                        Form.WindowState = FormWindowState.Minimized;
+                        Form.Visible = true;
+                    }
+
+                    if (playNotifications)
+                    {
+                        if (WindowFlasher.FlashWindow(Form))
+                        {
+                            Notifications.MessageReceived(fromName);
+                        }
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                AppendErrorLine(ex);
+            }
+        }
+
+        private void AppendImageMessage(string fromName, byte[] imageBytes, bool playNotifications, Color color)
         {
             try
             {

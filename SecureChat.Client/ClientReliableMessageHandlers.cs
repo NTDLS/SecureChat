@@ -17,6 +17,38 @@ namespace SecureChat.Client
         }
 
         /// <summary>
+        /// A client is letting us know that they are accepting a file transmission request.
+        /// </summary>
+        public void FileTransmissionAcceptRequestNotification(RmContext context, FileTransmissionAcceptRequestNotification param)
+        {
+            try
+            {
+                var activeChat = VerifyAndActiveChat(context, param.SessionId);
+                activeChat.FileTransmissionAccepted(param.FileId);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// A client is letting us know that they are declining a file transmission request.
+        /// </summary>
+        public void FileTransmissionDeclineRequestNotification(RmContext context, FileTransmissionDeclineRequestNotification param)
+        {
+            try
+            {
+                var activeChat = VerifyAndActiveChat(context, param.SessionId);
+                activeChat.FileTransmissionDeclined(param.FileId);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
         /// Remote client is requesting that another client accept a large or binary file
         /// where we need to give the remote client a chance to select a save location.
         /// </summary>
@@ -25,13 +57,7 @@ namespace SecureChat.Client
             try
             {
                 var activeChat = VerifyAndActiveChat(context, param.SessionId);
-
-                //TODO: Show a dialog to the user to select a file location.
-                //if (accepted)
-                {
-                    activeChat.FileReceiveBuffers.Add(param.FileId, new FileReceiveBuffer(param.FileId, param.FileName, param.FileSize, param.IsImage));
-                }
-
+                activeChat.ReceiveFileRequestMessage(param.FileId, param.FileName, param.FileSize, param.IsImage);
             }
             catch (Exception ex)
             {
