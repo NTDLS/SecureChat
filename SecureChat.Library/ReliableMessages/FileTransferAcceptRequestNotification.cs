@@ -2,7 +2,7 @@
 
 namespace SecureChat.Library.ReliableMessages
 {
-    public class FileTransmissionAcceptRequestNotification
+    public class FileTransferAcceptRequestNotification
         : IRmNotification
     {
         public Guid FileId { get; set; }
@@ -19,7 +19,7 @@ namespace SecureChat.Library.ReliableMessages
         /// </summary>
         public Guid SessionId { get; set; }
 
-        public FileTransmissionAcceptRequestNotification(Guid sessionId, Guid peerConnectionId, Guid fileId)
+        public FileTransferAcceptRequestNotification(Guid sessionId, Guid peerConnectionId, Guid fileId)
         {
             SessionId = sessionId;
             PeerConnectionId = peerConnectionId;

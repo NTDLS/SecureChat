@@ -2,8 +2,8 @@
 
 namespace SecureChat.Library.ReliableMessages
 {
-    public class FileTransmissionEndQuery
-        : IRmQuery<FileTransmissionEndQueryReply>
+    public class FileTransferCancelNotification
+        : IRmNotification
     {
         public Guid FileId { get; set; }
 
@@ -18,29 +18,11 @@ namespace SecureChat.Library.ReliableMessages
         /// </summary>
         public Guid SessionId { get; set; }
 
-        public FileTransmissionEndQuery(Guid sessionId, Guid peerConnectionId, Guid fileId)
+        public FileTransferCancelNotification(Guid sessionId, Guid peerConnectionId, Guid fileId)
         {
             SessionId = sessionId;
             PeerConnectionId = peerConnectionId;
             FileId = fileId;
-        }
-    }
-
-    public class FileTransmissionEndQueryReply
-    : IRmQueryReply
-    {
-        public bool IsSuccess { get; set; }
-        public string? ErrorMessage { get; set; }
-
-        public FileTransmissionEndQueryReply(Exception exception)
-        {
-            IsSuccess = false;
-            ErrorMessage = exception.GetBaseException().Message;
-        }
-
-        public FileTransmissionEndQueryReply()
-        {
-            IsSuccess = true;
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace SecureChat.Client.Controls
 {
-    partial class FlowControlFileTransmissionReceiveProgress
+    partial class FlowControlFileTransferSendProgress
     {
         /// <summary> 
         /// Required designer variable.
@@ -72,7 +72,7 @@
             labelWaitingStatus.TabIndex = 7;
             labelWaitingStatus.Text = "Waiting on acceptance.";
             // 
-            // FlowControlFileTransmissionProgress
+            // FlowControlFileTransferProgress
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -80,7 +80,7 @@
             Controls.Add(progressBarCompletion);
             Controls.Add(labelHeaderText);
             Controls.Add(buttonCancel);
-            Name = "FlowControlFileTransmissionProgress";
+            Name = "FlowControlFileTransferProgress";
             Size = new Size(400, 65);
             ResumeLayout(false);
             PerformLayout();

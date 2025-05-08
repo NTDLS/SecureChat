@@ -1,6 +1,6 @@
 ﻿namespace SecureChat.Client.Controls
 {
-    partial class FlowControlFileTransmissionRequest
+    partial class FlowControlFileTransferRequest
     {
         /// <summary> 
         /// Required designer variable.
@@ -76,7 +76,7 @@
             labelFileName.TabIndex = 6;
             labelFileName.Text = "label1";
             // 
-            // FlowControlFileTransmissionRequest
+            // FlowControlFileTransferRequest
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -84,7 +84,7 @@
             Controls.Add(labelHeader);
             Controls.Add(buttonDecline);
             Controls.Add(buttonAccept);
-            Name = "FlowControlFileTransmissionRequest";
+            Name = "FlowControlFileTransferRequest";
             Size = new Size(400, 70);
             ResumeLayout(false);
             PerformLayout();

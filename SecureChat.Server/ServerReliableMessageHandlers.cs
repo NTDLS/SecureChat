@@ -243,7 +243,7 @@ namespace SecureChat.Server
         /// <summary>
         /// Client has requested that a file transfer be cancelled.
         /// </summary>
-        public void FileTransmissionCancelNotification(RmContext context, FileTransmissionCancelNotification param)
+        public void FileTransferCancelNotification(RmContext context, FileTransferCancelNotification param)
         {
             try
             {
@@ -260,7 +260,7 @@ namespace SecureChat.Server
         /// A client is beginning to transmit a file.
         /// Route the message to the appropriate connection.
         /// </summary>
-        public FileTransmissionBeginQueryReply FileTransmissionBeginQuery(RmContext context, FileTransmissionBeginQuery param)
+        public FileTransferBeginQueryReply FileTransferBeginQuery(RmContext context, FileTransferBeginQuery param)
         {
             try
             {
@@ -270,7 +270,7 @@ namespace SecureChat.Server
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new FileTransmissionBeginQueryReply(ex);
+                return new FileTransferBeginQueryReply(ex);
             }
         }
 
@@ -278,7 +278,7 @@ namespace SecureChat.Server
         /// A client transmitting a file chunk.
         /// Route the message to the appropriate connection.
         /// </summary>
-        public FileTransmissionChunkQueryReply FileTransmissionChunkQuery(RmContext context, FileTransmissionChunkQuery param)
+        public FileTransferChunkQueryReply FileTransferChunkQuery(RmContext context, FileTransferChunkQuery param)
         {
             try
             {
@@ -289,7 +289,7 @@ namespace SecureChat.Server
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new FileTransmissionChunkQueryReply(ex);
+                return new FileTransferChunkQueryReply(ex);
             }
         }
 
@@ -297,7 +297,7 @@ namespace SecureChat.Server
         /// A client has finished transmitting a file.
         /// Route the message to the appropriate connection.
         /// </summary>
-        public FileTransmissionEndQueryReply FileTransmissionEndQuery(RmContext context, FileTransmissionEndQuery param)
+        public FileTransferEndQueryReply FileTransferEndQuery(RmContext context, FileTransferCompleteQuery param)
         {
             try
             {
@@ -308,7 +308,7 @@ namespace SecureChat.Server
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new FileTransmissionEndQueryReply(ex);
+                return new FileTransferEndQueryReply(ex);
             }
         }
 
@@ -316,7 +316,7 @@ namespace SecureChat.Server
         /// Remote client is requesting that another client accept a large or binary file
         /// where we need to give the remote client a chance to select a save location.
         /// </summary>
-        public void FileTransmissionBeginRequestNotification(RmContext context, FileTransmissionBeginRequestNotification param)
+        public void FileTransferBeginRequestNotification(RmContext context, FileTransferBeginRequestNotification param)
         {
             try
             {
@@ -382,10 +382,10 @@ namespace SecureChat.Server
         }
 
         /// <summary>
-        /// A client is letting the server know that they are accepting a file transmission request.
+        /// A client is letting the server know that they are accepting a file transfer request.
         /// Route the message to the appropriate connection.
         /// </summary>
-        public void FileTransmissionAcceptRequestNotification(RmContext context, FileTransmissionAcceptRequestNotification param)
+        public void FileTransferAcceptRequestNotification(RmContext context, FileTransferAcceptRequestNotification param)
         {
             try
             {
@@ -401,10 +401,10 @@ namespace SecureChat.Server
         }
 
         /// <summary>
-        /// A client is letting the server know that they are declining a file transmission request.
+        /// A client is letting the server know that they are declining a file transfer request.
         /// Route the message to the appropriate connection.
         /// </summary>
-        public void FileTransmissionDeclineRequestNotification(RmContext context, FileTransmissionDeclineRequestNotification param)
+        public void FileTransferDeclineRequestNotification(RmContext context, FileTransferDeclineRequestNotification param)
         {
             try
             {

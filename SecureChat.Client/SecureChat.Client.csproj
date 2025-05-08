@@ -41,16 +41,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Controls\FlowControlFileTransmissionReceiveProgress.cs">
+    <Compile Update="Controls\FlowControlFileTransferReceiveProgress.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="Controls\FlowControlHyperlink.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Controls\FlowControlFileTransmissionSendProgress.cs">
+    <Compile Update="Controls\FlowControlFileTransferSendProgress.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Controls\FlowControlFileTransmissionRequest.cs">
+    <Compile Update="Controls\FlowControlFileTransferRequest.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="Controls\FlowControlOutgoingCall.cs">

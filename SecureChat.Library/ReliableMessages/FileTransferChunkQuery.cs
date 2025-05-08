@@ -2,16 +2,16 @@
 
 namespace SecureChat.Library.ReliableMessages
 {
-    public class FileTransmissionDeclineRequestNotification
-        : IRmNotification
+    public class FileTransferChunkQuery
+        : IRmQuery<FileTransferChunkQueryReply>
     {
         public Guid FileId { get; set; }
-        public long FileSize { get; set; }
 
         /// <summary>
         /// The connection id of the remote peer that this message is being sent to.
         /// </summary>
         public Guid PeerConnectionId { get; set; }
+        public byte[] Bytes { get; set; }
 
         /// <summary>
         /// Identifies this chat session. This is used to identify the chat session when sending messages.
@@ -19,11 +19,30 @@ namespace SecureChat.Library.ReliableMessages
         /// </summary>
         public Guid SessionId { get; set; }
 
-        public FileTransmissionDeclineRequestNotification(Guid sessionId, Guid peerConnectionId, Guid fileId)
+        public FileTransferChunkQuery(Guid sessionId, Guid peerConnectionId, Guid fileId, byte[] bytes)
         {
             SessionId = sessionId;
             PeerConnectionId = peerConnectionId;
             FileId = fileId;
+            Bytes = bytes;
+        }
+    }
+
+    public class FileTransferChunkQueryReply
+    : IRmQueryReply
+    {
+        public bool IsSuccess { get; set; }
+        public string? ErrorMessage { get; set; }
+
+        public FileTransferChunkQueryReply(Exception exception)
+        {
+            IsSuccess = false;
+            ErrorMessage = exception.GetBaseException().Message;
+        }
+
+        public FileTransferChunkQueryReply()
+        {
+            IsSuccess = true;
         }
     }
 }

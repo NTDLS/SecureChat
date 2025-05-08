@@ -3,28 +3,21 @@ using System.ComponentModel;
 
 namespace SecureChat.Client.Controls
 {
-    internal partial class FlowControlFileTransmissionReceiveProgress
+    internal partial class FlowControlFileTransferSendProgress
         : UserControl
     {
         private readonly FlowLayoutPanel _parent;
         private readonly ActiveChat _activeChat;
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public FileReceiveBuffer Transfer { get; private set; }
+        public FileOutboundTransfer Transfer { get; private set; }
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsCancelled { get; private set; }
 
-        public FlowControlFileTransmissionReceiveProgress(FlowLayoutPanel parent, ActiveChat activeChat, Guid fileId, string fileName, long fileSize, bool isImage, string? saveAsFileName = null)
+        public FlowControlFileTransferSendProgress(FlowLayoutPanel parent, ActiveChat activeChat, string fileName, long fileSize, Stream stream)
         {
-            if (string.IsNullOrEmpty(saveAsFileName))
-            {
-                Transfer = new FileReceiveBuffer(fileId, fileName, fileSize, isImage);
-            }
-            else
-            {
-                Transfer = new FileReceiveBuffer(fileId, fileName, fileSize, isImage, saveAsFileName);
-            }
+            Transfer = new FileOutboundTransfer(fileName, fileSize, stream);
 
             _activeChat = activeChat;
             _parent = parent;
@@ -52,7 +45,7 @@ namespace SecureChat.Client.Controls
         {
             buttonCancel.Enabled = false;
             IsCancelled = true;
-            _activeChat.CancelFileTransmission(Transfer.FileId);
+            _activeChat.CancelFileTransfer(Transfer.FileId);
         }
 
         public void SetProgressValue(int value)

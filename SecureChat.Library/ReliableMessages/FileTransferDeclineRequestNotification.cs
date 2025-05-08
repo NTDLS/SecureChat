@@ -2,11 +2,7 @@
 
 namespace SecureChat.Library.ReliableMessages
 {
-    /// <summary>
-    /// Used to request the start of a file transmission.
-    /// This is only used for large or binary files where we need to give the remote client a chance to select a save location.
-    /// </summary>
-    public class FileTransmissionBeginRequestNotification
+    public class FileTransferDeclineRequestNotification
         : IRmNotification
     {
         public Guid FileId { get; set; }
@@ -17,24 +13,17 @@ namespace SecureChat.Library.ReliableMessages
         /// </summary>
         public Guid PeerConnectionId { get; set; }
 
-        public bool IsImage { get; set; }
-
-        public string FileName { get; set; }
-
         /// <summary>
         /// Identifies this chat session. This is used to identify the chat session when sending messages.
         /// If the session is ended and a new one is started, it will have a different SessionId - even if it is the same contact.
         /// </summary>
         public Guid SessionId { get; set; }
 
-        public FileTransmissionBeginRequestNotification(Guid sessionId, Guid peerConnectionId, Guid fileId, string fileName, long fileSize, bool isImage)
+        public FileTransferDeclineRequestNotification(Guid sessionId, Guid peerConnectionId, Guid fileId)
         {
             SessionId = sessionId;
             PeerConnectionId = peerConnectionId;
             FileId = fileId;
-            FileSize = fileSize;
-            FileName = fileName;
-            IsImage = isImage;
         }
     }
 }

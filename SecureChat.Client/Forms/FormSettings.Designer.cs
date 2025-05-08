@@ -48,10 +48,10 @@ namespace SecureChat.Client.Forms
             textBoxServerAddress = new TextBox();
             tabPageAdvanced = new TabPage();
             checkBoxAutoStartAtWindowsLogin = new CheckBox();
-            textBoxFileTransmissionChunkSize = new TextBox();
+            textBoxFileTransferChunkSize = new TextBox();
             textBoxMaxMessages = new TextBox();
             textBoxAutoAwayIdleSeconds = new TextBox();
-            labelFileTransmissionChunkSize = new Label();
+            labelFileTransferChunkSize = new Label();
             labelMaxMessages = new Label();
             labelAutoAwayIdleSeconds = new Label();
             tabPageNotifications = new TabPage();
@@ -199,10 +199,10 @@ namespace SecureChat.Client.Forms
             // tabPageAdvanced
             // 
             tabPageAdvanced.Controls.Add(checkBoxAutoStartAtWindowsLogin);
-            tabPageAdvanced.Controls.Add(textBoxFileTransmissionChunkSize);
+            tabPageAdvanced.Controls.Add(textBoxFileTransferChunkSize);
             tabPageAdvanced.Controls.Add(textBoxMaxMessages);
             tabPageAdvanced.Controls.Add(textBoxAutoAwayIdleSeconds);
-            tabPageAdvanced.Controls.Add(labelFileTransmissionChunkSize);
+            tabPageAdvanced.Controls.Add(labelFileTransferChunkSize);
             tabPageAdvanced.Controls.Add(labelMaxMessages);
             tabPageAdvanced.Controls.Add(labelAutoAwayIdleSeconds);
             tabPageAdvanced.Location = new Point(4, 24);
@@ -222,12 +222,12 @@ namespace SecureChat.Client.Forms
             checkBoxAutoStartAtWindowsLogin.Text = "Auto-start at windows login?";
             checkBoxAutoStartAtWindowsLogin.UseVisualStyleBackColor = true;
             // 
-            // textBoxFileTransmissionChunkSize
+            // textBoxFileTransferChunkSize
             // 
-            textBoxFileTransmissionChunkSize.Location = new Point(8, 121);
-            textBoxFileTransmissionChunkSize.Name = "textBoxFileTransmissionChunkSize";
-            textBoxFileTransmissionChunkSize.Size = new Size(117, 23);
-            textBoxFileTransmissionChunkSize.TabIndex = 2;
+            textBoxFileTransferChunkSize.Location = new Point(8, 121);
+            textBoxFileTransferChunkSize.Name = "textBoxFileTransferChunkSize";
+            textBoxFileTransferChunkSize.Size = new Size(117, 23);
+            textBoxFileTransferChunkSize.TabIndex = 2;
             // 
             // textBoxMaxMessages
             // 
@@ -243,14 +243,14 @@ namespace SecureChat.Client.Forms
             textBoxAutoAwayIdleSeconds.Size = new Size(117, 23);
             textBoxAutoAwayIdleSeconds.TabIndex = 0;
             // 
-            // labelFileTransmissionChunkSize
+            // labelFileTransferChunkSize
             // 
-            labelFileTransmissionChunkSize.AutoSize = true;
-            labelFileTransmissionChunkSize.Location = new Point(8, 103);
-            labelFileTransmissionChunkSize.Name = "labelFileTransmissionChunkSize";
-            labelFileTransmissionChunkSize.Size = new Size(86, 15);
-            labelFileTransmissionChunkSize.TabIndex = 2;
-            labelFileTransmissionChunkSize.Text = "File Chunk Size";
+            labelFileTransferChunkSize.AutoSize = true;
+            labelFileTransferChunkSize.Location = new Point(8, 103);
+            labelFileTransferChunkSize.Name = "labelFileTransferChunkSize";
+            labelFileTransferChunkSize.Size = new Size(86, 15);
+            labelFileTransferChunkSize.TabIndex = 2;
+            labelFileTransferChunkSize.Text = "File Chunk Size";
             // 
             // labelMaxMessages
             // 
@@ -373,10 +373,10 @@ namespace SecureChat.Client.Forms
         private Label labelServerAddress;
         private TextBox textBoxServerPort;
         private TextBox textBoxServerAddress;
-        private TextBox textBoxFileTransmissionChunkSize;
+        private TextBox textBoxFileTransferChunkSize;
         private TextBox textBoxMaxMessages;
         private TextBox textBoxAutoAwayIdleSeconds;
-        private Label labelFileTransmissionChunkSize;
+        private Label labelFileTransferChunkSize;
         private Label labelMaxMessages;
         private Label labelAutoAwayIdleSeconds;
         private CheckBox checkBoxAutoStartAtWindowsLogin;

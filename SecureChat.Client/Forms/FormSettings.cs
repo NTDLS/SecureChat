@@ -36,7 +36,7 @@ namespace SecureChat.Client.Forms
             textBoxServerPort.Text = $"{Settings.Instance.ServerPort:n0}";
             textBoxAutoAwayIdleSeconds.Text = $"{Settings.Instance.AutoAwayIdleSeconds:n0}";
             textBoxMaxMessages.Text = $"{Settings.Instance.MaxMessages:n0}";
-            textBoxFileTransmissionChunkSize.Text = $"{Settings.Instance.FileTransmissionChunkSize:n0}";
+            textBoxFileTransferChunkSize.Text = $"{Settings.Instance.FileTransferChunkSize:n0}";
             checkBoxAlertToastWhenContactComesOnline.Checked = Settings.Instance.AlertToastWhenContactComesOnline;
             checkBoxAlertToastWhenMessageReceived.Checked = Settings.Instance.AlertToastWhenMessageReceived;
             checkBoxPlaySoundWhenContactComesOnline.Checked = Settings.Instance.PlaySoundWhenContactComesOnline;
@@ -86,7 +86,7 @@ namespace SecureChat.Client.Forms
                 settings.ServerPort = textBoxServerPort.GetAndValidateNumeric(1, 65535, "Server port must be between [min] and [max].");
                 settings.AutoAwayIdleSeconds = textBoxAutoAwayIdleSeconds.GetAndValidateNumeric(60, 86400, "Auto-away idle seconds must be between [min] and [max].");
                 settings.MaxMessages = textBoxMaxMessages.GetAndValidateNumeric(10, 10000, "Max messages must be between [min] and [max].");
-                settings.FileTransmissionChunkSize = textBoxFileTransmissionChunkSize.GetAndValidateNumeric(128, 1024 * 1024, "File transmission chunk size must be between [min] and [max].");
+                settings.FileTransferChunkSize = textBoxFileTransferChunkSize.GetAndValidateNumeric(128, 1024 * 1024, "File transfer chunk size must be between [min] and [max].");
                 settings.AlertToastWhenContactComesOnline = checkBoxAlertToastWhenContactComesOnline.Checked;
                 settings.AlertToastWhenMessageReceived = checkBoxAlertToastWhenMessageReceived.Checked;
                 settings.PlaySoundWhenContactComesOnline = checkBoxPlaySoundWhenContactComesOnline.Checked;

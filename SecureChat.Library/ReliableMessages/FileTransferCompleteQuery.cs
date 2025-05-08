@@ -2,8 +2,8 @@
 
 namespace SecureChat.Library.ReliableMessages
 {
-    public class FileTransmissionChunkQuery
-        : IRmQuery<FileTransmissionChunkQueryReply>
+    public class FileTransferCompleteQuery
+        : IRmQuery<FileTransferEndQueryReply>
     {
         public Guid FileId { get; set; }
 
@@ -11,7 +11,6 @@ namespace SecureChat.Library.ReliableMessages
         /// The connection id of the remote peer that this message is being sent to.
         /// </summary>
         public Guid PeerConnectionId { get; set; }
-        public byte[] Bytes { get; set; }
 
         /// <summary>
         /// Identifies this chat session. This is used to identify the chat session when sending messages.
@@ -19,28 +18,27 @@ namespace SecureChat.Library.ReliableMessages
         /// </summary>
         public Guid SessionId { get; set; }
 
-        public FileTransmissionChunkQuery(Guid sessionId, Guid peerConnectionId, Guid fileId, byte[] bytes)
+        public FileTransferCompleteQuery(Guid sessionId, Guid peerConnectionId, Guid fileId)
         {
             SessionId = sessionId;
             PeerConnectionId = peerConnectionId;
             FileId = fileId;
-            Bytes = bytes;
         }
     }
 
-    public class FileTransmissionChunkQueryReply
+    public class FileTransferEndQueryReply
     : IRmQueryReply
     {
         public bool IsSuccess { get; set; }
         public string? ErrorMessage { get; set; }
 
-        public FileTransmissionChunkQueryReply(Exception exception)
+        public FileTransferEndQueryReply(Exception exception)
         {
             IsSuccess = false;
             ErrorMessage = exception.GetBaseException().Message;
         }
 
-        public FileTransmissionChunkQueryReply()
+        public FileTransferEndQueryReply()
         {
             IsSuccess = true;
         }

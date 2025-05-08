@@ -18,14 +18,14 @@ namespace SecureChat.Client
         }
 
         /// <summary>
-        /// A client is letting us know that they are accepting a file transmission request.
+        /// A client is letting us know that they are accepting a file transfer request.
         /// </summary>
-        public void FileTransmissionAcceptRequestNotification(RmContext context, FileTransmissionAcceptRequestNotification param)
+        public void FileTransferAcceptRequestNotification(RmContext context, FileTransferAcceptRequestNotification param)
         {
             try
             {
                 var activeChat = VerifyAndActiveChat(context, param.SessionId);
-                activeChat.FileTransmissionAccepted(param.FileId);
+                activeChat.FileTransferAccepted(param.FileId);
             }
             catch (Exception ex)
             {
@@ -34,14 +34,14 @@ namespace SecureChat.Client
         }
 
         /// <summary>
-        /// A client is letting us know that they are declining a file transmission request.
+        /// A client is letting us know that they are declining a file transfer request.
         /// </summary>
-        public void FileTransmissionDeclineRequestNotification(RmContext context, FileTransmissionDeclineRequestNotification param)
+        public void FileTransferDeclineRequestNotification(RmContext context, FileTransferDeclineRequestNotification param)
         {
             try
             {
                 var activeChat = VerifyAndActiveChat(context, param.SessionId);
-                activeChat.FileTransmissionDeclined(param.FileId);
+                activeChat.FileTransferDeclined(param.FileId);
             }
             catch (Exception ex)
             {
@@ -53,7 +53,7 @@ namespace SecureChat.Client
         /// Remote client is requesting that another client accept a large or binary file
         /// where we need to give the remote client a chance to select a save location.
         /// </summary>
-        public void FileTransmissionBeginRequestNotification(RmContext context, FileTransmissionBeginRequestNotification param)
+        public void FileTransferBeginRequestNotification(RmContext context, FileTransferBeginRequestNotification param)
         {
             try
             {
@@ -162,7 +162,7 @@ namespace SecureChat.Client
         /// <summary>
         /// Client has requested that a file transfer be cancelled.
         /// </summary>
-        public void FileTransmissionCancelNotification(RmContext context, FileTransmissionCancelNotification param)
+        public void FileTransferCancelNotification(RmContext context, FileTransferCancelNotification param)
         {
             try
             {
@@ -178,30 +178,30 @@ namespace SecureChat.Client
         /// <summary>
         /// A client is beginning to transmit a file to us.
         /// </summary>
-        public FileTransmissionBeginQueryReply FileTransmissionBeginQuery(RmContext context, FileTransmissionBeginQuery param)
+        public FileTransferBeginQueryReply FileTransferBeginQuery(RmContext context, FileTransferBeginQuery param)
         {
             try
             {
                 var activeChat = VerifyAndActiveChat(context, param.SessionId);
                 if (activeChat.InboundFileTransfers.ContainsKey(param.FileId) == false)
                 {
-                    var control = activeChat.AppendFileTransmissionReceiveProgress(param.FileId, param.FileName, param.FileSize, param.IsImage);
+                    var control = activeChat.AppendFileTransferReceiveProgress(param.FileId, param.FileName, param.FileSize, param.IsImage);
                     activeChat.InboundFileTransfers.Add(param.FileId, control);
                 }
 
-                return new FileTransmissionBeginQueryReply();
+                return new FileTransferBeginQueryReply();
             }
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new FileTransmissionBeginQueryReply(ex);
+                return new FileTransferBeginQueryReply(ex);
             }
         }
 
         /// <summary>
         /// A client is transmitting a file chunk to us.
         /// </summary>
-        public FileTransmissionChunkQueryReply FileTransmissionChunkQuery(RmContext context, FileTransmissionChunkQuery param)
+        public FileTransferChunkQueryReply FileTransferChunkQuery(RmContext context, FileTransferChunkQuery param)
         {
             try
             {
@@ -211,24 +211,24 @@ namespace SecureChat.Client
                 {
                     control.Transfer.AppendData(activeChat.Cipher(param.Bytes));
                     control.SetProgressValue(control.Transfer.PercentComplete);
-                    return new FileTransmissionChunkQueryReply();
+                    return new FileTransferChunkQueryReply();
                 }
                 else
                 {
-                    throw new Exception("File buffer not found, transmission cancelled?.");
+                    throw new Exception("File buffer not found, transfer cancelled?.");
                 }
             }
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new FileTransmissionChunkQueryReply(ex);
+                return new FileTransferChunkQueryReply(ex);
             }
         }
 
         /// <summary>
         /// A client has finished transmitting a file to us.
         /// </summary>
-        public FileTransmissionEndQueryReply FileTransmissionEndQuery(RmContext context, FileTransmissionEndQuery param)
+        public FileTransferEndQueryReply FileTransferEndQuery(RmContext context, FileTransferCompleteQuery param)
         {
             try
             {
@@ -253,15 +253,15 @@ namespace SecureChat.Client
                 }
                 else
                 {
-                    throw new Exception("File buffer not found, transmission cancelled?.");
+                    throw new Exception("File buffer not found, transfer cancelled?.");
                 }
 
-                return new FileTransmissionEndQueryReply();
+                return new FileTransferEndQueryReply();
             }
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new FileTransmissionEndQueryReply(ex);
+                return new FileTransferEndQueryReply(ex);
             }
         }
 

@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace SecureChat.Client.Controls
 {
-    internal partial class FlowControlFileTransmissionRequest : UserControl
+    internal partial class FlowControlFileTransferRequest : UserControl
     {
         private readonly FlowLayoutPanel _parent;
         private readonly ActiveChat _activeChat;
@@ -17,7 +17,7 @@ namespace SecureChat.Client.Controls
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsImage { get; private set; }
 
-        public FlowControlFileTransmissionRequest(FlowLayoutPanel parent, ActiveChat activeChat, string fromName,
+        public FlowControlFileTransferRequest(FlowLayoutPanel parent, ActiveChat activeChat, string fromName,
             Guid fileId, string fileName, long fileSize, bool isImage, Color color)
         {
             _activeChat = activeChat;
@@ -48,9 +48,9 @@ namespace SecureChat.Client.Controls
                 buttonDecline.Enabled = false;
 
                 //Add the receive control to the chat with the path of the file.
-                var control = _activeChat.AppendFileTransmissionReceiveProgress(FileId, FileName, FileSize, IsImage, sfd.FileName);
+                var control = _activeChat.AppendFileTransferReceiveProgress(FileId, FileName, FileSize, IsImage, sfd.FileName);
                 _activeChat.InboundFileTransfers.Add(FileId, control);
-                _activeChat.AcceptFileTransmission(FileId);
+                _activeChat.AcceptFileTransfer(FileId);
             }
         }
 
@@ -58,7 +58,7 @@ namespace SecureChat.Client.Controls
         {
             buttonAccept.Enabled = false;
             buttonDecline.Enabled = false;
-            _activeChat.DeclineFileTransmission(this);
+            _activeChat.DeclineFileTransfer(this);
         }
     }
 }
