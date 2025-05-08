@@ -493,7 +493,9 @@ namespace SecureChat.Client
                     return;
                 }
 
-                AppendFlowControl(new FlowControlFileTransferRequest(Form.FlowPanel, this, fromName, fileId, fileName, fileSize, isImage, color));
+                var control = new FlowControlFileTransferRequest(Form.FlowPanel, this, fromName, fileId, fileName, fileSize, isImage, color);
+                AppendFlowControl(control);
+                PendingFileTransfers.Add(fileId, control);
 
                 Form.Invoke(() =>
                 {

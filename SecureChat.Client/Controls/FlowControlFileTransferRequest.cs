@@ -1,6 +1,8 @@
 ﻿using NTDLS.Helpers;
 using System.ComponentModel;
+using System.IO;
 using System.Security.Cryptography.Xml;
+using System.Windows.Forms;
 using static System.Net.WebRequestMethods;
 
 namespace SecureChat.Client.Controls
@@ -80,9 +82,10 @@ namespace SecureChat.Client.Controls
             buttonDecline.Enabled = false;
             IsCancelled = true;
         }
-
         public void Remove()
         {
+             _activeChat.PendingFileTransfers.Remove(FileId);
+
             Exceptions.Ignore(() =>
             {
                 _parent.Invoke(() => _parent.Controls.Remove(this));

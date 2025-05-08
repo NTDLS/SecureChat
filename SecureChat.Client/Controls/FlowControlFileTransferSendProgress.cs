@@ -46,7 +46,7 @@ namespace SecureChat.Client.Controls
             Cancel();
             Remove();
             _activeChat.CancelFileTransfer(Transfer.FileId);
-            _activeChat.AppendSystemMessageLine($"File transfer cancelled: {Transfer.FileName}");
+            _activeChat.AppendSystemMessageLine($"File transfer cancelled: {Path.GetFileName(Transfer.FileName)}");
         }
 
         public void Cancel()
