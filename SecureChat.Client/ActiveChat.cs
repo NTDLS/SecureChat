@@ -290,35 +290,28 @@ namespace SecureChat.Client
             ServerConnection.Current?.ReliableClient.Notify(new CancelVoiceCallRequestNotification(SessionId, PeerConnectionId));
         }
 
+        /// <summary>
+        /// Transmits a file to the remote client. The file is read from the disk and sent in chunks.
+        /// </summary>
         public void TransmitFileAsync(string fileName)
         {
             var fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-
-            var ftc = AppendFileTransmissionProgress(fileName, (new FileInfo(fileName)).Length, fileStream);
-            if (ftc == null)
-            {
-                return;
-            }
-            OutboundFileTransfers.Add(ftc.Transfer.FileId, ftc);
-
-            if (ftc.Transfer.IsImage)
-            {
-                //if this is an image, then we just transfer it because we can store it in the remote clients window.
-
-                Task.Run(() => TransmitFile(ftc));
-            }
-            else
-            {
-                //If this is another typo of file, then we need to request the remote
-                //  client to accept the file so they can select a location to save it.
-                ServerConnection.Current?.ReliableClient.Notify(
-                new FileTransmissionBeginRequestNotification(SessionId, PeerConnectionId, ftc.Transfer.FileId, ftc.Transfer.FileName, ftc.Transfer.FileSize));
-            }
+            TransmitFileAsync(fileName, (new FileInfo(fileName)).Length, fileStream);
         }
 
+        /// <summary>
+        /// Transmits a file to the remote client. The file is read from the byte-array and sent in chunks.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="fileBytes"></param>
         public void TransmitFileAsync(string fileName, byte[] fileBytes)
         {
-            var ftc = AppendFileTransmissionProgress(fileName, fileBytes.LongLength, new MemoryStream(fileBytes));
+            TransmitFileAsync(fileName, fileBytes.LongLength, new MemoryStream(fileBytes));
+        }
+
+        private void TransmitFileAsync(string fileName, long fileSize, Stream stream)
+        {
+            var ftc = AppendFileTransmissionProgress(fileName, fileSize, stream);
             if (ftc == null)
             {
                 return;
@@ -328,8 +321,7 @@ namespace SecureChat.Client
             if (ftc.Transfer.IsImage)
             {
                 //if this is an image, then we just transfer it because we can store it in the remote clients window.
-
-                Task.Run(() => TransmitFile(ftc));
+                Task.Run(() => TransmitFileChunks(ftc));
             }
             else
             {
@@ -340,7 +332,7 @@ namespace SecureChat.Client
             }
         }
 
-        private void TransmitFile(IFileTransmissionControl ftc)
+        private void TransmitFileChunks(IFileTransmissionControl ftc)
         {
             try
             {
