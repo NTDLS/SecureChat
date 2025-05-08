@@ -25,10 +25,28 @@ namespace SecureChat.Client
         public FlowControlOutgoingCall? LastOutgoingCallControl { get; set; }
         public PublicPrivateKeyPair PublicPrivateKeyPair { get; private set; }
         public bool IsTerminated { get; private set; } = false;
+
+        /// <summary>
+        /// The form that is used to display the chat messages.
+        /// </summary>
         public FormMessage Form { get; private set; }
+
+        /// <summary>
+        /// The account id of the user we are chatting with. This is the account id of the contact.
+        /// </summary>
         public Guid AccountId { get; private set; }
+
+        /// <summary>
+        /// Name of the contact we are chatting with. This is the display name of the contact.
+        /// </summary>
         public string DisplayName { get; private set; }
+
+        /// <summary>
+        /// The connection id where the messages should be ultimately routed to.
+        /// This is the connection id that the server has for the remote peer.
+        /// </summary>
         public Guid PeerConnectionId { get; private set; }
+
         public Dictionary<Guid, FileReceiveBuffer> FileReceiveBuffers { get; set; } = new();
         public Dictionary<Guid, IFileTransmissionControl> OutboundFileTransfers { get; set; } = new();
         public DateTime? LastMessageReceived { get; set; }
@@ -111,15 +129,10 @@ namespace SecureChat.Client
                 return false;
             }
 
-            return ServerConnection.Current?.ReliableClient.Query(new ExchangeMessageTextQuery(SessionId,
-                    PeerConnectionId, EncryptString(plaintText))).ContinueWith(o =>
-                    {
-                        if (!o.IsFaulted && o.Result.IsSuccess)
-                        {
-                            return true;
-                        }
-                        return false;
-                    }).Result ?? false;
+            var query = new ExchangeMessageTextQuery(SessionId, PeerConnectionId, EncryptString(plaintText));
+
+            return ServerConnection.Current?.ReliableClient.Query(query)
+                .ContinueWith(o => !o.IsFaulted && o.Result.IsSuccess).Result ?? false;
         }
 
         #region Voice Call.

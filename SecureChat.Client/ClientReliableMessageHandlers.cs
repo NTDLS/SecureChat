@@ -209,8 +209,7 @@ namespace SecureChat.Client
                     if (buffer.IsImage)
                     {
                         //The file is an image, so we need to display it.
-                        var imageBytes = buffer.GetFileBytes();
-                        activeChat.ReceiveImageMessage(imageBytes);
+                        activeChat.ReceiveImageMessage(buffer.GetFileBytes());
                     }
                     else
                     {
