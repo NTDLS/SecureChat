@@ -50,22 +50,30 @@ namespace SecureChat.Client.Forms
             checkBoxAutoStartAtWindowsLogin = new CheckBox();
             textBoxFileTransferChunkSize = new TextBox();
             textBoxMaxMessages = new TextBox();
-            textBoxAutoAwayIdleSeconds = new TextBox();
             labelFileTransferChunkSize = new Label();
             labelMaxMessages = new Label();
-            labelAutoAwayIdleSeconds = new Label();
             tabPageNotifications = new TabPage();
             checkBoxFlashWindowWhenMessageReceived = new CheckBox();
             checkBoxPlaySoundWhenMessageReceived = new CheckBox();
             checkBoxPlaySoundWhenContactComesOnline = new CheckBox();
+            textBoxAutoAwayIdleSeconds = new TextBox();
             checkBoxAlertToastWhenMessageReceived = new CheckBox();
+            labelAutoAwayIdleSeconds = new Label();
             checkBoxAlertToastWhenContactComesOnline = new CheckBox();
+            tabPageCryptogrphy = new TabPage();
+            labelRsaKeySize = new Label();
+            textBoxEndToEndKeySize = new TextBox();
+            textBoxAesKeySize = new TextBox();
+            labelEndToEndKeySize = new Label();
+            labelAesKeySize = new Label();
+            textBoxRsaKeySize = new TextBox();
             tabControlBody.SuspendLayout();
             tabPageMessages.SuspendLayout();
             ((ISupportInitialize)numericUpDownFontSize).BeginInit();
             tabPageServer.SuspendLayout();
             tabPageAdvanced.SuspendLayout();
             tabPageNotifications.SuspendLayout();
+            tabPageCryptogrphy.SuspendLayout();
             SuspendLayout();
             // 
             // buttonSave
@@ -94,11 +102,12 @@ namespace SecureChat.Client.Forms
             tabControlBody.Controls.Add(tabPageServer);
             tabControlBody.Controls.Add(tabPageAdvanced);
             tabControlBody.Controls.Add(tabPageNotifications);
+            tabControlBody.Controls.Add(tabPageCryptogrphy);
             tabControlBody.Location = new Point(12, 12);
             tabControlBody.Name = "tabControlBody";
             tabControlBody.SelectedIndex = 0;
             tabControlBody.Size = new Size(448, 287);
-            tabControlBody.TabIndex = 5;
+            tabControlBody.TabIndex = 0;
             // 
             // tabPageMessages
             // 
@@ -201,10 +210,8 @@ namespace SecureChat.Client.Forms
             tabPageAdvanced.Controls.Add(checkBoxAutoStartAtWindowsLogin);
             tabPageAdvanced.Controls.Add(textBoxFileTransferChunkSize);
             tabPageAdvanced.Controls.Add(textBoxMaxMessages);
-            tabPageAdvanced.Controls.Add(textBoxAutoAwayIdleSeconds);
             tabPageAdvanced.Controls.Add(labelFileTransferChunkSize);
             tabPageAdvanced.Controls.Add(labelMaxMessages);
-            tabPageAdvanced.Controls.Add(labelAutoAwayIdleSeconds);
             tabPageAdvanced.Location = new Point(4, 24);
             tabPageAdvanced.Name = "tabPageAdvanced";
             tabPageAdvanced.Size = new Size(440, 259);
@@ -224,29 +231,22 @@ namespace SecureChat.Client.Forms
             // 
             // textBoxFileTransferChunkSize
             // 
-            textBoxFileTransferChunkSize.Location = new Point(8, 121);
+            textBoxFileTransferChunkSize.Location = new Point(8, 70);
             textBoxFileTransferChunkSize.Name = "textBoxFileTransferChunkSize";
             textBoxFileTransferChunkSize.Size = new Size(117, 23);
-            textBoxFileTransferChunkSize.TabIndex = 2;
+            textBoxFileTransferChunkSize.TabIndex = 3;
             // 
             // textBoxMaxMessages
             // 
-            textBoxMaxMessages.Location = new Point(8, 72);
+            textBoxMaxMessages.Location = new Point(8, 23);
             textBoxMaxMessages.Name = "textBoxMaxMessages";
             textBoxMaxMessages.Size = new Size(117, 23);
             textBoxMaxMessages.TabIndex = 1;
             // 
-            // textBoxAutoAwayIdleSeconds
-            // 
-            textBoxAutoAwayIdleSeconds.Location = new Point(8, 23);
-            textBoxAutoAwayIdleSeconds.Name = "textBoxAutoAwayIdleSeconds";
-            textBoxAutoAwayIdleSeconds.Size = new Size(117, 23);
-            textBoxAutoAwayIdleSeconds.TabIndex = 0;
-            // 
             // labelFileTransferChunkSize
             // 
             labelFileTransferChunkSize.AutoSize = true;
-            labelFileTransferChunkSize.Location = new Point(8, 103);
+            labelFileTransferChunkSize.Location = new Point(8, 52);
             labelFileTransferChunkSize.Name = "labelFileTransferChunkSize";
             labelFileTransferChunkSize.Size = new Size(86, 15);
             labelFileTransferChunkSize.TabIndex = 2;
@@ -255,27 +255,20 @@ namespace SecureChat.Client.Forms
             // labelMaxMessages
             // 
             labelMaxMessages.AutoSize = true;
-            labelMaxMessages.Location = new Point(8, 54);
+            labelMaxMessages.Location = new Point(8, 5);
             labelMaxMessages.Name = "labelMaxMessages";
             labelMaxMessages.Size = new Size(83, 15);
-            labelMaxMessages.TabIndex = 1;
+            labelMaxMessages.TabIndex = 0;
             labelMaxMessages.Text = "Max Messages";
-            // 
-            // labelAutoAwayIdleSeconds
-            // 
-            labelAutoAwayIdleSeconds.AutoSize = true;
-            labelAutoAwayIdleSeconds.Location = new Point(8, 5);
-            labelAutoAwayIdleSeconds.Name = "labelAutoAwayIdleSeconds";
-            labelAutoAwayIdleSeconds.Size = new Size(114, 15);
-            labelAutoAwayIdleSeconds.TabIndex = 0;
-            labelAutoAwayIdleSeconds.Text = "Auto-Away Seconds";
             // 
             // tabPageNotifications
             // 
             tabPageNotifications.Controls.Add(checkBoxFlashWindowWhenMessageReceived);
             tabPageNotifications.Controls.Add(checkBoxPlaySoundWhenMessageReceived);
             tabPageNotifications.Controls.Add(checkBoxPlaySoundWhenContactComesOnline);
+            tabPageNotifications.Controls.Add(textBoxAutoAwayIdleSeconds);
             tabPageNotifications.Controls.Add(checkBoxAlertToastWhenMessageReceived);
+            tabPageNotifications.Controls.Add(labelAutoAwayIdleSeconds);
             tabPageNotifications.Controls.Add(checkBoxAlertToastWhenContactComesOnline);
             tabPageNotifications.Location = new Point(4, 24);
             tabPageNotifications.Name = "tabPageNotifications";
@@ -315,6 +308,13 @@ namespace SecureChat.Client.Forms
             checkBoxPlaySoundWhenContactComesOnline.Text = "Sound when contact comesOonline";
             checkBoxPlaySoundWhenContactComesOnline.UseVisualStyleBackColor = true;
             // 
+            // textBoxAutoAwayIdleSeconds
+            // 
+            textBoxAutoAwayIdleSeconds.Location = new Point(6, 157);
+            textBoxAutoAwayIdleSeconds.Name = "textBoxAutoAwayIdleSeconds";
+            textBoxAutoAwayIdleSeconds.Size = new Size(117, 23);
+            textBoxAutoAwayIdleSeconds.TabIndex = 5;
+            // 
             // checkBoxAlertToastWhenMessageReceived
             // 
             checkBoxAlertToastWhenMessageReceived.AutoSize = true;
@@ -324,6 +324,15 @@ namespace SecureChat.Client.Forms
             checkBoxAlertToastWhenMessageReceived.TabIndex = 1;
             checkBoxAlertToastWhenMessageReceived.Text = "Visual alert when message received";
             checkBoxAlertToastWhenMessageReceived.UseVisualStyleBackColor = true;
+            // 
+            // labelAutoAwayIdleSeconds
+            // 
+            labelAutoAwayIdleSeconds.AutoSize = true;
+            labelAutoAwayIdleSeconds.Location = new Point(6, 139);
+            labelAutoAwayIdleSeconds.Name = "labelAutoAwayIdleSeconds";
+            labelAutoAwayIdleSeconds.Size = new Size(114, 15);
+            labelAutoAwayIdleSeconds.TabIndex = 0;
+            labelAutoAwayIdleSeconds.Text = "Auto-Away Seconds";
             // 
             // checkBoxAlertToastWhenContactComesOnline
             // 
@@ -335,14 +344,79 @@ namespace SecureChat.Client.Forms
             checkBoxAlertToastWhenContactComesOnline.Text = "Visual alert when contact comes online";
             checkBoxAlertToastWhenContactComesOnline.UseVisualStyleBackColor = true;
             // 
+            // tabPageCryptogrphy
+            // 
+            tabPageCryptogrphy.Controls.Add(labelRsaKeySize);
+            tabPageCryptogrphy.Controls.Add(textBoxEndToEndKeySize);
+            tabPageCryptogrphy.Controls.Add(textBoxAesKeySize);
+            tabPageCryptogrphy.Controls.Add(labelEndToEndKeySize);
+            tabPageCryptogrphy.Controls.Add(labelAesKeySize);
+            tabPageCryptogrphy.Controls.Add(textBoxRsaKeySize);
+            tabPageCryptogrphy.Location = new Point(4, 24);
+            tabPageCryptogrphy.Name = "tabPageCryptogrphy";
+            tabPageCryptogrphy.Padding = new Padding(3);
+            tabPageCryptogrphy.Size = new Size(440, 259);
+            tabPageCryptogrphy.TabIndex = 4;
+            tabPageCryptogrphy.Text = "Cryptogrphy";
+            tabPageCryptogrphy.UseVisualStyleBackColor = true;
+            // 
+            // labelRsaKeySize
+            // 
+            labelRsaKeySize.AutoSize = true;
+            labelRsaKeySize.Location = new Point(6, 6);
+            labelRsaKeySize.Name = "labelRsaKeySize";
+            labelRsaKeySize.Size = new Size(72, 15);
+            labelRsaKeySize.TabIndex = 0;
+            labelRsaKeySize.Text = "RSA Key Bits";
+            // 
+            // textBoxEndToEndKeySize
+            // 
+            textBoxEndToEndKeySize.Location = new Point(6, 118);
+            textBoxEndToEndKeySize.Name = "textBoxEndToEndKeySize";
+            textBoxEndToEndKeySize.Size = new Size(122, 23);
+            textBoxEndToEndKeySize.TabIndex = 5;
+            // 
+            // textBoxAesKeySize
+            // 
+            textBoxAesKeySize.Location = new Point(6, 71);
+            textBoxAesKeySize.Name = "textBoxAesKeySize";
+            textBoxAesKeySize.Size = new Size(122, 23);
+            textBoxAesKeySize.TabIndex = 3;
+            // 
+            // labelEndToEndKeySize
+            // 
+            labelEndToEndKeySize.AutoSize = true;
+            labelEndToEndKeySize.Location = new Point(6, 100);
+            labelEndToEndKeySize.Name = "labelEndToEndKeySize";
+            labelEndToEndKeySize.Size = new Size(112, 15);
+            labelEndToEndKeySize.TabIndex = 4;
+            labelEndToEndKeySize.Text = "End-to-End Key Bits";
+            // 
+            // labelAesKeySize
+            // 
+            labelAesKeySize.AutoSize = true;
+            labelAesKeySize.Location = new Point(6, 53);
+            labelAesKeySize.Name = "labelAesKeySize";
+            labelAesKeySize.Size = new Size(71, 15);
+            labelAesKeySize.TabIndex = 2;
+            labelAesKeySize.Text = "AES Key Bits";
+            // 
+            // textBoxRsaKeySize
+            // 
+            textBoxRsaKeySize.Location = new Point(6, 24);
+            textBoxRsaKeySize.Name = "textBoxRsaKeySize";
+            textBoxRsaKeySize.Size = new Size(122, 23);
+            textBoxRsaKeySize.TabIndex = 1;
+            // 
             // FormSettings
             // 
-            ClientSize = new Size(467, 340);
+            ClientSize = new Size(467, 334);
             Controls.Add(tabControlBody);
             Controls.Add(buttonCancel);
             Controls.Add(buttonSave);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
+            MaximizeBox = false;
             Name = "FormSettings";
             ShowInTaskbar = false;
             StartPosition = FormStartPosition.CenterScreen;
@@ -357,6 +431,8 @@ namespace SecureChat.Client.Forms
             tabPageAdvanced.PerformLayout();
             tabPageNotifications.ResumeLayout(false);
             tabPageNotifications.PerformLayout();
+            tabPageCryptogrphy.ResumeLayout(false);
+            tabPageCryptogrphy.PerformLayout();
             ResumeLayout(false);
         }
         private Button buttonSave;
@@ -386,5 +462,12 @@ namespace SecureChat.Client.Forms
         private CheckBox checkBoxPlaySoundWhenContactComesOnline;
         private CheckBox checkBoxAlertToastWhenMessageReceived;
         private CheckBox checkBoxAlertToastWhenContactComesOnline;
+        private TabPage tabPageCryptogrphy;
+        private Label labelRsaKeySize;
+        private TextBox textBoxEndToEndKeySize;
+        private TextBox textBoxAesKeySize;
+        private Label labelEndToEndKeySize;
+        private Label labelAesKeySize;
+        private TextBox textBoxRsaKeySize;
     }
 }

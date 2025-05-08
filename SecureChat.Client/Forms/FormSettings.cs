@@ -32,6 +32,9 @@ namespace SecureChat.Client.Forms
 
             Exceptions.Ignore(() => checkBoxAutoStartAtWindowsLogin.Checked = RegistryHelper.IsAutoStartEnabled());
 
+            textBoxRsaKeySize.Text = $"{Settings.Instance.RsaKeySize:n0}";
+            textBoxAesKeySize.Text = $"{Settings.Instance.AesKeySize:n0}";
+            textBoxEndToEndKeySize.Text = $"{Settings.Instance.EndToEndKeySize:n0}";
             textBoxServerAddress.Text = Settings.Instance.ServerAddress;
             textBoxServerPort.Text = $"{Settings.Instance.ServerPort:n0}";
             textBoxAutoAwayIdleSeconds.Text = $"{Settings.Instance.AutoAwayIdleSeconds:n0}";
@@ -86,12 +89,27 @@ namespace SecureChat.Client.Forms
                 settings.ServerPort = textBoxServerPort.GetAndValidateNumeric(1, 65535, "Server port must be between [min] and [max].");
                 settings.AutoAwayIdleSeconds = textBoxAutoAwayIdleSeconds.GetAndValidateNumeric(60, 86400, "Auto-away idle seconds must be between [min] and [max].");
                 settings.MaxMessages = textBoxMaxMessages.GetAndValidateNumeric(10, 10000, "Max messages must be between [min] and [max].");
+
+                settings.RsaKeySize = textBoxRsaKeySize.GetAndValidateNumeric(1024, 4096, "Max messages must be between [min] and [max].");
+                settings.AesKeySize = textBoxAesKeySize.GetAndValidateNumeric(128, 256, "Max messages must be between [min] and [max].");
+                settings.EndToEndKeySize = textBoxEndToEndKeySize.GetAndValidateNumeric(128, 10240, "Max messages must be between [min] and [max].");
+
                 settings.FileTransferChunkSize = textBoxFileTransferChunkSize.GetAndValidateNumeric(128, 1024 * 1024, "File transfer chunk size must be between [min] and [max].");
                 settings.AlertToastWhenContactComesOnline = checkBoxAlertToastWhenContactComesOnline.Checked;
                 settings.AlertToastWhenMessageReceived = checkBoxAlertToastWhenMessageReceived.Checked;
                 settings.PlaySoundWhenContactComesOnline = checkBoxPlaySoundWhenContactComesOnline.Checked;
                 settings.PlaySoundWhenMessageReceived = checkBoxPlaySoundWhenMessageReceived.Checked;
                 settings.FlashWindowWhenMessageReceived = checkBoxFlashWindowWhenMessageReceived.Checked;
+
+                if(ScConstants.AcceptableAesKeySizes.Contains(settings.AesKeySize) == false)
+                {
+                    throw new ArgumentOutOfRangeException("AES key size must be 128, 192, or 256.");
+                }
+
+                if(ScConstants.AcceptableRsaKeySizes.Contains(settings.RsaKeySize) == false)
+                {
+                    throw new ArgumentOutOfRangeException("RSA key size must be 1024, 2048, 3072, or 4096.");
+                }
 
                 try
                 {

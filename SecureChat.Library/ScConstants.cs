@@ -6,6 +6,9 @@ namespace SecureChat.Library
     {
         public static readonly string[] ImageFileTypes = { ".bmp", ".jpg", ".jpeg", ".png", ".gif" };
 
+        public static readonly int[] AcceptableRsaKeySizes = new int[] { 1024, 2048, 3072, 4096 };
+        public static readonly int[] AcceptableAesKeySizes = new int[] { 128, 192, 256 };
+
         public const float DefaultFontSize = 10.0f;
         public const int DefaultAesKeySize = 256;
         public const int DefaultAutoAwayIdleSeconds = 600;
@@ -13,7 +16,7 @@ namespace SecureChat.Library
         public const int DefaultMaxMessages = 100;
         public const int DefaultMaxFileDrops = 10;
         public const int DefaultServerPort = 13265;
-        public const int DefaultSymmetricKeySize = 4096;
+        public const int DefaultEndToEndKeySize = 4096;
         public const int MinPasswordLength = 8;
         public const int OfflineLastSeenSeconds = 60;
         public const int DefaultRsaKeySize = 4096;

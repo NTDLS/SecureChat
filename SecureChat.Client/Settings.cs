@@ -42,7 +42,7 @@ namespace SecureChat.Client
 
         public int RsaKeySize { get; set; } = ScConstants.DefaultRsaKeySize;
         public int AesKeySize { get; set; } = ScConstants.DefaultAesKeySize;
-        public int SymmetricKeySize { get; set; } = ScConstants.DefaultSymmetricKeySize;
+        public int EndToEndKeySize { get; set; } = ScConstants.DefaultEndToEndKeySize;
 
         public bool AlertToastWhenContactComesOnline { get; set; } = true;
         public bool AlertToastWhenMessageReceived { get; set; } = true;
