@@ -29,7 +29,7 @@ namespace SecureChat.Client
                 //TODO: Show a dialog to the user to select a file location.
                 //if (accepted)
                 {
-                    activeChat.FileReceiveBuffers.Add(param.FileId, new FileReceiveBuffer(param.FileId, param.FileName, param.FileSize));
+                    activeChat.FileReceiveBuffers.Add(param.FileId, new FileReceiveBuffer(param.FileId, param.FileName, param.FileSize, param.IsImage));
                 }
 
             }
@@ -157,7 +157,7 @@ namespace SecureChat.Client
                 var activeChat = VerifyAndActiveChat(context, param.SessionId);
                 if (activeChat.FileReceiveBuffers.ContainsKey(param.FileId) == false)
                 {
-                    activeChat.FileReceiveBuffers.Add(param.FileId, new FileReceiveBuffer(param.FileId, param.FileName, param.FileSize));
+                    activeChat.FileReceiveBuffers.Add(param.FileId, new FileReceiveBuffer(param.FileId, param.FileName, param.FileSize, param.IsImage));
                 }
 
                 return new FileTransmissionBeginQueryReply();
@@ -206,8 +206,18 @@ namespace SecureChat.Client
 
                 if (activeChat.FileReceiveBuffers.TryGetValue(param.FileId, out var buffer))
                 {
-                    var imageBytes = buffer.GetFileBytes();
-                    activeChat.ReceiveImage(imageBytes);
+                    if (buffer.IsImage)
+                    {
+                        //The file is an image, so we need to display it.
+                        var imageBytes = buffer.GetFileBytes();
+                        activeChat.ReceiveImageMessage(imageBytes);
+                    }
+                    else
+                    {
+                        //The file is not an image, so we need to show the control with a link to the local file.
+                        //TODO: Show the control.
+                    }
+
                     buffer.Dispose();
                     activeChat.FileReceiveBuffers.Remove(param.FileId);
                 }
@@ -251,7 +261,7 @@ namespace SecureChat.Client
             {
                 var activeChat = VerifyAndActiveChat(context, param.SessionId);
 
-                activeChat?.ReceiveMessage(param.CipherText);
+                activeChat?.ReceiveTextMessage(param.CipherText);
 
                 return new ExchangeMessageTextQueryReply();
             }

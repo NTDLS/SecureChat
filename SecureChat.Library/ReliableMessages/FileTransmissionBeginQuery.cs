@@ -13,6 +13,8 @@ namespace SecureChat.Library.ReliableMessages
         /// </summary>
         public Guid PeerConnectionId { get; set; }
 
+        public bool IsImage { get; set; }
+
         public string FileName { get; set; }
 
         /// <summary>
@@ -21,13 +23,14 @@ namespace SecureChat.Library.ReliableMessages
         /// </summary>
         public Guid SessionId { get; set; }
 
-        public FileTransmissionBeginQuery(Guid sessionId, Guid peerConnectionId, Guid fileId, string fileName, long fileSize)
+        public FileTransmissionBeginQuery(Guid sessionId, Guid peerConnectionId, Guid fileId, string fileName, long fileSize, bool isImage)
         {
             SessionId = sessionId;
             PeerConnectionId = peerConnectionId;
             FileId = fileId;
             FileSize = fileSize;
             FileName = fileName;
+            IsImage = isImage;
         }
     }
 

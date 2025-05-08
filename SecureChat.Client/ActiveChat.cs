@@ -82,28 +82,56 @@ namespace SecureChat.Client
             keepAliveThread.Start();
         }
 
-        public string DecryptString(byte[] cipherText)
+        public void Terminate()
         {
-            lock (_streamCryptography)
+            if (IsTerminated)
             {
-                return _streamCryptography.DecryptString(cipherText);
+                return;
             }
+            IsTerminated = true;
+            ServerConnection.Current?.ReliableClient.Notify(new TerminateChatNotification(SessionId, PeerConnectionId));
+            AppendSystemMessageLine($"Conversation has ended.");
+            StopAudioPump();
         }
 
-        public byte[] EncryptString(string plainText)
+        public void ReceiveTextMessage(byte[] cipherText)
         {
-            lock (_streamCryptography)
+            if (IsTerminated)
             {
-                return _streamCryptography.EncryptString(plainText);
+                return;
             }
+
+            AppendReceivedMessageLine(DisplayName, DecryptString(cipherText), true, ScConstants.FromRemoteColor);
         }
 
-        public byte[] Cipher(byte[] bytes)
+        public bool SendTextMessage(string plaintText)
         {
-            lock (_streamCryptography)
+            if (IsTerminated)
             {
-                return _streamCryptography.Cipher(bytes);
+                return false;
             }
+
+            return ServerConnection.Current?.ReliableClient.Query(new ExchangeMessageTextQuery(SessionId,
+                    PeerConnectionId, EncryptString(plaintText))).ContinueWith(o =>
+                    {
+                        if (!o.IsFaulted && o.Result.IsSuccess)
+                        {
+                            return true;
+                        }
+                        return false;
+                    }).Result ?? false;
+        }
+
+        #region Voice Call.
+
+        public void AlertOfIncomingCall()
+        {
+            if (IsTerminated)
+            {
+                return;
+            }
+
+            AppendIncomingCall(DisplayName, true, Color.Blue);
         }
 
         public void PlayAudioPacket(byte[] bytes)
@@ -129,18 +157,6 @@ namespace SecureChat.Client
         {
             _audioPump?.Stop();
             _audioPump = null;
-        }
-
-        public void Terminate()
-        {
-            if (IsTerminated)
-            {
-                return;
-            }
-            IsTerminated = true;
-            ServerConnection.Current?.ReliableClient.Notify(new TerminateChatNotification(SessionId, PeerConnectionId));
-            AppendSystemMessageLine($"Conversation has ended.");
-            StopAudioPump();
         }
 
         /// <summary>
@@ -208,15 +224,6 @@ namespace SecureChat.Client
         }
 
         /// <summary>
-        /// Tell the remote client that we are canceling the file transmission.
-        /// </summary>
-        /// <param name="fileId"></param>
-        public void CancelFileTransmission(Guid fileId)
-        {
-            ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionCancelNotification(SessionId, PeerConnectionId, fileId));
-        }
-
-        /// <summary>
         /// Client which received the request for a voice call is is accepting the request.
         /// </summary>
         public void AcceptVoiceCallRequest(int inputDeviceIndex, int outputDeviceIndex, int bitrate)
@@ -237,7 +244,14 @@ namespace SecureChat.Client
             ServerConnection.Current?.ReliableClient.Notify(new DeclineVoiceCallNotification(SessionId, PeerConnectionId));
         }
 
-        public void ReceiveImage(byte[] imageBytes)
+        #endregion
+
+        #region File Transmission.
+
+        /// <summary>
+        /// A file transfer was completed for an image, show it to the user.
+        /// </summary>
+        public void ReceiveImageMessage(byte[] imageBytes)
         {
             if (IsTerminated)
             {
@@ -247,47 +261,30 @@ namespace SecureChat.Client
             AppendImageMessage(DisplayName, imageBytes, true, ScConstants.FromRemoteColor);
         }
 
-        public void AlertOfIncomingCall()
-        {
-            if (IsTerminated)
-            {
-                return;
-            }
 
-            AppendIncomingCall(DisplayName, true, Color.Blue);
+        /// <summary>
+        /// Tell the remote client that we are canceling the file transmission.
+        /// </summary>
+        public void CancelFileTransmission(Guid fileId)
+        {
+            ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionCancelNotification(SessionId, PeerConnectionId, fileId));
         }
 
-        public void ReceiveMessage(byte[] cipherText)
+        /// <summary>
+        /// The remote client has accepted the file transmission.
+        /// </summary>
+        public void FileTransmissionAccepted(Guid fileId)
         {
-            if (IsTerminated)
+            if (OutboundFileTransfers.TryGetValue(fileId, out var ftc))
             {
-                return;
+                Task.Run(() => TransmitFileChunks(ftc));
             }
-
-            AppendReceivedMessageLine(DisplayName, DecryptString(cipherText), true, ScConstants.FromRemoteColor);
-        }
-
-        public bool SendMessage(string plaintText)
-        {
-            if (IsTerminated)
+            else
             {
-                return false;
+                AppendErrorLine($"Accepted file transmission not found.");
+                //Tell the remote client that we are canceling the file transmission.
+                CancelFileTransmission(fileId);
             }
-
-            return ServerConnection.Current?.ReliableClient.Query(new ExchangeMessageTextQuery(SessionId,
-                    PeerConnectionId, EncryptString(plaintText))).ContinueWith(o =>
-                    {
-                        if (!o.IsFaulted && o.Result.IsSuccess)
-                        {
-                            return true;
-                        }
-                        return false;
-                    }).Result ?? false;
-        }
-
-        public void CancelTransmitFile()
-        {
-            ServerConnection.Current?.ReliableClient.Notify(new CancelVoiceCallRequestNotification(SessionId, PeerConnectionId));
         }
 
         /// <summary>
@@ -302,8 +299,6 @@ namespace SecureChat.Client
         /// <summary>
         /// Transmits a file to the remote client. The file is read from the byte-array and sent in chunks.
         /// </summary>
-        /// <param name="fileName"></param>
-        /// <param name="fileBytes"></param>
         public void TransmitFileAsync(string fileName, byte[] fileBytes)
         {
             TransmitFileAsync(fileName, fileBytes.LongLength, new MemoryStream(fileBytes));
@@ -327,8 +322,8 @@ namespace SecureChat.Client
             {
                 //If this is another typo of file, then we need to request the remote
                 //  client to accept the file so they can select a location to save it.
-                ServerConnection.Current?.ReliableClient.Notify(
-                    new FileTransmissionBeginRequestNotification(SessionId, PeerConnectionId, ftc.Transfer.FileId, ftc.Transfer.FileName, ftc.Transfer.FileSize));
+                ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionBeginRequestNotification(
+                    SessionId, PeerConnectionId, ftc.Transfer.FileId, ftc.Transfer.FileName, ftc.Transfer.FileSize, ftc.Transfer.IsImage));
             }
         }
 
@@ -336,7 +331,8 @@ namespace SecureChat.Client
         {
             try
             {
-                ServerConnection.Current?.ReliableClient.Query(new FileTransmissionBeginQuery(SessionId, PeerConnectionId, ftc.Transfer.FileId, ftc.Transfer.FileName, ftc.Transfer.FileSize));
+                ServerConnection.Current?.ReliableClient.Query(new FileTransmissionBeginQuery(
+                    SessionId, PeerConnectionId, ftc.Transfer.FileId, ftc.Transfer.FileName, ftc.Transfer.FileSize, ftc.Transfer.IsImage));
 
                 double totalBytesSent = 0;
 
@@ -399,6 +395,8 @@ namespace SecureChat.Client
                 OutboundFileTransfers.Remove(ftc.Transfer.FileId);
             }
         }
+
+        #endregion
 
         #region Append Flow Controls.
 
@@ -614,6 +612,34 @@ namespace SecureChat.Client
             catch (Exception ex)
             {
                 AppendErrorLine(ex);
+            }
+        }
+
+        #endregion
+
+        #region Symmetric Cryptography.
+
+        public string DecryptString(byte[] cipherText)
+        {
+            lock (_streamCryptography)
+            {
+                return _streamCryptography.DecryptString(cipherText);
+            }
+        }
+
+        public byte[] EncryptString(string plainText)
+        {
+            lock (_streamCryptography)
+            {
+                return _streamCryptography.EncryptString(plainText);
+            }
+        }
+
+        public byte[] Cipher(byte[] bytes)
+        {
+            lock (_streamCryptography)
+            {
+                return _streamCryptography.Cipher(bytes);
             }
         }
 

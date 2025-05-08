@@ -244,7 +244,7 @@ namespace SecureChat.Client.Forms
                 }
                 textBoxMessage.Clear();
 
-                if (_activeChat.SendMessage(text))
+                if (_activeChat.SendTextMessage(text))
                 {
                     _activeChat.AppendReceivedMessageLine(ServerConnection.Current.DisplayName, text, false, ScConstants.FromMeColor);
                 }
