@@ -1,5 +1,6 @@
 ﻿using NTDLS.Helpers;
 using System.ComponentModel;
+using System.Security.Cryptography.Xml;
 
 namespace SecureChat.Client.Controls
 {
@@ -47,6 +48,8 @@ namespace SecureChat.Client.Controls
                 buttonAccept.Enabled = false;
                 buttonDecline.Enabled = false;
 
+                Remove();
+
                 //Add the receive control to the chat with the path of the file.
                 var control = _activeChat.AppendFileTransferReceiveProgress(FileId, FileName, FileSize, IsImage, sfd.FileName);
                 _activeChat.InboundFileTransfers.Add(FileId, control);
@@ -59,6 +62,15 @@ namespace SecureChat.Client.Controls
             buttonAccept.Enabled = false;
             buttonDecline.Enabled = false;
             _activeChat.DeclineFileTransfer(this);
+            Remove();
+        }
+
+        public void Remove()
+        {
+            Exceptions.Ignore(() =>
+            {
+                _parent.Invoke(() => _parent.Controls.Remove(this));
+            });
         }
     }
 }

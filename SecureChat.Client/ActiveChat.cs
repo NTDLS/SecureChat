@@ -311,7 +311,7 @@ namespace SecureChat.Client
         /// <param name="fileId"></param>
         public void DeclineFileTransfer(FlowControlFileTransferRequest ftc)
         {
-            AppendSystemMessageLine($"File transfer '{ftc.FileName}' declined.");
+            AppendSystemMessageLine($"File transfer '{Path.GetFileName(ftc.FileName)}' declined.");
             ServerConnection.Current?.ReliableClient.Notify(new FileTransferDeclineRequestNotification(SessionId, PeerConnectionId, ftc.FileId));
         }
 
