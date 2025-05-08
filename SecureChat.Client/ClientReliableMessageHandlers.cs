@@ -18,6 +18,29 @@ namespace SecureChat.Client
         }
 
         /// <summary>
+        /// Remote client is requesting that another client accept a large or binary file
+        /// where we need to give the remote client a chance to select a save location.
+        /// </summary>
+        public void FileTransmissionBeginRequestNotification(RmContext context, FileTransmissionBeginRequestNotification param)
+        {
+            try
+            {
+                var activeChat = VerifyAndActiveChat(context, param.SessionId);
+
+                //TODO: Show a dialog to the user to select a file location.
+                //if (accepted)
+                {
+                    activeChat.FileReceiveBuffers.Add(param.FileId, new FileReceiveBuffer(param.FileId, param.FileName, param.FileSize));
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
         /// A client that requested a voice call with us is cancelling that request.
         /// </summary>
         public void CancelVoiceCallRequestNotification(RmContext context, CancelVoiceCallRequestNotification param)
@@ -26,6 +49,7 @@ namespace SecureChat.Client
             {
                 var activeChat = VerifyAndActiveChat(context, param.SessionId);
 
+                //TODO: inform the user that the call request was cancelled.
             }
             catch (Exception ex)
             {
@@ -132,7 +156,11 @@ namespace SecureChat.Client
             try
             {
                 var activeChat = VerifyAndActiveChat(context, param.SessionId);
-                activeChat.FileReceiveBuffers.Add(param.FileId, new FileReceiveBuffer(param.FileId, param.FileName, param.FileSize));
+                if(activeChat.FileReceiveBuffers.ContainsKey(param.FileId) == false)
+                {
+                    activeChat.FileReceiveBuffers.Add(param.FileId, new FileReceiveBuffer(param.FileId, param.FileName, param.FileSize));
+                }
+
                 return new FileTransmissionBeginQueryReply();
             }
             catch (Exception ex)

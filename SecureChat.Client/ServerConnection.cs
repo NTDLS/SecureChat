@@ -44,7 +44,6 @@ namespace SecureChat.Client
         public AccountProfileModel Profile { get; set; } = new();
         public bool ExplicitAway { get; set; }
         public TrayApp Tray { get; private set; }
-
         public ScOnlineState State { get; set; } = ScOnlineState.Offline;
 
         public ServerConnection(TrayApp tray, FormHome formHome, RmClient reliableClient, Guid accountId, string username, string displayName)

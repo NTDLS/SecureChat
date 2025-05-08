@@ -3,32 +3,36 @@ using System.ComponentModel;
 
 namespace SecureChat.Client.Controls
 {
-    internal partial class FlowControlFileTransmissionProgress : UserControl
+    internal partial class FlowControlFileTransmissionProgress
+        : UserControl, IFileTransmissionControl
     {
         private readonly FlowLayoutPanel _parent;
         private readonly ActiveChat _activeChat;
-        private readonly Guid _fileId;
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public FileOutboundTransfer Transfer { get; private set; }
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsCancelled { get; private set; }
 
-        public FlowControlFileTransmissionProgress(FlowLayoutPanel parent, ActiveChat activeChat, Guid fileId, string fileName, long fileSize)
+        public FlowControlFileTransmissionProgress(FlowLayoutPanel parent, ActiveChat activeChat, string fileName, long fileSize, Stream stream)
         {
+            Transfer = new FileOutboundTransfer(fileName, fileSize, stream);
+
             _activeChat = activeChat;
-            _fileId = fileId;
             _parent = parent;
             InitializeComponent();
 
-            var fileNameOnly = Path.GetFileName(fileName);
+            var fileNameOnly = Path.GetFileName(Transfer.FileName);
 
-            labelHeaderText.Text = $"{Formatters.FileSize(fileSize)} {fileNameOnly}";
+            labelHeaderText.Text = $"{Formatters.FileSize(Transfer.FileSize)} {fileNameOnly}";
         }
 
         private void ButtonDecline_Click(object sender, EventArgs e)
         {
             buttonCancel.Enabled = false;
             IsCancelled = true;
-            _activeChat.CancelFileTransmission(_fileId);
+            _activeChat.CancelFileTransmission(Transfer.FileId);
         }
 
         public void SetProgressValue(int value)
@@ -57,6 +61,9 @@ namespace SecureChat.Client.Controls
             {
                 _parent.Invoke(() => _parent.Controls.Remove(this));
             });
+
+            //Close the stream (file handle or memory stream).
+            Exceptions.Ignore(() => Transfer.Dispose());
         }
     }
 }

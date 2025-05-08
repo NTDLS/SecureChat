@@ -313,6 +313,23 @@ namespace SecureChat.Server
         }
 
         /// <summary>
+        /// Remote client is requesting that another client accept a large or binary file
+        /// where we need to give the remote client a chance to select a save location.
+        /// </summary>
+        public void FileTransmissionBeginRequestNotification(RmContext context, TerminateChatNotification param)
+        {
+            try
+            {
+                var accountConnection = VerifyAndGetAccountConnection(context);
+                _chatService.RmServer.Notify(param.PeerConnectionId, param);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
         /// A client is letting the server know that they are terminating the chat.
         /// Route the message to the appropriate connection.
         /// </summary>
@@ -321,7 +338,6 @@ namespace SecureChat.Server
             try
             {
                 var accountConnection = VerifyAndGetAccountConnection(context);
-
                 _chatService.RmServer.Notify(param.PeerConnectionId, param);
             }
             catch (Exception ex)
