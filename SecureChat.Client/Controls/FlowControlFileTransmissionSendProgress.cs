@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace SecureChat.Client.Controls
 {
-    internal partial class FlowControlFileTransmissionProgress
+    internal partial class FlowControlFileTransmissionSendProgress
         : UserControl, IFileTransmissionControl
     {
         private readonly FlowLayoutPanel _parent;
@@ -15,7 +15,7 @@ namespace SecureChat.Client.Controls
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsCancelled { get; private set; }
 
-        public FlowControlFileTransmissionProgress(FlowLayoutPanel parent, ActiveChat activeChat, string fileName, long fileSize, Stream stream)
+        public FlowControlFileTransmissionSendProgress(FlowLayoutPanel parent, ActiveChat activeChat, string fileName, long fileSize, Stream stream)
         {
             Transfer = new FileOutboundTransfer(fileName, fileSize, stream);
 

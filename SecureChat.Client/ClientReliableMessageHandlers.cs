@@ -1,5 +1,6 @@
 ﻿using NTDLS.ReliableMessaging;
 using NTDLS.SecureKeyExchange;
+using SecureChat.Client.Controls;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
 using System.Diagnostics;
@@ -57,6 +58,10 @@ namespace SecureChat.Client
             try
             {
                 var activeChat = VerifyAndActiveChat(context, param.SessionId);
+
+                activeChat.AppendFileTransmissionSendProgress(Path.GetFileName(param.FileName), param.FileSize);
+
+
                 activeChat.ReceiveFileRequestMessage(param.FileId, param.FileName, param.FileSize, param.IsImage);
             }
             catch (Exception ex)

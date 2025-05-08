@@ -41,10 +41,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Controls\FlowControlFileTransmissionReceiveProgress.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="Controls\FlowControlHyperlink.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Controls\FlowControlFileTransmissionProgress.cs">
+    <Compile Update="Controls\FlowControlFileTransmissionSendProgress.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="Controls\FlowControlFileTransmissionRequest.cs">

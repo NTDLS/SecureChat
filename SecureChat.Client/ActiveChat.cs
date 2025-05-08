@@ -367,7 +367,7 @@ namespace SecureChat.Client
 
         private void TransmitFileAsync(string fileName, long fileSize, Stream stream)
         {
-            var ftc = AppendFileTransmissionProgress(fileName, fileSize, stream);
+            var ftc = AppendFileTransmissionSendProgress(fileName, fileSize, stream);
             if (ftc == null)
             {
                 return;
@@ -384,7 +384,7 @@ namespace SecureChat.Client
                 //If this is another typo of file, then we need to request the remote
                 //  client to accept the file so they can select a location to save it.
                 ServerConnection.Current?.ReliableClient.Notify(new FileTransmissionBeginRequestNotification(
-                    SessionId, PeerConnectionId, ftc.Transfer.FileId, ftc.Transfer.FileName, ftc.Transfer.FileSize, ftc.Transfer.IsImage));
+                    SessionId, PeerConnectionId, ftc.Transfer.FileId, Path.GetFileName(ftc.Transfer.FileName), ftc.Transfer.FileSize, ftc.Transfer.IsImage));
             }
         }
 
@@ -560,17 +560,34 @@ namespace SecureChat.Client
         }
 
         /// <summary>
-        /// Adds a control to monitor the outbound file transmission progress.
+        /// Adds a control to monitor the inbound file transmission progress.
         /// </summary>
         /// <returns></returns>
-        public IFileTransmissionControl? AppendFileTransmissionProgress(string fileName, long fileSize, Stream stream)
+        public IFileTransmissionControl? AppendFileTransmissionReceiveProgress(string fileName, long fileSize)
         {
             if (Form == null || Form.FlowPanel == null)
             {
                 return null;
             }
 
-            var control = new FlowControlFileTransmissionProgress(Form.FlowPanel, this, fileName, fileSize, stream);
+            var control = new FlowControlFileTransmissionReceiveProgress(Form.FlowPanel, this, fileName, fileSize);
+            AppendFlowControl(control);
+
+            return control;
+        }
+
+        /// <summary>
+        /// Adds a control to monitor the outbound file transmission progress.
+        /// </summary>
+        /// <returns></returns>
+        public IFileTransmissionControl? AppendFileTransmissionSendProgress(string fileName, long fileSize, Stream stream)
+        {
+            if (Form == null || Form.FlowPanel == null)
+            {
+                return null;
+            }
+
+            var control = new FlowControlFileTransmissionSendProgress(Form.FlowPanel, this, fileName, fileSize, stream);
             AppendFlowControl(control);
 
             return control;

@@ -1,6 +1,6 @@
 ﻿namespace SecureChat.Client.Controls
 {
-    partial class FlowControlFileTransmissionProgress
+    partial class FlowControlFileTransmissionSendProgress
     {
         /// <summary> 
         /// Required designer variable.
