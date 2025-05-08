@@ -60,6 +60,20 @@ namespace SecureChat.Client.Forms
             }
         }
 
+        /// <summary>
+        /// We have to create the Message Form on the main window thread.
+        /// </summary>
+        internal FormMessage CreateMessageForm(ActiveChat activeChat)
+        {
+            return Invoke(() =>
+            {
+                var form = new FormMessage(activeChat);
+                form.CreateControl(); //Force the window handle to be created before the form is shown,
+                var handle = form.Handle; // Accessing the Handle property forces handle creation
+                return form;
+            });
+        }
+
         private void RemoveContact(ContactModel contact)
         {
             try
@@ -386,7 +400,6 @@ namespace SecureChat.Client.Forms
                             activeChat = ServerConnection.Current.AddActiveChat(sessionId,
                                 queryRequestKeyExchangeReply.PeerConnectionId, contactsModel.Id, contactsModel.DisplayName, compoundNegotiator.SharedSecret);
 
-                            activeChat.Form = new FormMessage(activeChat);
                             activeChat.Form.Show();
                         }
                         else

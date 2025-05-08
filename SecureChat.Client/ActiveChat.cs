@@ -25,7 +25,7 @@ namespace SecureChat.Client
         public FlowControlOutgoingCall? LastOutgoingCallControl { get; set; }
         public PublicPrivateKeyPair PublicPrivateKeyPair { get; private set; }
         public bool IsTerminated { get; private set; } = false;
-        public FormMessage? Form { get; set; }
+        public FormMessage Form { get; private set; }
         public Guid AccountId { get; private set; }
         public string DisplayName { get; private set; }
         public Guid PeerConnectionId { get; private set; }
@@ -54,6 +54,9 @@ namespace SecureChat.Client
             PeerConnectionId = peerConnectionId;
             AccountId = accountId;
             DisplayName = displayName;
+
+            Form = ServerConnection.Current?.FormHome.CreateMessageForm(this)
+                ?? throw new Exception("Unable to create message form. Server connection is not established.");
 
             var keepAliveThread = new Thread(() =>
             {

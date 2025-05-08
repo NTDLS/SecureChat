@@ -1,6 +1,5 @@
 ﻿using NTDLS.ReliableMessaging;
 using NTDLS.SecureKeyExchange;
-using SecureChat.Client.Forms;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
 using System.Diagnostics;
@@ -286,15 +285,6 @@ namespace SecureChat.Client
                     param.SourceAccountId,
                     param.DisplayName,
                     compoundNegotiator.SharedSecret);
-
-                ServerConnection.Current.FormHome.Invoke(() =>
-                {
-                    //We have to create the form on the main window thread.
-                    activeChat.Form = new FormMessage(activeChat);
-                    activeChat.Form.CreateControl(); //Force the window handle to be created before the form is shown,
-                    var handle = activeChat.Form.Handle; // Accessing the Handle property forces handle creation
-                    //activeChat.Form.Show();
-                });
 
                 //Reply with the applied negotiation token so that the requester can arrive at the same shared secret.
                 return new InitiatePeerToPeerSessionQueryReply(negotiationReplyToken);
