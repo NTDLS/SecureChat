@@ -1,5 +1,3 @@
-## 👀 THIS IS A WORK IN PROGRESS AND IS NOT YET READY FOR PROCUTION USE 👀
-
 # Secure Chat
 Secure Chat is a solution to secure private messaging, employing multiple layers of encryption and stream compression.
 
