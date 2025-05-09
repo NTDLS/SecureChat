@@ -104,7 +104,7 @@ namespace SecureChat.Client
                     tabControl.Padding = new Point(10, 4); // Padding for tab text
                     tabControl.DrawItem += (s, e) =>
                     {
-                        TabControl? tc = s as TabControl;
+                        var tc = s as TabControl;
                         if (tc != null)
                         {
                             TabPage tp = tc.TabPages[e.Index];
@@ -117,14 +117,16 @@ namespace SecureChat.Client
                             Color backColor = isSelected ? Color.FromArgb(60, 60, 60) : Color.FromArgb(45, 45, 45);
                             Color textColor = isSelected ? Color.White : Color.LightGray;
 
-                            using (Brush backBrush = new SolidBrush(backColor))
-                            using (Brush textBrush = new SolidBrush(textColor))
-                            {
-                                // Draw the background of the tab
-                                e.Graphics.FillRectangle(backBrush, tabRect);
+                            using Brush backBrush = new SolidBrush(backColor);
+                            using Brush textBrush = new SolidBrush(textColor);
 
+                            // Draw the background of the tab
+                            e.Graphics.FillRectangle(backBrush, tabRect);
+
+                            if (e.Font != null)
+                            {
                                 // Draw the tab text
-                                StringFormat sf = new StringFormat
+                                var sf = new StringFormat
                                 {
                                     Alignment = StringAlignment.Center,
                                     LineAlignment = StringAlignment.Center
@@ -133,10 +135,8 @@ namespace SecureChat.Client
                             }
 
                             // Draw a border around the tab for better visibility
-                            using (Pen borderPen = new Pen(Color.Gray))
-                            {
-                                e.Graphics.DrawRectangle(borderPen, tabRect);
-                            }
+                            using Pen borderPen = new Pen(Color.Gray);
+                            e.Graphics.DrawRectangle(borderPen, tabRect);
                         }
                     };
                     foreach (TabPage tabPage in tabControl.TabPages)
