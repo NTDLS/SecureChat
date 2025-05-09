@@ -38,7 +38,7 @@ namespace SecureChat.Client.Forms
                     return;
                 }
 
-                if (e.RowIndex >= 0 && dataGridViewAccounts.Columns[e.ColumnIndex] is DataGridViewButtonColumn)
+                if (e.RowIndex >= 0 && dataGridViewAccounts.Columns[e.ColumnIndex] is KryptonDataGridViewButtonColumn)
                 {
                     if (dataGridViewAccounts.Rows[e.RowIndex].Tag is AccountSearchModel account)
                     {
