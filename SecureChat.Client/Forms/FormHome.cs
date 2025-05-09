@@ -17,6 +17,11 @@ namespace SecureChat.Client.Forms
 {
     public partial class FormHome : KryptonForm
     {
+        /// <summary>
+        /// These are chat message forms per account ID. If they remain open, they will be recycled for subsequent chats.
+        /// </summary>
+        private readonly Dictionary<Guid, FormMessage> _accountMessageForms = new();
+
         private readonly ImageList _treeImages = new();
         private readonly ToolTip _treeToolTip = new();
 
@@ -28,7 +33,6 @@ namespace SecureChat.Client.Forms
 
             try
             {
-
                 _treeImages.ColorDepth = ColorDepth.Depth32Bit;
                 _treeImages.Images.Add(ScOnlineState.Offline.ToString(), Imaging.LoadIconFromResources(Resources.Offline16));
                 _treeImages.Images.Add(ScOnlineState.Online.ToString(), Imaging.LoadIconFromResources(Resources.Online16));
@@ -63,6 +67,14 @@ namespace SecureChat.Client.Forms
             }
         }
 
+        public void RemoveMessageForm(Guid accountId)
+        {
+            if (_accountMessageForms.TryGetValue(accountId, out var form))
+            {
+                _accountMessageForms.Remove(accountId);
+            }
+        }
+
         /// <summary>
         /// We have to create the Message Form on the main window thread.
         /// </summary>
@@ -70,11 +82,66 @@ namespace SecureChat.Client.Forms
         {
             return Invoke(() =>
             {
+                //Recycle the form if it already exists for this accountId.
+                if (_accountMessageForms.TryGetValue(activeChat.AccountId, out var existingForm))
+                {
+                    existingForm.Recycle(activeChat);
+                    return existingForm;
+                }
+
                 var form = new FormMessage(activeChat);
                 form.CreateControl(); //Force the window handle to be created before the form is shown,
                 var handle = form.Handle; // Accessing the Handle property forces handle creation
+                _accountMessageForms.Add(activeChat.AccountId, form);
                 return form;
             });
+        }
+
+        internal ActiveChat? EstablishEndToEndConnectionFor(Guid accountId, string displayName)
+        {
+            //Start the key exchange process then popup the chat window.
+            if (ServerConnection.Current == null || !ServerConnection.Current.ReliableClient.IsConnected)
+            {
+                MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.InvokeClose(DialogResult.Cancel);
+                return null;
+            }
+
+            ActiveChat? activeChat = null;
+
+            var sessionId = Guid.NewGuid();
+
+            var compoundNegotiator = new CompoundNegotiator();
+            var negotiationToken = compoundNegotiator.GenerateNegotiationToken((int)(Math.Ceiling(Settings.Instance.EndToEndKeySize / 128.0)));
+
+            //The first thing we do when we get a connection is start a new key exchange process.
+            var queryRequestKeyExchangeReply = ServerConnection.Current.ReliableClient.Query(
+                new InitiatePeerToPeerSessionQuery(sessionId, ServerConnection.Current.AccountId, accountId, ServerConnection.Current.DisplayName, negotiationToken))
+                .ContinueWith(o =>
+                {
+                    if (!o.IsFaulted && o.Result.IsSuccess)
+                    {
+                        return o.Result;
+                    }
+                    return null;
+                }).Result;
+
+            if (queryRequestKeyExchangeReply != null)
+            {
+                //We received a reply to the secure key exchange, apply it.
+                compoundNegotiator.ApplyNegotiationResponseToken(queryRequestKeyExchangeReply.NegotiationToken);
+
+                activeChat = ServerConnection.Current.AddActiveChat(sessionId,
+                    queryRequestKeyExchangeReply.PeerConnectionId, accountId, displayName, compoundNegotiator.SharedSecret);
+
+                activeChat.Form.Show();
+            }
+            else
+            {
+                throw new Exception("Failed to establish a connection with the contact.");
+            }
+
+            return activeChat;
         }
 
         private void RemoveContact(ContactModel contact)
@@ -378,36 +445,13 @@ namespace SecureChat.Client.Forms
                     var activeChat = ServerConnection.Current.GetActiveChatByAccountId(contactsModel.Id);
                     if (activeChat == null)
                     {
-                        var sessionId = Guid.NewGuid();
-
-                        var compoundNegotiator = new CompoundNegotiator();
-                        var negotiationToken = compoundNegotiator.GenerateNegotiationToken((int)(Math.Ceiling(Settings.Instance.EndToEndKeySize / 128.0)));
-
-                        //The first thing we do when we get a connection is start a new key exchange process.
-                        var queryRequestKeyExchangeReply = ServerConnection.Current.ReliableClient.Query(
-                            new InitiatePeerToPeerSessionQuery(sessionId, ServerConnection.Current.AccountId, contactsModel.Id, ServerConnection.Current.DisplayName, negotiationToken))
-                            .ContinueWith(o =>
-                            {
-                                if (!o.IsFaulted && o.Result.IsSuccess)
-                                {
-                                    return o.Result;
-                                }
-                                return null;
-                            }).Result;
-
-                        if (queryRequestKeyExchangeReply != null)
+                        try
                         {
-                            //We received a reply to the secure key exchange, apply it.
-                            compoundNegotiator.ApplyNegotiationResponseToken(queryRequestKeyExchangeReply.NegotiationToken);
-
-                            activeChat = ServerConnection.Current.AddActiveChat(sessionId,
-                                queryRequestKeyExchangeReply.PeerConnectionId, contactsModel.Id, contactsModel.DisplayName, compoundNegotiator.SharedSecret);
-
-                            activeChat.Form.Show();
+                            EstablishEndToEndConnectionFor(contactsModel.Id, contactsModel.DisplayName);
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            this.InvokeMessageBox("Could not connect to the selected contact.", ScConstants.AppName, MessageBoxButtons.OK);
+                            this.InvokeMessageBox(ex.GetBaseException().Message, ScConstants.AppName, MessageBoxButtons.OK);
                         }
                     }
                     else if (activeChat.Form != null)

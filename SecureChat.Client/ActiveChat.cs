@@ -78,26 +78,35 @@ namespace SecureChat.Client
             Form = ServerConnection.Current?.FormHome.CreateMessageForm(this)
                 ?? throw new Exception("Unable to create message form. Server connection is not established.");
 
-            new Thread(() =>
+            if (Form.IsRecycled)
             {
-                while (!IsTerminated && ServerConnection.Current?.ReliableClient.IsConnected == true)
-                {
-                    try
-                    {
-                        ServerConnection.Current?.ReliableClient.Notify(new SessionKeepAliveNotification(SessionId));
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error(ex, "Error sending session keep-alive notification.");
-                    }
+                AppendSuccessMessageLine($"Conversation with {displayName} reconnected.");
+            }
+            else
+            {
+                AppendSuccessMessageLine($"Conversation {displayName} started.");
+            }
 
-                    var breakTime = DateTime.UtcNow.AddSeconds(10);
-                    while (!IsTerminated && ServerConnection.Current?.ReliableClient.IsConnected == true && DateTime.UtcNow < breakTime)
+            new Thread(() =>
+                {
+                    while (!IsTerminated && ServerConnection.Current?.ReliableClient.IsConnected == true)
                     {
-                        Thread.Sleep(500);
+                        try
+                        {
+                            ServerConnection.Current?.ReliableClient.Notify(new SessionKeepAliveNotification(SessionId));
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error(ex, "Error sending session keep-alive notification.");
+                        }
+
+                        var breakTime = DateTime.UtcNow.AddSeconds(10);
+                        while (!IsTerminated && ServerConnection.Current?.ReliableClient.IsConnected == true && DateTime.UtcNow < breakTime)
+                        {
+                            Thread.Sleep(500);
+                        }
                     }
-                }
-            }).Start();
+                }).Start();
         }
 
         public void Terminate()
@@ -479,7 +488,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (Form == null || Form.FlowPanel == null)
+                if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
                 {
                     return;
                 }
@@ -508,7 +517,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (Form == null || Form.FlowPanel == null)
+                if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
                 {
                     return;
                 }
@@ -545,7 +554,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (Form == null || Form.FlowPanel == null)
+                if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
                 {
                     return;
                 }
@@ -582,7 +591,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (Form == null || Form.FlowPanel == null)
+                if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
                 {
                     return;
                 }
@@ -619,7 +628,7 @@ namespace SecureChat.Client
         /// <returns></returns>
         public FlowControlFileTransferReceiveProgress AppendFileTransferReceiveProgress(Guid fileId, string fileName, long fileSize, bool isImage, string? saveAsFileName = null)
         {
-            if (Form == null || Form.FlowPanel == null)
+            if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
             {
                 throw new Exception("Form is not initialized.");
             }
@@ -636,7 +645,7 @@ namespace SecureChat.Client
         /// <returns></returns>
         public FlowControlFileTransferSendProgress AppendFileTransferSendProgress(string fileName, long fileSize, Stream stream)
         {
-            if (Form == null || Form.FlowPanel == null)
+            if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
             {
                 throw new Exception("Form is not initialized.");
             }
@@ -649,7 +658,7 @@ namespace SecureChat.Client
 
         public void AppendErrorLine(Exception ex, Color? color = null)
         {
-            if (Form == null || Form.FlowPanel == null)
+            if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
             {
                 return;
             }
@@ -661,7 +670,7 @@ namespace SecureChat.Client
 
         public void AppendErrorLine(string message, Color? color = null)
         {
-            if (Form == null || Form.FlowPanel == null)
+            if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
             {
                 return;
             }
@@ -672,7 +681,7 @@ namespace SecureChat.Client
 
         public void AppendSystemMessageLine(string message, Color? color = null)
         {
-            if (Form == null || Form.FlowPanel == null)
+            if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
             {
                 return;
             }
@@ -682,9 +691,9 @@ namespace SecureChat.Client
 
         public void AppendSuccessMessageLine(string message, Color? color = null)
         {
-            color ??= Color.Green;
+            color ??= Themes.ChooseColor(Color.Green, Color.LightGreen);
 
-            if (Form == null || Form.FlowPanel == null)
+            if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
             {
                 return;
             }
@@ -694,7 +703,7 @@ namespace SecureChat.Client
 
         public void AppendIncomingCallRequest(string fromName)
         {
-            if (Form == null || Form.FlowPanel == null)
+            if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
             {
                 return;
             }
@@ -704,7 +713,7 @@ namespace SecureChat.Client
 
         public void AppendOutgoingCallRequest(string toName)
         {
-            if (Form == null || Form.FlowPanel == null)
+            if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
             {
                 return;
             }
@@ -717,7 +726,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (Form == null || Form.FlowPanel == null)
+                if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
                 {
                     return;
                 }
@@ -761,7 +770,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (Form == null || Form.FlowPanel == null)
+                if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
                 {
                     return;
                 }

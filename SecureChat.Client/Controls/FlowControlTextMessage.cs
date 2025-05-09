@@ -38,7 +38,7 @@ namespace SecureChat.Client.Controls
             {
                 Text = message,
                 AutoSize = true,
-                ForeColor = Themes.ChooseColor(Color.White, Color.Black),
+                ForeColor = Themes.ChooseColor(Color.Black, Color.White),
                 Font = Fonts.Instance.Regular,
                 //BackColor = Color.LightGray,
                 Padding = new Padding(0),

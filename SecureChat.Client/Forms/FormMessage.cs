@@ -3,15 +3,19 @@ using NTDLS.Helpers;
 using SecureChat.Client.Helpers;
 using SecureChat.Library;
 using Serilog;
+using System.ComponentModel;
 using System.Diagnostics;
 
 namespace SecureChat.Client.Forms
 {
     public partial class FormMessage : KryptonForm
     {
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool IsRecycled { get; private set; } = false;
+
         private readonly int DefaultHeight = 550;
         private readonly int DefaultWidth = 550;
-        private readonly ActiveChat _activeChat;
+        private ActiveChat _activeChat;
         private bool _isFormClosing = false;
         private readonly System.Windows.Forms.Timer _timer;
 
@@ -22,6 +26,7 @@ namespace SecureChat.Client.Forms
             InitializeComponent();
 
             BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
+            FlowPanel.BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
 
             try
             {
@@ -36,6 +41,7 @@ namespace SecureChat.Client.Forms
                         _timer?.Stop();
                         _timer?.Dispose();
                         _isFormClosing = true;
+                        ServerConnection.Current?.FormHome.RemoveMessageForm(_activeChat.AccountId);
                         return; //Close the dialog.
                     }
 
@@ -87,14 +93,18 @@ namespace SecureChat.Client.Forms
                     Enabled = true
                 };
                 _timer.Tick += Timer_Tick;
-
-                _activeChat.AppendSuccessMessageLine($"Conversation with {_activeChat.DisplayName} started.");
             }
             catch (Exception ex)
             {
                 Log.Fatal($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 throw;
             }
+        }
+
+        internal void Recycle(ActiveChat activeChat)
+        {
+            _activeChat = activeChat;
+            IsRecycled = true;
         }
 
         public void Close(bool force)
@@ -258,7 +268,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (ServerConnection.Current == null || _activeChat.IsTerminated || !ServerConnection.Current.ReliableClient.IsConnected)
+                if (ServerConnection.Current == null || !ServerConnection.Current.ReliableClient.IsConnected)
                 {
                     _activeChat.AppendSystemMessageLine("Not connected.");
                     return;
@@ -266,8 +276,15 @@ namespace SecureChat.Client.Forms
 
                 if (_activeChat.IsTerminated)
                 {
-                    _activeChat.AppendSystemMessageLine("Conversation has ended.");
-                    return;
+                    try
+                    {
+                        ServerConnection.Current.FormHome.EstablishEndToEndConnectionFor(_activeChat.AccountId, _activeChat.DisplayName);
+                    }
+                    catch (Exception ex)
+                    {
+                        _activeChat.AppendSystemMessageLine(ex.GetBaseException().Message);
+                        return;
+                    }
                 }
 
                 string text = textBoxMessage.Text;
