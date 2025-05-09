@@ -19,6 +19,8 @@ namespace SecureChat.Client.Forms
         {
             InitializeComponent();
 
+            Themes.ApplyDarkTheme(this);
+
             AcceptButton = buttonLogin;
             CancelButton = buttonCancel;
 
@@ -70,7 +72,7 @@ namespace SecureChat.Client.Forms
             {
                 var username = textBoxUsername.GetAndValidateText("A username is required.");
                 var passwordHash = Crypto.ComputeSha256Hash(textBoxPassword.Text);
-                var progressForm = new ProgressForm(ScConstants.AppName, "Please wait...");
+                var progressForm = new ProgressForm(ScConstants.AppName, "Please wait...", (Form f) => Themes.ApplyDarkTheme(f));
 
                 progressForm.Execute(() =>
                 {

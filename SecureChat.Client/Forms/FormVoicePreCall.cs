@@ -20,6 +20,8 @@ namespace SecureChat.Client.Forms
         public FormVoicePreCall()
         {
             InitializeComponent();
+
+            Themes.ApplyDarkTheme(this);
         }
 
         private void FormVoicePreCall_Load(object sender, EventArgs e)

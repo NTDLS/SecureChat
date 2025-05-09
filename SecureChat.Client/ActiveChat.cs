@@ -578,7 +578,7 @@ namespace SecureChat.Client
             }
         }
 
-        private void AppendImageMessage(string fromName, byte[] imageBytes, bool playNotifications, Color color)
+        private void AppendImageMessage(string fromName, byte[] imageBytes, bool playNotifications, Color displayNameColor)
         {
             try
             {
@@ -587,7 +587,7 @@ namespace SecureChat.Client
                     return;
                 }
 
-                AppendFlowControl(new FlowControlImage(Form.FlowPanel, fromName, imageBytes, color));
+                AppendFlowControl(new FlowControlImage(Form.FlowPanel, fromName, imageBytes, displayNameColor));
 
                 Form.Invoke(() =>
                 {
@@ -713,7 +713,7 @@ namespace SecureChat.Client
             AppendFlowControl(LastOutgoingCallControl);
         }
 
-        public void AppendReceivedMessageLine(string fromName, string plainText, bool playNotifications, Color? color = null)
+        public void AppendReceivedMessageLine(string fromName, string plainText, bool playNotifications, Color displayNameColor)
         {
             try
             {
@@ -744,11 +744,11 @@ namespace SecureChat.Client
 
                 if (plainText.StartsWith("http://") || plainText.StartsWith("https://"))
                 {
-                    AppendFlowControl(new FlowControlHyperlink(Form.FlowPanel, fromName, plainText, color));
+                    AppendFlowControl(new FlowControlHyperlink(Form.FlowPanel, fromName, plainText, displayNameColor));
                 }
                 else
                 {
-                    AppendFlowControl(new FlowControlTextMessage(Form.FlowPanel, fromName, plainText, color));
+                    AppendFlowControl(new FlowControlTextMessage(Form.FlowPanel, fromName, plainText, displayNameColor));
                 }
             }
             catch (Exception ex)

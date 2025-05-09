@@ -17,6 +17,10 @@ namespace SecureChat.Client.Controls
 
         public FlowControlFileTransferReceiveProgress(FlowLayoutPanel parent, ActiveChat activeChat, Guid fileId, string fileName, long fileSize, bool isImage, string? saveAsFileName = null)
         {
+            InitializeComponent();
+
+            Themes.ApplyDarkTheme(this);
+
             if (string.IsNullOrEmpty(saveAsFileName))
             {
                 Transfer = new FileReceiveBuffer(fileId, fileName, fileSize, isImage);
@@ -28,7 +32,6 @@ namespace SecureChat.Client.Controls
 
             _activeChat = activeChat;
             _parent = parent;
-            InitializeComponent();
 
             var fileNameOnly = Path.GetFileName(Transfer.FileName);
 

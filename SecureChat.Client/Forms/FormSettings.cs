@@ -14,6 +14,8 @@ namespace SecureChat.Client.Forms
         {
             InitializeComponent();
 
+            Themes.ApplyDarkTheme(this);
+
             if (showInTaskbar)
             {
                 ShowInTaskbar = true;

@@ -4,6 +4,12 @@ namespace SecureChat.Library
 {
     public static class ScConstants
     {
+        public enum Theme
+        {
+            Dark,
+            Light
+        }
+
         public static readonly string[] ImageFileTypes = { ".bmp", ".jpg", ".jpeg", ".png", ".gif" };
 
         public static readonly int[] AcceptableRsaKeySizes = new int[] { 1024, 2048, 3072, 4096 };

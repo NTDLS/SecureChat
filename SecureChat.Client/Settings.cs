@@ -4,6 +4,7 @@ using NTDLS.ReliableMessaging;
 using SecureChat.Client.Models;
 using SecureChat.Library;
 using Serilog;
+using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client
 {
@@ -31,6 +32,8 @@ namespace SecureChat.Client
         {
             LocalUserApplicationData.SaveToDisk(ScConstants.AppName, Instance);
         }
+
+        public Theme Theme { get; set; } = ScConstants.Theme.Dark;
 
         public string ServerAddress { get; set; } = ScConstants.DefaultServerAddress;
         public string Font { get; set; } = ScConstants.DefaultFont;

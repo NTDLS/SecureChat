@@ -13,6 +13,8 @@ namespace SecureChat.Client.Forms
         {
             InitializeComponent();
 
+            Themes.ApplyDarkTheme(this);
+
             if (ServerConnection.Current == null || !ServerConnection.Current.ReliableClient.IsConnected)
             {
                 return;

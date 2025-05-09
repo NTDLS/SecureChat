@@ -86,7 +86,7 @@ namespace SecureChat.Client
             Exceptions.Ignore(() => IsTerminated = true);
             Exceptions.Ignore(() => DatagramClient.Stop());
             Exceptions.Ignore(() => ReliableClient?.Disconnect(false));
-            Exceptions.Ignore(() => FormHome?.Close());
+            Exceptions.Ignore(() => FormHome?.Invoke(() => FormHome.Close()));
         }
 
         public ActiveChat AddActiveChat(Guid sessionId, Guid peerConnectionId, Guid accountId, string displayName, byte[] sharedSecret)

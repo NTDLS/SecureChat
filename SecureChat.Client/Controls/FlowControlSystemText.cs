@@ -15,11 +15,13 @@ namespace SecureChat.Client.Controls
             AutoSize = true;
             Margin = new Padding(0);
 
+            color ??= Settings.Instance.Theme == Library.ScConstants.Theme.Dark ? Color.LightGray : Color.Maroon;
+
             _labelMessage = new Label
             {
                 Text = message,
                 AutoSize = true,
-                ForeColor = color ?? Color.Maroon,
+                ForeColor = color.EnsureNotNull(),
                 Font = Fonts.Instance.Italic,
                 Padding = new Padding(0)
             };

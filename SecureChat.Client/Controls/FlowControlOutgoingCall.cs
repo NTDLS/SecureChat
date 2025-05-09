@@ -24,9 +24,12 @@ namespace SecureChat.Client.Controls
 
         public FlowControlOutgoingCall(FlowLayoutPanel parent, ActiveChat activeChat, string toName)
         {
+            InitializeComponent();
+
+            Themes.ApplyDarkTheme(this);
+
             _activeChat = activeChat;
             _parent = parent;
-            InitializeComponent();
 
             labelOutgoingCallTo.Text = $"Outgoing call to {toName}...";
 

@@ -15,6 +15,8 @@ namespace SecureChat.Client.Forms
         {
             InitializeComponent();
 
+            Themes.ApplyDarkTheme(this);
+
             _cancelButton = new Button();
             _cancelButton.Click += CancelButton_Click;
 

@@ -33,7 +33,7 @@ namespace SecureChat.Client.Controls
             {
                 Text = message,
                 AutoSize = true,
-                ForeColor = Color.Blue,
+                ForeColor = Settings.Instance.Theme == Library.ScConstants.Theme.Dark ? Color.LightBlue : Color.Blue,
                 Font = Fonts.Instance.Regular,
                 //BackColor = Color.LightGray,
                 Padding = new Padding(0),

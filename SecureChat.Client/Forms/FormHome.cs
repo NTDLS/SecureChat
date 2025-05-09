@@ -23,6 +23,8 @@ namespace SecureChat.Client.Forms
         {
             InitializeComponent();
 
+            Themes.ApplyDarkTheme(this);
+
             try
             {
 

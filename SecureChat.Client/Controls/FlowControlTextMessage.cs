@@ -8,7 +8,7 @@ namespace SecureChat.Client.Controls
         private readonly FlowLayoutPanel _parent;
         private readonly Label _labelMessage;
 
-        public FlowControlTextMessage(FlowLayoutPanel parent, string displayName, string message, Color? color)
+        public FlowControlTextMessage(FlowLayoutPanel parent, string displayName, string message, Color? displayNameColor)
         {
             _parent = parent;
             FlowDirection = FlowDirection.LeftToRight;
@@ -16,11 +16,13 @@ namespace SecureChat.Client.Controls
             Margin = new Padding(0);
             Padding = new Padding(0);
 
+            displayNameColor ??= Settings.Instance.Theme == Library.ScConstants.Theme.Dark ? Color.White : Color.Black;
+
             var labelDisplayName = new Label
             {
                 Text = displayName,
                 AutoSize = true,
-                ForeColor = color ?? Color.Black,
+                ForeColor = displayNameColor.EnsureNotNull(),
                 Font = Fonts.Instance.Bold,
                 //BackColor = Color.Gray,
                 Padding = new Padding(0),
@@ -33,7 +35,7 @@ namespace SecureChat.Client.Controls
             {
                 Text = message,
                 AutoSize = true,
-                ForeColor = Color.Black,
+                ForeColor = Settings.Instance.Theme == Library.ScConstants.Theme.Dark ? Color.White : Color.Black,
                 Font = Fonts.Instance.Regular,
                 //BackColor = Color.LightGray,
                 Padding = new Padding(0),

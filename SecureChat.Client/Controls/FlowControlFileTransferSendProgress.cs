@@ -17,11 +17,14 @@ namespace SecureChat.Client.Controls
 
         public FlowControlFileTransferSendProgress(FlowLayoutPanel parent, ActiveChat activeChat, string fileName, long fileSize, Stream stream)
         {
+            InitializeComponent();
+
+            Themes.ApplyDarkTheme(this);
+
             Transfer = new FileOutboundTransfer(fileName, fileSize, stream);
 
             _activeChat = activeChat;
             _parent = parent;
-            InitializeComponent();
 
             var fileNameOnly = Path.GetFileName(Transfer.FileName);
 

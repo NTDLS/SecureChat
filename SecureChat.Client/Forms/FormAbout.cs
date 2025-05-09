@@ -10,11 +10,15 @@ namespace SecureChat.Client.Forms
         public FormAbout()
         {
             InitializeComponent();
+
+            Themes.ApplyDarkTheme(this);
         }
 
         public FormAbout(bool showInTaskbar)
         {
             InitializeComponent();
+
+            Themes.ApplyDarkTheme(this);
 
             if (showInTaskbar)
             {

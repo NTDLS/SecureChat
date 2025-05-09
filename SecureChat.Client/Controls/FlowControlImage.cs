@@ -9,7 +9,7 @@ namespace SecureChat.Client.Controls
         private readonly FlowLayoutPanel _parent;
         private readonly PictureBox _pictureBox;
 
-        public FlowControlImage(FlowLayoutPanel parent, string displayName, byte[] imageBytes, Color? color)
+        public FlowControlImage(FlowLayoutPanel parent, string displayName, byte[] imageBytes, Color? displayNameColor)
         {
             _parent = parent;
             FlowDirection = FlowDirection.TopDown;
@@ -21,7 +21,7 @@ namespace SecureChat.Client.Controls
             {
                 Text = displayName,
                 AutoSize = true,
-                ForeColor = color ?? Color.Black,
+                ForeColor = displayNameColor ?? Color.Black,
                 Font = Fonts.Instance.Bold,
                 //BackColor = Color.Gray,
                 Padding = new Padding(0),

@@ -22,14 +22,16 @@ namespace SecureChat.Client.Controls
         public FlowControlFileTransferRequest(FlowLayoutPanel parent, ActiveChat activeChat, string fromName,
             Guid fileId, string fileName, long fileSize, bool isImage, Color color)
         {
+            InitializeComponent();
+
+            Themes.ApplyDarkTheme(this);
+
             _activeChat = activeChat;
             _parent = parent;
             FileId = fileId;
             FileName = fileName;
             FileSize = fileSize;
             IsImage = isImage;
-
-            InitializeComponent();
 
             labelHeader.Text = $"{fromName} is sending you a {Formatters.FileSize(fileSize)} file.";
             labelFileName.Text = fileName;

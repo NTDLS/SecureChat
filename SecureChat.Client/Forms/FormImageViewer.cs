@@ -13,6 +13,8 @@ namespace SecureChat.Client.Forms
         {
             InitializeComponent();
 
+            Themes.ApplyDarkTheme(this);
+
             _image = image;
 
             Resize += OnResize;

@@ -10,9 +10,12 @@ namespace SecureChat.Client.Controls
 
         public FlowControlIncomingCall(FlowLayoutPanel parent, ActiveChat activeChat, string fromName)
         {
+            InitializeComponent();
+
+            Themes.ApplyDarkTheme(this);
+
             _activeChat = activeChat;
             _parent = parent;
-            InitializeComponent();
 
             labelIncomingCallFrom.Text = $"Incoming call from {fromName}...";
 
