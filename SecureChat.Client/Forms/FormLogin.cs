@@ -1,4 +1,5 @@
-﻿using NTDLS.Helpers;
+﻿using Krypton.Toolkit;
+using NTDLS.Helpers;
 using NTDLS.Persistence;
 using NTDLS.ReliableMessaging;
 using NTDLS.WinFormsHelpers;
@@ -11,7 +12,7 @@ using System.Reflection;
 
 namespace SecureChat.Client.Forms
 {
-    public partial class FormLogin : Form
+    public partial class FormLogin : KryptonForm
     {
         private LoginResult? _loginResult;
 
@@ -19,7 +20,7 @@ namespace SecureChat.Client.Forms
         {
             InitializeComponent();
 
-            Themes.ApplyDarkTheme(this);
+            BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
 
             AcceptButton = buttonLogin;
             CancelButton = buttonCancel;
@@ -70,7 +71,7 @@ namespace SecureChat.Client.Forms
 
             try
             {
-                var username = textBoxUsername.GetAndValidateText("A username is required.");
+                var username = textBoxUsername.TextBox.GetAndValidateText("A username is required.");
                 var passwordHash = Crypto.ComputeSha256Hash(textBoxPassword.Text);
                 var progressForm = new ProgressForm(ScConstants.AppName, "Please wait...", (Form f) => Themes.ApplyDarkTheme(f));
 
@@ -193,7 +194,7 @@ namespace SecureChat.Client.Forms
             this.InvokeClose(DialogResult.Cancel);
         }
 
-        private void LinkLabelCreateAccount_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void LinkLabelCreateAccount_LinkClicked(object sender, EventArgs e)
         {
             using var form = new FormCreateAccount();
             var username = form.CreateAccount();

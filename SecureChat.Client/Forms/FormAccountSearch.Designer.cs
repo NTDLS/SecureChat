@@ -1,4 +1,6 @@
-﻿namespace SecureChat.Client.Forms
+﻿using Krypton.Toolkit;
+
+namespace SecureChat.Client.Forms
 {
     partial class FormAccountSearch
     {
@@ -29,13 +31,13 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormAccountSearch));
-            textBoxDisplayName = new TextBox();
-            labelDisplayName = new Label();
-            buttonSearch = new Button();
-            dataGridViewAccounts = new DataGridView();
-            ColumnName = new DataGridViewTextBoxColumn();
-            ColumnState = new DataGridViewTextBoxColumn();
-            Invite = new DataGridViewButtonColumn();
+            textBoxDisplayName = new KryptonTextBox();
+            labelDisplayName = new KryptonLabel();
+            buttonSearch = new KryptonButton();
+            dataGridViewAccounts = new KryptonDataGridView();
+            ColumnName = new KryptonDataGridViewTextBoxColumn();
+            ColumnState = new KryptonDataGridViewTextBoxColumn();
+            Invite = new KryptonDataGridViewButtonColumn();
             ((System.ComponentModel.ISupportInitialize)dataGridViewAccounts).BeginInit();
             SuspendLayout();
             // 
@@ -48,12 +50,11 @@
             // 
             // labelDisplayName
             // 
-            labelDisplayName.AutoSize = true;
-            labelDisplayName.Location = new Point(12, 9);
+            labelDisplayName.Location = new Point(12, 7);
             labelDisplayName.Name = "labelDisplayName";
-            labelDisplayName.Size = new Size(80, 15);
+            labelDisplayName.Size = new Size(86, 20);
             labelDisplayName.TabIndex = 1;
-            labelDisplayName.Text = "Display Name";
+            labelDisplayName.Values.Text = "Display Name";
             // 
             // buttonSearch
             // 
@@ -61,8 +62,8 @@
             buttonSearch.Name = "buttonSearch";
             buttonSearch.Size = new Size(58, 23);
             buttonSearch.TabIndex = 2;
-            buttonSearch.Text = "Search";
-            buttonSearch.UseVisualStyleBackColor = true;
+            buttonSearch.Values.DropDownArrowColor = Color.Empty;
+            buttonSearch.Values.Text = "Search";
             buttonSearch.Click += ButtonSearch_Click;
             // 
             // dataGridViewAccounts
@@ -70,7 +71,7 @@
             dataGridViewAccounts.AllowUserToAddRows = false;
             dataGridViewAccounts.AllowUserToDeleteRows = false;
             dataGridViewAccounts.AllowUserToResizeRows = false;
-            dataGridViewAccounts.BackgroundColor = SystemColors.Window;
+            dataGridViewAccounts.BorderStyle = BorderStyle.None;
             dataGridViewAccounts.CausesValidation = false;
             dataGridViewAccounts.ClipboardCopyMode = DataGridViewClipboardCopyMode.Disable;
             dataGridViewAccounts.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -112,11 +113,11 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(528, 305);
+            ClientSize = new Size(530, 299);
             Controls.Add(dataGridViewAccounts);
             Controls.Add(buttonSearch);
-            Controls.Add(labelDisplayName);
             Controls.Add(textBoxDisplayName);
+            Controls.Add(labelDisplayName);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "FormAccountSearch";
@@ -129,12 +130,12 @@
 
         #endregion
 
-        private TextBox textBoxDisplayName;
-        private Label labelDisplayName;
-        private Button buttonSearch;
-        private DataGridView dataGridViewAccounts;
-        private DataGridViewTextBoxColumn ColumnName;
-        private DataGridViewTextBoxColumn ColumnState;
-        private DataGridViewButtonColumn Invite;
+        private KryptonTextBox textBoxDisplayName;
+        private KryptonLabel labelDisplayName;
+        private KryptonButton buttonSearch;
+        private KryptonDataGridView dataGridViewAccounts;
+        private KryptonDataGridViewTextBoxColumn ColumnName;
+        private KryptonDataGridViewTextBoxColumn ColumnState;
+        private KryptonDataGridViewButtonColumn Invite;
     }
 }

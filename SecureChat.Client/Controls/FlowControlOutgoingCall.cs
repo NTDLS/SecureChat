@@ -1,4 +1,5 @@
-﻿using NTDLS.Helpers;
+﻿using Krypton.Toolkit;
+using NTDLS.Helpers;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
@@ -26,7 +27,7 @@ namespace SecureChat.Client.Controls
         {
             InitializeComponent();
 
-            Themes.ApplyDarkTheme(this);
+            BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
 
             _activeChat = activeChat;
             _parent = parent;

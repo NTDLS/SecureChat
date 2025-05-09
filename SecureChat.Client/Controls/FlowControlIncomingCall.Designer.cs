@@ -28,20 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
-            labelIncomingCallFrom = new Label();
             buttonDecline = new Button();
             buttonAccept = new Button();
+            labelIncomingCallFrom = new Krypton.Toolkit.KryptonLabel();
             SuspendLayout();
-            // 
-            // labelIncomingCallFrom
-            // 
-            labelIncomingCallFrom.AutoSize = true;
-            labelIncomingCallFrom.Font = new Font("Segoe UI", 12F);
-            labelIncomingCallFrom.Location = new Point(3, 0);
-            labelIncomingCallFrom.Name = "labelIncomingCallFrom";
-            labelIncomingCallFrom.Size = new Size(180, 21);
-            labelIncomingCallFrom.TabIndex = 5;
-            labelIncomingCallFrom.Text = "Incoming call from ............";
             // 
             // buttonDecline
             // 
@@ -65,6 +55,15 @@
             buttonAccept.UseVisualStyleBackColor = true;
             buttonAccept.Click += ButtonAccept_Click;
             // 
+            // labelIncomingCallFrom
+            // 
+            labelIncomingCallFrom.LabelStyle = Krypton.Toolkit.LabelStyle.BoldControl;
+            labelIncomingCallFrom.Location = new Point(3, 3);
+            labelIncomingCallFrom.Name = "labelIncomingCallFrom";
+            labelIncomingCallFrom.Size = new Size(117, 20);
+            labelIncomingCallFrom.TabIndex = 10;
+            labelIncomingCallFrom.Values.Text = "IncomingCallFrom";
+            // 
             // FlowControlIncomingCall
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -79,9 +78,8 @@
         }
 
         #endregion
-
-        private Label labelIncomingCallFrom;
         private Button buttonDecline;
         private Button buttonAccept;
+        private Krypton.Toolkit.KryptonLabel labelIncomingCallFrom;
     }
 }

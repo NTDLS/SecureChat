@@ -1,4 +1,6 @@
-﻿namespace SecureChat.Client.Forms
+﻿using Krypton.Toolkit;
+
+namespace SecureChat.Client.Forms
 {
     partial class FormProfile
     {
@@ -29,45 +31,41 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormProfile));
-            labelWarning = new Label();
-            labelDisplayName = new Label();
-            labelTagline = new Label();
-            textBoxDisplayName = new TextBox();
-            textBoxTagline = new TextBox();
-            buttonSave = new Button();
-            buttonCancel = new Button();
-            textBoxBiography = new TextBox();
-            labelBiography = new Label();
+            labelWarning = new KryptonLabel();
+            labelDisplayName = new KryptonLabel();
+            labelTagline = new KryptonLabel();
+            textBoxDisplayName = new KryptonTextBox();
+            textBoxTagline = new KryptonTextBox();
+            buttonSave = new KryptonButton();
+            buttonCancel = new KryptonButton();
+            textBoxBiography = new KryptonTextBox();
+            labelBiography = new KryptonLabel();
             SuspendLayout();
             // 
             // labelWarning
             // 
-            labelWarning.AutoSize = true;
-            labelWarning.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            labelWarning.ForeColor = Color.FromArgb(192, 0, 0);
+            labelWarning.LabelStyle = LabelStyle.BoldControl;
             labelWarning.Location = new Point(12, 9);
             labelWarning.Name = "labelWarning";
-            labelWarning.Size = new Size(273, 20);
+            labelWarning.Size = new Size(244, 20);
             labelWarning.TabIndex = 0;
-            labelWarning.Text = "This profile is viewable to your contacts.";
+            labelWarning.Values.Text = "This profile is viewable to your contacts.";
             // 
             // labelDisplayName
             // 
-            labelDisplayName.AutoSize = true;
             labelDisplayName.Location = new Point(12, 40);
             labelDisplayName.Name = "labelDisplayName";
-            labelDisplayName.Size = new Size(80, 15);
+            labelDisplayName.Size = new Size(86, 20);
             labelDisplayName.TabIndex = 1;
-            labelDisplayName.Text = "Display Name";
+            labelDisplayName.Values.Text = "Display Name";
             // 
             // labelTagline
             // 
-            labelTagline.AutoSize = true;
             labelTagline.Location = new Point(12, 84);
             labelTagline.Name = "labelTagline";
-            labelTagline.Size = new Size(45, 15);
+            labelTagline.Size = new Size(50, 20);
             labelTagline.TabIndex = 2;
-            labelTagline.Text = "Tagline";
+            labelTagline.Values.Text = "Tagline";
             // 
             // textBoxDisplayName
             // 
@@ -89,8 +87,8 @@
             buttonSave.Name = "buttonSave";
             buttonSave.Size = new Size(75, 23);
             buttonSave.TabIndex = 7;
-            buttonSave.Text = "Save";
-            buttonSave.UseVisualStyleBackColor = true;
+            buttonSave.Values.DropDownArrowColor = Color.Empty;
+            buttonSave.Values.Text = "Save";
             buttonSave.Click += ButtonSave_Click;
             // 
             // buttonCancel
@@ -99,8 +97,8 @@
             buttonCancel.Name = "buttonCancel";
             buttonCancel.Size = new Size(75, 23);
             buttonCancel.TabIndex = 8;
-            buttonCancel.Text = "Cancel";
-            buttonCancel.UseVisualStyleBackColor = true;
+            buttonCancel.Values.DropDownArrowColor = Color.Empty;
+            buttonCancel.Values.Text = "Cancel";
             buttonCancel.Click += ButtonCancel_Click;
             // 
             // textBoxBiography
@@ -113,18 +111,17 @@
             // 
             // labelBiography
             // 
-            labelBiography.AutoSize = true;
             labelBiography.Location = new Point(12, 128);
             labelBiography.Name = "labelBiography";
-            labelBiography.Size = new Size(61, 15);
+            labelBiography.Size = new Size(66, 20);
             labelBiography.TabIndex = 9;
-            labelBiography.Text = "Biography";
+            labelBiography.Values.Text = "Biography";
             // 
             // FormProfile
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(299, 271);
+            ClientSize = new Size(301, 265);
             Controls.Add(textBoxBiography);
             Controls.Add(labelBiography);
             Controls.Add(buttonCancel);
@@ -147,14 +144,14 @@
 
         #endregion
 
-        private Label labelWarning;
-        private Label labelDisplayName;
-        private Label labelTagline;
-        private TextBox textBoxDisplayName;
-        private TextBox textBoxTagline;
-        private Button buttonSave;
-        private Button buttonCancel;
-        private TextBox textBoxBiography;
-        private Label labelBiography;
+        private KryptonLabel labelWarning;
+        private KryptonLabel labelDisplayName;
+        private KryptonLabel labelTagline;
+        private KryptonTextBox textBoxDisplayName;
+        private KryptonTextBox textBoxTagline;
+        private KryptonButton buttonSave;
+        private KryptonButton buttonCancel;
+        private KryptonTextBox textBoxBiography;
+        private KryptonLabel labelBiography;
     }
 }

@@ -28,21 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
-            labelHeader = new Label();
             buttonDecline = new Button();
             buttonAccept = new Button();
-            labelFileName = new Label();
+            labelHeader = new Krypton.Toolkit.KryptonLabel();
+            labelFileName = new Krypton.Toolkit.KryptonLabel();
             SuspendLayout();
-            // 
-            // labelHeader
-            // 
-            labelHeader.AutoSize = true;
-            labelHeader.Font = new Font("Segoe UI", 12F);
-            labelHeader.Location = new Point(3, 0);
-            labelHeader.Name = "labelHeader";
-            labelHeader.Size = new Size(237, 21);
-            labelHeader.TabIndex = 5;
-            labelHeader.Text = "%% is sending you a 0.00MB file.";
             // 
             // buttonDecline
             // 
@@ -66,15 +56,22 @@
             buttonAccept.UseVisualStyleBackColor = true;
             buttonAccept.Click += ButtonAccept_Click;
             // 
+            // labelHeader
+            // 
+            labelHeader.LabelStyle = Krypton.Toolkit.LabelStyle.BoldControl;
+            labelHeader.Location = new Point(3, 3);
+            labelHeader.Name = "labelHeader";
+            labelHeader.Size = new Size(53, 20);
+            labelHeader.TabIndex = 9;
+            labelHeader.Values.Text = "Header";
+            // 
             // labelFileName
             // 
-            labelFileName.AutoEllipsis = true;
-            labelFileName.AutoSize = true;
-            labelFileName.Location = new Point(3, 22);
+            labelFileName.Location = new Point(3, 21);
             labelFileName.Name = "labelFileName";
-            labelFileName.Size = new Size(38, 15);
-            labelFileName.TabIndex = 6;
-            labelFileName.Text = "label1";
+            labelFileName.Size = new Size(62, 20);
+            labelFileName.TabIndex = 10;
+            labelFileName.Values.Text = "FileName";
             // 
             // FlowControlFileTransferRequest
             // 
@@ -91,10 +88,9 @@
         }
 
         #endregion
-
-        private Label labelHeader;
         private Button buttonDecline;
         private Button buttonAccept;
-        private Label labelFileName;
+        private Krypton.Toolkit.KryptonLabel labelHeader;
+        private Krypton.Toolkit.KryptonLabel labelFileName;
     }
 }

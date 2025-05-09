@@ -1,4 +1,5 @@
-﻿using NTDLS.Helpers;
+﻿using Krypton.Toolkit;
+using NTDLS.Helpers;
 using SecureChat.Client.Helpers;
 using SecureChat.Library;
 using Serilog;
@@ -6,7 +7,7 @@ using System.Diagnostics;
 
 namespace SecureChat.Client.Forms
 {
-    public partial class FormMessage : Form
+    public partial class FormMessage : KryptonForm
     {
         private readonly int DefaultHeight = 550;
         private readonly int DefaultWidth = 550;
@@ -20,7 +21,7 @@ namespace SecureChat.Client.Forms
         {
             InitializeComponent();
 
-            Themes.ApplyDarkTheme(this);
+            BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
 
             try
             {

@@ -1,4 +1,5 @@
-﻿using NTDLS.Helpers;
+﻿using Krypton.Toolkit;
+using NTDLS.Helpers;
 using NTDLS.Persistence;
 using NTDLS.SecureKeyExchange;
 using NTDLS.WinFormsHelpers;
@@ -14,7 +15,7 @@ using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client.Forms
 {
-    public partial class FormHome : Form
+    public partial class FormHome : KryptonForm
     {
         private readonly ImageList _treeImages = new();
         private readonly ToolTip _treeToolTip = new();
@@ -23,7 +24,7 @@ namespace SecureChat.Client.Forms
         {
             InitializeComponent();
 
-            Themes.ApplyDarkTheme(this);
+            BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
 
             try
             {

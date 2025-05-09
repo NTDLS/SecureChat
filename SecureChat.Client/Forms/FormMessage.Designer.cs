@@ -1,4 +1,6 @@
-﻿namespace SecureChat.Client.Forms
+﻿using Krypton.Toolkit;
+
+namespace SecureChat.Client.Forms
 {
     partial class FormMessage
     {
@@ -29,10 +31,10 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMessage));
-            splitContainer1 = new SplitContainer();
+            splitContainer1 = new KryptonSplitContainer();
             flowPanel = new FlowLayoutPanel();
-            textBoxMessage = new TextBox();
-            buttonSend = new Button();
+            textBoxMessage = new KryptonTextBox();
+            buttonSend = new KryptonButton();
             toolStrip1 = new ToolStrip();
             toolStripButtonTerminate = new ToolStripButton();
             toolStripSeparator1 = new ToolStripSeparator();
@@ -85,7 +87,6 @@
             // 
             // textBoxMessage
             // 
-            textBoxMessage.BorderStyle = BorderStyle.None;
             textBoxMessage.Dock = DockStyle.Fill;
             textBoxMessage.Location = new Point(0, 0);
             textBoxMessage.Multiline = true;
@@ -101,7 +102,6 @@
             buttonSend.Size = new Size(75, 54);
             buttonSend.TabIndex = 1;
             buttonSend.Text = "Send";
-            buttonSend.UseVisualStyleBackColor = true;
             buttonSend.Click += ButtonSend_Click;
             // 
             // toolStrip1
@@ -212,9 +212,9 @@
         }
 
         #endregion
-        private SplitContainer splitContainer1;
-        private TextBox textBoxMessage;
-        private Button buttonSend;
+        private KryptonSplitContainer splitContainer1;
+        private KryptonTextBox textBoxMessage;
+        private KryptonButton buttonSend;
         private FlowLayoutPanel flowPanel;
         private ToolStrip toolStrip1;
         private ToolStripButton toolStripButtonAttachFile;

@@ -37,10 +37,20 @@ namespace SecureChat.Client
             return false;
         }
 
+        public static bool IsThemeDark()
+        {
+            return Settings.Instance.Theme.ToString().Contains("Dark")
+                || Settings.Instance.Theme.ToString().Contains("Black");
+        }
+
+        public static Color ChooseColor(Color ifLight, Color ifDark)
+        {
+            return IsThemeDark() ? ifDark : ifLight;
+        }
 
         public static void ApplyDarkTheme(Control parent)
         {
-            if (Settings.Instance.Theme == Library.ScConstants.Theme.Light)
+            if(!IsThemeDark())
             {
                 return; // No need to apply dark theme
             }

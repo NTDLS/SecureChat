@@ -28,27 +28,16 @@
         /// </summary>
         private void InitializeComponent()
         {
-            labelHeaderText = new Label();
             buttonCancel = new Button();
             progressBarCompletion = new ProgressBar();
-            labelWaitingStatus = new Label();
+            labelHeaderText = new Krypton.Toolkit.KryptonLabel();
+            labelWaitingStatus = new Krypton.Toolkit.KryptonLabel();
             SuspendLayout();
-            // 
-            // labelHeaderText
-            // 
-            labelHeaderText.AutoEllipsis = true;
-            labelHeaderText.AutoSize = true;
-            labelHeaderText.Font = new Font("Segoe UI", 12F);
-            labelHeaderText.Location = new Point(3, 0);
-            labelHeaderText.Name = "labelHeaderText";
-            labelHeaderText.Size = new Size(106, 21);
-            labelHeaderText.TabIndex = 5;
-            labelHeaderText.Text = "Transmitting...";
             // 
             // buttonCancel
             // 
             buttonCancel.ForeColor = Color.DarkRed;
-            buttonCancel.Location = new Point(3, 39);
+            buttonCancel.Location = new Point(3, 40);
             buttonCancel.Name = "buttonCancel";
             buttonCancel.Size = new Size(75, 23);
             buttonCancel.TabIndex = 4;
@@ -63,34 +52,41 @@
             progressBarCompletion.Size = new Size(223, 10);
             progressBarCompletion.TabIndex = 6;
             // 
-            // labelStatus
+            // labelHeaderText
             // 
-            labelWaitingStatus.AutoSize = true;
-            labelWaitingStatus.Location = new Point(9, 21);
-            labelWaitingStatus.Name = "labelStatus";
-            labelWaitingStatus.Size = new Size(131, 15);
-            labelWaitingStatus.TabIndex = 7;
-            labelWaitingStatus.Text = "Waiting on acceptance.";
+            labelHeaderText.LabelStyle = Krypton.Toolkit.LabelStyle.BoldControl;
+            labelHeaderText.Location = new Point(3, 3);
+            labelHeaderText.Name = "labelHeaderText";
+            labelHeaderText.Size = new Size(78, 20);
+            labelHeaderText.TabIndex = 8;
+            labelHeaderText.Values.Text = "HeaderText";
             // 
-            // FlowControlFileTransferProgress
+            // labelWaitingStatus
+            // 
+            labelWaitingStatus.Location = new Point(3, 20);
+            labelWaitingStatus.Name = "labelWaitingStatus";
+            labelWaitingStatus.Size = new Size(86, 20);
+            labelWaitingStatus.TabIndex = 9;
+            labelWaitingStatus.Values.Text = "WaitingStatus";
+            // 
+            // FlowControlFileTransferReceiveProgress
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(labelWaitingStatus);
-            Controls.Add(progressBarCompletion);
             Controls.Add(labelHeaderText);
+            Controls.Add(progressBarCompletion);
             Controls.Add(buttonCancel);
-            Name = "FlowControlFileTransferProgress";
+            Name = "FlowControlFileTransferReceiveProgress";
             Size = new Size(400, 65);
             ResumeLayout(false);
             PerformLayout();
         }
 
         #endregion
-
-        private Label labelHeaderText;
         private Button buttonCancel;
         private ProgressBar progressBarCompletion;
-        private Label labelWaitingStatus;
+        private Krypton.Toolkit.KryptonLabel labelHeaderText;
+        private Krypton.Toolkit.KryptonLabel labelWaitingStatus;
     }
 }

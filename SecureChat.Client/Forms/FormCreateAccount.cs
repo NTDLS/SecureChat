@@ -1,4 +1,5 @@
-﻿using NTDLS.Helpers;
+﻿using Krypton.Toolkit;
+using NTDLS.Helpers;
 using NTDLS.ReliableMessaging;
 using NTDLS.WinFormsHelpers;
 using SecureChat.Library;
@@ -9,7 +10,7 @@ using System.Reflection;
 
 namespace SecureChat.Client.Forms
 {
-    public partial class FormCreateAccount : Form
+    public partial class FormCreateAccount : KryptonForm
     {
         private string _username = string.Empty;
 
@@ -17,7 +18,7 @@ namespace SecureChat.Client.Forms
         {
             InitializeComponent();
 
-            Themes.ApplyDarkTheme(this);
+            BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
 
             FormClosing += FormCreateAccount_FormClosing;
             AcceptButton = buttonCreate;
@@ -54,10 +55,10 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                var username = textBoxUsername.GetAndValidateText("A username is required.");
-                var displayName = textBoxDisplayName.GetAndValidateText("A display name is required.");
-                var password = textBoxPassword.GetAndValidateText("A password is required.");
-                var confirmPassword = textBoxPassword.GetAndValidateText("A confirm password is required.");
+                var username = textBoxUsername.TextBox.GetAndValidateText("A username is required.");
+                var displayName = textBoxDisplayName.TextBox.GetAndValidateText("A display name is required.");
+                var password = textBoxPassword.TextBox.GetAndValidateText("A password is required.");
+                var confirmPassword = textBoxPassword.TextBox.GetAndValidateText("A confirm password is required.");
 
                 if (!Crypto.IsPasswordComplex(password, out var errorMessage))
                 {

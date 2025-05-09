@@ -1,4 +1,6 @@
-﻿namespace SecureChat.Client.Forms
+﻿using Krypton.Toolkit;
+
+namespace SecureChat.Client.Forms
 {
     partial class FormLogin
     {
@@ -29,26 +31,25 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormLogin));
-            labelUsername = new Label();
-            textBoxUsername = new TextBox();
-            labelPassword = new Label();
-            textBoxPassword = new TextBox();
-            pictureBoxLogo = new PictureBox();
-            buttonLogin = new Button();
-            buttonCancel = new Button();
-            linkLabelCreateAccount = new LinkLabel();
-            checkBoxStayLoggedIn = new CheckBox();
+            labelUsername = new KryptonLabel();
+            textBoxUsername = new KryptonTextBox();
+            labelPassword = new KryptonLabel();
+            textBoxPassword = new KryptonTextBox();
+            pictureBoxLogo = new KryptonPictureBox();
+            buttonLogin = new KryptonButton();
+            buttonCancel = new KryptonButton();
+            linkLabelCreateAccount = new KryptonLinkLabel();
+            checkBoxStayLoggedIn = new KryptonCheckBox();
             ((System.ComponentModel.ISupportInitialize)pictureBoxLogo).BeginInit();
             SuspendLayout();
             // 
             // labelUsername
             // 
-            labelUsername.AutoSize = true;
             labelUsername.Location = new Point(100, 13);
             labelUsername.Name = "labelUsername";
-            labelUsername.Size = new Size(60, 15);
+            labelUsername.Size = new Size(65, 20);
             labelUsername.TabIndex = 0;
-            labelUsername.Text = "Username";
+            labelUsername.Values.Text = "Username";
             // 
             // textBoxUsername
             // 
@@ -59,12 +60,11 @@
             // 
             // labelPassword
             // 
-            labelPassword.AutoSize = true;
             labelPassword.Location = new Point(100, 61);
             labelPassword.Name = "labelPassword";
-            labelPassword.Size = new Size(57, 15);
+            labelPassword.Size = new Size(62, 20);
             labelPassword.TabIndex = 2;
-            labelPassword.Text = "Password";
+            labelPassword.Values.Text = "Password";
             // 
             // textBoxPassword
             // 
@@ -90,8 +90,8 @@
             buttonLogin.Name = "buttonLogin";
             buttonLogin.Size = new Size(75, 23);
             buttonLogin.TabIndex = 4;
-            buttonLogin.Text = "Login";
-            buttonLogin.UseVisualStyleBackColor = true;
+            buttonLogin.Values.DropDownArrowColor = Color.Empty;
+            buttonLogin.Values.Text = "Login";
             buttonLogin.Click += ButtonLogin_Click;
             // 
             // buttonCancel
@@ -100,36 +100,32 @@
             buttonCancel.Name = "buttonCancel";
             buttonCancel.Size = new Size(75, 23);
             buttonCancel.TabIndex = 5;
-            buttonCancel.Text = "Cancel";
-            buttonCancel.UseVisualStyleBackColor = true;
+            buttonCancel.Values.DropDownArrowColor = Color.Empty;
+            buttonCancel.Values.Text = "Cancel";
             buttonCancel.Click += ButtonCancel_Click;
             // 
             // linkLabelCreateAccount
             // 
-            linkLabelCreateAccount.AutoSize = true;
             linkLabelCreateAccount.Location = new Point(100, 130);
             linkLabelCreateAccount.Name = "linkLabelCreateAccount";
-            linkLabelCreateAccount.Size = new Size(194, 15);
+            linkLabelCreateAccount.Size = new Size(205, 20);
             linkLabelCreateAccount.TabIndex = 3;
-            linkLabelCreateAccount.TabStop = true;
-            linkLabelCreateAccount.Text = "Don't have an account? Create one!";
+            linkLabelCreateAccount.Values.Text = "Don't have an account? Create one!";
             linkLabelCreateAccount.LinkClicked += LinkLabelCreateAccount_LinkClicked;
             // 
             // checkBoxStayLoggedIn
             // 
-            checkBoxStayLoggedIn.AutoSize = true;
             checkBoxStayLoggedIn.Location = new Point(100, 108);
             checkBoxStayLoggedIn.Name = "checkBoxStayLoggedIn";
-            checkBoxStayLoggedIn.Size = new Size(106, 19);
+            checkBoxStayLoggedIn.Size = new Size(107, 20);
             checkBoxStayLoggedIn.TabIndex = 2;
-            checkBoxStayLoggedIn.Text = "Stay logged in?";
-            checkBoxStayLoggedIn.UseVisualStyleBackColor = true;
+            checkBoxStayLoggedIn.Values.Text = "Stay logged in?";
             // 
             // FormLogin
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(309, 191);
+            ClientSize = new Size(311, 196);
             Controls.Add(checkBoxStayLoggedIn);
             Controls.Add(linkLabelCreateAccount);
             Controls.Add(buttonCancel);
@@ -151,16 +147,17 @@
             PerformLayout();
         }
 
+
         #endregion
 
-        private Label labelUsername;
-        private TextBox textBoxUsername;
-        private Label labelPassword;
-        private TextBox textBoxPassword;
-        private PictureBox pictureBoxLogo;
-        private Button buttonLogin;
-        private Button buttonCancel;
-        private LinkLabel linkLabelCreateAccount;
-        private CheckBox checkBoxStayLoggedIn;
+        private KryptonLabel labelUsername;
+        private KryptonTextBox textBoxUsername;
+        private KryptonLabel labelPassword;
+        private KryptonTextBox textBoxPassword;
+        private KryptonPictureBox pictureBoxLogo;
+        private KryptonButton buttonLogin;
+        private KryptonButton buttonCancel;
+        private KryptonLinkLabel linkLabelCreateAccount;
+        private KryptonCheckBox checkBoxStayLoggedIn;
     }
 }

@@ -5,9 +5,6 @@
     <Compile Update="Controls\FlowControlImage.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Controls\DoubleBufferedTreeView.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Update="Controls\FlowControlIncomingCall.cs">
       <SubType>UserControl</SubType>
     </Compile>

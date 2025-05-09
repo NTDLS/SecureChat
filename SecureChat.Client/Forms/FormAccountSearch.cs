@@ -1,4 +1,5 @@
-﻿using NTDLS.WinFormsHelpers;
+﻿using Krypton.Toolkit;
+using NTDLS.WinFormsHelpers;
 using SecureChat.Library;
 using SecureChat.Library.Models;
 using SecureChat.Library.ReliableMessages;
@@ -7,7 +8,7 @@ using System.Diagnostics;
 
 namespace SecureChat.Client.Forms
 {
-    public partial class FormAccountSearch : Form
+    public partial class FormAccountSearch : KryptonForm
     {
         private readonly Button _cancelButton;
 
@@ -15,7 +16,7 @@ namespace SecureChat.Client.Forms
         {
             InitializeComponent();
 
-            Themes.ApplyDarkTheme(this);
+            BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
 
             _cancelButton = new Button();
             _cancelButton.Click += CancelButton_Click;

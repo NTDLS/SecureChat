@@ -1,10 +1,10 @@
-﻿using NTDLS.DatagramMessaging;
+﻿using Krypton.Toolkit;
+using NTDLS.DatagramMessaging;
 using NTDLS.Persistence;
 using NTDLS.ReliableMessaging;
 using SecureChat.Client.Models;
 using SecureChat.Library;
 using Serilog;
-using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client
 {
@@ -18,12 +18,7 @@ namespace SecureChat.Client
         {
             get
             {
-                var defaultSettings = new Settings()
-                {
-                    Theme = Themes.IsWindowsDarkMode() ? ScConstants.Theme.Dark : ScConstants.Theme.Light
-                };
-
-                _instance ??= LocalUserApplicationData.LoadFromDisk(ScConstants.AppName, defaultSettings);
+                _instance ??= LocalUserApplicationData.LoadFromDisk(ScConstants.AppName, new Settings());
                 return _instance;
             }
             set
@@ -38,7 +33,7 @@ namespace SecureChat.Client
             LocalUserApplicationData.SaveToDisk(ScConstants.AppName, Instance);
         }
 
-        public Theme Theme { get; set; } = ScConstants.Theme.Dark;
+        public PaletteMode Theme { get; set; } = Themes.IsWindowsDarkMode() ? PaletteMode.SparkleBlueDarkMode : PaletteMode.Office2010White;
 
         public string ServerAddress { get; set; } = ScConstants.DefaultServerAddress;
         public string Font { get; set; } = ScConstants.DefaultFont;

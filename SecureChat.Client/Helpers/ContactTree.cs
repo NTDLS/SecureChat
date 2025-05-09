@@ -1,4 +1,5 @@
-﻿using SecureChat.Library.Models;
+﻿using SecureChat.Client.Controls;
+using SecureChat.Library.Models;
 
 namespace SecureChat.Client.Helpers
 {
@@ -50,7 +51,7 @@ namespace SecureChat.Client.Helpers
             return null;
         }
 
-        public static TreeNode? FindNonContactNodeByText(TreeView treeView, string text)
+        public static TreeNode? FindNonContactNodeByText(DoubleBufferedTreeView treeView, string text)
         {
             foreach (TreeNode node in treeView.Nodes)
             {

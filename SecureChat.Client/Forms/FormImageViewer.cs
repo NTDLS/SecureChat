@@ -1,11 +1,12 @@
-﻿using SecureChat.Client.Helpers;
+﻿using Krypton.Toolkit;
+using SecureChat.Client.Helpers;
 using SecureChat.Library;
 using Serilog;
 using System.Diagnostics;
 
 namespace SecureChat.Client.Forms
 {
-    public partial class FormImageViewer : Form
+    public partial class FormImageViewer : KryptonForm
     {
         private readonly Image _image;
 
@@ -13,7 +14,7 @@ namespace SecureChat.Client.Forms
         {
             InitializeComponent();
 
-            Themes.ApplyDarkTheme(this);
+            BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
 
             _image = image;
 

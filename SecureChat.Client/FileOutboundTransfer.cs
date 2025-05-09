@@ -1,5 +1,4 @@
 ﻿using SecureChat.Library;
-using System.IO;
 
 namespace SecureChat.Client
 {

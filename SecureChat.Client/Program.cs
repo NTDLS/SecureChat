@@ -1,10 +1,13 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Krypton.Toolkit;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace SecureChat.Client
 {
-    static class VoiceChat
+    static class Program
     {
+        public static KryptonManager ThemeManager = new KryptonManager();
+
         [STAThread]
         static void Main()
         {
@@ -21,6 +24,8 @@ namespace SecureChat.Client
 
             //Create a default persisted state if one does not exist.
             Settings.Save();
+
+            ThemeManager.GlobalPaletteMode = Settings.Instance.Theme;
 
             Application.Run(new TrayApp());
         }

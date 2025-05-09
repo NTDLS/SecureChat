@@ -1,6 +1,8 @@
-﻿namespace SecureChat.Client.Controls
+﻿using Krypton.Toolkit;
+
+namespace SecureChat.Client.Controls
 {
-    public class DoubleBufferedTreeView : TreeView
+    public class DoubleBufferedTreeView : KryptonTreeView
     {
         public DoubleBufferedTreeView()
         {

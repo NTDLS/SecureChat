@@ -1,4 +1,5 @@
-﻿using NTDLS.WinFormsHelpers;
+﻿using Krypton.Toolkit;
+using NTDLS.WinFormsHelpers;
 using SecureChat.Library;
 using SecureChat.Library.Models;
 using SecureChat.Library.ReliableMessages;
@@ -7,13 +8,13 @@ using System.Diagnostics;
 
 namespace SecureChat.Client.Forms
 {
-    public partial class FormProfile : Form
+    public partial class FormProfile : KryptonForm
     {
         public FormProfile(bool showInTaskbar)
         {
             InitializeComponent();
 
-            Themes.ApplyDarkTheme(this);
+            BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
 
             if (ServerConnection.Current == null || !ServerConnection.Current.ReliableClient.IsConnected)
             {
@@ -49,12 +50,12 @@ namespace SecureChat.Client.Forms
                     return;
                 }
 
-                var displayName = textBoxDisplayName.GetAndValidateText("A display is required.");
+                var displayName = textBoxDisplayName.TextBox.GetAndValidateText("A display is required.");
 
                 var profile = new AccountProfileModel
                 {
-                    Tagline = textBoxTagline.GetAndValidateText(0, 100, "If a tagline is supplied, it must not exceed [max] characters."),
-                    Biography = textBoxBiography.GetAndValidateText(0, 2500, "If a biography is supplied, it must not exceed [max] characters.")
+                    Tagline = textBoxTagline.TextBox.GetAndValidateText(0, 100, "If a tagline is supplied, it must not exceed [max] characters."),
+                    Biography = textBoxBiography.TextBox.GetAndValidateText(0, 2500, "If a biography is supplied, it must not exceed [max] characters.")
                 };
 
                 ServerConnection.Current.ReliableClient.Query(new UpdateAccountProfileQuery(displayName, profile)).ContinueWith(o =>

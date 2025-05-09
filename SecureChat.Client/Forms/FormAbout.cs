@@ -1,24 +1,23 @@
-﻿using System.Diagnostics;
+﻿using Krypton.Toolkit;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace SecureChat.Client.Forms
 {
-    public partial class FormAbout : Form
+    public partial class FormAbout : KryptonForm
     {
         readonly Assembly assembly = Assembly.GetExecutingAssembly();
 
         public FormAbout()
         {
             InitializeComponent();
-
-            Themes.ApplyDarkTheme(this);
         }
 
         public FormAbout(bool showInTaskbar)
         {
             InitializeComponent();
 
-            Themes.ApplyDarkTheme(this);
+            BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
 
             if (showInTaskbar)
             {

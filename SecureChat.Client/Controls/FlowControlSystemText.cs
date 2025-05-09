@@ -1,4 +1,5 @@
-﻿using NTDLS.Helpers;
+﻿using Krypton.Toolkit;
+using NTDLS.Helpers;
 using SecureChat.Client.Helpers;
 
 namespace SecureChat.Client.Controls
@@ -10,12 +11,14 @@ namespace SecureChat.Client.Controls
 
         public FlowControlSystemText(FlowLayoutPanel parent, string message, Color? color = null)
         {
+            BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
+
             _parent = parent;
             FlowDirection = FlowDirection.TopDown;
             AutoSize = true;
             Margin = new Padding(0);
 
-            color ??= Settings.Instance.Theme == Library.ScConstants.Theme.Dark ? Color.LightGray : Color.Maroon;
+            color ??= Themes.ChooseColor(Color.LightGray, Color.Maroon);
 
             _labelMessage = new Label
             {

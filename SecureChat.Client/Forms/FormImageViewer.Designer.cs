@@ -1,4 +1,6 @@
-﻿namespace SecureChat.Client.Forms
+﻿using Krypton.Toolkit;
+
+namespace SecureChat.Client.Forms
 {
     partial class FormImageViewer
     {
@@ -29,7 +31,7 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormImageViewer));
-            pictureBoxImage = new PictureBox();
+            pictureBoxImage = new KryptonPictureBox();
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
             saveToolStripMenuItem = new ToolStripMenuItem();
@@ -92,7 +94,7 @@
 
         #endregion
 
-        private PictureBox pictureBoxImage;
+        private KryptonPictureBox pictureBoxImage;
         private MenuStrip menuStrip1;
         private ToolStripMenuItem fileToolStripMenuItem;
         private ToolStripMenuItem saveToolStripMenuItem;

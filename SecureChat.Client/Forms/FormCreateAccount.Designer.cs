@@ -1,4 +1,6 @@
-﻿namespace SecureChat.Client.Forms
+﻿using Krypton.Toolkit;
+
+namespace SecureChat.Client.Forms
 {
     partial class FormCreateAccount
     {
@@ -29,64 +31,61 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormCreateAccount));
-            buttonCreate = new Button();
-            buttonCancel = new Button();
-            labelUsername = new Label();
-            labelDisplayName = new Label();
-            labelPassword = new Label();
-            textBoxUsername = new TextBox();
-            textBoxDisplayName = new TextBox();
-            textBoxPassword = new TextBox();
-            textBoxConfirmPassword = new TextBox();
-            labelConfirmPassword = new Label();
+            buttonCreate = new KryptonButton();
+            buttonCancel = new KryptonButton();
+            labelUsername = new KryptonLabel();
+            labelDisplayName = new KryptonLabel();
+            labelPassword = new KryptonLabel();
+            textBoxUsername = new KryptonTextBox();
+            textBoxDisplayName = new KryptonTextBox();
+            textBoxPassword = new KryptonTextBox();
+            textBoxConfirmPassword = new KryptonTextBox();
+            labelConfirmPassword = new KryptonLabel();
             SuspendLayout();
             // 
             // buttonCreate
             // 
-            buttonCreate.Location = new Point(98, 221);
+            buttonCreate.Location = new Point(98, 222);
             buttonCreate.Name = "buttonCreate";
             buttonCreate.Size = new Size(75, 23);
             buttonCreate.TabIndex = 4;
-            buttonCreate.Text = "Create";
-            buttonCreate.UseVisualStyleBackColor = true;
+            buttonCreate.Values.DropDownArrowColor = Color.Empty;
+            buttonCreate.Values.Text = "Create";
             buttonCreate.Click += ButtonCreate_Click;
             // 
             // buttonCancel
             // 
-            buttonCancel.Location = new Point(179, 221);
+            buttonCancel.Location = new Point(179, 222);
             buttonCancel.Name = "buttonCancel";
             buttonCancel.Size = new Size(75, 23);
             buttonCancel.TabIndex = 5;
-            buttonCancel.Text = "Cancel";
-            buttonCancel.UseVisualStyleBackColor = true;
+            buttonCancel.Values.DropDownArrowColor = Color.Empty;
+            buttonCancel.Values.Text = "Cancel";
             buttonCancel.Click += ButtonCancel_Click;
             // 
             // labelUsername
             // 
-            labelUsername.AutoSize = true;
-            labelUsername.Location = new Point(12, 22);
+            labelUsername.Location = new Point(8, 20);
             labelUsername.Name = "labelUsername";
-            labelUsername.Size = new Size(60, 15);
+            labelUsername.Size = new Size(65, 20);
             labelUsername.TabIndex = 2;
-            labelUsername.Text = "Username";
+            labelUsername.Values.Text = "Username";
             // 
             // labelDisplayName
             // 
-            labelDisplayName.AutoSize = true;
-            labelDisplayName.Location = new Point(12, 67);
+            labelDisplayName.Location = new Point(8, 65);
             labelDisplayName.Name = "labelDisplayName";
-            labelDisplayName.Size = new Size(80, 15);
+            labelDisplayName.Size = new Size(86, 20);
             labelDisplayName.TabIndex = 3;
-            labelDisplayName.Text = "Display Name";
+            labelDisplayName.Values.Text = "Display Name";
             // 
             // labelPassword
             // 
-            labelPassword.AutoSize = true;
-            labelPassword.Location = new Point(12, 128);
+            labelPassword.Location = new Point(8, 126);
             labelPassword.Name = "labelPassword";
-            labelPassword.Size = new Size(57, 15);
+            labelPassword.Size = new Size(62, 20);
             labelPassword.TabIndex = 4;
-            labelPassword.Text = "Password";
+            labelPassword.Values.Text = "Password";
             // 
             // textBoxUsername
             // 
@@ -120,28 +119,27 @@
             // 
             // labelConfirmPassword
             // 
-            labelConfirmPassword.AutoSize = true;
-            labelConfirmPassword.Location = new Point(12, 173);
+            labelConfirmPassword.Location = new Point(8, 171);
             labelConfirmPassword.Name = "labelConfirmPassword";
-            labelConfirmPassword.Size = new Size(104, 15);
+            labelConfirmPassword.Size = new Size(109, 20);
             labelConfirmPassword.TabIndex = 9;
-            labelConfirmPassword.Text = "Confirm Password";
+            labelConfirmPassword.Values.Text = "Confirm Password";
             // 
             // FormCreateAccount
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(269, 256);
-            Controls.Add(labelConfirmPassword);
+            ClientSize = new Size(271, 255);
             Controls.Add(textBoxConfirmPassword);
             Controls.Add(textBoxPassword);
             Controls.Add(textBoxDisplayName);
             Controls.Add(textBoxUsername);
+            Controls.Add(buttonCancel);
+            Controls.Add(buttonCreate);
+            Controls.Add(labelConfirmPassword);
             Controls.Add(labelPassword);
             Controls.Add(labelDisplayName);
             Controls.Add(labelUsername);
-            Controls.Add(buttonCancel);
-            Controls.Add(buttonCreate);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
@@ -155,15 +153,15 @@
 
         #endregion
 
-        private Button buttonCreate;
-        private Button buttonCancel;
-        private Label labelUsername;
-        private Label labelDisplayName;
-        private Label labelPassword;
-        private TextBox textBoxUsername;
-        private TextBox textBoxDisplayName;
-        private TextBox textBoxPassword;
-        private TextBox textBoxConfirmPassword;
-        private Label labelConfirmPassword;
+        private KryptonButton buttonCreate;
+        private KryptonButton buttonCancel;
+        private KryptonLabel labelUsername;
+        private KryptonLabel labelDisplayName;
+        private KryptonLabel labelPassword;
+        private KryptonTextBox textBoxUsername;
+        private KryptonTextBox textBoxDisplayName;
+        private KryptonTextBox textBoxPassword;
+        private KryptonTextBox textBoxConfirmPassword;
+        private KryptonLabel labelConfirmPassword;
     }
 }

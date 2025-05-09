@@ -1,9 +1,11 @@
-﻿using NTDLS.Helpers;
+﻿using Krypton.Toolkit;
+using NTDLS.Helpers;
 using SecureChat.Client.Helpers;
 using System.Diagnostics;
 
 namespace SecureChat.Client.Controls
 {
+
     public class FlowControlFolderHyperlink : FlowLayoutPanel
     {
         private readonly FlowLayoutPanel _parent;
@@ -12,6 +14,8 @@ namespace SecureChat.Client.Controls
 
         public FlowControlFolderHyperlink(FlowLayoutPanel parent, string displayName, string message, string folderPath, Color? color)
         {
+            BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
+
             _folderPath = folderPath;
             _parent = parent;
             FlowDirection = FlowDirection.TopDown;
@@ -36,7 +40,7 @@ namespace SecureChat.Client.Controls
             {
                 Text = message,
                 AutoSize = true,
-                ForeColor = Settings.Instance.Theme == Library.ScConstants.Theme.Dark ? Color.LightBlue : Color.Blue,
+                ForeColor = Themes.ChooseColor(Color.LightBlue, Color.Blue),
                 Font = Fonts.Instance.Regular,
                 //BackColor = Color.LightGray,
                 Padding = new Padding(0),

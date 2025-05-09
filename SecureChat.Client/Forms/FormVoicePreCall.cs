@@ -1,4 +1,5 @@
-﻿using NAudio.CoreAudioApi;
+﻿using Krypton.Toolkit;
+using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using NTDLS.WinFormsHelpers;
 using SecureChat.Client.Audio;
@@ -6,7 +7,7 @@ using SecureChat.Library;
 
 namespace SecureChat.Client.Forms
 {
-    public partial class FormVoicePreCall : Form
+    public partial class FormVoicePreCall : KryptonForm
     {
         private AudioPump? _audioPump = null;
 
@@ -21,7 +22,7 @@ namespace SecureChat.Client.Forms
         {
             InitializeComponent();
 
-            Themes.ApplyDarkTheme(this);
+            BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
         }
 
         private void FormVoicePreCall_Load(object sender, EventArgs e)

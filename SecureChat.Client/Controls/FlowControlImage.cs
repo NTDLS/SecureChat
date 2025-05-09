@@ -1,4 +1,5 @@
-﻿using NTDLS.Helpers;
+﻿using Krypton.Toolkit;
+using NTDLS.Helpers;
 using SecureChat.Client.Forms;
 using SecureChat.Client.Helpers;
 
@@ -11,6 +12,8 @@ namespace SecureChat.Client.Controls
 
         public FlowControlImage(FlowLayoutPanel parent, string displayName, byte[] imageBytes, Color? displayNameColor)
         {
+            BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
+
             _parent = parent;
             FlowDirection = FlowDirection.TopDown;
             AutoSize = true;
