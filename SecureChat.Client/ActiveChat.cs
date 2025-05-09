@@ -442,7 +442,7 @@ namespace SecureChat.Client
                             if (ftc.Transfer.IsImage)
                             {
                                 // Load the image only after successful transfer
-                                var imageData = File.ReadAllBytes(ftc.Transfer.FileName);
+                                var imageData = ftc.Transfer.GetFileBytes();
                                 AppendImageMessage(ServerConnection.Current.DisplayName, imageData, false, Themes.FromMeColor);
                             }
                             else

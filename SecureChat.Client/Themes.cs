@@ -326,12 +326,15 @@ namespace SecureChat.Client
                 e.DrawText();
             };
 
-            //listView.DrawSubItem += (sender, e) =>
-            //{
-            //    // Text color based on selection state
-            //    Color textColor = (e.ItemState & ListViewItemStates.Selected) != 0 ? Color.White : Color.LightGray;
-            //    e.Graphics.DrawString(e.SubItem.Text, listView.Font, new SolidBrush(textColor), e.Bounds);
-            //};
+            listView.DrawSubItem += (sender, e) =>
+            {
+                if (e.ColumnIndex > 0)
+                {
+                    // Text color based on selection state
+                    Color textColor = (e.ItemState & ListViewItemStates.Selected) != 0 ? Color.White : Color.LightGray;
+                    e.Graphics.DrawString(e.SubItem?.Text ?? string.Empty, listView.Font, new SolidBrush(textColor), e.Bounds);
+                }
+            };
         }
     }
 }
