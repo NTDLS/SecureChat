@@ -47,6 +47,8 @@ namespace SecureChat.Client.Forms
             checkBoxPlaySoundWhenContactComesOnline.Checked = Settings.Instance.PlaySoundWhenContactComesOnline;
             checkBoxPlaySoundWhenMessageReceived.Checked = Settings.Instance.PlaySoundWhenMessageReceived;
             checkBoxFlashWindowWhenMessageReceived.Checked = Settings.Instance.FlashWindowWhenMessageReceived;
+            radioButtonThemeLight.Checked = Settings.Instance.Theme == ScConstants.Theme.Light;
+            radioButtonThemeDark.Checked = Settings.Instance.Theme == ScConstants.Theme.Dark;
 
             textBoxFontSample.Text = "John: Hey, how's is been going?\r\nJane: Pretty good. I've about to head out.\r\nJohn: Wanna grab some lunch?\r\nJane: Thai?\r\nJohn: Are you kidding me? Absolutely!\r\n";
 
@@ -103,12 +105,25 @@ namespace SecureChat.Client.Forms
                 settings.PlaySoundWhenMessageReceived = checkBoxPlaySoundWhenMessageReceived.Checked;
                 settings.FlashWindowWhenMessageReceived = checkBoxFlashWindowWhenMessageReceived.Checked;
 
-                if(ScConstants.AcceptableAesKeySizes.Contains(settings.AesKeySize) == false)
+                if (radioButtonThemeLight.Checked)
+                {
+                    settings.Theme = ScConstants.Theme.Light;
+                }
+                else if (radioButtonThemeDark.Checked)
+                {
+                    settings.Theme = ScConstants.Theme.Dark;
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("Theme must be light or dark.");
+                }
+
+                if (ScConstants.AcceptableAesKeySizes.Contains(settings.AesKeySize) == false)
                 {
                     throw new ArgumentOutOfRangeException("AES key size must be 128, 192, or 256.");
                 }
 
-                if(ScConstants.AcceptableRsaKeySizes.Contains(settings.RsaKeySize) == false)
+                if (ScConstants.AcceptableRsaKeySizes.Contains(settings.RsaKeySize) == false)
                 {
                     throw new ArgumentOutOfRangeException("RSA key size must be 1024, 2048, 3072, or 4096.");
                 }

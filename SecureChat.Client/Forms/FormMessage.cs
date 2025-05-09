@@ -98,7 +98,7 @@ namespace SecureChat.Client.Forms
 
         public void Close(bool force)
         {
-            if(InvokeRequired)
+            if (InvokeRequired)
             {
                 Invoke(new Action(() => Close(force)));
                 return;
@@ -278,7 +278,7 @@ namespace SecureChat.Client.Forms
 
                 if (_activeChat.SendTextMessage(text))
                 {
-                    _activeChat.AppendReceivedMessageLine(ServerConnection.Current.DisplayName, text, false, ScConstants.FromMeColor);
+                    _activeChat.AppendReceivedMessageLine(ServerConnection.Current.DisplayName, text, false, Themes.FromMeColor);
                 }
                 else
                 {

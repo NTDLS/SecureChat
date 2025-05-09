@@ -1,4 +1,5 @@
 ﻿using SecureChat.Library;
+using System.IO;
 
 namespace SecureChat.Client
 {
@@ -23,6 +24,19 @@ namespace SecureChat.Client
             FileName = fileName;
             FileSize = fileSize;
             Stream = stream;
+        }
+
+        public byte[] GetFileBytes()
+        {
+            if (Stream is MemoryStream memoryStream)
+            {
+                return memoryStream.ToArray();
+            }
+            if (Stream is FileStream)
+            {
+                return File.ReadAllBytes(FileName);
+            }
+            throw new Exception("Stream type not supported for full materialization.");
         }
 
         public void Dispose()

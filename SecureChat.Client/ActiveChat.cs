@@ -125,7 +125,7 @@ namespace SecureChat.Client
                 return;
             }
 
-            AppendReceivedMessageLine(DisplayName, DecryptString(cipherText), true, ScConstants.FromRemoteColor);
+            AppendReceivedMessageLine(DisplayName, DecryptString(cipherText), true, Themes.FromRemoteColor);
         }
 
         public bool SendTextMessage(string plaintText)
@@ -278,7 +278,7 @@ namespace SecureChat.Client
                 return;
             }
 
-            AppendFileTransferRequestMessage(DisplayName, fileId, fileName, fileSize, isImage, true, ScConstants.FromRemoteColor);
+            AppendFileTransferRequestMessage(DisplayName, fileId, fileName, fileSize, isImage, true, Themes.FromRemoteColor);
         }
 
         /// <summary>
@@ -293,7 +293,7 @@ namespace SecureChat.Client
 
             AppendFolderLinkMessage(DisplayName, Path.GetFileName(saveAsFileName) ?? "Open File Location",
                  Path.GetDirectoryName(saveAsFileName) ?? Environment.GetEnvironmentVariable("SystemDrive") ?? string.Empty,
-                 true, ScConstants.FromRemoteColor);
+                 true, Themes.FromRemoteColor);
         }
 
         /// <summary>
@@ -306,7 +306,7 @@ namespace SecureChat.Client
                 return;
             }
 
-            AppendImageMessage(DisplayName, imageBytes, true, ScConstants.FromRemoteColor);
+            AppendImageMessage(DisplayName, imageBytes, true, Themes.FromRemoteColor);
         }
 
         /// <summary>
@@ -443,7 +443,7 @@ namespace SecureChat.Client
                             {
                                 // Load the image only after successful transfer
                                 var imageData = File.ReadAllBytes(ftc.Transfer.FileName);
-                                AppendImageMessage(ServerConnection.Current.DisplayName, imageData, false, ScConstants.FromMeColor);
+                                AppendImageMessage(ServerConnection.Current.DisplayName, imageData, false, Themes.FromMeColor);
                             }
                             else
                             {

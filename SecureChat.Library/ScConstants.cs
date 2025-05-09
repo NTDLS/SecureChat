@@ -1,13 +1,11 @@
-﻿using System.Drawing;
-
-namespace SecureChat.Library
+﻿namespace SecureChat.Library
 {
     public static class ScConstants
     {
         public enum Theme
         {
-            Dark,
-            Light
+            Light,
+            Dark
         }
 
         public static readonly string[] ImageFileTypes = { ".bmp", ".jpg", ".jpeg", ".png", ".gif" };
@@ -31,15 +29,6 @@ namespace SecureChat.Library
         public const string DefaultServerAddress = "securechat.ntdls.com";
         public readonly static Version MinClientVersion = new Version(1, 0, 2, 0);
 
-        /// <summary>
-        /// Color used for display name when message are from the local client.
-        /// </summary>
-        public static readonly Color FromMeColor = Color.Blue;
-
-        /// <summary>
-        /// Color used for display name when message are from remote clients.
-        /// </summary>
-        public static readonly Color FromRemoteColor = Color.DarkRed;
 
         public enum ScOnlineState
         {

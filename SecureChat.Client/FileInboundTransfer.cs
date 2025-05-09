@@ -2,7 +2,7 @@
 
 namespace SecureChat.Client
 {
-    internal class FileReceiveBuffer : IDisposable
+    internal class FileInboundTransfer : IDisposable
     {
         public Guid FileId { get; private set; }
         public long FileSize { get; private set; }
@@ -24,7 +24,7 @@ namespace SecureChat.Client
         /// <summary>
         /// Buffered file data.
         /// </summary>
-        public FileReceiveBuffer(Guid fileId, string fileName, long fileSize, bool isImage)
+        public FileInboundTransfer(Guid fileId, string fileName, long fileSize, bool isImage)
         {
             FileId = fileId;
             FileName = fileName;
@@ -37,7 +37,7 @@ namespace SecureChat.Client
         /// <summary>
         /// Physical file data.
         /// </summary>
-        public FileReceiveBuffer(Guid fileId, string fileName, long fileSize, bool isImage, string saveAsFileName)
+        public FileInboundTransfer(Guid fileId, string fileName, long fileSize, bool isImage, string saveAsFileName)
         {
             SaveAsFileName = saveAsFileName;
             FileId = fileId;

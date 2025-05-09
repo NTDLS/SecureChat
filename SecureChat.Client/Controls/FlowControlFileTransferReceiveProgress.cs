@@ -10,7 +10,7 @@ namespace SecureChat.Client.Controls
         private readonly ActiveChat _activeChat;
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public FileReceiveBuffer Transfer { get; private set; }
+        public FileInboundTransfer Transfer { get; private set; }
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsCancelled { get; private set; }
@@ -23,11 +23,11 @@ namespace SecureChat.Client.Controls
 
             if (string.IsNullOrEmpty(saveAsFileName))
             {
-                Transfer = new FileReceiveBuffer(fileId, fileName, fileSize, isImage);
+                Transfer = new FileInboundTransfer(fileId, fileName, fileSize, isImage);
             }
             else
             {
-                Transfer = new FileReceiveBuffer(fileId, fileName, fileSize, isImage, saveAsFileName);
+                Transfer = new FileInboundTransfer(fileId, fileName, fileSize, isImage, saveAsFileName);
             }
 
             _activeChat = activeChat;

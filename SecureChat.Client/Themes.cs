@@ -1,11 +1,53 @@
-﻿using SecureChat.Client.Controls;
+﻿using Microsoft.Win32;
+using SecureChat.Client.Controls;
 
 namespace SecureChat.Client
 {
     public static class Themes
     {
+        /// <summary>
+        /// Color used for display name when message are from the local client.
+        /// </summary>
+        public static Color FromMeColor = Color.Blue;
+
+        /// <summary>
+        /// Color used for display name when message are from remote clients.
+        /// </summary>
+        public static Color FromRemoteColor = Color.DarkRed;
+
+        public static bool IsWindowsDarkMode()
+        {
+            try
+            {
+                using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+                if (key != null)
+                {
+                    var value = key.GetValue("AppsUseLightTheme");
+                    if (value is int intValue)
+                    {
+                        return intValue == 0; // 0 means Dark Mode
+                    }
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            return false;
+        }
+
+
         public static void ApplyDarkTheme(Control parent)
         {
+            if (Settings.Instance.Theme == Library.ScConstants.Theme.Light)
+            {
+                return; // No need to apply dark theme
+            }
+
+            FromMeColor = Color.LightBlue;
+            FromRemoteColor = Color.OrangeRed;
+
             // Base case: Apply to the current control
             parent.BackColor = Color.FromArgb(30, 30, 30);
             parent.ForeColor = Color.White;
@@ -19,7 +61,7 @@ namespace SecureChat.Client
                     linkLabel.ForeColor = Color.White;
 
                     // Link colors
-                    linkLabel.LinkColor = Color.Cyan;          // Normal link color
+                    linkLabel.LinkColor = Color.Cyan;                 // Normal link color
                     linkLabel.VisitedLinkColor = Color.MediumPurple;  // Visited link color
                     linkLabel.ActiveLinkColor = Color.LightGreen;     // Clicking link color
                     linkLabel.DisabledLinkColor = Color.Gray;         // Disabled state color
@@ -267,7 +309,7 @@ namespace SecureChat.Client
                 e.DrawDefault = false;
             };
 
-            
+
             // Handle DrawItem and DrawSubItem for customizing rows
             listView.DrawItem += (sender, e) =>
             {

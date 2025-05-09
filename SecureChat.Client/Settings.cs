@@ -18,7 +18,12 @@ namespace SecureChat.Client
         {
             get
             {
-                _instance ??= LocalUserApplicationData.LoadFromDisk(ScConstants.AppName, new Settings());
+                var defaultSettings = new Settings()
+                {
+                    Theme = Themes.IsWindowsDarkMode() ? ScConstants.Theme.Dark : ScConstants.Theme.Light
+                };
+
+                _instance ??= LocalUserApplicationData.LoadFromDisk(ScConstants.AppName, defaultSettings);
                 return _instance;
             }
             set
