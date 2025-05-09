@@ -62,7 +62,7 @@ namespace SecureChat.Client.Forms
             // 
             // labelAudioOutputDevice
             // 
-            labelAudioOutputDevice.Location = new Point(12, 66);
+            labelAudioOutputDevice.Location = new Point(8, 66);
             labelAudioOutputDevice.Name = "labelAudioOutputDevice";
             labelAudioOutputDevice.Size = new Size(121, 20);
             labelAudioOutputDevice.TabIndex = 1;
@@ -70,7 +70,7 @@ namespace SecureChat.Client.Forms
             // 
             // labelAudioInputDevice
             // 
-            labelAudioInputDevice.Location = new Point(12, 18);
+            labelAudioInputDevice.Location = new Point(8, 18);
             labelAudioInputDevice.Name = "labelAudioInputDevice";
             labelAudioInputDevice.Size = new Size(113, 20);
             labelAudioInputDevice.TabIndex = 3;
@@ -164,7 +164,7 @@ namespace SecureChat.Client.Forms
             // 
             // kryptonLabel1
             // 
-            kryptonLabel1.Location = new Point(12, 123);
+            kryptonLabel1.Location = new Point(8, 123);
             kryptonLabel1.Name = "kryptonLabel1";
             kryptonLabel1.Size = new Size(128, 20);
             kryptonLabel1.TabIndex = 14;
@@ -174,7 +174,7 @@ namespace SecureChat.Client.Forms
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(477, 258);
+            ClientSize = new Size(479, 260);
             Controls.Add(kryptonPanel1);
             Controls.Add(volumeMeterInput);
             Controls.Add(buttonCancel);

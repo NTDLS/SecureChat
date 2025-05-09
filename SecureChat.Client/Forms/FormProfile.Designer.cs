@@ -45,7 +45,7 @@ namespace SecureChat.Client.Forms
             // labelWarning
             // 
             labelWarning.LabelStyle = LabelStyle.BoldControl;
-            labelWarning.Location = new Point(12, 9);
+            labelWarning.Location = new Point(23, 12);
             labelWarning.Name = "labelWarning";
             labelWarning.Size = new Size(244, 20);
             labelWarning.TabIndex = 0;
@@ -53,7 +53,7 @@ namespace SecureChat.Client.Forms
             // 
             // labelDisplayName
             // 
-            labelDisplayName.Location = new Point(12, 40);
+            labelDisplayName.Location = new Point(8, 38);
             labelDisplayName.Name = "labelDisplayName";
             labelDisplayName.Size = new Size(86, 20);
             labelDisplayName.TabIndex = 1;
@@ -61,7 +61,7 @@ namespace SecureChat.Client.Forms
             // 
             // labelTagline
             // 
-            labelTagline.Location = new Point(12, 84);
+            labelTagline.Location = new Point(8, 84);
             labelTagline.Name = "labelTagline";
             labelTagline.Size = new Size(50, 20);
             labelTagline.TabIndex = 2;
@@ -76,14 +76,14 @@ namespace SecureChat.Client.Forms
             // 
             // textBoxTagline
             // 
-            textBoxTagline.Location = new Point(12, 102);
+            textBoxTagline.Location = new Point(12, 104);
             textBoxTagline.Name = "textBoxTagline";
             textBoxTagline.Size = new Size(273, 23);
             textBoxTagline.TabIndex = 6;
             // 
             // buttonSave
             // 
-            buttonSave.Location = new Point(129, 238);
+            buttonSave.Location = new Point(129, 243);
             buttonSave.Name = "buttonSave";
             buttonSave.Size = new Size(75, 23);
             buttonSave.TabIndex = 7;
@@ -93,7 +93,7 @@ namespace SecureChat.Client.Forms
             // 
             // buttonCancel
             // 
-            buttonCancel.Location = new Point(210, 238);
+            buttonCancel.Location = new Point(210, 243);
             buttonCancel.Name = "buttonCancel";
             buttonCancel.Size = new Size(75, 23);
             buttonCancel.TabIndex = 8;
@@ -103,7 +103,7 @@ namespace SecureChat.Client.Forms
             // 
             // textBoxBiography
             // 
-            textBoxBiography.Location = new Point(12, 146);
+            textBoxBiography.Location = new Point(12, 150);
             textBoxBiography.Multiline = true;
             textBoxBiography.Name = "textBoxBiography";
             textBoxBiography.Size = new Size(273, 86);
@@ -111,7 +111,7 @@ namespace SecureChat.Client.Forms
             // 
             // labelBiography
             // 
-            labelBiography.Location = new Point(12, 128);
+            labelBiography.Location = new Point(8, 130);
             labelBiography.Name = "labelBiography";
             labelBiography.Size = new Size(66, 20);
             labelBiography.TabIndex = 9;
@@ -121,16 +121,16 @@ namespace SecureChat.Client.Forms
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(301, 265);
+            ClientSize = new Size(303, 278);
             Controls.Add(textBoxBiography);
-            Controls.Add(labelBiography);
             Controls.Add(buttonCancel);
             Controls.Add(buttonSave);
             Controls.Add(textBoxTagline);
             Controls.Add(textBoxDisplayName);
+            Controls.Add(labelWarning);
+            Controls.Add(labelBiography);
             Controls.Add(labelTagline);
             Controls.Add(labelDisplayName);
-            Controls.Add(labelWarning);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;

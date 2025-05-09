@@ -18,6 +18,8 @@ namespace SecureChat.Client.Forms
 
             BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
 
+            kryptonNavigator.SelectedPage = kryptonPageMessages;
+
             if (showInTaskbar)
             {
                 ShowInTaskbar = true;
@@ -108,6 +110,15 @@ namespace SecureChat.Client.Forms
             kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Studio Render 2010", PaletteMode.VisualStudio2010Render2010));
             kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Studio Render 2013", PaletteMode.VisualStudio2010Render2013));
             kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Studio Render 365", PaletteMode.VisualStudio2010Render365));
+
+            foreach (var item in kryptonComboBoxTheme.Items)
+            {
+                if (item is ThemeComboItem themeItem && themeItem.Mode == Settings.Instance.Theme)
+                {
+                    kryptonComboBoxTheme.SelectedItem = item;
+                    break;
+                }
+            }
 
             #endregion
 

@@ -50,7 +50,7 @@ namespace SecureChat.Client
 
         public static void ApplyDarkTheme(Control parent)
         {
-            if(!IsThemeDark())
+            if (!IsThemeDark())
             {
                 return; // No need to apply dark theme
             }

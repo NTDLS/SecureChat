@@ -45,7 +45,7 @@ namespace SecureChat.Client.Forms
             // 
             // labelUsername
             // 
-            labelUsername.Location = new Point(100, 13);
+            labelUsername.Location = new Point(96, 13);
             labelUsername.Name = "labelUsername";
             labelUsername.Size = new Size(65, 20);
             labelUsername.TabIndex = 0;
@@ -60,7 +60,7 @@ namespace SecureChat.Client.Forms
             // 
             // labelPassword
             // 
-            labelPassword.Location = new Point(100, 61);
+            labelPassword.Location = new Point(96, 61);
             labelPassword.Name = "labelPassword";
             labelPassword.Size = new Size(62, 20);
             labelPassword.TabIndex = 2;
@@ -106,7 +106,7 @@ namespace SecureChat.Client.Forms
             // 
             // linkLabelCreateAccount
             // 
-            linkLabelCreateAccount.Location = new Point(100, 130);
+            linkLabelCreateAccount.Location = new Point(96, 134);
             linkLabelCreateAccount.Name = "linkLabelCreateAccount";
             linkLabelCreateAccount.Size = new Size(205, 20);
             linkLabelCreateAccount.TabIndex = 3;
@@ -125,7 +125,7 @@ namespace SecureChat.Client.Forms
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(311, 196);
+            ClientSize = new Size(315, 198);
             Controls.Add(checkBoxStayLoggedIn);
             Controls.Add(linkLabelCreateAccount);
             Controls.Add(buttonCancel);
