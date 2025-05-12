@@ -224,7 +224,7 @@ namespace SecureChat.Client
         /// <summary>
         /// A client is transmitting a file chunk to us.
         /// </summary>
-        public FileTransferChunkQueryReply FileTransferChunkQuery(RmContext context, FileTransferChunkQuery param)
+        public void FileTransferChunkQuery(RmContext context, FileTransferChunkQuery param)
         {
             try
             {
@@ -234,7 +234,6 @@ namespace SecureChat.Client
                 {
                     control.Transfer.AppendData(activeChat.Cipher(param.Bytes));
                     control.SetProgressValue(control.Transfer.PercentComplete);
-                    return new FileTransferChunkQueryReply();
                 }
                 else
                 {
@@ -244,7 +243,6 @@ namespace SecureChat.Client
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new FileTransferChunkQueryReply(ex);
             }
         }
 

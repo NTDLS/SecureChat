@@ -278,18 +278,17 @@ namespace SecureChat.Server
         /// A client transmitting a file chunk.
         /// Route the message to the appropriate connection.
         /// </summary>
-        public FileTransferChunkQueryReply FileTransferChunkQuery(RmContext context, FileTransferChunkQuery param)
+        public void FileTransferChunkQuery(RmContext context, FileTransferChunkQuery param)
         {
             try
             {
                 var accountConnection = VerifyAndGetAccountConnection(context);
 
-                return _chatService.RmServer.Query(param.PeerConnectionId, param).Result;
+                _chatService.RmServer.Notify(param.PeerConnectionId, param);
             }
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new FileTransferChunkQueryReply(ex);
             }
         }
 

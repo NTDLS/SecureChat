@@ -25,6 +25,12 @@ namespace SecureChat.Client
         /// </summary>
         public FlowControlOutgoingCall? LastOutgoingCallControl { get; set; }
         public PublicPrivateKeyPair PublicPrivateKeyPair { get; private set; }
+
+        /// <summary>
+        /// Shared secret used for symmetric end-to-end encryption.
+        /// </summary>
+        public byte[] SharedSecret { get; private set; }
+        
         public bool IsTerminated { get; private set; } = false;
 
         /// <summary>
@@ -63,6 +69,8 @@ namespace SecureChat.Client
         {
             if (ServerConnection.Current == null)
                 throw new Exception("Local connection is not established.");
+
+            SharedSecret = sharedSecret;
 
             //Obtain the public and private key-pair from the reliable connection so we can use it for the datagram messaging.
             var rmCryptographyProvider = ServerConnection.Current?.ReliableClient.GetCryptographyProvider() as ReliableCryptographyProvider
@@ -439,7 +447,7 @@ namespace SecureChat.Client
                     ftc.SetProgressValue((int)completionPercentage);
 
                     // Transmit the current chunk
-                    ServerConnection.Current?.ReliableClient.Query(new FileTransferChunkQuery(SessionId, PeerConnectionId, ftc.Transfer.FileId, Cipher(chunkToSend)));
+                    ServerConnection.Current?.ReliableClient.Notify(new FileTransferChunkQuery(SessionId, PeerConnectionId, ftc.Transfer.FileId, Cipher(chunkToSend)));
                 }
 
                 if (!ftc.IsCancelled)

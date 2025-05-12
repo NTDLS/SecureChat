@@ -3,7 +3,7 @@
 namespace SecureChat.Library.ReliableMessages
 {
     public class FileTransferChunkQuery
-        : IRmQuery<FileTransferChunkQueryReply>
+        : IRmNotification
     {
         public Guid FileId { get; set; }
 
@@ -25,24 +25,6 @@ namespace SecureChat.Library.ReliableMessages
             PeerConnectionId = peerConnectionId;
             FileId = fileId;
             Bytes = bytes;
-        }
-    }
-
-    public class FileTransferChunkQueryReply
-    : IRmQueryReply
-    {
-        public bool IsSuccess { get; set; }
-        public string? ErrorMessage { get; set; }
-
-        public FileTransferChunkQueryReply(Exception exception)
-        {
-            IsSuccess = false;
-            ErrorMessage = exception.GetBaseException().Message;
-        }
-
-        public FileTransferChunkQueryReply()
-        {
-            IsSuccess = true;
         }
     }
 }

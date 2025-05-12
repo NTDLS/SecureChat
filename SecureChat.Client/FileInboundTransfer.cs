@@ -56,6 +56,12 @@ namespace SecureChat.Client
 
         public byte[] GetFileBytes()
         {
+            //Since we sent file chunks asynchronously, we need to wait for the stream to be fully received.
+            for (int retry = 0; _stream.Length != FileSize && retry < 100; retry++)
+            {
+                Thread.Sleep(100);
+            }
+
             if (_stream.Length != FileSize)
             {
                 throw new Exception("File corruption detected.");

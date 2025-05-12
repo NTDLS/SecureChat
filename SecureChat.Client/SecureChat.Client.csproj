@@ -67,6 +67,9 @@
     <Compile Update="Controls\FlowControlSystemText.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Update="Forms\FormMessageProperties.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

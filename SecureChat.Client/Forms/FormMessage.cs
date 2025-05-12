@@ -391,7 +391,13 @@ namespace SecureChat.Client.Forms
 
         private void ToolStripButtonProperties_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Properties not implemented.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            using var form = new FormMessageProperties(_activeChat);
+            form.ShowDialog();
+        }
+
+        private void flowPanel_Paint(object sender, PaintEventArgs e)
+        {
+
         }
     }
 
