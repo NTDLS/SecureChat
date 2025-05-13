@@ -3,23 +3,26 @@ using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client.Controls
 {
-    public partial class FlowControlMessageBubble : Panel
+    public partial class FlowControlOriginBubble : Panel
     {
         private readonly Control _parent;
         private int _lastWidth = -1;
         private readonly Color _bubbleColor = Color.DodgerBlue;
         private readonly ScOrigin _origin;
 
-        private readonly Label _labelMessage;
+        private readonly Control _childControl;
         private readonly Label? _labelDisplayName;
+
+        public Control ChildControl => _childControl;
 
         public bool IsVisible =>
             _parent.ClientRectangle.IntersectsWith(_parent.RectangleToClient(Bounds));
 
-        public FlowControlMessageBubble(Control parent, string message, string displayName, ScOrigin origin, bool showDisplayName)
+        public FlowControlOriginBubble(Control parent, Control childControl, ScOrigin origin, string? displayName = null)
         {
             _parent = parent;
             _origin = origin;
+            _childControl = childControl;
 
             DoubleBuffered = true;
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
@@ -36,7 +39,7 @@ namespace SecureChat.Client.Controls
 
             using var font = new Font(Settings.Instance.Font, Settings.Instance.FontSize);
 
-            if (showDisplayName)
+            if (displayName != null)
             {
                 _labelDisplayName = new Label()
                 {
@@ -51,29 +54,26 @@ namespace SecureChat.Client.Controls
                 Controls.Add(_labelDisplayName);
             }
 
-            _labelMessage = new Label
-            {
-                AutoSize = true,
-                BackColor = Color.Transparent,
-                ForeColor = Themes.AdjustBrightness(Themes.InvertColor(_bubbleColor), 0.5f),
-                Font = font,
-                Text = message,
-                Top = (_labelDisplayName?.Top + _labelDisplayName?.Height + 5) ?? 0,
-            };
-            Controls.Add(_labelMessage);
+            _childControl.AutoSize = true;
+            _childControl.BackColor = Color.Transparent;
+            _childControl.ForeColor = Themes.AdjustBrightness(Themes.InvertColor(_bubbleColor), 0.5f);
+            _childControl.Font = font;
+            _childControl.Top = (_labelDisplayName?.Top + _labelDisplayName?.Height + 5) ?? 0;
 
-            CalculateLabelSize();
+            Controls.Add(_childControl);
+
+            CalculateChildSize();
 
             Resize += (object? sender, EventArgs e) =>
             {
-                CalculateLabelSize();
+                CalculateChildSize();
             };
 
-            _labelMessage.MouseClick += LabelMessage_MouseClick;
+            _childControl.MouseClick += LabelMessage_MouseClick;
             MouseClick += LabelMessage_MouseClick;
         }
 
-        private void CalculateLabelSize()
+        private void CalculateChildSize()
         {
             if (_lastWidth != _parent.Width)
             {
@@ -85,7 +85,7 @@ namespace SecureChat.Client.Controls
                     {
                         _labelDisplayName.Left = padding + 10;
                     }
-                    _labelMessage.Left = padding + 10;
+                    _childControl.Left = padding + 10;
                 }
                 else
                 {
@@ -93,23 +93,23 @@ namespace SecureChat.Client.Controls
                     {
                         _labelDisplayName.Left = 10;
                     }
-                    _labelMessage.Left = 10;
+                    _childControl.Left = 10;
                 }
 
                 this.MaximumSize = new Size(_parent.Width - 30, 0);
-                _labelMessage.MaximumSize = new Size((_parent.Width - padding) - 40, 0);
-                this.Height = _labelMessage.Top + _labelMessage.Height + 5;
-                this.Width = _labelMessage.Left + _labelMessage.Width + 5;
+                _childControl.MaximumSize = new Size((_parent.Width - padding) - 40, 0);
+                this.Height = _childControl.Top + _childControl.Height + 5;
+                this.Width = _childControl.Left + _childControl.Width + 5;
                 _lastWidth = _parent.Width;
             }
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            CalculateLabelSize();
+            CalculateChildSize();
 
             using var bubbleBrush = new SolidBrush(_bubbleColor);
-            var rect = new Rectangle(_labelMessage.Left - 5, 0, _labelMessage.Width + 5, this.Height);
+            var rect = new Rectangle(_childControl.Left - 5, 0, _childControl.Width + 5, this.Height);
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             e.Graphics.FillRoundedRectangle(bubbleBrush, rect.X, rect.Y, rect.Width, rect.Height, 15);
             base.OnPaint(e);
@@ -146,7 +146,7 @@ namespace SecureChat.Client.Controls
                 return;
             }
 
-            Exceptions.Ignore(() => Clipboard.SetText(_labelMessage.Text));
+            Exceptions.Ignore(() => Clipboard.SetText(_childControl.Text));
         }
     }
 }

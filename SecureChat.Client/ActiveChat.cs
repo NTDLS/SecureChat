@@ -767,7 +767,7 @@ namespace SecureChat.Client
                 }
                 else
                 {
-                    AppendFlowControl(new FlowControlMessageBubble(Form.FlowPanel, plainText, fromName, ScOrigin.Local, true));
+                    AppendFlowControl(new FlowControlMessage(Form.FlowPanel, plainText, fromName, ScOrigin.Local));
                 }
             }
             catch (Exception ex)

@@ -58,6 +58,7 @@
     <Compile Update="Controls\FlowControlFileTransferRequest.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="Controls\FlowControlMessage.cs" />
     <Compile Update="Controls\FlowControlOutgoingCall.cs">
       <SubType>UserControl</SubType>
     </Compile>

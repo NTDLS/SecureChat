@@ -20,7 +20,7 @@ namespace SecureChat.Client.Forms
 
                 foreach (var child in flowLayoutPanelChat.Controls)
                 {
-                    if (child is FlowControlMessageBubble bubble && bubble.IsVisible)
+                    if (child is FlowControlOriginBubble bubble && bubble.IsVisible)
                     {
                         bubble.Width = flowLayoutPanelChat.Width;
                     }
@@ -36,7 +36,7 @@ namespace SecureChat.Client.Forms
 
         private void AddChatBubble(string displayName, ScOrigin origin, string message)
         {
-            var bubble = new FlowControlMessageBubble(flowLayoutPanelChat, message, displayName, origin, true);
+            var bubble = new FlowControlMessage(flowLayoutPanelChat, message, displayName, origin);
             flowLayoutPanelChat.Controls.Add(bubble);
             flowLayoutPanelChat.VerticalScroll.Value = flowLayoutPanelChat.VerticalScroll.Maximum;
         }

@@ -87,7 +87,7 @@ namespace SecureChat.Client.Forms
 
                     foreach (var child in flowPanel.Controls)
                     {
-                        if (child is FlowControlMessageBubble bubble && bubble.IsVisible)
+                        if (child is FlowControlOriginBubble bubble && bubble.IsVisible)
                         {
                             bubble.Width = flowPanel.Width;
                         }
