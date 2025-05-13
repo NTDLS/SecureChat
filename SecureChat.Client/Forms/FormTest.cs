@@ -28,9 +28,9 @@ namespace SecureChat.Client.Forms
             };
         }
 
-        private void AddChatBubble(string displayName, Color bubbleColor, ScAlignment alignment, string message)
+        private void AddChatBubble(string displayName, ScOrigin origin, string message)
         {
-            var bubble = new FlowControlMessageBubble(flowLayoutPanelChat, message, displayName, bubbleColor, alignment, true);
+            var bubble = new FlowControlMessageBubble(flowLayoutPanelChat, message, displayName, origin, true);
             flowLayoutPanelChat.Controls.Add(bubble);
             flowLayoutPanelChat.VerticalScroll.Value = flowLayoutPanelChat.VerticalScroll.Maximum;
         }
@@ -39,24 +39,21 @@ namespace SecureChat.Client.Forms
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Color bubbleColor = Color.FromArgb(255, 0, 0, 0);
+            ScOrigin origin = ScOrigin.None;
             string displayName = "Test User";
-            ScAlignment alignment;
 
             if (number % 2 == 0)
             {
                 displayName = "Josh";
-                bubbleColor = Themes.FromMeColor;
-                alignment = ScAlignment.Right;
+                origin = ScOrigin.Local;
             }
             else
             {
                 displayName = "George";
-                bubbleColor = Themes.FromRemoteColor;
-                alignment = ScAlignment.Left;
+                origin = ScOrigin.Remote;
             }
 
-            AddChatBubble(displayName, bubbleColor, alignment, $"{number++:n0} This is message one. This is message two. This is message three. This is message four. This is message five. This is message six. This is message seven. This is message eight. This is message nine. This is message ten.");
+            AddChatBubble(displayName, origin, $"{number++:n0} This is message one. This is message two. This is message three. This is message four. This is message five. This is message six. This is message seven. This is message eight. This is message nine. This is message ten.");
         }
 
         private void FormTest_Load(object sender, EventArgs e)

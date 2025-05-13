@@ -1,6 +1,4 @@
 ﻿using NTDLS.Helpers;
-using Serilog.Parsing;
-using System.Text;
 using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client.Controls
@@ -8,26 +6,32 @@ namespace SecureChat.Client.Controls
     public partial class FlowControlMessageBubble : UserControl
     {
         private readonly Control _parent;
-        private readonly string _message;
         private int _lastWidth = -1;
         private readonly Color _bubbleColor = Color.DodgerBlue;
-        private readonly ScAlignment _alignment;
+        private readonly ScOrigin _origin;
 
         public bool IsVisible =>
             _parent.ClientRectangle.IntersectsWith(_parent.RectangleToClient(Bounds));
 
-        public FlowControlMessageBubble(Control parent, string message, string displayName, Color bubbleColor, ScAlignment alignment, bool showDisplayName)
+        public FlowControlMessageBubble(Control parent, string message, string displayName, ScOrigin origin, bool showDisplayName)
         {
+            _parent = parent;
+            _origin = origin;
+
             InitializeComponent();
 
             DoubleBuffered = true;
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
             UpdateStyles();
 
-            _alignment = alignment;
-            _bubbleColor = bubbleColor;
-            _message = message;
-            _parent = parent;
+            if (origin == ScOrigin.Local)
+            {
+                _bubbleColor = Themes.FromLocalColor;
+            }
+            else
+            {
+                _bubbleColor = Themes.FromRemoteColor;
+            }
 
             using var font = new Font(Settings.Instance.Font, Settings.Instance.FontSize);
 
@@ -35,7 +39,7 @@ namespace SecureChat.Client.Controls
             {
                 labelDisplayName.AutoSize = true;
                 labelDisplayName.BackColor = Color.Transparent;
-                labelDisplayName.ForeColor = Themes.AdjustBrightness(Themes.InvertColor(bubbleColor), 0.85f);
+                labelDisplayName.ForeColor = Themes.AdjustBrightness(Themes.InvertColor(_bubbleColor), 0.85f);
                 labelDisplayName.Font = font;
                 labelDisplayName.Text = displayName;
             }
@@ -46,7 +50,7 @@ namespace SecureChat.Client.Controls
 
             labelMessage.AutoSize = true;
             labelMessage.BackColor = Color.Transparent;
-            labelMessage.ForeColor = Themes.AdjustBrightness(Themes.InvertColor(bubbleColor), 0.5f);
+            labelMessage.ForeColor = Themes.AdjustBrightness(Themes.InvertColor(_bubbleColor), 0.5f);
             labelMessage.Font = font;
             labelMessage.Text = message;
 
@@ -57,6 +61,8 @@ namespace SecureChat.Client.Controls
                 CalculateLabelSize();
             };
 
+            labelMessage.MouseClick += LabelMessage_MouseClick;
+            labelDisplayName.MouseClick += LabelMessage_MouseClick;
             MouseClick += LabelMessage_MouseClick;
         }
 
@@ -66,7 +72,7 @@ namespace SecureChat.Client.Controls
             {
                 int padding = _parent.Width / 3;
 
-                if (_alignment == ScAlignment.Right)
+                if (_origin == ScOrigin.Local)
                 {
                     labelDisplayName.Padding = new Padding(padding, 0, 5, 5);
                     labelMessage.Padding = new Padding(padding, 0, 5, 5);
@@ -91,7 +97,7 @@ namespace SecureChat.Client.Controls
 
             using var bubbleBrush = new SolidBrush(_bubbleColor);
 
-            var rect = new Rectangle(labelMessage.Padding.Left - 5, 0, this.Width - (labelMessage.Padding.Left + labelMessage.Padding.Right) +5 , this.Height - 1);
+            var rect = new Rectangle(labelMessage.Padding.Left - 5, 0, this.Width - (labelMessage.Padding.Left + labelMessage.Padding.Right) + 5, this.Height - 1);
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             e.Graphics.FillRoundedRectangle(bubbleBrush, rect.X, rect.Y, rect.Width, rect.Height, 15);
             base.OnPaint(e);

@@ -8,7 +8,7 @@ namespace SecureChat.Client
         /// <summary>
         /// Color used for display name when message are from the local client.
         /// </summary>
-        public readonly static Color FromMeColor = Color.DodgerBlue;
+        public readonly static Color FromLocalColor = Color.DodgerBlue;
 
         /// <summary>
         /// Color used for display name when message are from remote clients.

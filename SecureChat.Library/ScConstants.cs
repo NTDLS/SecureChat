@@ -35,6 +35,14 @@
             Right
         }
 
+        public enum ScOrigin
+        {
+            None,
+            Local,
+            Remote
+        }
+
+
         public enum ScOnlineState
         {
             Offline,

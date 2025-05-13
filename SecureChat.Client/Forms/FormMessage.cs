@@ -314,7 +314,7 @@ namespace SecureChat.Client.Forms
 
                 if (_activeChat.SendTextMessage(text))
                 {
-                    _activeChat.AppendReceivedMessageLine(ServerConnection.Current.DisplayName, text, false, Themes.FromMeColor);
+                    _activeChat.AppendReceivedMessageLine(ServerConnection.Current.DisplayName, text, false, Themes.FromLocalColor);
                 }
                 else
                 {

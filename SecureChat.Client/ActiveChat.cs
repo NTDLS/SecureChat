@@ -461,7 +461,7 @@ namespace SecureChat.Client
                             {
                                 // Load the image only after successful transfer
                                 var imageData = ftc.Transfer.GetFileBytes();
-                                AppendImageMessage(ServerConnection.Current.DisplayName, imageData, false, Themes.FromMeColor);
+                                AppendImageMessage(ServerConnection.Current.DisplayName, imageData, false, Themes.FromLocalColor);
                             }
                             else
                             {
@@ -767,7 +767,7 @@ namespace SecureChat.Client
                 }
                 else
                 {
-                    AppendFlowControl(new FlowControlMessageBubble(Form.FlowPanel, plainText, fromName, displayNameColor, ScAlignment.Left, true));
+                    AppendFlowControl(new FlowControlMessageBubble(Form.FlowPanel, plainText, fromName, ScOrigin.Local, true));
                 }
             }
             catch (Exception ex)
