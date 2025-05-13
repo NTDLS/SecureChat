@@ -1,19 +1,12 @@
-﻿using NTDLS.Helpers;
-using static SecureChat.Library.ScConstants;
+﻿using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client.Controls
 {
     public partial class FlowControlMessage : FlowControlOriginBubble
     {
-        private readonly Control _parent;
-        private readonly ScOrigin _origin;
-
-        public FlowControlMessage(Control parent, string message, string displayName, ScOrigin origin)
+        public FlowControlMessage(Control parent, string message, ScOrigin origin, string? displayName = null)
             : base(parent, new Label() { Text = message }, origin, displayName)
         {
-            _parent = parent;
-            _origin = origin;
-
             DoubleBuffered = true;
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
             UpdateStyles();
@@ -32,28 +25,6 @@ namespace SecureChat.Client.Controls
                 contextMenu.Items.Add("Remove", null, OnRemove);
                 contextMenu.Show((sender as Control) ?? this, e.Location);
             }
-        }
-
-        private void OnRemove(object? sender, EventArgs e)
-        {
-            if (InvokeRequired)
-            {
-                Invoke(new Action(() => OnRemove(sender, e)));
-                return;
-            }
-
-            Exceptions.Ignore(() => _parent.Controls.Remove(this));
-        }
-
-        private void OnCopy(object? sender, EventArgs e)
-        {
-            if (InvokeRequired)
-            {
-                Invoke(new Action(() => OnCopy(sender, e)));
-                return;
-            }
-
-            Exceptions.Ignore(() => Clipboard.SetText(ChildControl.Text));
         }
     }
 }

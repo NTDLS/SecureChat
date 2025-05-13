@@ -2,49 +2,31 @@
 using NTDLS.Helpers;
 using SecureChat.Client.Helpers;
 using System.Diagnostics;
+using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client.Controls
 {
-    public class FlowControlHyperlink : FlowLayoutPanel
+    public class FlowControlHyperlink : FlowControlOriginBubble
     {
-        private readonly FlowLayoutPanel _parent;
-
-        public FlowControlHyperlink(FlowLayoutPanel parent, string displayName, string message, Color? color)
-        {
-            BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
-
-            _parent = parent;
-            FlowDirection = FlowDirection.LeftToRight;
-            AutoSize = true;
-            Margin = new Padding(0);
-            Padding = new Padding(0);
-
-            var labelDisplayName = new Label
+        public FlowControlHyperlink(FlowLayoutPanel parent, string linkText, ScOrigin origin, string? displayName = null)
+            : base(parent, new LinkLabel
             {
-                Text = displayName,
-                AutoSize = true,
-                ForeColor = color ?? Color.Black,
-                Font = Fonts.Instance.Bold,
-                //BackColor = Color.Gray,
-                Padding = new Padding(0),
-                Margin = new Padding(0)
-            };
-            labelDisplayName.MouseClick += LabelMessage_MouseClick;
-            Controls.Add(labelDisplayName);
-
-            var labelMessage = new LinkLabel
-            {
-                Text = message,
+                Text = linkText,
                 AutoSize = true,
                 ForeColor = Themes.ChooseColor(Color.LightBlue, Color.Blue),
                 Font = Fonts.Instance.Regular,
-                //BackColor = Color.LightGray,
+                BackColor = Color.Transparent,
                 Padding = new Padding(0),
                 Margin = new Padding(0)
-            };
-            labelMessage.LinkClicked += LabelMessage_LinkClicked;
-            labelMessage.MouseClick += LabelMessage_MouseClick;
-            Controls.Add(labelMessage);
+            }, origin, displayName)
+        {
+            BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
+
+            if (ChildControl is LinkLabel child)
+            {
+                child.LinkClicked += LabelMessage_LinkClicked;
+                child.MouseClick += LabelMessage_MouseClick;
+            }
         }
 
         private void LabelMessage_LinkClicked(object? sender, LinkLabelLinkClickedEventArgs e)
@@ -75,27 +57,6 @@ namespace SecureChat.Client.Controls
                 contextMenu.Items.Add("Remove", null, OnRemove);
                 contextMenu.Show((sender as Control) ?? this, e.Location);
             }
-        }
-
-        private void OnRemove(object? sender, EventArgs e)
-        {
-            Exceptions.Ignore(() =>
-            {
-
-                _parent.Controls.Remove(this);
-            });
-        }
-
-        private void OnCopy(object? sender, EventArgs e)
-        {
-            Exceptions.Ignore(() =>
-            {
-
-                if (sender is LinkLabel linkLabel)
-                {
-                    Clipboard.SetText(linkLabel.Text);
-                }
-            });
         }
     }
 }

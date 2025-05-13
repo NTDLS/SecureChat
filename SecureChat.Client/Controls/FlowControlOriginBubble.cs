@@ -50,7 +50,6 @@ namespace SecureChat.Client.Controls
                     Text = displayName,
                     Top = 0,
                 };
-                _labelDisplayName.MouseClick += LabelMessage_MouseClick;
                 Controls.Add(_labelDisplayName);
             }
 
@@ -68,9 +67,6 @@ namespace SecureChat.Client.Controls
             {
                 CalculateChildSize();
             };
-
-            _childControl.MouseClick += LabelMessage_MouseClick;
-            MouseClick += LabelMessage_MouseClick;
         }
 
         private void CalculateChildSize()
@@ -115,19 +111,7 @@ namespace SecureChat.Client.Controls
             base.OnPaint(e);
         }
 
-        private void LabelMessage_MouseClick(object? sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Right)
-            {
-                var contextMenu = new ContextMenuStrip();
-                contextMenu.Items.Add("Copy", null, OnCopy);
-                contextMenu.Items.Add(new ToolStripSeparator());
-                contextMenu.Items.Add("Remove", null, OnRemove);
-                contextMenu.Show((sender as Control) ?? this, e.Location);
-            }
-        }
-
-        private void OnRemove(object? sender, EventArgs e)
+        public virtual void OnRemove(object? sender, EventArgs e)
         {
             if (InvokeRequired)
             {
@@ -138,7 +122,7 @@ namespace SecureChat.Client.Controls
             Exceptions.Ignore(() => _parent.Controls.Remove(this));
         }
 
-        private void OnCopy(object? sender, EventArgs e)
+        public virtual void OnCopy(object? sender, EventArgs e)
         {
             if (InvokeRequired)
             {

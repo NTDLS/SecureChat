@@ -763,11 +763,11 @@ namespace SecureChat.Client
 
                 if (plainText.StartsWith("http://") || plainText.StartsWith("https://"))
                 {
-                    AppendFlowControl(new FlowControlHyperlink(Form.FlowPanel, fromName, plainText, displayNameColor));
+                    AppendFlowControl(new FlowControlHyperlink(Form.FlowPanel, plainText, ScOrigin.Local, fromName));
                 }
                 else
                 {
-                    AppendFlowControl(new FlowControlMessage(Form.FlowPanel, plainText, fromName, ScOrigin.Local));
+                    AppendFlowControl(new FlowControlMessage(Form.FlowPanel, plainText, ScOrigin.Local, fromName));
                 }
             }
             catch (Exception ex)
