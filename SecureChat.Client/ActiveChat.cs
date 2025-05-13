@@ -20,6 +20,7 @@ namespace SecureChat.Client
         private int _inputDeviceIndex;
         private int _outputDeviceIndex;
         private int _bitrate;
+        private ScOrigin _lastMessageOrigin = ScOrigin.None;
 
         /// <summary>
         /// When a voice call is sent, this will be the control that is displayed in the chat window.
@@ -144,7 +145,7 @@ namespace SecureChat.Client
                 return;
             }
 
-            AppendReceivedMessageLine(DisplayName, DecryptString(cipherText), ScOrigin.Remote);
+            AppendChatMessage(DisplayName, DecryptString(cipherText), ScOrigin.Remote);
         }
 
         public bool SendTextMessage(string plaintText)
@@ -502,6 +503,8 @@ namespace SecureChat.Client
                     return;
                 }
 
+                _lastMessageOrigin = ScOrigin.None;
+
                 Form.Invoke(() =>
                 {
                     lock (Form.FlowPanel)
@@ -732,7 +735,7 @@ namespace SecureChat.Client
             AppendFlowControl(LastOutgoingCallControl);
         }
 
-        public void AppendReceivedMessageLine(string fromName, string plainText, ScOrigin origin)
+        public void AppendChatMessage(string fromName, string plainText, ScOrigin origin)
         {
             try
             {
@@ -763,12 +766,14 @@ namespace SecureChat.Client
 
                 if (plainText.StartsWith("http://") || plainText.StartsWith("https://"))
                 {
-                    AppendFlowControl(new FlowControlHyperlink(Form.FlowPanel, plainText, origin, fromName));
+                    AppendFlowControl(new FlowControlHyperlink(Form.FlowPanel, plainText, origin, _lastMessageOrigin == origin ? null : fromName));
                 }
                 else
                 {
-                    AppendFlowControl(new FlowControlMessage(Form.FlowPanel, plainText, origin, fromName));
+                    AppendFlowControl(new FlowControlMessage(Form.FlowPanel, plainText, origin, _lastMessageOrigin == origin ? null : fromName));
                 }
+
+                _lastMessageOrigin = origin;
             }
             catch (Exception ex)
             {

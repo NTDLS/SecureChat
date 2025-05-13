@@ -315,7 +315,7 @@ namespace SecureChat.Client.Forms
 
                 if (_activeChat.SendTextMessage(text))
                 {
-                    _activeChat.AppendReceivedMessageLine(ServerConnection.Current.DisplayName, text, ScOrigin.Local);
+                    _activeChat.AppendChatMessage(ServerConnection.Current.DisplayName, text, ScOrigin.Local);
                 }
                 else
                 {
