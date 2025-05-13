@@ -71,8 +71,10 @@ namespace SecureChat.Client.Controls
 
         private void CalculateChildSize()
         {
+
             if (_lastWidth != _parent.Width)
             {
+
                 int padding = _parent.Width / 3;
 
                 if (_origin == ScOrigin.Local)
@@ -92,11 +94,21 @@ namespace SecureChat.Client.Controls
                     _childControl.Left = 10;
                 }
 
-                this.MaximumSize = new Size(_parent.Width - 30, 0);
-                _childControl.MaximumSize = new Size((_parent.Width - padding) - 40, 0);
-                this.Height = _childControl.Top + _childControl.Height + 5;
-                this.Width = _childControl.Left + _childControl.Width + 5;
-                _lastWidth = _parent.Width;
+                if (_childControl is Label)
+                {
+                    //We do some special stuff here to allow the label logic to perform its magic auto-wrapping.
+                    this.MaximumSize = new Size(_parent.Width - 30, 0);
+                    _childControl.MaximumSize = new Size((_parent.Width - padding) - 40, 0);
+                    this.Height = _childControl.Top + _childControl.Height + 5;
+
+                    this.Width = Math.Max(_childControl.Left + _childControl.Width + 5, (_labelDisplayName?.Left + _labelDisplayName?.Width + 5) ?? 0);
+                    _lastWidth = _parent.Width;
+                }
+                else
+                {
+                    this.Height = _childControl.Top + _childControl.Height + 10;
+                    this.Width = Math.Max(_parent.Width - 30, 100);
+                }
             }
         }
 
@@ -105,7 +117,9 @@ namespace SecureChat.Client.Controls
             CalculateChildSize();
 
             using var bubbleBrush = new SolidBrush(_bubbleColor);
-            var rect = new Rectangle(_childControl.Left - 5, 0, _childControl.Width + 5, this.Height);
+
+            int minWidth = Math.Max(_childControl.Width + 10, (_labelDisplayName?.Width + 10) ?? 0);
+            var rect = new Rectangle(_childControl.Left - 5, 0, minWidth, this.Height);
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             e.Graphics.FillRoundedRectangle(bubbleBrush, rect.X, rect.Y, rect.Width, rect.Height, 15);
             base.OnPaint(e);

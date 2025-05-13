@@ -6,6 +6,7 @@ using SecureChat.Library;
 using Serilog;
 using System.ComponentModel;
 using System.Diagnostics;
+using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client.Forms
 {
@@ -314,7 +315,7 @@ namespace SecureChat.Client.Forms
 
                 if (_activeChat.SendTextMessage(text))
                 {
-                    _activeChat.AppendReceivedMessageLine(ServerConnection.Current.DisplayName, text, false, Themes.FromLocalColor);
+                    _activeChat.AppendReceivedMessageLine(ServerConnection.Current.DisplayName, text, ScOrigin.Local);
                 }
                 else
                 {

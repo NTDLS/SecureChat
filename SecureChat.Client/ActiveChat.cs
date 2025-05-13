@@ -143,7 +143,7 @@ namespace SecureChat.Client
                 return;
             }
 
-            AppendReceivedMessageLine(DisplayName, DecryptString(cipherText), true, Themes.FromRemoteColor);
+            AppendReceivedMessageLine(DisplayName, DecryptString(cipherText), ScOrigin.Remote);
         }
 
         public bool SendTextMessage(string plaintText)
@@ -732,7 +732,7 @@ namespace SecureChat.Client
             AppendFlowControl(LastOutgoingCallControl);
         }
 
-        public void AppendReceivedMessageLine(string fromName, string plainText, bool playNotifications, Color displayNameColor)
+        public void AppendReceivedMessageLine(string fromName, string plainText, ScOrigin origin)
         {
             try
             {
@@ -750,7 +750,7 @@ namespace SecureChat.Client
                         Form.Visible = true;
                     }
 
-                    if (playNotifications)
+                    if (origin == ScOrigin.Remote)
                     {
                         if (WindowFlasher.FlashWindow(Form))
                         {
@@ -763,11 +763,11 @@ namespace SecureChat.Client
 
                 if (plainText.StartsWith("http://") || plainText.StartsWith("https://"))
                 {
-                    AppendFlowControl(new FlowControlHyperlink(Form.FlowPanel, plainText, ScOrigin.Local, fromName));
+                    AppendFlowControl(new FlowControlHyperlink(Form.FlowPanel, plainText, origin, fromName));
                 }
                 else
                 {
-                    AppendFlowControl(new FlowControlMessage(Form.FlowPanel, plainText, ScOrigin.Local, fromName));
+                    AppendFlowControl(new FlowControlMessage(Form.FlowPanel, plainText, origin, fromName));
                 }
             }
             catch (Exception ex)
