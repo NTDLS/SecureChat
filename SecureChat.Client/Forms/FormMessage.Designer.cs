@@ -67,8 +67,8 @@ namespace SecureChat.Client.Forms
             // 
             splitContainer1.Panel2.Controls.Add(textBoxMessage);
             splitContainer1.Panel2.Controls.Add(buttonSend);
-            splitContainer1.Size = new Size(532, 457);
-            splitContainer1.SplitterDistance = 399;
+            splitContainer1.Size = new Size(476, 425);
+            splitContainer1.SplitterDistance = 367;
             splitContainer1.TabIndex = 2;
             // 
             // flowPanel
@@ -76,12 +76,13 @@ namespace SecureChat.Client.Forms
             flowPanel.AllowDrop = true;
             flowPanel.AutoScroll = true;
             flowPanel.AutoSize = true;
+            flowPanel.BackColor = Color.Transparent;
             flowPanel.BorderStyle = BorderStyle.Fixed3D;
             flowPanel.Dock = DockStyle.Fill;
             flowPanel.FlowDirection = FlowDirection.TopDown;
             flowPanel.Location = new Point(0, 0);
             flowPanel.Name = "flowPanel";
-            flowPanel.Size = new Size(532, 399);
+            flowPanel.Size = new Size(476, 367);
             flowPanel.TabIndex = 2;
             flowPanel.WrapContents = false;
             flowPanel.Paint += flowPanel_Paint;
@@ -92,13 +93,13 @@ namespace SecureChat.Client.Forms
             textBoxMessage.Location = new Point(0, 0);
             textBoxMessage.Multiline = true;
             textBoxMessage.Name = "textBoxMessage";
-            textBoxMessage.Size = new Size(457, 53);
+            textBoxMessage.Size = new Size(401, 53);
             textBoxMessage.TabIndex = 0;
             // 
             // buttonSend
             // 
             buttonSend.Dock = DockStyle.Right;
-            buttonSend.Location = new Point(457, 0);
+            buttonSend.Location = new Point(401, 0);
             buttonSend.Name = "buttonSend";
             buttonSend.Size = new Size(75, 53);
             buttonSend.TabIndex = 1;
@@ -112,7 +113,7 @@ namespace SecureChat.Client.Forms
             toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButtonTerminate, toolStripSeparator1, toolStripButtonAttachFile, toolStripButtonVoiceCall, toolStripButtonVoiceCallEnd, toolStripSeparator2, toolStripButtonExport, toolStripButtonProperties });
             toolStrip1.Location = new Point(5, 0);
             toolStrip1.Name = "toolStrip1";
-            toolStrip1.Size = new Size(532, 25);
+            toolStrip1.Size = new Size(476, 25);
             toolStrip1.TabIndex = 4;
             toolStrip1.Text = "toolStrip1";
             // 
@@ -192,10 +193,11 @@ namespace SecureChat.Client.Forms
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(542, 487);
+            ClientSize = new Size(486, 455);
             Controls.Add(splitContainer1);
             Controls.Add(toolStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");
+            MinimumSize = new Size(400, 400);
             Name = "FormMessage";
             Opacity = 0.95D;
             Padding = new Padding(5, 0, 5, 5);

@@ -71,22 +71,22 @@ namespace SecureChat.Client.Controls
 
         private void CalculateChildSize()
         {
-
             if (_lastWidth != _parent.Width)
             {
-
-                int padding = _parent.Width / 3;
+                int alignmentPadding = _parent.Width / 3;
 
                 if (_origin == ScOrigin.Local)
                 {
+                    //Right align the bubble.
                     if (_labelDisplayName != null)
                     {
-                        _labelDisplayName.Left = padding + 10;
+                        _labelDisplayName.Left = alignmentPadding + 10;
                     }
-                    _childControl.Left = padding + 10;
+                    _childControl.Left = alignmentPadding + 10;
                 }
                 else
                 {
+                    //Left align the bubble.
                     if (_labelDisplayName != null)
                     {
                         _labelDisplayName.Left = 10;
@@ -98,7 +98,7 @@ namespace SecureChat.Client.Controls
                 {
                     //We do some special stuff here to allow the label logic to perform its magic auto-wrapping.
                     this.MaximumSize = new Size(_parent.Width - 30, 0);
-                    _childControl.MaximumSize = new Size((_parent.Width - padding) - 40, 0);
+                    _childControl.MaximumSize = new Size((_parent.Width - alignmentPadding) - 40, 0);
                     this.Height = _childControl.Top + _childControl.Height + 5;
 
                     this.Width = Math.Max(_childControl.Left + _childControl.Width + 5, (_labelDisplayName?.Left + _labelDisplayName?.Width + 5) ?? 0);
