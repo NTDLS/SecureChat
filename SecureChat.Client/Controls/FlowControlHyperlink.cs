@@ -1,6 +1,5 @@
 ﻿using Krypton.Toolkit;
 using NTDLS.Helpers;
-using SecureChat.Client.Helpers;
 using System.Diagnostics;
 using static SecureChat.Library.ScConstants;
 
@@ -9,16 +8,7 @@ namespace SecureChat.Client.Controls
     public class FlowControlHyperlink : FlowControlOriginBubble
     {
         public FlowControlHyperlink(FlowLayoutPanel parent, string linkText, ScOrigin origin, string? displayName = null)
-            : base(parent, new LinkLabel
-            {
-                Text = linkText,
-                AutoSize = true,
-                ForeColor = Themes.ChooseColor(Color.LightBlue, Color.Blue),
-                Font = Fonts.Instance.Regular,
-                BackColor = Color.Transparent,
-                Padding = new Padding(0),
-                Margin = new Padding(0)
-            }, origin, displayName)
+            : base(parent, new LinkLabel { Text = linkText }, origin, displayName)
         {
             BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
 
