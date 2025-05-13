@@ -29,14 +29,17 @@
         private void InitializeComponent()
         {
             button1 = new Button();
-            panelScroll = new Panel();
             flowLayoutPanelChat = new FlowLayoutPanel();
-            panelScroll.SuspendLayout();
+            splitContainer1 = new SplitContainer();
+            ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
+            splitContainer1.Panel1.SuspendLayout();
+            splitContainer1.Panel2.SuspendLayout();
+            splitContainer1.SuspendLayout();
             SuspendLayout();
             // 
             // button1
             // 
-            button1.Location = new Point(510, 358);
+            button1.Location = new Point(12, 12);
             button1.Name = "button1";
             button1.Size = new Size(75, 23);
             button1.TabIndex = 1;
@@ -44,44 +47,55 @@
             button1.UseVisualStyleBackColor = true;
             button1.Click += button1_Click;
             // 
-            // panelScroll
-            // 
-            panelScroll.AutoScroll = true;
-            panelScroll.Controls.Add(flowLayoutPanelChat);
-            panelScroll.Location = new Point(12, 12);
-            panelScroll.Name = "panelScroll";
-            panelScroll.Size = new Size(573, 337);
-            panelScroll.TabIndex = 2;
-            // 
             // flowLayoutPanelChat
             // 
-            flowLayoutPanelChat.AutoSize = true;
-            flowLayoutPanelChat.Dock = DockStyle.Top;
+            flowLayoutPanelChat.AutoScroll = true;
+            flowLayoutPanelChat.Dock = DockStyle.Fill;
             flowLayoutPanelChat.FlowDirection = FlowDirection.TopDown;
             flowLayoutPanelChat.Location = new Point(0, 0);
             flowLayoutPanelChat.Name = "flowLayoutPanelChat";
-            flowLayoutPanelChat.Size = new Size(573, 0);
+            flowLayoutPanelChat.Size = new Size(574, 383);
             flowLayoutPanelChat.TabIndex = 0;
             flowLayoutPanelChat.WrapContents = false;
+            // 
+            // splitContainer1
+            // 
+            splitContainer1.Dock = DockStyle.Fill;
+            splitContainer1.FixedPanel = FixedPanel.Panel2;
+            splitContainer1.Location = new Point(0, 0);
+            splitContainer1.Name = "splitContainer1";
+            splitContainer1.Orientation = Orientation.Horizontal;
+            // 
+            // splitContainer1.Panel1
+            // 
+            splitContainer1.Panel1.Controls.Add(flowLayoutPanelChat);
+            // 
+            // splitContainer1.Panel2
+            // 
+            splitContainer1.Panel2.Controls.Add(button1);
+            splitContainer1.Size = new Size(574, 434);
+            splitContainer1.SplitterDistance = 383;
+            splitContainer1.TabIndex = 2;
             // 
             // FormTest
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(609, 393);
-            Controls.Add(panelScroll);
-            Controls.Add(button1);
+            ClientSize = new Size(574, 434);
+            Controls.Add(splitContainer1);
             Name = "FormTest";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "FormTest";
-            panelScroll.ResumeLayout(false);
-            panelScroll.PerformLayout();
+            splitContainer1.Panel1.ResumeLayout(false);
+            splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
+            splitContainer1.ResumeLayout(false);
             ResumeLayout(false);
         }
 
         #endregion
         private Button button1;
-        private Panel panelScroll;
         private FlowLayoutPanel flowLayoutPanelChat;
+        private SplitContainer splitContainer1;
     }
 }
