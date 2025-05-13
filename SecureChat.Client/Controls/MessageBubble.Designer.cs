@@ -1,4 +1,4 @@
-﻿namespace chat
+﻿namespace SecureChat.Client.Controls
 {
     partial class MessageBubble
     {
@@ -65,7 +65,7 @@
             MinimumSize = new Size(0, 47);
             Name = "MessageBubble";
             Padding = new Padding(0, 6, 0, 6);
-            Size = new Size(96, 47);
+            Size = new Size(137, 47);
             ResumeLayout(false);
             PerformLayout();
 

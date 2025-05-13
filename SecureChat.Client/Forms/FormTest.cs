@@ -1,5 +1,5 @@
-﻿using chat;
-using Krypton.Toolkit;
+﻿using Krypton.Toolkit;
+using SecureChat.Client.Controls;
 
 namespace SecureChat.Client.Forms
 {

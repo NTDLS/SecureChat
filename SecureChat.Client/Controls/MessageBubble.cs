@@ -1,7 +1,6 @@
-﻿using SecureChat.Client.Controls;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 
-namespace chat
+namespace SecureChat.Client.Controls
 {
     public partial class MessageBubble : UserControl
     {
@@ -28,10 +27,14 @@ namespace chat
 
             labelDisplayName.Padding = new Padding(5, 5, 5, 2);
             labelDisplayName.AutoSize = true;
+            labelDisplayName.BackColor = Color.Transparent;
+            labelDisplayName.ForeColor = Color.White;
+            labelDisplayName.Font = new Font("Arial", 10);
+            labelDisplayName.Text = "This is from who??";
 
             labelMessage.Padding = new Padding(5, 0, 5, 5);
             labelMessage.AutoSize = true;
-            labelMessage.BackColor = BubbleColor;
+            labelMessage.BackColor = Color.Transparent;
             labelMessage.ForeColor = Color.Black;
             labelMessage.Font = new Font("Arial", 12);
             labelMessage.Text = message;
@@ -49,9 +52,9 @@ namespace chat
             if (_lastWidth != _parent.Width)
             {
                 this.MaximumSize = new Size(_parent.Width - 20, 0);
-                labelMessage.MaximumSize = new Size(_parent.Width - 50, 0);
-                this.Height = labelMessage.Top + labelMessage.Height + 20;
-                this.Width = labelMessage.Left + labelMessage.Width + 20;
+                labelMessage.MaximumSize = new Size((_parent.Width - labelMessage.Left) - 30, 0);
+                this.Height = labelMessage.Top + labelMessage.Height + 5;
+                this.Width = labelMessage.Left + labelMessage.Width + 5;
                 _lastWidth = _parent.Width;
             }
         }
@@ -60,21 +63,12 @@ namespace chat
         {
             CalculateLabelSize();
 
-            // Draw the rounded rectangle
             using var bubbleBrush = new SolidBrush(BubbleColor);
 
-            int bubbleWidth = _lastWidth - 30;
-            int bubbleHeight = this.Height;
-
-            // Resize the control to fit the content
-            this.Size = new Size(bubbleWidth, bubbleHeight);
-
-            // Draw the rounded rectangle
-            var rect = new Rectangle(0, 0, bubbleWidth - 1, bubbleHeight - 1);
+            var rect = new Rectangle(0, 0, this.Width, this.Height);
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             e.Graphics.FillRoundedRectangle(bubbleBrush, rect.X, rect.Y, rect.Width, rect.Height, 15);
             base.OnPaint(e);
         }
     }
 }
-
