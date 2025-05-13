@@ -11,8 +11,8 @@ namespace SecureChat.Client.Controls
             : base(parent, new PictureBox
             {
                 SizeMode = PictureBoxSizeMode.Zoom,
-                Width = 200,
-                Height = 200
+                Width = 100,
+                Height = 100
             }, origin, displayName)
         {
             using var ms = new MemoryStream(imageBytes);
