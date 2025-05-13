@@ -3,7 +3,7 @@ using SecureChat.Client.Forms;
 using SecureChat.Client.Helpers;
 using static SecureChat.Library.ScConstants;
 
-namespace SecureChat.Client.Controls
+namespace SecureChat.Client.Controls.FlowControls
 {
     public class FlowControlImage : FlowControlOriginBubble
     {
@@ -47,7 +47,7 @@ namespace SecureChat.Client.Controls
                 contextMenu.Items.Add("Copy", null, OnCopyImage);
                 contextMenu.Items.Add(new ToolStripSeparator());
                 contextMenu.Items.Add("Remove", null, OnRemove);
-                contextMenu.Show((sender as Control) ?? this, e.Location);
+                contextMenu.Show(sender as Control ?? this, e.Location);
             }
         }
 

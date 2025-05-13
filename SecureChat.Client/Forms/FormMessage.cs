@@ -1,6 +1,6 @@
 ﻿using Krypton.Toolkit;
 using NTDLS.Helpers;
-using SecureChat.Client.Controls;
+using SecureChat.Client.Controls.FlowControls;
 using SecureChat.Client.Helpers;
 using SecureChat.Library;
 using Serilog;

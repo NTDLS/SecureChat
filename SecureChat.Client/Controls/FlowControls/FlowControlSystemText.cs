@@ -2,7 +2,7 @@
 using NTDLS.Helpers;
 using SecureChat.Client.Helpers;
 
-namespace SecureChat.Client.Controls
+namespace SecureChat.Client.Controls.FlowControls
 {
     public class FlowControlSystemText : FlowLayoutPanel
     {
@@ -40,7 +40,7 @@ namespace SecureChat.Client.Controls
                 contextMenu.Items.Add("Copy", null, OnCopy);
                 contextMenu.Items.Add(new ToolStripSeparator());
                 contextMenu.Items.Add("Remove", null, OnRemove);
-                contextMenu.Show((sender as Control) ?? this, e.Location);
+                contextMenu.Show(sender as Control ?? this, e.Location);
             }
         }
 

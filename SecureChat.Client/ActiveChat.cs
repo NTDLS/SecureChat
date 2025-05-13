@@ -2,6 +2,7 @@
 using NTDLS.Permafrost;
 using SecureChat.Client.Audio;
 using SecureChat.Client.Controls;
+using SecureChat.Client.Controls.FlowControls;
 using SecureChat.Client.Forms;
 using SecureChat.Client.Helpers;
 using SecureChat.Library;

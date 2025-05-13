@@ -2,17 +2,13 @@
 using System.Diagnostics;
 using static SecureChat.Library.ScConstants;
 
-namespace SecureChat.Client.Controls
+namespace SecureChat.Client.Controls.FlowControls
 {
-    public class FlowControlFolderHyperlink : FlowControlOriginBubble
+    public class FlowControlHyperlink : FlowControlOriginBubble
     {
-        private readonly string _folderPath;
-
-        public FlowControlFolderHyperlink(FlowLayoutPanel parent, string displayText, string folderPath, ScOrigin origin, string? displayName = null)
-            : base(parent, new LinkLabel { Text = displayText }, origin, displayName)
+        public FlowControlHyperlink(FlowLayoutPanel parent, string linkText, ScOrigin origin, string? displayName = null)
+            : base(parent, new LinkLabel { Text = linkText }, origin, displayName)
         {
-            _folderPath = folderPath;
-
             if (ChildControl is LinkLabel child)
             {
                 child.LinkClicked += LabelMessage_LinkClicked;
@@ -28,7 +24,11 @@ namespace SecureChat.Client.Controls
                 {
                     if (sender is LinkLabel linkLabel)
                     {
-                        Process.Start("explorer.exe", _folderPath);
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = linkLabel.Text,
+                            UseShellExecute = true
+                        });
                     }
                 });
             }
@@ -42,7 +42,7 @@ namespace SecureChat.Client.Controls
                 contextMenu.Items.Add("Copy", null, (a, b) => OnCopy(sender, new EventArgs()));
                 contextMenu.Items.Add(new ToolStripSeparator());
                 contextMenu.Items.Add("Remove", null, OnRemove);
-                contextMenu.Show((sender as Control) ?? this, e.Location);
+                contextMenu.Show(sender as Control ?? this, e.Location);
             }
         }
     }

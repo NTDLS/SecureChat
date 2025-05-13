@@ -43,26 +43,26 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Controls\FlowControlFileTransferReceiveProgress.cs">
+    <Compile Update="Controls\FlowControls\FlowControlFileTransferReceiveProgress.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Controls\Ported\FlowControlFolderHyperlink.cs">
+    <Compile Update="Controls\FlowControls\FlowControlFolderHyperlink.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Controls\Ported\FlowControlHyperlink.cs">
+    <Compile Update="Controls\FlowControls\FlowControlHyperlink.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Controls\FlowControlFileTransferSendProgress.cs">
+    <Compile Update="Controls\FlowControls\FlowControlFileTransferSendProgress.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Controls\FlowControlFileTransferRequest.cs">
+    <Compile Update="Controls\FlowControls\FlowControlFileTransferRequest.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Controls\Ported\FlowControlMessage.cs" />
-    <Compile Update="Controls\FlowControlOutgoingCall.cs">
+    <Compile Update="Controls\FlowControls\FlowControlMessage.cs" />
+    <Compile Update="Controls\FlowControls\FlowControlOutgoingCall.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Controls\FlowControlSystemText.cs">
+    <Compile Update="Controls\FlowControls\FlowControlSystemText.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Update="Forms\FormMessageProperties.cs">

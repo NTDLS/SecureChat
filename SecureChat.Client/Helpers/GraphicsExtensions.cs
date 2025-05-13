@@ -1,16 +1,13 @@
 ﻿using System.Drawing.Drawing2D;
-namespace SecureChat.Client.Controls
+
+namespace SecureChat.Client.Helpers
 {
-
-
     public static class GraphicsExtensions
     {
         public static void FillRoundedRectangle(this Graphics g, Brush brush, float x, float y, float width, float height, float radius)
         {
-            using (GraphicsPath path = RoundedRectanglePath(x, y, width, height, radius))
-            {
-                g.FillPath(brush, path);
-            }
+            using GraphicsPath path = RoundedRectanglePath(x, y, width, height, radius);
+            g.FillPath(brush, path);
         }
 
         private static GraphicsPath RoundedRectanglePath(float x, float y, float width, float height, float radius)
@@ -39,5 +36,4 @@ namespace SecureChat.Client.Controls
             return path;
         }
     }
-
 }

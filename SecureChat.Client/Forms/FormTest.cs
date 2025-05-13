@@ -1,5 +1,5 @@
 ﻿using Krypton.Toolkit;
-using SecureChat.Client.Controls;
+using SecureChat.Client.Controls.FlowControls;
 using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client.Forms
