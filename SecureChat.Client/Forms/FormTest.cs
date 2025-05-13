@@ -1,6 +1,5 @@
 ﻿using Krypton.Toolkit;
 using SecureChat.Client.Controls;
-using System.ComponentModel;
 using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client.Forms
@@ -10,6 +9,8 @@ namespace SecureChat.Client.Forms
         public FormTest()
         {
             InitializeComponent();
+
+            kryptonTextBoxMessage.Text = $"This is message one. This is message two. This is message three. This is message four. This is message five. This is message six. This is message seven. This is message eight. This is message nine. This is message ten.";
 
             Resize += (s, e) =>
             {
@@ -26,6 +27,9 @@ namespace SecureChat.Client.Forms
 
                 flowLayoutPanelChat.Invalidate(true);
             };
+
+            kryptonButtonSend.Focus();
+            this.AcceptButton = kryptonButtonSend;
         }
 
         private void AddChatBubble(string displayName, ScOrigin origin, string message)
@@ -37,12 +41,12 @@ namespace SecureChat.Client.Forms
 
         int number = 0;
 
-        private void button1_Click(object sender, EventArgs e)
+        private void kryptonButtonSend_Click(object sender, EventArgs e)
         {
             ScOrigin origin = ScOrigin.None;
             string displayName = "Test User";
 
-            if (number % 2 == 0)
+            if (number++ % 2 == 0)
             {
                 displayName = "Josh";
                 origin = ScOrigin.Local;
@@ -53,13 +57,9 @@ namespace SecureChat.Client.Forms
                 origin = ScOrigin.Remote;
             }
 
-            AddChatBubble(displayName, origin, $"{number++:n0} This is message one. This is message two. This is message three. This is message four. This is message five. This is message six. This is message seven. This is message eight. This is message nine. This is message ten.");
-        }
 
-        private void FormTest_Load(object sender, EventArgs e)
-        {
-            button1.Focus();
-            this.AcceptButton = button1;
+
+            AddChatBubble(displayName, origin, kryptonTextBoxMessage.Text);
         }
     }
 }

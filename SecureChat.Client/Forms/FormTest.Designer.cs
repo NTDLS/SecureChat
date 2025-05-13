@@ -28,24 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
-            button1 = new Button();
             flowLayoutPanelChat = new FlowLayoutPanel();
             splitContainer1 = new SplitContainer();
+            kryptonTextBoxMessage = new Krypton.Toolkit.KryptonTextBox();
+            kryptonButtonSend = new Krypton.Toolkit.KryptonButton();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
             splitContainer1.SuspendLayout();
             SuspendLayout();
-            // 
-            // button1
-            // 
-            button1.Location = new Point(12, 12);
-            button1.Name = "button1";
-            button1.Size = new Size(75, 23);
-            button1.TabIndex = 0;
-            button1.Text = "button1";
-            button1.UseVisualStyleBackColor = true;
-            button1.Click += button1_Click;
             // 
             // flowLayoutPanelChat
             // 
@@ -54,7 +45,7 @@
             flowLayoutPanelChat.FlowDirection = FlowDirection.TopDown;
             flowLayoutPanelChat.Location = new Point(0, 0);
             flowLayoutPanelChat.Name = "flowLayoutPanelChat";
-            flowLayoutPanelChat.Size = new Size(576, 377);
+            flowLayoutPanelChat.Size = new Size(578, 371);
             flowLayoutPanelChat.TabIndex = 0;
             flowLayoutPanelChat.WrapContents = false;
             // 
@@ -72,31 +63,53 @@
             // 
             // splitContainer1.Panel2
             // 
-            splitContainer1.Panel2.Controls.Add(button1);
-            splitContainer1.Size = new Size(576, 428);
-            splitContainer1.SplitterDistance = 377;
+            splitContainer1.Panel2.Controls.Add(kryptonTextBoxMessage);
+            splitContainer1.Panel2.Controls.Add(kryptonButtonSend);
+            splitContainer1.Size = new Size(578, 422);
+            splitContainer1.SplitterDistance = 371;
             splitContainer1.TabIndex = 2;
+            // 
+            // kryptonTextBoxMessage
+            // 
+            kryptonTextBoxMessage.Dock = DockStyle.Fill;
+            kryptonTextBoxMessage.Location = new Point(0, 0);
+            kryptonTextBoxMessage.Multiline = true;
+            kryptonTextBoxMessage.Name = "kryptonTextBoxMessage";
+            kryptonTextBoxMessage.Size = new Size(525, 47);
+            kryptonTextBoxMessage.TabIndex = 1;
+            // 
+            // kryptonButtonSend
+            // 
+            kryptonButtonSend.Dock = DockStyle.Right;
+            kryptonButtonSend.Location = new Point(525, 0);
+            kryptonButtonSend.Name = "kryptonButtonSend";
+            kryptonButtonSend.Size = new Size(53, 47);
+            kryptonButtonSend.TabIndex = 2;
+            kryptonButtonSend.Values.DropDownArrowColor = Color.Empty;
+            kryptonButtonSend.Values.Text = "Send";
+            kryptonButtonSend.Click += kryptonButtonSend_Click;
             // 
             // FormTest
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(576, 428);
+            ClientSize = new Size(578, 422);
             Controls.Add(splitContainer1);
             Name = "FormTest";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "FormTest";
-            Load += FormTest_Load;
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel2.ResumeLayout(false);
+            splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
             splitContainer1.ResumeLayout(false);
             ResumeLayout(false);
         }
 
         #endregion
-        private Button button1;
         private FlowLayoutPanel flowLayoutPanelChat;
         private SplitContainer splitContainer1;
+        private Krypton.Toolkit.KryptonTextBox kryptonTextBoxMessage;
+        private Krypton.Toolkit.KryptonButton kryptonButtonSend;
     }
 }
