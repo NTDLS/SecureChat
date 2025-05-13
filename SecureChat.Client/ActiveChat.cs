@@ -2,12 +2,14 @@
 using NTDLS.Permafrost;
 using SecureChat.Client.Audio;
 using SecureChat.Client.Controls;
+using SecureChat.Client.Controls.FlowControls;
 using SecureChat.Client.Forms;
 using SecureChat.Client.Helpers;
 using SecureChat.Library;
 using SecureChat.Library.DatagramMessages;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
+using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client
 {
@@ -18,6 +20,7 @@ namespace SecureChat.Client
         private int _inputDeviceIndex;
         private int _outputDeviceIndex;
         private int _bitrate;
+        private ScOrigin _lastMessageOrigin = ScOrigin.None;
 
         /// <summary>
         /// When a voice call is sent, this will be the control that is displayed in the chat window.
@@ -30,7 +33,7 @@ namespace SecureChat.Client
         /// Shared secret used for symmetric end-to-end encryption.
         /// </summary>
         public byte[] SharedSecret { get; private set; }
-        
+
         public bool IsTerminated { get; private set; } = false;
 
         /// <summary>
@@ -142,7 +145,7 @@ namespace SecureChat.Client
                 return;
             }
 
-            AppendReceivedMessageLine(DisplayName, DecryptString(cipherText), true, Themes.FromRemoteColor);
+            AppendChatMessage(DisplayName, DecryptString(cipherText), ScOrigin.Remote);
         }
 
         public bool SendTextMessage(string plaintText)
@@ -309,8 +312,7 @@ namespace SecureChat.Client
             }
 
             AppendFolderLinkMessage(DisplayName, Path.GetFileName(saveAsFileName) ?? "Open File Location",
-                 Path.GetDirectoryName(saveAsFileName) ?? Environment.GetEnvironmentVariable("SystemDrive") ?? string.Empty,
-                 true, Themes.FromRemoteColor);
+                 Path.GetDirectoryName(saveAsFileName) ?? Environment.GetEnvironmentVariable("SystemDrive") ?? string.Empty, ScOrigin.Remote);
         }
 
         /// <summary>
@@ -323,7 +325,7 @@ namespace SecureChat.Client
                 return;
             }
 
-            AppendImageMessage(DisplayName, imageBytes, true, Themes.FromRemoteColor);
+            AppendImageMessage(DisplayName, imageBytes, ScOrigin.Remote);
         }
 
         /// <summary>
@@ -460,7 +462,7 @@ namespace SecureChat.Client
                             {
                                 // Load the image only after successful transfer
                                 var imageData = ftc.Transfer.GetFileBytes();
-                                AppendImageMessage(ServerConnection.Current.DisplayName, imageData, false, Themes.FromMeColor);
+                                AppendImageMessage(ServerConnection.Current.DisplayName, imageData, ScOrigin.Local);
                             }
                             else
                             {
@@ -501,6 +503,8 @@ namespace SecureChat.Client
                     return;
                 }
 
+                _lastMessageOrigin = ScOrigin.None;
+
                 Form.Invoke(() =>
                 {
                     lock (Form.FlowPanel)
@@ -510,7 +514,8 @@ namespace SecureChat.Client
                         {
                             Form.FlowPanel.Controls.RemoveAt(0);
                         }
-                        Form.FlowPanel.ScrollControlIntoView(control);
+                        //Form.FlowPanel.ScrollControlIntoView(control);
+                        Form.FlowPanel.VerticalScroll.Value = Form.FlowPanel.VerticalScroll.Maximum;
                     }
                 });
             }
@@ -558,7 +563,7 @@ namespace SecureChat.Client
             }
         }
 
-        private void AppendFolderLinkMessage(string fromName, string displayText, string folderPath, bool playNotifications, Color color)
+        private void AppendFolderLinkMessage(string fromName, string displayText, string folderPath, ScOrigin origin)
         {
             try
             {
@@ -576,7 +581,7 @@ namespace SecureChat.Client
                         Form.Visible = true;
                     }
 
-                    if (playNotifications)
+                    if (origin == ScOrigin.Remote)
                     {
                         if (WindowFlasher.FlashWindow(Form))
                         {
@@ -587,7 +592,7 @@ namespace SecureChat.Client
 
                 LastMessageReceived = DateTime.Now;
 
-                AppendFlowControl(new FlowControlFolderHyperlink(Form.FlowPanel, fromName, displayText, folderPath, color));
+                AppendFlowControl(new FlowControlFolderHyperlink(Form.FlowPanel, displayText, folderPath, origin, fromName));
             }
             catch (Exception ex)
             {
@@ -595,7 +600,7 @@ namespace SecureChat.Client
             }
         }
 
-        private void AppendImageMessage(string fromName, byte[] imageBytes, bool playNotifications, Color displayNameColor)
+        private void AppendImageMessage(string fromName, byte[] imageBytes, ScOrigin origin)
         {
             try
             {
@@ -604,7 +609,7 @@ namespace SecureChat.Client
                     return;
                 }
 
-                AppendFlowControl(new FlowControlImage(Form.FlowPanel, fromName, imageBytes, displayNameColor));
+                AppendFlowControl(new FlowControlImage(Form.FlowPanel, imageBytes, origin, fromName));
 
                 Form.Invoke(() =>
                 {
@@ -615,7 +620,7 @@ namespace SecureChat.Client
                         Form.Visible = true;
                     }
 
-                    if (playNotifications)
+                    if (origin == ScOrigin.None)
                     {
                         if (WindowFlasher.FlashWindow(Form))
                         {
@@ -730,7 +735,7 @@ namespace SecureChat.Client
             AppendFlowControl(LastOutgoingCallControl);
         }
 
-        public void AppendReceivedMessageLine(string fromName, string plainText, bool playNotifications, Color displayNameColor)
+        public void AppendChatMessage(string fromName, string plainText, ScOrigin origin)
         {
             try
             {
@@ -748,7 +753,7 @@ namespace SecureChat.Client
                         Form.Visible = true;
                     }
 
-                    if (playNotifications)
+                    if (origin == ScOrigin.Remote)
                     {
                         if (WindowFlasher.FlashWindow(Form))
                         {
@@ -761,12 +766,14 @@ namespace SecureChat.Client
 
                 if (plainText.StartsWith("http://") || plainText.StartsWith("https://"))
                 {
-                    AppendFlowControl(new FlowControlHyperlink(Form.FlowPanel, fromName, plainText, displayNameColor));
+                    AppendFlowControl(new FlowControlHyperlink(Form.FlowPanel, plainText, origin, _lastMessageOrigin == origin ? null : fromName));
                 }
                 else
                 {
-                    AppendFlowControl(new FlowControlTextMessage(Form.FlowPanel, fromName, plainText, displayNameColor));
+                    AppendFlowControl(new FlowControlMessage(Form.FlowPanel, plainText, origin, _lastMessageOrigin == origin ? null : fromName));
                 }
+
+                _lastMessageOrigin = origin;
             }
             catch (Exception ex)
             {

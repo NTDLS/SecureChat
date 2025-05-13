@@ -27,6 +27,7 @@ namespace SecureChat.Client
 
             ThemeManager.GlobalPaletteMode = Settings.Instance.Theme;
 
+            //Application.Run(new FormTest());
             Application.Run(new TrayApp());
         }
     }

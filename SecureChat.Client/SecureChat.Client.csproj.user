@@ -2,11 +2,17 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup />
   <ItemGroup>
-    <Compile Update="Controls\FlowControlImage.cs">
+    <Compile Update="Controls\FlowControls\FlowControlImage.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Controls\FlowControlIncomingCall.cs">
+    <Compile Update="Controls\FlowControls\FlowControlIncomingCall.cs">
       <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Controls\FlowControls\FlowControlMessage.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Controls\FlowControls\FlowControlOriginBubble.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Update="Forms\FormAbout.cs">
       <SubType>Form</SubType>
@@ -33,6 +39,9 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\FormSettings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\FormTest.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\FormVoicePreCall.cs">

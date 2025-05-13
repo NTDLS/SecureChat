@@ -1,4 +1,6 @@
-﻿namespace SecureChat.Client.Controls
+﻿using Krypton.Toolkit;
+
+namespace SecureChat.Client.Controls
 {
     partial class FlowControlFileTransferReceiveProgress
     {
@@ -29,7 +31,7 @@
         private void InitializeComponent()
         {
             buttonCancel = new Button();
-            progressBarCompletion = new ProgressBar();
+            progressBarCompletion = new KryptonProgressBar();
             labelHeaderText = new Krypton.Toolkit.KryptonLabel();
             labelWaitingStatus = new Krypton.Toolkit.KryptonLabel();
             SuspendLayout();
@@ -85,7 +87,7 @@
 
         #endregion
         private Button buttonCancel;
-        private ProgressBar progressBarCompletion;
+        private KryptonProgressBar progressBarCompletion;
         private Krypton.Toolkit.KryptonLabel labelHeaderText;
         private Krypton.Toolkit.KryptonLabel labelWaitingStatus;
     }

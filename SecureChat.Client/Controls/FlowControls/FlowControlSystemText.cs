@@ -2,47 +2,31 @@
 using NTDLS.Helpers;
 using SecureChat.Client.Helpers;
 
-namespace SecureChat.Client.Controls
+namespace SecureChat.Client.Controls.FlowControls
 {
-    public class FlowControlTextMessage : FlowLayoutPanel
+    public class FlowControlSystemText : FlowLayoutPanel
     {
         private readonly FlowLayoutPanel _parent;
         private readonly Label _labelMessage;
 
-        public FlowControlTextMessage(FlowLayoutPanel parent, string displayName, string message, Color? displayNameColor)
+        public FlowControlSystemText(FlowLayoutPanel parent, string message, Color? color = null)
         {
             BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
 
             _parent = parent;
-            FlowDirection = FlowDirection.LeftToRight;
+            FlowDirection = FlowDirection.TopDown;
             AutoSize = true;
             Margin = new Padding(0);
-            Padding = new Padding(0);
 
-            displayNameColor ??= Themes.ChooseColor(Color.White, Color.Black);
-
-            var labelDisplayName = new Label
-            {
-                Text = displayName,
-                AutoSize = true,
-                ForeColor = displayNameColor.EnsureNotNull(),
-                Font = Fonts.Instance.Bold,
-                //BackColor = Color.Gray,
-                Padding = new Padding(0),
-                Margin = new Padding(0)
-            };
-            labelDisplayName.MouseClick += LabelMessage_MouseClick;
-            Controls.Add(labelDisplayName);
+            color ??= Themes.ChooseColor(Color.LightGray, Color.Maroon);
 
             _labelMessage = new Label
             {
                 Text = message,
                 AutoSize = true,
-                ForeColor = Themes.ChooseColor(Color.Black, Color.White),
-                Font = Fonts.Instance.Regular,
-                //BackColor = Color.LightGray,
-                Padding = new Padding(0),
-                Margin = new Padding(0)
+                ForeColor = color.EnsureNotNull(),
+                Font = Fonts.Instance.Italic,
+                Padding = new Padding(0)
             };
             _labelMessage.MouseClick += LabelMessage_MouseClick;
             Controls.Add(_labelMessage);
@@ -56,7 +40,7 @@ namespace SecureChat.Client.Controls
                 contextMenu.Items.Add("Copy", null, OnCopy);
                 contextMenu.Items.Add(new ToolStripSeparator());
                 contextMenu.Items.Add("Remove", null, OnRemove);
-                contextMenu.Show((sender as Control) ?? this, e.Location);
+                contextMenu.Show(sender as Control ?? this, e.Location);
             }
         }
 
@@ -64,7 +48,6 @@ namespace SecureChat.Client.Controls
         {
             Exceptions.Ignore(() =>
             {
-
                 _labelMessage.Text = string.Empty;
                 _parent.Controls.Remove(this);
             });
