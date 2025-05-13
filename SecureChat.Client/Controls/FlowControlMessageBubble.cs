@@ -1,5 +1,6 @@
 ﻿using NTDLS.Helpers;
 using Serilog.Parsing;
+using System.Text;
 using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client.Controls
@@ -45,6 +46,8 @@ namespace SecureChat.Client.Controls
             labelMessage.Font = font;
             labelMessage.Text = message;
 
+            labelDisplayName.Visible = false;
+
             CalculateLabelSize();
 
             Resize += (object? sender, EventArgs e) =>
@@ -59,12 +62,17 @@ namespace SecureChat.Client.Controls
         {
             if (_lastWidth != _parent.Width)
             {
-                int padding = _parent.Width / 4;
+                int padding = _parent.Width / 3;
 
                 if (_alignment == ScAlignment.Right)
                 {
                     labelDisplayName.Padding = new Padding(padding, 0, 5, 5);
                     labelMessage.Padding = new Padding(padding, 0, 5, 5);
+                }
+                else
+                {
+                    labelDisplayName.Padding = new Padding(5, 0, padding, 5);
+                    labelMessage.Padding = new Padding(5, 0, padding, 5);
                 }
 
                 this.MaximumSize = new Size(_parent.Width - 30, 0);
@@ -81,7 +89,7 @@ namespace SecureChat.Client.Controls
 
             using var bubbleBrush = new SolidBrush(_bubbleColor);
 
-            var rect = new Rectangle(0, 0, this.Width -1 , this.Height - 1);
+            var rect = new Rectangle(labelMessage.Padding.Left - 5, 0, this.Width - (labelMessage.Padding.Left + labelMessage.Padding.Right) +5 , this.Height - 1);
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             e.Graphics.FillRoundedRectangle(bubbleBrush, rect.X, rect.Y, rect.Width, rect.Height, 15);
             base.OnPaint(e);
