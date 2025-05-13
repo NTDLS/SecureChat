@@ -324,7 +324,7 @@ namespace SecureChat.Client
                 return;
             }
 
-            AppendImageMessage(DisplayName, imageBytes, true, Themes.FromRemoteColor);
+            AppendImageMessage(DisplayName, imageBytes, ScOrigin.Remote);
         }
 
         /// <summary>
@@ -461,7 +461,7 @@ namespace SecureChat.Client
                             {
                                 // Load the image only after successful transfer
                                 var imageData = ftc.Transfer.GetFileBytes();
-                                AppendImageMessage(ServerConnection.Current.DisplayName, imageData, false, Themes.FromLocalColor);
+                                AppendImageMessage(ServerConnection.Current.DisplayName, imageData, ScOrigin.Local);
                             }
                             else
                             {
@@ -597,7 +597,7 @@ namespace SecureChat.Client
             }
         }
 
-        private void AppendImageMessage(string fromName, byte[] imageBytes, bool playNotifications, Color displayNameColor)
+        private void AppendImageMessage(string fromName, byte[] imageBytes, ScOrigin origin)
         {
             try
             {
@@ -606,7 +606,7 @@ namespace SecureChat.Client
                     return;
                 }
 
-                AppendFlowControl(new FlowControlImage(Form.FlowPanel, fromName, imageBytes, displayNameColor));
+                AppendFlowControl(new FlowControlImage(Form.FlowPanel, imageBytes, origin, fromName));
 
                 Form.Invoke(() =>
                 {
@@ -617,7 +617,7 @@ namespace SecureChat.Client
                         Form.Visible = true;
                     }
 
-                    if (playNotifications)
+                    if (origin == ScOrigin.None)
                     {
                         if (WindowFlasher.FlashWindow(Form))
                         {

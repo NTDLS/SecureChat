@@ -1,64 +1,44 @@
-﻿using Krypton.Toolkit;
-using NTDLS.Helpers;
+﻿using NTDLS.Helpers;
 using SecureChat.Client.Forms;
 using SecureChat.Client.Helpers;
+using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client.Controls
 {
-    public class FlowControlImage : FlowLayoutPanel
+    public class FlowControlImage : FlowControlOriginBubble
     {
-        private readonly FlowLayoutPanel _parent;
-        private readonly PictureBox _pictureBox;
-
-        public FlowControlImage(FlowLayoutPanel parent, string displayName, byte[] imageBytes, Color? displayNameColor)
-        {
-            BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
-
-            _parent = parent;
-            FlowDirection = FlowDirection.TopDown;
-            AutoSize = true;
-            Margin = new Padding(0);
-            Padding = new Padding(0);
-
-            var labelDisplayName = new Label
+        public FlowControlImage(FlowLayoutPanel parent, byte[] imageBytes, ScOrigin origin, string? displayName = null)
+            : base(parent, new PictureBox
             {
-                Text = displayName,
-                AutoSize = true,
-                ForeColor = displayNameColor ?? Color.Black,
-                Font = Fonts.Instance.Bold,
-                //BackColor = Color.Gray,
-                Padding = new Padding(0),
-                Margin = new Padding(0)
-            };
-            labelDisplayName.MouseClick += Image_MouseClick;
-            Controls.Add(labelDisplayName);
-
-            using var ms = new MemoryStream(imageBytes);
-            var image = Image.FromStream(ms);
-
-            _pictureBox = new PictureBox
-            {
-                Image = Image.FromStream(ms),
                 SizeMode = PictureBoxSizeMode.Zoom,
                 Width = 200,
                 Height = 200
-            };
+            }, origin, displayName)
+        {
+            using var ms = new MemoryStream(imageBytes);
+            var image = Image.FromStream(ms);
 
-            _pictureBox.MouseEnter += Image_MouseEnter;
-            _pictureBox.MouseLeave += Image_MouseLeave;
-            _pictureBox.MouseClick += Image_MouseClick;
-
-            Controls.Add(_pictureBox);
+            if (ChildControl is PictureBox child)
+            {
+                child.Image = Image.FromStream(ms);
+                child.SizeMode = PictureBoxSizeMode.Zoom;
+                child.MouseEnter += Image_MouseEnter;
+                child.MouseLeave += Image_MouseLeave;
+                child.MouseClick += Image_MouseClick;
+            }
         }
 
         private void Image_MouseClick(object? sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
-                if (_pictureBox.Image != null)
+                if (ChildControl is PictureBox child)
                 {
-                    using var formImageViewer = new FormImageViewer(_pictureBox.Image);
-                    formImageViewer.ShowDialog();
+                    if (child.Image != null)
+                    {
+                        using var formImageViewer = new FormImageViewer(child.Image);
+                        formImageViewer.ShowDialog();
+                    }
                 }
             }
             else if (e.Button == MouseButtons.Right)
@@ -67,16 +47,16 @@ namespace SecureChat.Client.Controls
                 contextMenu.Items.Add("Save", null, OnSaveImage);
                 contextMenu.Items.Add("Copy", null, OnCopyImage);
                 contextMenu.Items.Add(new ToolStripSeparator());
-                contextMenu.Items.Add("Remove", null, OnRemoveImage);
+                contextMenu.Items.Add("Remove", null, OnRemove);
                 contextMenu.Show((sender as Control) ?? this, e.Location);
             }
         }
 
         private void OnSaveImage(object? sender, EventArgs e)
         {
-            if (_pictureBox.Image != null)
+            if (ChildControl is PictureBox child && child.Image != null)
             {
-                var imageBytes = Imaging.ImageToPngBytes(_pictureBox.Image);
+                var imageBytes = Imaging.ImageToPngBytes(child.Image);
 
                 using var sfd = new SaveFileDialog();
                 sfd.Filter = "PNG Image|*.png";
@@ -90,24 +70,13 @@ namespace SecureChat.Client.Controls
             }
         }
 
-        private void OnRemoveImage(object? sender, EventArgs e)
-        {
-            Exceptions.Ignore(() =>
-            {
-
-                _pictureBox.Image = null;
-                _parent.Controls.Remove(this);
-            });
-        }
-
         private void OnCopyImage(object? sender, EventArgs e)
         {
             Exceptions.Ignore(() =>
             {
-
-                if (_pictureBox.Image != null)
+                if (ChildControl is PictureBox child && child.Image != null)
                 {
-                    Clipboard.SetImage(_pictureBox.Image);
+                    Clipboard.SetImage(child.Image);
                 }
             });
         }
