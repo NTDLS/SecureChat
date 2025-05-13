@@ -10,17 +10,19 @@ Each client connects to a central server using two pairs of 4096-bit public-priv
 Message history is not persistent and is lost when logging out of the chat application.
 
 ### Login
-![image](https://github.com/user-attachments/assets/dfbccd30-5b19-46db-826b-25f07f6108e9)
+![image](https://github.com/user-attachments/assets/ca709763-b5a1-41d6-a950-39935a8421a1)
 
 ### Messaging
-![image](https://github.com/user-attachments/assets/ace0f54d-0467-4ba0-aec7-c3baf2dfee07)
+![image](https://github.com/user-attachments/assets/eafb793c-cdb2-427b-9c6e-933048442f01)
 
 ### Contacts
-![image](https://github.com/user-attachments/assets/4016f170-311a-44b7-9cd0-679d95061cdd)
+![image](https://github.com/user-attachments/assets/3a1ad18d-5d01-4d76-a0e6-42c60aa52d08)
 
 ### Tray Icon
 ![image](https://github.com/user-attachments/assets/59819cfc-9200-48aa-bd07-02212265e142)
 
-### Settings
-![image](https://github.com/user-attachments/assets/e6052b84-f5c5-4eba-87c9-151a698ab735)
+### Voice Chat
+![image](https://github.com/user-attachments/assets/5b279caf-f390-4f35-90ae-0ed407c3be00)
 
+### Settings
+![image](https://github.com/user-attachments/assets/5382a51e-38ef-4652-9ae9-036adb9171fc)
