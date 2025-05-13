@@ -24,9 +24,8 @@ namespace SecureChat.Client.Controls
             _origin = origin;
             _childControl = childControl;
 
-            DoubleBuffered = true;
-            SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
-            UpdateStyles();
+            this.DoubleBuffered(true);
+            this.UpdateStyles();
 
             if (origin == ScOrigin.Local)
             {

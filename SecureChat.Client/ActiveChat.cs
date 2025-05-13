@@ -310,8 +310,7 @@ namespace SecureChat.Client
             }
 
             AppendFolderLinkMessage(DisplayName, Path.GetFileName(saveAsFileName) ?? "Open File Location",
-                 Path.GetDirectoryName(saveAsFileName) ?? Environment.GetEnvironmentVariable("SystemDrive") ?? string.Empty,
-                 true, Themes.FromRemoteColor);
+                 Path.GetDirectoryName(saveAsFileName) ?? Environment.GetEnvironmentVariable("SystemDrive") ?? string.Empty, ScOrigin.Remote);
         }
 
         /// <summary>
@@ -560,7 +559,7 @@ namespace SecureChat.Client
             }
         }
 
-        private void AppendFolderLinkMessage(string fromName, string displayText, string folderPath, bool playNotifications, Color color)
+        private void AppendFolderLinkMessage(string fromName, string displayText, string folderPath, ScOrigin origin)
         {
             try
             {
@@ -578,7 +577,7 @@ namespace SecureChat.Client
                         Form.Visible = true;
                     }
 
-                    if (playNotifications)
+                    if (origin == ScOrigin.Remote)
                     {
                         if (WindowFlasher.FlashWindow(Form))
                         {
@@ -589,7 +588,7 @@ namespace SecureChat.Client
 
                 LastMessageReceived = DateTime.Now;
 
-                AppendFlowControl(new FlowControlFolderHyperlink(Form.FlowPanel, fromName, displayText, folderPath, color));
+                AppendFlowControl(new FlowControlFolderHyperlink(Form.FlowPanel, displayText, folderPath, origin, fromName));
             }
             catch (Exception ex)
             {

@@ -1,6 +1,5 @@
 ﻿using Krypton.Toolkit;
 using Microsoft.Extensions.Configuration;
-using SecureChat.Client.Forms;
 using Serilog;
 
 namespace SecureChat.Client

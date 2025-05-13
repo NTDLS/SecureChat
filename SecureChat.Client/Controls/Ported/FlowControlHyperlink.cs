@@ -1,5 +1,4 @@
-﻿using Krypton.Toolkit;
-using NTDLS.Helpers;
+﻿using NTDLS.Helpers;
 using System.Diagnostics;
 using static SecureChat.Library.ScConstants;
 
@@ -10,8 +9,6 @@ namespace SecureChat.Client.Controls
         public FlowControlHyperlink(FlowLayoutPanel parent, string linkText, ScOrigin origin, string? displayName = null)
             : base(parent, new LinkLabel { Text = linkText }, origin, displayName)
         {
-            BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
-
             if (ChildControl is LinkLabel child)
             {
                 child.LinkClicked += LabelMessage_LinkClicked;

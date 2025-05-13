@@ -46,10 +46,10 @@
     <Compile Update="Controls\FlowControlFileTransferReceiveProgress.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Controls\FlowControlFolderHyperlink.cs">
+    <Compile Update="Controls\Ported\FlowControlFolderHyperlink.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Controls\FlowControlHyperlink.cs">
+    <Compile Update="Controls\Ported\FlowControlHyperlink.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Update="Controls\FlowControlFileTransferSendProgress.cs">
@@ -58,7 +58,7 @@
     <Compile Update="Controls\FlowControlFileTransferRequest.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Controls\FlowControlMessage.cs" />
+    <Compile Update="Controls\Ported\FlowControlMessage.cs" />
     <Compile Update="Controls\FlowControlOutgoingCall.cs">
       <SubType>UserControl</SubType>
     </Compile>

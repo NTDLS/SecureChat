@@ -2,16 +2,16 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup />
   <ItemGroup>
-    <Compile Update="Controls\FlowControlImage.cs">
+    <Compile Update="Controls\Ported\FlowControlImage.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Update="Controls\FlowControlIncomingCall.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Controls\FlowControlMessage.cs">
+    <Compile Update="Controls\Ported\FlowControlMessage.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Controls\FlowControlOriginBubble.cs">
+    <Compile Update="Controls\Ported\FlowControlOriginBubble.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Update="Forms\FormAbout.cs">

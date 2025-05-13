@@ -7,10 +7,6 @@ namespace SecureChat.Client.Controls
         public FlowControlMessage(Control parent, string message, ScOrigin origin, string? displayName = null)
             : base(parent, new Label() { Text = message }, origin, displayName)
         {
-            DoubleBuffered = true;
-            SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
-            UpdateStyles();
-
             ChildControl.MouseClick += LabelMessage_MouseClick;
             MouseClick += LabelMessage_MouseClick;
         }
