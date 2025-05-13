@@ -2,6 +2,13 @@
 {
     public static class Imaging
     {
+        public static Bitmap LoadImageFromResources(byte[] bitmapData)
+        {
+            using var stream = new MemoryStream(bitmapData);
+            return new Bitmap(stream);
+        }
+
+
         public static Icon LoadIconFromResources(byte[] iconData)
         {
             using var stream = new MemoryStream(iconData);

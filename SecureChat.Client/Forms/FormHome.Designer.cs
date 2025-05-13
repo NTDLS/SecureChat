@@ -35,6 +35,7 @@ namespace SecureChat.Client.Forms
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
             profileToolStripMenuItem = new ToolStripMenuItem();
+            settingsToolStripMenuItem = new ToolStripMenuItem();
             toolStripMenuItem1 = new ToolStripSeparator();
             logoutToolStripMenuItem = new ToolStripMenuItem();
             closeToolStripMenuItem = new ToolStripMenuItem();
@@ -42,7 +43,6 @@ namespace SecureChat.Client.Forms
             searchToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
             aboutToolStripMenuItem = new ToolStripMenuItem();
-            settingsToolStripMenuItem = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
@@ -53,15 +53,16 @@ namespace SecureChat.Client.Forms
             treeViewContacts.Location = new Point(5, 29);
             treeViewContacts.Name = "treeViewContacts";
             treeViewContacts.ShowRootLines = false;
-            treeViewContacts.Size = new Size(275, 474);
+            treeViewContacts.Size = new Size(324, 438);
             treeViewContacts.TabIndex = 0;
             // 
             // menuStrip1
             // 
+            menuStrip1.Font = new Font("Segoe UI", 9F);
             menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, contactsToolStripMenuItem, helpToolStripMenuItem });
             menuStrip1.Location = new Point(5, 5);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(275, 24);
+            menuStrip1.Size = new Size(324, 24);
             menuStrip1.TabIndex = 1;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -75,26 +76,33 @@ namespace SecureChat.Client.Forms
             // profileToolStripMenuItem
             // 
             profileToolStripMenuItem.Name = "profileToolStripMenuItem";
-            profileToolStripMenuItem.Size = new Size(180, 22);
+            profileToolStripMenuItem.Size = new Size(116, 22);
             profileToolStripMenuItem.Text = "Profile";
             profileToolStripMenuItem.Click += ProfileToolStripMenuItem_Click;
+            // 
+            // settingsToolStripMenuItem
+            // 
+            settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
+            settingsToolStripMenuItem.Size = new Size(116, 22);
+            settingsToolStripMenuItem.Text = "Settings";
+            settingsToolStripMenuItem.Click += SettingsToolStripMenuItem_Click;
             // 
             // toolStripMenuItem1
             // 
             toolStripMenuItem1.Name = "toolStripMenuItem1";
-            toolStripMenuItem1.Size = new Size(177, 6);
+            toolStripMenuItem1.Size = new Size(113, 6);
             // 
             // logoutToolStripMenuItem
             // 
             logoutToolStripMenuItem.Name = "logoutToolStripMenuItem";
-            logoutToolStripMenuItem.Size = new Size(180, 22);
+            logoutToolStripMenuItem.Size = new Size(116, 22);
             logoutToolStripMenuItem.Text = "Logout";
             logoutToolStripMenuItem.Click += LogoutToolStripMenuItem_Click;
             // 
             // closeToolStripMenuItem
             // 
             closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            closeToolStripMenuItem.Size = new Size(180, 22);
+            closeToolStripMenuItem.Size = new Size(116, 22);
             closeToolStripMenuItem.Text = "Close";
             closeToolStripMenuItem.Click += CloseToolStripMenuItem_Click;
             // 
@@ -108,7 +116,7 @@ namespace SecureChat.Client.Forms
             // searchToolStripMenuItem
             // 
             searchToolStripMenuItem.Name = "searchToolStripMenuItem";
-            searchToolStripMenuItem.Size = new Size(180, 22);
+            searchToolStripMenuItem.Size = new Size(109, 22);
             searchToolStripMenuItem.Text = "Search";
             searchToolStripMenuItem.Click += SearchToolStripMenuItem_Click;
             // 
@@ -126,25 +134,18 @@ namespace SecureChat.Client.Forms
             aboutToolStripMenuItem.Text = "About";
             aboutToolStripMenuItem.Click += AboutToolStripMenuItem_Click;
             // 
-            // settingsToolStripMenuItem
-            // 
-            settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            settingsToolStripMenuItem.Size = new Size(180, 22);
-            settingsToolStripMenuItem.Text = "Settings";
-            settingsToolStripMenuItem.Click += SettingsToolStripMenuItem_Click;
-            // 
             // FormHome
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(285, 508);
+            ClientSize = new Size(334, 472);
             Controls.Add(treeViewContacts);
             Controls.Add(menuStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
             MaximizeBox = false;
             Name = "FormHome";
-            Opacity = 0.95D;
+            Opacity = 0.7D;
             Padding = new Padding(5);
             SizeGripStyle = SizeGripStyle.Show;
             StartPosition = FormStartPosition.CenterScreen;

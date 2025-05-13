@@ -25,11 +25,73 @@ namespace SecureChat.Client.Forms
         private readonly ImageList _treeImages = new();
         private readonly ToolTip _treeToolTip = new();
 
+        private FormBackground _backgroundForm = new();
+
         public FormHome()
         {
             InitializeComponent();
 
+            _backgroundForm.Bounds = this.Bounds;
+            this.Owner = _backgroundForm;
+
             BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
+
+            this.ResizeBegin += (object? sender, EventArgs e) =>
+            {
+                Exceptions.Ignore(() =>
+                {
+                    this.Opacity = 0.9;
+                    _backgroundForm.Opacity = 0;
+                });
+            };
+
+            this.ResizeEnd += (object? sender, EventArgs e) =>
+            {
+                Exceptions.Ignore(() =>
+                {
+                    this.Opacity = 0.70;
+                    _backgroundForm.Opacity = 1;
+                });
+            };
+
+            this.Activated += (object? sender, EventArgs e) =>
+            {
+                if (_backgroundForm.Visible == false)
+                {
+                    _backgroundForm.Visible = true;
+                }
+
+                Win32.SetWindowPos(_backgroundForm.Handle, this.Handle, 0, 0, 0, 0, Win32.SWP_NOMOVE | Win32.SWP_NOSIZE | Win32.SWP_NOACTIVATE);
+            };
+
+            this.Resize += (object? sender, EventArgs e) =>
+            {
+                _backgroundForm.Bounds = this.Bounds;
+            };
+
+            this.Move += (object? sender, EventArgs e) =>
+            {
+                _backgroundForm.Bounds = this.Bounds;
+            };
+
+            FormClosing += (object? sender, FormClosingEventArgs e) =>
+            {
+                try
+                {
+                    if (ServerConnection.Current != null)
+                    {
+                        e.Cancel = true;
+                        _backgroundForm.Hide();
+                        Hide();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                    MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            };
+
 
             try
             {
@@ -55,7 +117,6 @@ namespace SecureChat.Client.Forms
                 timer.Tick += Timer_Tick;
                 timer.Enabled = true;
 
-                FormClosing += FormHome_FormClosing;
                 Load += FormHome_Load;
 
                 GetRootNode();
@@ -467,23 +528,6 @@ namespace SecureChat.Client.Forms
                         activeChat.Form.Activate();
                         activeChat.Form.Focus();
                     }
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void FormHome_FormClosing(object? sender, FormClosingEventArgs e)
-        {
-            try
-            {
-                if (ServerConnection.Current != null)
-                {
-                    e.Cancel = true;
-                    Hide();
                 }
             }
             catch (Exception ex)
