@@ -10,6 +10,9 @@ namespace SecureChat.Client.Forms
         {
             InitializeComponent();
 
+            BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
+
+
             kryptonTextBoxMessage.Text = $"This is message one. This is message two. This is message three. This is message four. This is message five. This is message six. This is message seven. This is message eight. This is message nine. This is message ten.";
 
             Resize += (s, e) =>
