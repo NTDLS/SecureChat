@@ -30,7 +30,7 @@ namespace SecureChat.Client
         /// Shared secret used for symmetric end-to-end encryption.
         /// </summary>
         public byte[] SharedSecret { get; private set; }
-        
+
         public bool IsTerminated { get; private set; } = false;
 
         /// <summary>

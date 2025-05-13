@@ -2,16 +2,13 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup />
   <ItemGroup>
-    <Compile Update="Controls\ChatBubble.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Update="Controls\FlowControlImage.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Update="Controls\FlowControlIncomingCall.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Controls\MeBubble.cs">
+    <Compile Update="Controls\MessageBubble.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="Forms\FormAbout.cs">

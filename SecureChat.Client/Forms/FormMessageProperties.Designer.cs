@@ -218,9 +218,7 @@ namespace SecureChat.Client.Forms
         private KryptonTextBox textBoxAccountId;
         private KryptonLabel labelDisplayName;
         private KryptonTextBox textBoxDisplayName;
-        private KryptonButton buttonLogin;
         private KryptonButton buttonClose;
-        private KryptonCheckBox checkBoxStayLoggedIn;
         private KryptonTextBox textBoxPublicRsaKey;
         private KryptonLabel labelPublicRsaKey;
         private KryptonTextBox textBoxSessionId;

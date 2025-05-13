@@ -1,6 +1,6 @@
 ﻿namespace chat
 {
-    partial class MeBubble
+    partial class MessageBubble
     {
         /// <summary> 
         /// Required designer variable.
@@ -28,27 +28,42 @@
         /// </summary>
         private void InitializeComponent()
         {
-            label1 = new Label();
+            labelMessage = new Label();
+            labelDisplayName = new Label();
             SuspendLayout();
             // 
-            // label1
+            // labelMessage
             // 
-            label1.AutoSize = true;
-            label1.Location = new Point(3, 6);
-            label1.Name = "label1";
-            label1.Size = new Size(38, 15);
-            label1.TabIndex = 0;
-            label1.Text = "label1";
+            labelMessage.AutoSize = true;
+            labelMessage.Dock = DockStyle.Top;
+            labelMessage.ForeColor = Color.White;
+            labelMessage.Location = new Point(0, 21);
+            labelMessage.Name = "labelMessage";
+            labelMessage.Size = new Size(38, 15);
+            labelMessage.TabIndex = 0;
+            labelMessage.Text = "label1";
             // 
-            // MeBubble
+            // labelDisplayName
+            // 
+            labelDisplayName.AutoSize = true;
+            labelDisplayName.Dock = DockStyle.Top;
+            labelDisplayName.ForeColor = Color.White;
+            labelDisplayName.Location = new Point(0, 6);
+            labelDisplayName.Name = "labelDisplayName";
+            labelDisplayName.Size = new Size(102, 15);
+            labelDisplayName.TabIndex = 1;
+            labelDisplayName.Text = "labelDisplayName";
+            // 
+            // MessageBubble
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Transparent;
-            Controls.Add(label1);
+            Controls.Add(labelMessage);
+            Controls.Add(labelDisplayName);
             Margin = new Padding(4, 3, 4, 3);
             MinimumSize = new Size(0, 47);
-            Name = "MeBubble";
+            Name = "MessageBubble";
             Padding = new Padding(0, 6, 0, 6);
             Size = new Size(96, 47);
             ResumeLayout(false);
@@ -58,6 +73,7 @@
 
         #endregion
 
-        private Label label1;
+        private Label labelMessage;
+        private Label labelDisplayName;
     }
 }
