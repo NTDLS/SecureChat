@@ -8,6 +8,7 @@ using SecureChat.Library;
 using SecureChat.Library.DatagramMessages;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
+using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client
 {
@@ -766,7 +767,7 @@ namespace SecureChat.Client
                 }
                 else
                 {
-                    AppendFlowControl(new FlowControlMessageBubble(Form.FlowPanel, plainText, fromName, displayNameColor));
+                    AppendFlowControl(new FlowControlMessageBubble(Form.FlowPanel, plainText, fromName, displayNameColor, ScAlignment.Left, true));
                 }
             }
             catch (Exception ex)

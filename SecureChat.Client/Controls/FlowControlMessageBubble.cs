@@ -12,12 +12,11 @@ namespace SecureChat.Client.Controls
         private int _lastWidth = -1;
         private readonly Color _bubbleColor = Color.DodgerBlue;
         private readonly ScAlignment _alignment;
-        
 
         public bool IsVisible =>
             _parent.ClientRectangle.IntersectsWith(_parent.RectangleToClient(Bounds));
 
-        public FlowControlMessageBubble(Control parent, string message, string displayName, Color bubbleColor, ScAlignment alignment = 0)
+        public FlowControlMessageBubble(Control parent, string message, string displayName, Color bubbleColor, ScAlignment alignment, bool showDisplayName)
         {
             InitializeComponent();
 
@@ -30,23 +29,26 @@ namespace SecureChat.Client.Controls
             _message = message;
             _parent = parent;
 
-            var font = new Font(Settings.Instance.Font, Settings.Instance.FontSize);
+            using var font = new Font(Settings.Instance.Font, Settings.Instance.FontSize);
 
-            //labelDisplayName.Padding = new Padding(5, 5, 5, 2);
-            labelDisplayName.AutoSize = true;
-            labelDisplayName.BackColor = Color.Transparent;
-            labelDisplayName.ForeColor = Themes.AdjustBrightness(Themes.InvertColor(bubbleColor), 0.85f);
-            labelDisplayName.Font = font;
-            labelDisplayName.Text = displayName;
+            if (showDisplayName)
+            {
+                labelDisplayName.AutoSize = true;
+                labelDisplayName.BackColor = Color.Transparent;
+                labelDisplayName.ForeColor = Themes.AdjustBrightness(Themes.InvertColor(bubbleColor), 0.85f);
+                labelDisplayName.Font = font;
+                labelDisplayName.Text = displayName;
+            }
+            else
+            {
+                labelDisplayName.Visible = false;
+            }
 
-            //labelMessage.Padding = new Padding(5, 0, 5, 5);
             labelMessage.AutoSize = true;
             labelMessage.BackColor = Color.Transparent;
             labelMessage.ForeColor = Themes.AdjustBrightness(Themes.InvertColor(bubbleColor), 0.5f);
             labelMessage.Font = font;
             labelMessage.Text = message;
-
-            labelDisplayName.Visible = false;
 
             CalculateLabelSize();
 

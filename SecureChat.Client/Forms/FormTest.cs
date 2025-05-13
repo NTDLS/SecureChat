@@ -30,7 +30,7 @@ namespace SecureChat.Client.Forms
 
         private void AddChatBubble(string displayName, Color bubbleColor, ScAlignment alignment, string message)
         {
-            var bubble = new FlowControlMessageBubble(flowLayoutPanelChat, message, displayName, bubbleColor, alignment);
+            var bubble = new FlowControlMessageBubble(flowLayoutPanelChat, message, displayName, bubbleColor, alignment, true);
             flowLayoutPanelChat.Controls.Add(bubble);
             flowLayoutPanelChat.VerticalScroll.Value = flowLayoutPanelChat.VerticalScroll.Maximum;
         }
