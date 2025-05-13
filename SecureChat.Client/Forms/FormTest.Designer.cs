@@ -42,7 +42,7 @@
             button1.Location = new Point(12, 12);
             button1.Name = "button1";
             button1.Size = new Size(75, 23);
-            button1.TabIndex = 1;
+            button1.TabIndex = 0;
             button1.Text = "button1";
             button1.UseVisualStyleBackColor = true;
             button1.Click += button1_Click;
@@ -54,7 +54,7 @@
             flowLayoutPanelChat.FlowDirection = FlowDirection.TopDown;
             flowLayoutPanelChat.Location = new Point(0, 0);
             flowLayoutPanelChat.Name = "flowLayoutPanelChat";
-            flowLayoutPanelChat.Size = new Size(574, 383);
+            flowLayoutPanelChat.Size = new Size(576, 377);
             flowLayoutPanelChat.TabIndex = 0;
             flowLayoutPanelChat.WrapContents = false;
             // 
@@ -73,19 +73,20 @@
             // splitContainer1.Panel2
             // 
             splitContainer1.Panel2.Controls.Add(button1);
-            splitContainer1.Size = new Size(574, 434);
-            splitContainer1.SplitterDistance = 383;
+            splitContainer1.Size = new Size(576, 428);
+            splitContainer1.SplitterDistance = 377;
             splitContainer1.TabIndex = 2;
             // 
             // FormTest
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(574, 434);
+            ClientSize = new Size(576, 428);
             Controls.Add(splitContainer1);
             Name = "FormTest";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "FormTest";
+            Load += FormTest_Load;
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();

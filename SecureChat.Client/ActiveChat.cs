@@ -510,7 +510,8 @@ namespace SecureChat.Client
                         {
                             Form.FlowPanel.Controls.RemoveAt(0);
                         }
-                        Form.FlowPanel.ScrollControlIntoView(control);
+                        //Form.FlowPanel.ScrollControlIntoView(control);
+                        Form.FlowPanel.VerticalScroll.Value = Form.FlowPanel.VerticalScroll.Maximum;
                     }
                 });
             }
@@ -765,7 +766,7 @@ namespace SecureChat.Client
                 }
                 else
                 {
-                    AppendFlowControl(new FlowControlTextMessage(Form.FlowPanel, fromName, plainText, displayNameColor));
+                    AppendFlowControl(new FlowControlMessageBubble(Form.FlowPanel, plainText, fromName, displayNameColor));
                 }
             }
             catch (Exception ex)

@@ -29,6 +29,11 @@
         public const string DefaultServerAddress = "securechat.ntdls.com";
         public readonly static Version MinClientVersion = new Version(1, 0, 2, 0);
 
+        public enum ScAlignment
+        {
+            Left,
+            Right
+        }
 
         public enum ScOnlineState
         {

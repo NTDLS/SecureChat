@@ -1,6 +1,6 @@
 ﻿namespace SecureChat.Client.Controls
 {
-    partial class MessageBubble
+    partial class FlowControlMessageBubble
     {
         /// <summary> 
         /// Required designer variable.
@@ -54,7 +54,7 @@
             labelDisplayName.TabIndex = 1;
             labelDisplayName.Text = "labelDisplayName";
             // 
-            // MessageBubble
+            // FlowControlMessageBubble
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -63,9 +63,9 @@
             Controls.Add(labelDisplayName);
             Margin = new Padding(4, 3, 4, 3);
             MinimumSize = new Size(0, 47);
-            Name = "MessageBubble";
+            Name = "FlowControlMessageBubble";
             Padding = new Padding(0, 6, 0, 6);
-            Size = new Size(137, 47);
+            Size = new Size(126, 47);
             ResumeLayout(false);
             PerformLayout();
 

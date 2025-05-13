@@ -1,5 +1,6 @@
 ﻿using Krypton.Toolkit;
 using NTDLS.Helpers;
+using SecureChat.Client.Controls;
 using SecureChat.Client.Helpers;
 using SecureChat.Library;
 using Serilog;
@@ -71,6 +72,7 @@ namespace SecureChat.Client.Forms
                         Opacity = 1.0;
                     }
                 });
+
                 Deactivate += (object? sender, EventArgs e) => Exceptions.Ignore(() =>
                 {
                     if (!_isFormClosing)
@@ -78,6 +80,22 @@ namespace SecureChat.Client.Forms
                         Opacity = 1.0;
                     }
                 });
+
+                Resize += (s, e) =>
+                {
+                    flowPanel.SuspendLayout();
+
+                    foreach (var child in flowPanel.Controls)
+                    {
+                        if (child is FlowControlMessageBubble bubble && bubble.IsVisible)
+                        {
+                            bubble.Width = flowPanel.Width;
+                        }
+                    }
+                    flowPanel.ResumeLayout();
+
+                    flowPanel.Invalidate(true);
+                };
 
                 textBoxMessage.AllowDrop = true;
                 textBoxMessage.KeyDown += TextBoxMessage_KeyDown;

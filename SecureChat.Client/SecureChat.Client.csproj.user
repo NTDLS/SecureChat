@@ -8,7 +8,7 @@
     <Compile Update="Controls\FlowControlIncomingCall.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Controls\MessageBubble.cs">
+    <Compile Update="Controls\FlowControlMessageBubble.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="Forms\FormAbout.cs">
