@@ -1,5 +1,6 @@
 ﻿using Krypton.Toolkit;
 using Microsoft.Extensions.Configuration;
+using SecureChat.Client.Forms;
 using Serilog;
 
 namespace SecureChat.Client
@@ -27,7 +28,8 @@ namespace SecureChat.Client
 
             ThemeManager.GlobalPaletteMode = Settings.Instance.Theme;
 
-            Application.Run(new TrayApp());
+            Application.Run(new FormTest());
+            //Application.Run(new TrayApp());
         }
     }
 }
