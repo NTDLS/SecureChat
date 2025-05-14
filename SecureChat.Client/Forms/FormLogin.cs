@@ -31,7 +31,7 @@ namespace SecureChat.Client.Forms
             {
                 textBoxUsername.Text = "George";
             }
-            textBoxPassword.Text = "MyPassword123!";
+            textBoxPassword.Text = "Password123!";
 #else
             var lastUser = Settings.Instance.Users.OrderByDescending(o => o.Value.LastLogin).FirstOrDefault();
             if(lastUser.Value != null)
