@@ -113,21 +113,15 @@ namespace SecureChat.Library
                 return false;
             }
 
-            if (!password.Any(char.IsUpper))
-            {
-                errorMessage = "Password must contain at least one uppercase letter.";
-                return false;
-            }
+            int metricCount = 0;
+            if (password.Any(char.IsUpper)) metricCount++;
+            if (password.Any(char.IsLower)) metricCount++;
+            if (password.Any(char.IsDigit)) metricCount++;
+            if (password.Any(char.IsSymbol)) metricCount++;
 
-            if (!password.Any(char.IsLower))
+            if (metricCount < 2)
             {
-                errorMessage = "Password must contain at least one lowercase letter.";
-                return false;
-            }
-
-            if (!password.Any(char.IsDigit))
-            {
-                errorMessage = "Password must contain at least one digit.";
+                errorMessage = "Password must contain at least two of the following: uppercase letter, lowercase letter, digit, symbol.";
                 return false;
             }
 
