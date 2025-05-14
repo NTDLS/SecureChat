@@ -313,7 +313,18 @@ namespace SecureChat.Client.Forms
                 }
                 textBoxMessage.Clear();
 
-                if (_activeChat.SendTextMessage(text))
+
+                var control = _activeChat.AppendChatMessage(ServerConnection.Current.DisplayName, text, ScOrigin.Local);
+                if (control != null)
+                {
+                    control.Sending();
+
+                    _activeChat.SendTextMessage(control.UID, text);
+                    control.Sent();
+                }
+
+
+                /*
                 {
                     _activeChat.AppendChatMessage(ServerConnection.Current.DisplayName, text, ScOrigin.Local);
                 }
@@ -321,6 +332,7 @@ namespace SecureChat.Client.Forms
                 {
                     _activeChat.AppendErrorLine("Failed to send message.");
                 }
+                */
             }
             catch (Exception ex)
             {

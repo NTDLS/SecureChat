@@ -1,10 +1,12 @@
 ﻿using Krypton.Toolkit;
 using NTDLS.Helpers;
+using SecureChat.Client.Controls.FlowControls;
 using SecureChat.Client.Forms;
 
 namespace SecureChat.Client.Controls
 {
-    internal partial class FlowControlIncomingCall : UserControl
+    internal partial class FlowControlIncomingCall
+        : UserControl, IFlowControl
     {
         private readonly FlowLayoutPanel _parent;
         private readonly ActiveChat _activeChat;
@@ -59,9 +61,13 @@ namespace SecureChat.Client.Controls
 
         private void OnRemove(object? sender, EventArgs e)
         {
+            Remove();
+        }
+
+        public void Remove()
+        {
             Exceptions.Ignore(() =>
             {
-
                 _parent.Controls.Remove(this);
             });
         }

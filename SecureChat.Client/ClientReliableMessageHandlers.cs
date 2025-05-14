@@ -305,22 +305,35 @@ namespace SecureChat.Client
         }
 
         /// <summary>
+        /// A client is reporting that it received a text message.
+        /// </summary>
+        public void TextMessageReceivedNotification(RmContext context, TextMessageReceivedNotification param)
+        {
+            try
+            {
+                var activeChat = VerifyAndActiveChat(context, param.SessionId);
+                activeChat?.ReceiveTextMessageDeliveryNotification(param.MessageId);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
         /// A client is sending us a text message.
         /// </summary>
-        public ExchangeMessageTextQueryReply ExchangeMessageTextQuery(RmContext context, ExchangeMessageTextQuery param)
+        public void TextMessageNotification(RmContext context, TextMessageNotification param)
         {
             try
             {
                 var activeChat = VerifyAndActiveChat(context, param.SessionId);
 
-                activeChat?.ReceiveTextMessage(param.CipherText);
-
-                return new ExchangeMessageTextQueryReply();
+                activeChat?.ReceiveTextMessage(param);
             }
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new ExchangeMessageTextQueryReply(ex);
             }
         }
 

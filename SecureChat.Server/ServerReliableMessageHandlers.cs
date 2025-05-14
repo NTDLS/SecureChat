@@ -27,6 +27,22 @@ namespace SecureChat.Server
         }
 
         /// <summary>
+        /// A client is reporting that it received a text message.
+        /// </summary>
+        public void TextMessageReceivedNotification(RmContext context, TextMessageReceivedNotification param)
+        {
+            try
+            {
+                var accountConnection = VerifyAndGetAccountConnection(context);
+                _chatService.RmServer.Notify(param.PeerConnectionId, param);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
         /// A client is requesting a voice call with another client.
         /// Route the message to the appropriate connection.
         /// </summary>
@@ -423,19 +439,18 @@ namespace SecureChat.Server
         /// A client is sending a message to another client.
         /// Route the message to the appropriate connection.
         /// </summary>
-        public ExchangeMessageTextQueryReply ExchangeMessageTextQuery(RmContext context, ExchangeMessageTextQuery param)
+        public void TextMessageNotification(RmContext context, TextMessageNotification param)
         {
             try
             {
                 if (context.GetCryptographyProvider() == null)
                     throw new Exception("Cryptography has not been initialized.");
 
-                return _chatService.RmServer.Query(param.PeerConnectionId, param).Result;
+                _chatService.RmServer.Notify(param.PeerConnectionId, param);
             }
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new ExchangeMessageTextQueryReply(ex);
             }
         }
 

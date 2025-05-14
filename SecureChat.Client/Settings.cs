@@ -158,7 +158,7 @@ namespace SecureChat.Client
 
             var rmConfig = new RmConfiguration()
             {
-                AsynchronousNotifications = false //Used to ensure the order of chunks is preserved (such as file transfers).
+                AsynchronousNotifications = true //Used to ensure the order of chunks is preserved (such as file transfers).
             };
 
             var rmClient = new RmClient(rmConfig);

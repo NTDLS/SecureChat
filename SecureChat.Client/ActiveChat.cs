@@ -5,6 +5,7 @@ using SecureChat.Client.Controls;
 using SecureChat.Client.Controls.FlowControls;
 using SecureChat.Client.Forms;
 using SecureChat.Client.Helpers;
+using SecureChat.Client.Properties;
 using SecureChat.Library;
 using SecureChat.Library.DatagramMessages;
 using SecureChat.Library.ReliableMessages;
@@ -138,27 +139,53 @@ namespace SecureChat.Client
             Exceptions.Ignore(() => StopAudioPump());
         }
 
-        public void ReceiveTextMessage(byte[] cipherText)
+        public void ReceiveTextMessageDeliveryNotification(Guid messageId)
         {
             if (IsTerminated)
             {
                 return;
             }
 
-            AppendChatMessage(DisplayName, DecryptString(cipherText), ScOrigin.Remote);
+            try
+            {
+                if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
+                {
+                    return;
+                }
+
+                Form.Invoke(() =>
+                {
+                    lock (Form.FlowPanel)
+                    {
+                        var bubble = Form.FlowPanel.Controls.OfType<FlowControlOriginBubble>().FirstOrDefault(o => o.UID == messageId);
+                        bubble?.Delivered();
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                AppendErrorLine(ex);
+            }
         }
 
-        public bool SendTextMessage(string plaintText)
+        public void ReceiveTextMessage(TextMessageNotification param)
         {
             if (IsTerminated)
             {
-                return false;
+                return;
             }
 
-            var query = new ExchangeMessageTextQuery(SessionId, PeerConnectionId, EncryptString(plaintText));
+            AppendChatMessage(DisplayName, DecryptString(param.CipherText), ScOrigin.Remote);
 
-            return ServerConnection.Current?.Connection.Client.Query(query)
-                .ContinueWith(o => !o.IsFaulted && o.Result.IsSuccess).Result ?? false;
+            //Let the server know that we have received the message.
+            ServerConnection.Current?.Connection.Client.Notify(
+                new TextMessageReceivedNotification(SessionId, PeerConnectionId, param.MessageId));
+        }
+
+        public void SendTextMessage(Guid messageId, string plaintText)
+        {
+            ServerConnection.Current?.Connection.Client.Notify(
+                new TextMessageNotification(SessionId, PeerConnectionId, messageId, EncryptString(plaintText)));
         }
 
         #region Voice Call.
@@ -592,7 +619,7 @@ namespace SecureChat.Client
 
                 LastMessageReceived = DateTime.Now;
 
-                AppendFlowControl(new FlowControlFolderHyperlink(Form.FlowPanel, displayText, folderPath, origin, fromName));
+                AppendFlowControl(new FlowControlFolderHyperlink(Form.FlowPanel, displayText, folderPath, origin, null, fromName));
             }
             catch (Exception ex)
             {
@@ -735,13 +762,15 @@ namespace SecureChat.Client
             AppendFlowControl(LastOutgoingCallControl);
         }
 
-        public void AppendChatMessage(string fromName, string plainText, ScOrigin origin)
+        public FlowControlOriginBubble? AppendChatMessage(string fromName, string plainText, ScOrigin origin)
         {
+            FlowControlOriginBubble? control = null;
+
             try
             {
                 if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
                 {
-                    return;
+                    return null;
                 }
 
                 Form.Invoke(() =>
@@ -766,11 +795,17 @@ namespace SecureChat.Client
 
                 if (plainText.StartsWith("http://") || plainText.StartsWith("https://"))
                 {
-                    AppendFlowControl(new FlowControlHyperlink(Form.FlowPanel, plainText, origin, _lastMessageOrigin == origin ? null : fromName));
+                    control = new FlowControlHyperlink(Form.FlowPanel, plainText, origin,
+                        origin == ScOrigin.Local ? Resources.MessageStatusSending16 : null,
+                        _lastMessageOrigin == origin ? null : fromName);
+                    AppendFlowControl(control);
                 }
                 else
                 {
-                    AppendFlowControl(new FlowControlMessage(Form.FlowPanel, plainText, origin, _lastMessageOrigin == origin ? null : fromName));
+                    control = new FlowControlMessage(Form.FlowPanel, plainText, origin,
+                        origin == ScOrigin.Local ? Resources.MessageStatusSending16 : null,
+                        _lastMessageOrigin == origin ? null : fromName);
+                    AppendFlowControl(control);
                 }
 
                 _lastMessageOrigin = origin;
@@ -779,6 +814,8 @@ namespace SecureChat.Client
             {
                 AppendErrorLine(ex);
             }
+
+            return control;
         }
 
         public void AppendIncomingCall(string fromName, bool playNotifications, Color? color = null)

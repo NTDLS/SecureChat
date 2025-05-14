@@ -1,10 +1,12 @@
 ﻿using Krypton.Toolkit;
 using NTDLS.Helpers;
+using SecureChat.Client.Controls.FlowControls;
 using System.ComponentModel;
 
 namespace SecureChat.Client.Controls
 {
-    internal partial class FlowControlFileTransferRequest : UserControl
+    internal partial class FlowControlFileTransferRequest
+        : UserControl, IFlowControl
     {
         private readonly FlowLayoutPanel _parent;
         private readonly ActiveChat _activeChat;
@@ -81,6 +83,7 @@ namespace SecureChat.Client.Controls
             buttonDecline.Enabled = false;
             IsCancelled = true;
         }
+
         public void Remove()
         {
             _activeChat.PendingFileTransfers.Remove(FileId);

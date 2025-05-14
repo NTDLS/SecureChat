@@ -2,10 +2,11 @@
 
 namespace SecureChat.Client.Controls.FlowControls
 {
-    public partial class FlowControlMessage : FlowControlOriginBubble
+    public partial class FlowControlMessage
+        : FlowControlOriginBubble, IFlowControl
     {
-        public FlowControlMessage(Control parent, string message, ScOrigin origin, string? displayName = null)
-            : base(parent, new Label() { Text = message }, origin, displayName)
+        public FlowControlMessage(Control parent, string message, ScOrigin origin, Image? initialStatusImage = null, string? displayName = null)
+            : base(parent, new Label() { Text = message }, origin, initialStatusImage, displayName)
         {
             ChildControl.MouseClick += LabelMessage_MouseClick;
             MouseClick += LabelMessage_MouseClick;

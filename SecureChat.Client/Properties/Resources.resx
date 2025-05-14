@@ -139,4 +139,19 @@
   <data name="MessageReceived" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\MessageReceived.wav;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="MessageStatusDelivered16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\MessageStatusDelivered16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="MessageStatusError16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\MessageStatusError16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="MessageStatusRead16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\MessageStatusRead16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="MessageStatusSending16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\MessageStatusSending16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="MessageStatusSent16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\MessageStatusSent16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>

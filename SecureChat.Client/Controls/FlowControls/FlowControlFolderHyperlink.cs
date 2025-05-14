@@ -4,12 +4,13 @@ using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client.Controls.FlowControls
 {
-    public class FlowControlFolderHyperlink : FlowControlOriginBubble
+    public class FlowControlFolderHyperlink
+        : FlowControlOriginBubble, IFlowControl
     {
         private readonly string _folderPath;
 
-        public FlowControlFolderHyperlink(FlowLayoutPanel parent, string displayText, string folderPath, ScOrigin origin, string? displayName = null)
-            : base(parent, new LinkLabel { Text = displayText }, origin, displayName)
+        public FlowControlFolderHyperlink(FlowLayoutPanel parent, string displayText, string folderPath, ScOrigin origin, Image? initialStatusImage = null, string? displayName = null)
+            : base(parent, new LinkLabel { Text = displayText }, origin, initialStatusImage, displayName)
         {
             _folderPath = folderPath;
 

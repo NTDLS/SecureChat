@@ -1,11 +1,17 @@
 ﻿using NTDLS.Helpers;
 using SecureChat.Client.Helpers;
+using SecureChat.Client.Properties;
+using System.ComponentModel;
 using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client.Controls.FlowControls
 {
-    public partial class FlowControlOriginBubble : Panel
+    public partial class FlowControlOriginBubble
+        : Panel, IFlowControl
     {
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Guid UID { get; private set; } = Guid.NewGuid();
+
         private readonly Control _parent;
         private int _lastWidth = -1;
         private readonly Color _bubbleColor = Color.DodgerBlue;
@@ -13,13 +19,14 @@ namespace SecureChat.Client.Controls.FlowControls
 
         private readonly Control _childControl;
         private readonly Label? _labelDisplayName;
+        private readonly PictureBox _statusImage;
 
         public Control ChildControl => _childControl;
 
         public bool IsVisible =>
             _parent.ClientRectangle.IntersectsWith(_parent.RectangleToClient(Bounds));
 
-        public FlowControlOriginBubble(Control parent, Control childControl, ScOrigin origin, string? displayName = null)
+        public FlowControlOriginBubble(Control parent, Control childControl, ScOrigin origin, Image? initialStatusImage = null, string? displayName = null)
         {
             _parent = parent;
             _origin = origin;
@@ -53,12 +60,20 @@ namespace SecureChat.Client.Controls.FlowControls
                 Controls.Add(_labelDisplayName);
             }
 
+            _statusImage = new PictureBox()
+            {
+                SizeMode = PictureBoxSizeMode.Zoom,
+                BackColor = Color.Transparent,
+                Size = initialStatusImage == null ? new Size(0, 0) : new Size(16, 16),
+                Image = initialStatusImage
+            };
+            Controls.Add(_statusImage);
+
             _childControl.AutoSize = true;
             _childControl.BackColor = Color.Transparent;
             _childControl.ForeColor = Themes.AdjustBrightness(Themes.InvertColor(_bubbleColor), 0.5f);
             _childControl.Font = font;
             _childControl.Top = _labelDisplayName?.Top + _labelDisplayName?.Height + 5 ?? 0;
-
             Controls.Add(_childControl);
 
             CalculateChildSize();
@@ -99,16 +114,19 @@ namespace SecureChat.Client.Controls.FlowControls
                     //We do some special stuff here to allow the label logic to perform its magic auto-wrapping.
                     MaximumSize = new Size(_parent.Width - 30, 0);
                     _childControl.MaximumSize = new Size(_parent.Width - alignmentPadding - 40, 0);
-                    Height = _childControl.Top + _childControl.Height + 5;
 
                     Width = Math.Max(_childControl.Left + _childControl.Width + 5, _labelDisplayName?.Left + _labelDisplayName?.Width + 5 ?? 0);
                     _lastWidth = _parent.Width;
                 }
                 else
                 {
-                    Height = _childControl.Top + _childControl.Height + 10;
                     Width = Math.Max(_parent.Width - 30, 100);
                 }
+
+                _statusImage.Left = alignmentPadding + 10;
+                _statusImage.Top = _childControl.Bottom + 5;
+
+                Height = _statusImage.Bottom + 5;
             }
         }
 
@@ -133,7 +151,17 @@ namespace SecureChat.Client.Controls.FlowControls
                 return;
             }
 
-            Exceptions.Ignore(() => _parent.Controls.Remove(this));
+            Remove();
+        }
+
+        public void Remove()
+        {
+            Exceptions.Ignore(() =>
+            {
+                _childControl.Text = string.Empty;
+                _childControl.Dispose();
+                _parent.Controls.Remove(this);
+            });
         }
 
         public virtual void OnCopy(object? sender, EventArgs e)
@@ -145,6 +173,39 @@ namespace SecureChat.Client.Controls.FlowControls
             }
 
             Exceptions.Ignore(() => Clipboard.SetText(_childControl.Text));
+        }
+
+        /// <summary>
+        /// Updates the status image to indicate that a message has not been sent yet.
+        /// </summary>
+        public void Sending()
+        {
+            if (_statusImage != null)
+            {
+                _statusImage.Image = Resources.MessageStatusSending16;
+            }
+        }
+
+        /// <summary>
+        /// Updates the status image to indicate that a message has been sent.
+        /// </summary>
+        public void Sent()
+        {
+            if (_statusImage != null)
+            {
+                _statusImage.Image = Resources.MessageStatusSent16;
+            }
+        }
+
+        /// <summary>
+        /// Updates the status image to indicate that a message has been delivered.
+        /// </summary>
+        public void Delivered()
+        {
+            if (_statusImage != null)
+            {
+                _statusImage.Image = Resources.MessageStatusDelivered16;
+            }
         }
     }
 }

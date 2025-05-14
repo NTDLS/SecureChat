@@ -36,7 +36,7 @@ namespace SecureChat.Client.Forms
 
         private void AddChatBubble(string displayName, ScOrigin origin, string message)
         {
-            var bubble = new FlowControlHyperlink(flowLayoutPanelChat, message, origin, displayName);
+            var bubble = new FlowControlHyperlink(flowLayoutPanelChat, message, origin, null, displayName);
             flowLayoutPanelChat.Controls.Add(bubble);
             flowLayoutPanelChat.VerticalScroll.Value = flowLayoutPanelChat.VerticalScroll.Maximum;
         }

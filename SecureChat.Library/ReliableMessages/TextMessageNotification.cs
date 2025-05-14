@@ -2,9 +2,14 @@
 
 namespace SecureChat.Library.ReliableMessages
 {
-    public class ExchangeMessageTextQuery
-        : IRmQuery<ExchangeMessageTextQueryReply>
+    public class TextMessageNotification
+        : IRmNotification
     {
+        /// <summary>
+        /// Unique identifier for this message.
+        /// </summary>
+        public Guid MessageId { get; set; }
+
         public byte[] CipherText { get; set; }
 
         /// <summary>
@@ -18,29 +23,12 @@ namespace SecureChat.Library.ReliableMessages
         /// </summary>
         public Guid SessionId { get; set; }
 
-        public ExchangeMessageTextQuery(Guid sessionId, Guid peerConnectionId, byte[] cipherText)
+        public TextMessageNotification(Guid sessionId, Guid peerConnectionId, Guid messageId, byte[] cipherText)
         {
             SessionId = sessionId;
             PeerConnectionId = peerConnectionId;
+            MessageId = messageId;
             CipherText = cipherText;
-        }
-    }
-
-    public class ExchangeMessageTextQueryReply
-    : IRmQueryReply
-    {
-        public bool IsSuccess { get; set; }
-        public string? ErrorMessage { get; set; }
-
-        public ExchangeMessageTextQueryReply(Exception exception)
-        {
-            IsSuccess = false;
-            ErrorMessage = exception.GetBaseException().Message;
-        }
-
-        public ExchangeMessageTextQueryReply()
-        {
-            IsSuccess = true;
         }
     }
 }

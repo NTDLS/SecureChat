@@ -4,11 +4,13 @@ using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client.Controls.FlowControls
 {
-    public class FlowControlHyperlink : FlowControlOriginBubble
+    public class FlowControlHyperlink
+        : FlowControlOriginBubble, IFlowControl
     {
-        public FlowControlHyperlink(FlowLayoutPanel parent, string linkText, ScOrigin origin, string? displayName = null)
-            : base(parent, new LinkLabel { Text = linkText }, origin, displayName)
+        public FlowControlHyperlink(FlowLayoutPanel parent, string linkText, ScOrigin origin, Image? initialStatusImage = null, string? displayName = null)
+            : base(parent, new LinkLabel { Text = linkText }, origin, initialStatusImage, displayName)
         {
+
             if (ChildControl is LinkLabel child)
             {
                 child.LinkClicked += LabelMessage_LinkClicked;

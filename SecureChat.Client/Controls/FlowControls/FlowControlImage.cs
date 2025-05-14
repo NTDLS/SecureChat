@@ -5,14 +5,15 @@ using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client.Controls.FlowControls
 {
-    public class FlowControlImage : FlowControlOriginBubble
+    public class FlowControlImage
+        : FlowControlOriginBubble, IFlowControl
     {
-        public FlowControlImage(FlowLayoutPanel parent, byte[] imageBytes, ScOrigin origin, string? displayName = null)
+        public FlowControlImage(FlowLayoutPanel parent, byte[] imageBytes, ScOrigin origin, /*Image? initialStatusImage = null,*/ string? displayName = null)
             : base(parent, new PictureBox
             {
                 SizeMode = PictureBoxSizeMode.Zoom,
                 MaximumSize = new Size(100, 100),
-            }, origin, displayName)
+            }, origin, null, displayName)
         {
             using var ms = new MemoryStream(imageBytes);
             var image = Image.FromStream(ms);

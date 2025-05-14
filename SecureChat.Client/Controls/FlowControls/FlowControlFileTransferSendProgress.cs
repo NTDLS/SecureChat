@@ -1,11 +1,12 @@
 ﻿using Krypton.Toolkit;
 using NTDLS.Helpers;
+using SecureChat.Client.Controls.FlowControls;
 using System.ComponentModel;
 
 namespace SecureChat.Client.Controls
 {
     internal partial class FlowControlFileTransferSendProgress
-        : UserControl
+        : UserControl, IFlowControl
     {
         private readonly FlowLayoutPanel _parent;
         private readonly ActiveChat _activeChat;
@@ -94,10 +95,7 @@ namespace SecureChat.Client.Controls
 
         public void Remove()
         {
-            Exceptions.Ignore(() =>
-            {
-                _parent.Invoke(() => _parent.Controls.Remove(this));
-            });
+            Exceptions.Ignore(() => _parent.Invoke(() => _parent.Controls.Remove(this)));
 
             //Close the stream (file handle or memory stream).
             Exceptions.Ignore(() => Transfer.Dispose());

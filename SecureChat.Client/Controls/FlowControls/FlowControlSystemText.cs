@@ -4,7 +4,8 @@ using SecureChat.Client.Helpers;
 
 namespace SecureChat.Client.Controls.FlowControls
 {
-    public class FlowControlSystemText : FlowLayoutPanel
+    public class FlowControlSystemText
+        : FlowLayoutPanel, IFlowControl
     {
         private readonly FlowLayoutPanel _parent;
         private readonly Label _labelMessage;
@@ -46,11 +47,7 @@ namespace SecureChat.Client.Controls.FlowControls
 
         private void OnRemove(object? sender, EventArgs e)
         {
-            Exceptions.Ignore(() =>
-            {
-                _labelMessage.Text = string.Empty;
-                _parent.Controls.Remove(this);
-            });
+            Remove();
         }
 
         private void OnCopy(object? sender, EventArgs e)
@@ -58,6 +55,16 @@ namespace SecureChat.Client.Controls.FlowControls
             Exceptions.Ignore(() =>
             {
                 Clipboard.SetText(_labelMessage.Text);
+            });
+        }
+
+        public void Remove()
+        {
+            Exceptions.Ignore(() =>
+            {
+                _labelMessage.Text = string.Empty;
+                _labelMessage.Dispose();
+                _parent.Controls.Remove(this);
             });
         }
     }

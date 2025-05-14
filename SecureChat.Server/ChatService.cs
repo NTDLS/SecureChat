@@ -29,7 +29,9 @@ namespace SecureChat.Server
 
             var rmConfig = new RmConfiguration()
             {
-                AsynchronousNotifications = false //Used to ensure the order of chunks is preserved (such as file transfers).
+                AsynchronousNotifications = _configuration.GetValue<bool>("AsynchronousNotifications"),
+                AsynchronousQueryWaiting = _configuration.GetValue<bool>("AsynchronousQueryWaiting"),
+                QueryTimeout = TimeSpan.FromSeconds(_configuration.GetValue<int>("QueryTimeout"))
             };
             _rmServer = new RmServer(rmConfig);
 
