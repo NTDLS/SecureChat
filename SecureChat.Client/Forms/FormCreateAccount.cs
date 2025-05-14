@@ -79,38 +79,12 @@ namespace SecureChat.Client.Forms
                     {
                         progressForm.SetHeaderText("Negotiating cryptography...");
 
-                        var keyPair = Crypto.GeneratePublicPrivateKeyPair(Settings.Instance.RsaKeySize);
-                        var client = Settings.Instance.CreateRmClient();
-                        client.OnException += Client_OnException;
-
-                        var appVersion = (Assembly.GetEntryAssembly()?.GetName().Version).EnsureNotNull();
-
-                        //Send our public key to the server and wait on a reply of their public key.
-                        var remotePublicKey = client.Query(new ExchangePublicKeyQuery(client.ConnectionId.EnsureNotNull(),
-                            appVersion, keyPair.PublicRsaKey, Settings.Instance.RsaKeySize, Settings.Instance.AesKeySize))
-                            .ContinueWith(o =>
-                            {
-                                if (o.IsFaulted || !o.Result.IsSuccess)
-                                {
-                                    throw new Exception(string.IsNullOrEmpty(o.Result.ErrorMessage) ? "Unknown negotiation error." : o.Result.ErrorMessage);
-                                }
-
-                                return o.Result.PublicRsaKey;
-                            }).Result;
-
-                        progressForm.SetHeaderText("Applying cryptography...");
-
-                        client.Notify(new InitializeServerClientCryptographyNotification());
-                        client.SetCryptographyProvider(new ReliableCryptographyProvider(
-                            Settings.Instance.RsaKeySize, Settings.Instance.AesKeySize, remotePublicKey, keyPair.PrivateRsaKey));
-
-                        progressForm.SetHeaderText("Waiting for server...");
-                        Thread.Sleep(1000); //Give the server a moment to initialize the cryptography.
+                        var rmClient = Settings.Instance.CreateEncryptedRmClient(Client_OnException, progressForm);
 
                         progressForm.SetHeaderText("Creating account...");
                         Thread.Sleep(250); //For aesthetics.
 
-                        var isSuccess = client.Query(new CreateAccountQuery(username, displayName, passwordHash)).ContinueWith(o =>
+                        var isSuccess = rmClient.Query(new CreateAccountQuery(username, displayName, passwordHash)).ContinueWith(o =>
                         {
                             if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
                             {
@@ -120,7 +94,7 @@ namespace SecureChat.Client.Forms
                             return !o.IsFaulted && o.Result.IsSuccess;
                         }).Result;
 
-                        client.Disconnect();
+                        rmClient.Disconnect();
 
                         _username = isSuccess ? username : string.Empty;
 

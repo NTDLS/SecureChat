@@ -1,10 +1,14 @@
 ﻿using Krypton.Toolkit;
 using NTDLS.DatagramMessaging;
+using NTDLS.Helpers;
 using NTDLS.Persistence;
 using NTDLS.ReliableMessaging;
+using NTDLS.WinFormsHelpers;
 using SecureChat.Client.Models;
 using SecureChat.Library;
+using SecureChat.Library.ReliableMessages;
 using Serilog;
+using System.Reflection;
 
 namespace SecureChat.Client
 {
@@ -58,19 +62,6 @@ namespace SecureChat.Client
         /// </summary>
         public Dictionary<string, PersistedUserState> Users = new(StringComparer.CurrentCultureIgnoreCase);
 
-        public RmClient CreateRmClient()
-        {
-            var rmConfig = new RmConfiguration()
-            {
-                AsynchronousNotifications = false //Used to ensure the order of chunks is preserved (such as file transfers).
-            };
-
-            var rmClient = new RmClient(rmConfig);
-
-            rmClient.Connect(ServerAddress, ServerPort);
-            return rmClient;
-        }
-
         public DmClient CreateDmClient()
         {
             var dmClient = new DmClient(ServerAddress, ServerPort);
@@ -83,6 +74,50 @@ namespace SecureChat.Client
             };
 
             return dmClient;
+        }
+
+        public RmClient CreateEncryptedRmClient(RmClient.ExceptionEvent exceptionEvent, ProgressForm? progressForm = null)
+        {
+            progressForm?.SetHeaderText("Negotiating cryptography...");
+
+            var rmConfig = new RmConfiguration()
+            {
+                AsynchronousNotifications = false //Used to ensure the order of chunks is preserved (such as file transfers).
+            };
+
+            var rmClient = new RmClient(rmConfig);
+
+            rmClient.Connect(ServerAddress, ServerPort);
+
+            var keyPair = Crypto.GeneratePublicPrivateKeyPair(RsaKeySize);
+            rmClient.OnException += exceptionEvent;
+
+            var appVersion = (Assembly.GetEntryAssembly()?.GetName().Version).EnsureNotNull();
+
+            //Send our public key to the server and wait on a reply of their public key.
+            var remotePublicKey = rmClient.Query(new ExchangePublicKeyQuery(rmClient.ConnectionId.EnsureNotNull(), appVersion,
+                keyPair.PublicRsaKey, RsaKeySize, AesKeySize))
+                .ContinueWith(o =>
+                {
+                    if (o.IsFaulted || !o.Result.IsSuccess)
+                    {
+                        throw new Exception(string.IsNullOrEmpty(o.Result.ErrorMessage) ? "Unknown negotiation error." : o.Result.ErrorMessage);
+                    }
+
+                    return o.Result.PublicRsaKey;
+                }).Result;
+
+            progressForm?.SetHeaderText("Applying cryptography...");
+
+            rmClient.Notify(new InitializeServerClientCryptographyNotification());
+            rmClient.SetCryptographyProvider(new ReliableCryptographyProvider(
+                RsaKeySize, AesKeySize, remotePublicKey, keyPair.PrivateRsaKey));
+
+            progressForm?.SetHeaderText("Waiting for server...");
+
+            Thread.Sleep(1000); //Give the server a moment to initialize the cryptography.
+
+            return rmClient;
         }
     }
 }

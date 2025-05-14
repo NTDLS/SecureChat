@@ -52,7 +52,6 @@ namespace SecureChat.Client.Forms
             };
         }
 
-
         /// <summary>
         /// Prompts the user for login credentials and returns NULL on cancel or a connected reliable messaging client on success.
         /// </summary>
@@ -79,36 +78,7 @@ namespace SecureChat.Client.Forms
                 {
                     try
                     {
-                        progressForm.SetHeaderText("Negotiating cryptography...");
-
-                        var keyPair = Crypto.GeneratePublicPrivateKeyPair(Settings.Instance.RsaKeySize);
-                        var rmClient = Settings.Instance.CreateRmClient();
-                        rmClient.OnException += Client_OnException;
-
-                        var appVersion = (Assembly.GetEntryAssembly()?.GetName().Version).EnsureNotNull();
-
-                        //Send our public key to the server and wait on a reply of their public key.
-                        var remotePublicKey = rmClient.Query(new ExchangePublicKeyQuery(rmClient.ConnectionId.EnsureNotNull(), appVersion,
-                            keyPair.PublicRsaKey, Settings.Instance.RsaKeySize, Settings.Instance.AesKeySize))
-                            .ContinueWith(o =>
-                            {
-                                if (o.IsFaulted || !o.Result.IsSuccess)
-                                {
-                                    throw new Exception(string.IsNullOrEmpty(o.Result.ErrorMessage) ? "Unknown negotiation error." : o.Result.ErrorMessage);
-                                }
-
-                                return o.Result.PublicRsaKey;
-                            }).Result;
-
-                        progressForm.SetHeaderText("Applying cryptography...");
-
-
-                        rmClient.Notify(new InitializeServerClientCryptographyNotification());
-                        rmClient.SetCryptographyProvider(new ReliableCryptographyProvider(
-                            Settings.Instance.RsaKeySize, Settings.Instance.AesKeySize, remotePublicKey, keyPair.PrivateRsaKey));
-
-                        progressForm.SetHeaderText("Waiting for server...");
-                        Thread.Sleep(1000); //Give the server a moment to initialize the cryptography.
+                        var rmClient = Settings.Instance.CreateEncryptedRmClient(Client_OnException, progressForm);
 
                         bool explicitAway = false;
                         if (Settings.Instance.Users.TryGetValue(username, out var userPersist))
