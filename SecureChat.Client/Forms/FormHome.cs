@@ -49,6 +49,7 @@ namespace SecureChat.Client.Forms
             {
                 Exceptions.Ignore(() =>
                 {
+                    _backgroundForm.Bounds = new Rectangle(this.Bounds.X + 1, this.Bounds.Y + 1, this.Bounds.Width - 2, this.Bounds.Height - 2);
                     this.Opacity = 0.70;
                     _backgroundForm.Opacity = 1;
                 });
@@ -60,18 +61,18 @@ namespace SecureChat.Client.Forms
                 {
                     _backgroundForm.Visible = true;
                 }
-
+                _backgroundForm.Bounds = new Rectangle(this.Bounds.X + 1, this.Bounds.Y + 1, this.Bounds.Width - 2, this.Bounds.Height - 2);
                 Win32.SetWindowPos(_backgroundForm.Handle, this.Handle, 0, 0, 0, 0, Win32.SWP_NOMOVE | Win32.SWP_NOSIZE | Win32.SWP_NOACTIVATE);
             };
 
             this.Resize += (object? sender, EventArgs e) =>
             {
-                _backgroundForm.Bounds = this.Bounds;
+                _backgroundForm.Bounds = new Rectangle(this.Bounds.X + 1, this.Bounds.Y + 1, this.Bounds.Width - 2, this.Bounds.Height - 2);
             };
 
             this.Move += (object? sender, EventArgs e) =>
             {
-                _backgroundForm.Bounds = this.Bounds;
+                _backgroundForm.Bounds = new Rectangle(this.Bounds.X + 1, this.Bounds.Y + 1, this.Bounds.Width - 2, this.Bounds.Height - 2);
             };
 
             FormClosing += (object? sender, FormClosingEventArgs e) =>
