@@ -75,8 +75,8 @@ namespace SecureChat.Client.Forms
                 {
                     try
                     {
-                        var loginResult = Settings.Instance.CreateLoggedInConnection(username, passwordHash, RmExceptionHandler, progressForm);
-                        if (loginResult != null)
+                        _loginResult = Settings.Instance.CreateLoggedInConnection(username, passwordHash, RmExceptionHandler, progressForm);
+                        if (_loginResult != null)
                         {
                             if (checkBoxStayLoggedIn.Checked)
                             {
@@ -85,7 +85,7 @@ namespace SecureChat.Client.Forms
                             }
                         }
 
-                        this.InvokeClose(loginResult != null ? DialogResult.OK : DialogResult.Cancel);
+                        this.InvokeClose(_loginResult != null ? DialogResult.OK : DialogResult.Cancel);
                     }
                     catch (Exception ex)
                     {

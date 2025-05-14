@@ -12,8 +12,8 @@ namespace SecureChat.Client
         [STAThread]
         static void Main()
         {
-            var mutex = new Mutex(true, ScConstants.MutexName, out var createdNew);
-            if (!createdNew)
+            var mutex = new Mutex(true, ScConstants.MutexName, out var createdNewMutex);
+            if (!createdNewMutex)
             {
                 TrayApp.IsOnlyInstance = false;
 #if !DEBUG
@@ -40,7 +40,10 @@ namespace SecureChat.Client
             //Application.Run(new FormTest());
             Application.Run(new TrayApp());
 
-            mutex.ReleaseMutex();
+            if (createdNewMutex)
+            {
+                mutex.ReleaseMutex();
+            }
         }
     }
 }
