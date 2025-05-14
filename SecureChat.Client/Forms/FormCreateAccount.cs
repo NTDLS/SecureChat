@@ -80,24 +80,29 @@ namespace SecureChat.Client.Forms
 
                         var connection = Settings.Instance.CreateEncryptedConnection(RmExceptionHandler, progressForm);
 
-                        progressForm.SetHeaderText("Creating account...");
-                        Thread.Sleep(250); //For aesthetics.
-
-                        var isSuccess = connection.Client.Query(new CreateAccountQuery(username, displayName, passwordHash)).ContinueWith(o =>
+                        try
                         {
-                            if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
+                            progressForm.SetHeaderText("Creating account...");
+                            Thread.Sleep(250); //For aesthetics.
+
+                            var isSuccess = connection.Client.Query(new CreateAccountQuery(username, displayName, passwordHash)).ContinueWith(o =>
                             {
-                                throw new Exception(o.Result.ErrorMessage);
-                            }
+                                if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
+                                {
+                                    throw new Exception(o.Result.ErrorMessage);
+                                }
 
-                            return !o.IsFaulted && o.Result.IsSuccess;
-                        }).Result;
+                                return !o.IsFaulted && o.Result.IsSuccess;
+                            }).Result;
 
-                        connection.Client.Disconnect();
+                            _username = isSuccess ? username : string.Empty;
 
-                        _username = isSuccess ? username : string.Empty;
-
-                        this.InvokeClose(isSuccess ? DialogResult.OK : DialogResult.Cancel);
+                            this.InvokeClose(isSuccess ? DialogResult.OK : DialogResult.Cancel);
+                        }
+                        finally
+                        {
+                            connection.Client.Disconnect();
+                        }
                     }
                     catch (Exception ex)
                     {
