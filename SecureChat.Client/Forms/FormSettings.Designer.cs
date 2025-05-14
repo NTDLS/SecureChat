@@ -67,12 +67,13 @@ namespace SecureChat.Client.Forms
             kryptonNavigator = new Krypton.Navigator.KryptonNavigator();
             kryptonPageMessages = new Krypton.Navigator.KryptonPage();
             kryptonPageUI = new Krypton.Navigator.KryptonPage();
-            labelTheme = new KryptonLabel();
             kryptonComboBoxTheme = new KryptonComboBox();
+            labelTheme = new KryptonLabel();
             kryptonPageNotifications = new Krypton.Navigator.KryptonPage();
             kryptonPageServer = new Krypton.Navigator.KryptonPage();
             kryptonPageAdvanced = new Krypton.Navigator.KryptonPage();
             kryptonPageCryptography = new Krypton.Navigator.KryptonPage();
+            splitContainer1 = new SplitContainer();
             ((ISupportInitialize)comboBoxFont).BeginInit();
             ((ISupportInitialize)kryptonNavigator).BeginInit();
             ((ISupportInitialize)kryptonPageMessages).BeginInit();
@@ -88,11 +89,15 @@ namespace SecureChat.Client.Forms
             kryptonPageAdvanced.SuspendLayout();
             ((ISupportInitialize)kryptonPageCryptography).BeginInit();
             kryptonPageCryptography.SuspendLayout();
+            ((ISupportInitialize)splitContainer1).BeginInit();
+            splitContainer1.Panel1.SuspendLayout();
+            splitContainer1.Panel2.SuspendLayout();
+            splitContainer1.SuspendLayout();
             SuspendLayout();
             // 
             // buttonSave
             // 
-            buttonSave.Location = new Point(288, 317);
+            buttonSave.Location = new Point(281, 8);
             buttonSave.Name = "buttonSave";
             buttonSave.Size = new Size(75, 23);
             buttonSave.TabIndex = 3;
@@ -102,7 +107,7 @@ namespace SecureChat.Client.Forms
             // 
             // buttonCancel
             // 
-            buttonCancel.Location = new Point(369, 317);
+            buttonCancel.Location = new Point(362, 8);
             buttonCancel.Name = "buttonCancel";
             buttonCancel.Size = new Size(75, 23);
             buttonCancel.TabIndex = 4;
@@ -115,7 +120,7 @@ namespace SecureChat.Client.Forms
             textBoxFontSample.Location = new Point(5, 50);
             textBoxFontSample.Multiline = true;
             textBoxFontSample.Name = "textBoxFontSample";
-            textBoxFontSample.Size = new Size(417, 205);
+            textBoxFontSample.Size = new Size(424, 205);
             textBoxFontSample.TabIndex = 2;
             // 
             // labelFontAndSize
@@ -131,7 +136,7 @@ namespace SecureChat.Client.Forms
             numericUpDownFontSize.AllowDecimals = true;
             numericUpDownFontSize.DecimalPlaces = 2;
             numericUpDownFontSize.Increment = new decimal(new int[] { 25, 0, 0, 131072 });
-            numericUpDownFontSize.Location = new Point(360, 22);
+            numericUpDownFontSize.Location = new Point(367, 22);
             numericUpDownFontSize.Maximum = new decimal(new int[] { 30, 0, 0, 0 });
             numericUpDownFontSize.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             numericUpDownFontSize.Name = "numericUpDownFontSize";
@@ -146,7 +151,7 @@ namespace SecureChat.Client.Forms
             comboBoxFont.FormattingEnabled = true;
             comboBoxFont.Location = new Point(5, 22);
             comboBoxFont.Name = "comboBoxFont";
-            comboBoxFont.Size = new Size(349, 22);
+            comboBoxFont.Size = new Size(356, 22);
             comboBoxFont.TabIndex = 0;
             // 
             // checkBoxFlashWindowWhenMessageReceived
@@ -333,15 +338,15 @@ namespace SecureChat.Client.Forms
             kryptonNavigator.Button.PreviousButtonAction = Krypton.Navigator.DirectionButtonAction.ModeAppropriateAction;
             kryptonNavigator.Button.PreviousButtonDisplay = Krypton.Navigator.ButtonDisplay.Logic;
             kryptonNavigator.ControlKryptonFormFeatures = false;
-            kryptonNavigator.Location = new Point(11, 12);
+            kryptonNavigator.Dock = DockStyle.Fill;
+            kryptonNavigator.Location = new Point(0, 0);
             kryptonNavigator.NavigatorMode = Krypton.Navigator.NavigatorMode.BarRibbonTabGroup;
             kryptonNavigator.Owner = null;
             kryptonNavigator.PageBackStyle = PaletteBackStyle.PanelClient;
             kryptonNavigator.Pages.AddRange(new Krypton.Navigator.KryptonPage[] { kryptonPageMessages, kryptonPageUI, kryptonPageNotifications, kryptonPageServer, kryptonPageAdvanced, kryptonPageCryptography });
             kryptonNavigator.SelectedIndex = 0;
-            kryptonNavigator.Size = new Size(433, 295);
+            kryptonNavigator.Size = new Size(440, 288);
             kryptonNavigator.TabIndex = 5;
-            kryptonNavigator.Text = "kryptonNavigator1";
             // 
             // kryptonPageMessages
             // 
@@ -354,7 +359,7 @@ namespace SecureChat.Client.Forms
             kryptonPageMessages.LastVisibleSet = true;
             kryptonPageMessages.MinimumSize = new Size(150, 50);
             kryptonPageMessages.Name = "kryptonPageMessages";
-            kryptonPageMessages.Size = new Size(431, 266);
+            kryptonPageMessages.Size = new Size(438, 259);
             kryptonPageMessages.Text = "Messages";
             kryptonPageMessages.TextDescription = "Messages";
             kryptonPageMessages.TextTitle = "Messages";
@@ -364,18 +369,29 @@ namespace SecureChat.Client.Forms
             // kryptonPageUI
             // 
             kryptonPageUI.AutoHiddenSlideSize = new Size(200, 200);
-            kryptonPageUI.Controls.Add(labelTheme);
             kryptonPageUI.Controls.Add(kryptonComboBoxTheme);
+            kryptonPageUI.Controls.Add(labelTheme);
             kryptonPageUI.Flags = 65534;
             kryptonPageUI.LastVisibleSet = true;
             kryptonPageUI.MinimumSize = new Size(150, 50);
             kryptonPageUI.Name = "kryptonPageUI";
-            kryptonPageUI.Size = new Size(431, 266);
+            kryptonPageUI.Size = new Size(432, 262);
             kryptonPageUI.Text = "UI";
             kryptonPageUI.TextDescription = "UI";
             kryptonPageUI.TextTitle = "UI";
             kryptonPageUI.ToolTipTitle = "UI";
             kryptonPageUI.UniqueName = "7bf4e67f9d584f3ab4761a9eb625f6eb";
+            // 
+            // kryptonComboBoxTheme
+            // 
+            kryptonComboBoxTheme.DropDownStyle = ComboBoxStyle.DropDownList;
+            kryptonComboBoxTheme.DropDownWidth = 351;
+            kryptonComboBoxTheme.FormattingEnabled = true;
+            kryptonComboBoxTheme.Location = new Point(7, 23);
+            kryptonComboBoxTheme.Name = "kryptonComboBoxTheme";
+            kryptonComboBoxTheme.Size = new Size(413, 22);
+            kryptonComboBoxTheme.TabIndex = 1;
+            kryptonComboBoxTheme.SelectedIndexChanged += kryptonComboBoxTheme_SelectedIndexChanged;
             // 
             // labelTheme
             // 
@@ -384,17 +400,6 @@ namespace SecureChat.Client.Forms
             labelTheme.Size = new Size(48, 20);
             labelTheme.TabIndex = 2;
             labelTheme.Values.Text = "Theme";
-            // 
-            // kryptonComboBoxTheme
-            // 
-            kryptonComboBoxTheme.DropDownStyle = ComboBoxStyle.DropDownList;
-            kryptonComboBoxTheme.DropDownWidth = 351;
-            kryptonComboBoxTheme.FormattingEnabled = true;
-            kryptonComboBoxTheme.Location = new Point(7, 22);
-            kryptonComboBoxTheme.Name = "kryptonComboBoxTheme";
-            kryptonComboBoxTheme.Size = new Size(413, 22);
-            kryptonComboBoxTheme.TabIndex = 1;
-            kryptonComboBoxTheme.SelectedIndexChanged += kryptonComboBoxTheme_SelectedIndexChanged;
             // 
             // kryptonPageNotifications
             // 
@@ -410,7 +415,7 @@ namespace SecureChat.Client.Forms
             kryptonPageNotifications.LastVisibleSet = true;
             kryptonPageNotifications.MinimumSize = new Size(150, 50);
             kryptonPageNotifications.Name = "kryptonPageNotifications";
-            kryptonPageNotifications.Size = new Size(431, 266);
+            kryptonPageNotifications.Size = new Size(432, 262);
             kryptonPageNotifications.Text = "Notifications";
             kryptonPageNotifications.TextDescription = "Notifications";
             kryptonPageNotifications.TextTitle = "Notifications";
@@ -428,7 +433,7 @@ namespace SecureChat.Client.Forms
             kryptonPageServer.LastVisibleSet = true;
             kryptonPageServer.MinimumSize = new Size(150, 50);
             kryptonPageServer.Name = "kryptonPageServer";
-            kryptonPageServer.Size = new Size(431, 266);
+            kryptonPageServer.Size = new Size(432, 262);
             kryptonPageServer.Text = "Server";
             kryptonPageServer.TextDescription = "Server";
             kryptonPageServer.TextTitle = "Server";
@@ -447,7 +452,7 @@ namespace SecureChat.Client.Forms
             kryptonPageAdvanced.LastVisibleSet = true;
             kryptonPageAdvanced.MinimumSize = new Size(150, 50);
             kryptonPageAdvanced.Name = "kryptonPageAdvanced";
-            kryptonPageAdvanced.Size = new Size(431, 266);
+            kryptonPageAdvanced.Size = new Size(432, 262);
             kryptonPageAdvanced.Text = "Advanced";
             kryptonPageAdvanced.TextDescription = "Advanced";
             kryptonPageAdvanced.TextTitle = "Advanced";
@@ -467,22 +472,43 @@ namespace SecureChat.Client.Forms
             kryptonPageCryptography.LastVisibleSet = true;
             kryptonPageCryptography.MinimumSize = new Size(150, 50);
             kryptonPageCryptography.Name = "kryptonPageCryptography";
-            kryptonPageCryptography.Size = new Size(431, 266);
+            kryptonPageCryptography.Size = new Size(432, 262);
             kryptonPageCryptography.Text = "Cryptography";
             kryptonPageCryptography.TextDescription = "Cryptography";
             kryptonPageCryptography.TextTitle = "Cryptography";
             kryptonPageCryptography.ToolTipTitle = "Cryptography";
             kryptonPageCryptography.UniqueName = "7e87f954d3c5433fade882e370a2c59b";
             // 
+            // splitContainer1
+            // 
+            splitContainer1.BackColor = Color.Transparent;
+            splitContainer1.Dock = DockStyle.Fill;
+            splitContainer1.FixedPanel = FixedPanel.Panel2;
+            splitContainer1.IsSplitterFixed = true;
+            splitContainer1.Location = new Point(0, 0);
+            splitContainer1.Name = "splitContainer1";
+            splitContainer1.Orientation = Orientation.Horizontal;
+            // 
+            // splitContainer1.Panel1
+            // 
+            splitContainer1.Panel1.Controls.Add(kryptonNavigator);
+            // 
+            // splitContainer1.Panel2
+            // 
+            splitContainer1.Panel2.Controls.Add(buttonSave);
+            splitContainer1.Panel2.Controls.Add(buttonCancel);
+            splitContainer1.Size = new Size(440, 335);
+            splitContainer1.SplitterDistance = 288;
+            splitContainer1.TabIndex = 6;
+            // 
             // FormSettings
             // 
-            ClientSize = new Size(473, 352);
-            Controls.Add(kryptonNavigator);
-            Controls.Add(buttonCancel);
-            Controls.Add(buttonSave);
+            ClientSize = new Size(440, 335);
+            Controls.Add(splitContainer1);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
+            MinimumSize = new Size(450, 380);
             Name = "FormSettings";
             ShowInTaskbar = false;
             StartPosition = FormStartPosition.CenterScreen;
@@ -508,6 +534,10 @@ namespace SecureChat.Client.Forms
             ((ISupportInitialize)kryptonPageCryptography).EndInit();
             kryptonPageCryptography.ResumeLayout(false);
             kryptonPageCryptography.PerformLayout();
+            splitContainer1.Panel1.ResumeLayout(false);
+            splitContainer1.Panel2.ResumeLayout(false);
+            ((ISupportInitialize)splitContainer1).EndInit();
+            splitContainer1.ResumeLayout(false);
             ResumeLayout(false);
         }
         private KryptonButton buttonSave;
@@ -548,5 +578,6 @@ namespace SecureChat.Client.Forms
         private Krypton.Navigator.KryptonPage kryptonPageCryptography;
         private KryptonComboBox kryptonComboBoxTheme;
         private KryptonLabel labelTheme;
+        private SplitContainer splitContainer1;
     }
 }

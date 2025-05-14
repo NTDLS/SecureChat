@@ -92,7 +92,7 @@ namespace SecureChat.Client.Forms
             dataGridViewAccounts.ShowCellToolTips = false;
             dataGridViewAccounts.ShowEditingIcon = false;
             dataGridViewAccounts.ShowRowErrors = false;
-            dataGridViewAccounts.Size = new Size(511, 352);
+            dataGridViewAccounts.Size = new Size(519, 352);
             dataGridViewAccounts.TabIndex = 3;
             // 
             // ColumnName
@@ -117,7 +117,10 @@ namespace SecureChat.Client.Forms
             // 
             // splitContainer1
             // 
+            splitContainer1.BackColor = Color.Transparent;
             splitContainer1.Dock = DockStyle.Fill;
+            splitContainer1.FixedPanel = FixedPanel.Panel1;
+            splitContainer1.IsSplitterFixed = true;
             splitContainer1.Location = new Point(0, 0);
             splitContainer1.Name = "splitContainer1";
             splitContainer1.Orientation = Orientation.Horizontal;
@@ -131,20 +134,20 @@ namespace SecureChat.Client.Forms
             // splitContainer1.Panel2
             // 
             splitContainer1.Panel2.Controls.Add(dataGridViewAccounts);
-            splitContainer1.Size = new Size(511, 405);
+            splitContainer1.Size = new Size(519, 405);
             splitContainer1.SplitterDistance = 49;
             splitContainer1.TabIndex = 4;
             // 
-            // FormAccountSearch
+            // FormFindPeople
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(511, 405);
+            ClientSize = new Size(519, 405);
             Controls.Add(splitContainer1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             MinimumSize = new Size(525, 450);
-            Name = "FormAccountSearch";
+            Name = "FormFindPeople";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Secure Chat";
             ((System.ComponentModel.ISupportInitialize)dataGridViewAccounts).EndInit();

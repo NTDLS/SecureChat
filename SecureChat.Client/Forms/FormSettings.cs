@@ -208,7 +208,6 @@ namespace SecureChat.Client.Forms
             this.InvokeClose(DialogResult.Cancel);
         }
 
-
         private void kryptonComboBoxTheme_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (kryptonComboBoxTheme.SelectedItem is ThemeComboItem item)

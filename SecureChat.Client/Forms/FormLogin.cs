@@ -121,5 +121,11 @@ namespace SecureChat.Client.Forms
                 textBoxPassword.Focus();
             }
         }
+
+        private void ButtonSettings_Click(object sender, EventArgs e)
+        {
+            using var form = new FormSettings(false);
+            form.ShowDialog();
+        }
     }
 }

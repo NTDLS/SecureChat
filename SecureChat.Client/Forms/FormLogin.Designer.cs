@@ -40,6 +40,7 @@ namespace SecureChat.Client.Forms
             buttonCancel = new KryptonButton();
             linkLabelCreateAccount = new KryptonLinkLabel();
             checkBoxStayLoggedIn = new KryptonCheckBox();
+            buttonSettings = new KryptonButton();
             ((System.ComponentModel.ISupportInitialize)pictureBoxLogo).BeginInit();
             SuspendLayout();
             // 
@@ -86,9 +87,9 @@ namespace SecureChat.Client.Forms
             // 
             // buttonLogin
             // 
-            buttonLogin.Location = new Point(141, 162);
+            buttonLogin.Location = new Point(132, 162);
             buttonLogin.Name = "buttonLogin";
-            buttonLogin.Size = new Size(75, 23);
+            buttonLogin.Size = new Size(75, 25);
             buttonLogin.TabIndex = 4;
             buttonLogin.Values.DropDownArrowColor = Color.Empty;
             buttonLogin.Values.Text = "Login";
@@ -96,9 +97,9 @@ namespace SecureChat.Client.Forms
             // 
             // buttonCancel
             // 
-            buttonCancel.Location = new Point(222, 162);
+            buttonCancel.Location = new Point(213, 162);
             buttonCancel.Name = "buttonCancel";
-            buttonCancel.Size = new Size(75, 23);
+            buttonCancel.Size = new Size(75, 25);
             buttonCancel.TabIndex = 5;
             buttonCancel.Values.DropDownArrowColor = Color.Empty;
             buttonCancel.Values.Text = "Cancel";
@@ -121,11 +122,22 @@ namespace SecureChat.Client.Forms
             checkBoxStayLoggedIn.TabIndex = 2;
             checkBoxStayLoggedIn.Values.Text = "Stay logged in?";
             // 
+            // buttonSettings
+            // 
+            buttonSettings.Location = new Point(36, 162);
+            buttonSettings.Name = "buttonSettings";
+            buttonSettings.Size = new Size(90, 25);
+            buttonSettings.TabIndex = 6;
+            buttonSettings.Values.DropDownArrowColor = Color.Empty;
+            buttonSettings.Values.Text = "Settings";
+            buttonSettings.Click += ButtonSettings_Click;
+            // 
             // FormLogin
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(321, 203);
+            ClientSize = new Size(325, 195);
+            Controls.Add(buttonSettings);
             Controls.Add(checkBoxStayLoggedIn);
             Controls.Add(linkLabelCreateAccount);
             Controls.Add(buttonCancel);
@@ -139,6 +151,7 @@ namespace SecureChat.Client.Forms
             Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             MinimizeBox = false;
+            MinimumSize = new Size(335, 240);
             Name = "FormLogin";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Secure Chat";
@@ -159,5 +172,6 @@ namespace SecureChat.Client.Forms
         private KryptonButton buttonCancel;
         private KryptonLinkLabel linkLabelCreateAccount;
         private KryptonCheckBox checkBoxStayLoggedIn;
+        private KryptonButton buttonSettings;
     }
 }
