@@ -1,5 +1,6 @@
 ﻿using Krypton.Toolkit;
 using Microsoft.Extensions.Configuration;
+using SecureChat.Library;
 using Serilog;
 
 namespace SecureChat.Client
@@ -11,6 +12,16 @@ namespace SecureChat.Client
         [STAThread]
         static void Main()
         {
+            var mutex = new Mutex(true, ScConstants.MutexName, out var createdNew);
+            if (!createdNew)
+            {
+                TrayApp.IsOnlyInstance = false;
+#if !DEBUG
+                MessageBox.Show("Another instance is already running.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                return;
+#endif
+            }
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
@@ -22,13 +33,14 @@ namespace SecureChat.Client
                 .ReadFrom.Configuration(configuration)
                 .CreateLogger();
 
-            //Create a default persisted state if one does not exist.
-            Settings.Save();
+            Settings.Save(); //Create a default persisted state if one does not exist.
 
             ThemeManager.GlobalPaletteMode = Settings.Instance.Theme;
 
             //Application.Run(new FormTest());
             Application.Run(new TrayApp());
+
+            mutex.ReleaseMutex();
         }
     }
 }

@@ -16,10 +16,14 @@ namespace SecureChat.Client
 {
     internal class TrayApp : ApplicationContext
     {
+        public static bool IsOnlyInstance { get; set; } = true;
+
+        public string  DisplayName { get; private set; }
         private bool _applicationClosing = false;
         private readonly NotifyIcon _trayIcon;
         private FormLogin? _formLogin;
         private readonly System.Windows.Forms.Timer? _firstShownTimer = new();
+
 
         public TrayApp()
         {
@@ -27,8 +31,8 @@ namespace SecureChat.Client
             {
                 _trayIcon = new NotifyIcon
                 {
+                    Text = $"{ScConstants.AppName} (offline)",
                     Icon = Imaging.LoadIconFromResources(Resources.Offline16),
-                    Text = ScConstants.AppName,
                     Visible = true,
                     ContextMenuStrip = new ContextMenuStrip()
                 };
@@ -275,6 +279,15 @@ namespace SecureChat.Client
                 persistedUserState = new();
             }
 
+            var serverConnection = new ServerConnection(this, formHome, loginResult.ReliableClient,
+                loginResult.AccountId, loginResult.Username, loginResult.DisplayName)
+            {
+                Profile = loginResult.Profile,
+                State = persistedUserState.ExplicitAway ? ScOnlineState.Away : ScOnlineState.Online,
+                ExplicitAway = persistedUserState.ExplicitAway
+            };
+            DisplayName = loginResult.DisplayName;
+
             if (persistedUserState.ExplicitAway)
             {
                 UpdateClientState(ScOnlineState.Away);
@@ -283,14 +296,6 @@ namespace SecureChat.Client
             {
                 UpdateClientState(ScOnlineState.Online);
             }
-
-            var serverConnection = new ServerConnection(this, formHome, loginResult.ReliableClient,
-                loginResult.AccountId, loginResult.Username, loginResult.DisplayName)
-            {
-                Profile = loginResult.Profile,
-                State = persistedUserState.ExplicitAway ? ScOnlineState.Away : ScOnlineState.Online,
-                ExplicitAway = persistedUserState.ExplicitAway
-            };
 
             ServerConnection.SetCurrent(serverConnection);
 
@@ -354,6 +359,7 @@ namespace SecureChat.Client
                 {
                     case ScOnlineState.Online:
                         {
+                            _trayIcon.Text = $"{ScConstants.AppName} - {DisplayName} (online)";
                             _trayIcon.Icon = Imaging.LoadIconFromResources(Resources.Online16);
                             var awayItem = new ToolStripMenuItem("Away", null, OnAway)
                             {
@@ -371,6 +377,7 @@ namespace SecureChat.Client
                         break;
                     case ScOnlineState.Offline:
                         {
+                            _trayIcon.Text = $"{ScConstants.AppName} (offline)";
                             _trayIcon.Icon = Imaging.LoadIconFromResources(Resources.Offline16);
                             _trayIcon.ContextMenuStrip.Items.Add("About", null, OnAbout);
                             _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
@@ -385,6 +392,7 @@ namespace SecureChat.Client
                         break;
                     case ScOnlineState.Away:
                         {
+                            _trayIcon.Text = $"{ScConstants.AppName} - {DisplayName} (away)";
                             _trayIcon.Icon = Imaging.LoadIconFromResources(Resources.Away16);
                             var awayItem = new ToolStripMenuItem("Away", null, OnAway)
                             {
@@ -446,7 +454,6 @@ namespace SecureChat.Client
             try
             {
                 Login();
-
             }
             catch (Exception ex)
             {

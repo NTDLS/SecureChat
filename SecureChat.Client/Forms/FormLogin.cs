@@ -26,15 +26,15 @@ namespace SecureChat.Client.Forms
             CancelButton = buttonCancel;
 
 #if DEBUG
-            if (Debugger.IsAttached)
+            if (TrayApp.IsOnlyInstance)
             {
-                textBoxUsername.Text = "_nop";
+                textBoxUsername.Text = "Adrian";
             }
             else
             {
-                textBoxUsername.Text = "wana";
+                textBoxUsername.Text = "George";
             }
-            textBoxPassword.Text = "password";
+            textBoxPassword.Text = "MyPassword123!";
 #else
             var lastUser = Settings.Instance.Users.OrderByDescending(o => o.Value.LastLogin).FirstOrDefault();
             if(lastUser.Value != null)
