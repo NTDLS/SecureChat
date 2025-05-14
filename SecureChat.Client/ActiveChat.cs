@@ -158,7 +158,7 @@ namespace SecureChat.Client
                     lock (Form.FlowPanel)
                     {
                         var bubble = Form.FlowPanel.Controls.OfType<FlowControlOriginBubble>().FirstOrDefault(o => o.UID == messageId);
-                        bubble?.Delivered();
+                        bubble?.SetStatusDelivered();
                     }
                 });
             }
@@ -796,15 +796,15 @@ namespace SecureChat.Client
                 if (plainText.StartsWith("http://") || plainText.StartsWith("https://"))
                 {
                     control = new FlowControlHyperlink(Form.FlowPanel, plainText, origin,
-                        origin == ScOrigin.Local ? Resources.MessageStatusSending16 : null,
-                        _lastMessageOrigin == origin ? null : fromName);
+                        origin == ScOrigin.Local ? Resources.MessageStatusSending16 : null, //If the message is being sent, show the sending icon.
+                        _lastMessageOrigin == origin ? null : fromName); //Only show the name if it is different from the last message.
                     AppendFlowControl(control);
                 }
                 else
                 {
                     control = new FlowControlMessage(Form.FlowPanel, plainText, origin,
-                        origin == ScOrigin.Local ? Resources.MessageStatusSending16 : null,
-                        _lastMessageOrigin == origin ? null : fromName);
+                        origin == ScOrigin.Local ? Resources.MessageStatusSending16 : null, //If the message is being sent, show the sending icon.
+                        _lastMessageOrigin == origin ? null : fromName); //Only show the name if it is different from the last message.
                     AppendFlowControl(control);
                 }
 

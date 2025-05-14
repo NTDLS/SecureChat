@@ -52,19 +52,6 @@ namespace SecureChat.Client.Forms
                     Hide();
                 };
 
-                Load += (object? sender, EventArgs e) =>
-                {
-                    Height = DefaultHeight;
-                    Width = DefaultWidth;
-
-                    var currentScreen = Screen.FromPoint(Cursor.Position);
-                    int offsetY = 10; // Distance above the taskbar
-                    int offsetX = 10; // Distance from the right of the screen.
-                    int x = currentScreen.WorkingArea.Right - DefaultWidth - offsetX;
-                    int y = currentScreen.WorkingArea.Bottom - DefaultHeight - offsetY;
-                    Location = new Point(x, y);
-                };
-
                 Shown += (object? sender, EventArgs e) => textBoxMessage.Focus();
                 Activated += (object? sender, EventArgs e) => Exceptions.Ignore(() =>
                 {
@@ -97,6 +84,16 @@ namespace SecureChat.Client.Forms
 
                     flowPanel.Invalidate(true);
                 };
+
+                Height = DefaultHeight;
+                Width = DefaultWidth;
+
+                var currentScreen = Screen.FromPoint(Cursor.Position);
+                int offsetY = 10; // Distance above the taskbar
+                int offsetX = 10; // Distance from the right of the screen.
+                int x = currentScreen.WorkingArea.Right - DefaultWidth - offsetX;
+                int y = currentScreen.WorkingArea.Bottom - DefaultHeight - offsetY;
+                Location = new Point(x, y);
 
                 textBoxMessage.AllowDrop = true;
                 textBoxMessage.KeyDown += TextBoxMessage_KeyDown;
@@ -313,26 +310,19 @@ namespace SecureChat.Client.Forms
                 }
                 textBoxMessage.Clear();
 
-
                 var control = _activeChat.AppendChatMessage(ServerConnection.Current.DisplayName, text, ScOrigin.Local);
                 if (control != null)
                 {
-                    control.Sending();
-
-                    _activeChat.SendTextMessage(control.UID, text);
-                    control.Sent();
+                    try
+                    {
+                        _activeChat.SendTextMessage(control.UID, text);
+                    }
+                    catch
+                    {
+                        control.SetStatusError();
+                    }
+                    control.SetStatusSent();
                 }
-
-
-                /*
-                {
-                    _activeChat.AppendChatMessage(ServerConnection.Current.DisplayName, text, ScOrigin.Local);
-                }
-                else
-                {
-                    _activeChat.AppendErrorLine("Failed to send message.");
-                }
-                */
             }
             catch (Exception ex)
             {
@@ -424,11 +414,6 @@ namespace SecureChat.Client.Forms
         {
             using var form = new FormMessageProperties(_activeChat);
             form.ShowDialog();
-        }
-
-        private void flowPanel_Paint(object sender, PaintEventArgs e)
-        {
-
         }
     }
 

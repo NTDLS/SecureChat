@@ -111,11 +111,11 @@ namespace SecureChat.Client.Controls.FlowControls
 
                 if (_childControl is Label)
                 {
-                    //We do some special stuff here to allow the label logic to perform its magic auto-wrapping.
+                    //We do some special stuff here to allow the label logic to perform its magic auto-wrapping and sizing.
                     MaximumSize = new Size(_parent.Width - 30, 0);
                     _childControl.MaximumSize = new Size(_parent.Width - alignmentPadding - 40, 0);
 
-                    Width = Math.Max(_childControl.Left + _childControl.Width + 5, _labelDisplayName?.Left + _labelDisplayName?.Width + 5 ?? 0);
+                    Width = Math.Max(_childControl.Right + 5, _labelDisplayName?.Right + 5 ?? 0);
                     _lastWidth = _parent.Width;
                 }
                 else
@@ -178,7 +178,7 @@ namespace SecureChat.Client.Controls.FlowControls
         /// <summary>
         /// Updates the status image to indicate that a message has not been sent yet.
         /// </summary>
-        public void Sending()
+        public void SetStatusSending()
         {
             if (_statusImage != null)
             {
@@ -189,7 +189,7 @@ namespace SecureChat.Client.Controls.FlowControls
         /// <summary>
         /// Updates the status image to indicate that a message has been sent.
         /// </summary>
-        public void Sent()
+        public void SetStatusSent()
         {
             if (_statusImage != null)
             {
@@ -200,11 +200,22 @@ namespace SecureChat.Client.Controls.FlowControls
         /// <summary>
         /// Updates the status image to indicate that a message has been delivered.
         /// </summary>
-        public void Delivered()
+        public void SetStatusDelivered()
         {
             if (_statusImage != null)
             {
                 _statusImage.Image = Resources.MessageStatusDelivered16;
+            }
+        }
+
+        /// <summary>
+        /// Updates the status image to indicate that an error occurred.
+        /// </summary>
+        public void SetStatusError()
+        {
+            if (_statusImage != null)
+            {
+                _statusImage.Image = Resources.MessageStatusError16;
             }
         }
     }

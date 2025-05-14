@@ -8,11 +8,11 @@ using System.Diagnostics;
 
 namespace SecureChat.Client.Forms
 {
-    public partial class FormAccountSearch : KryptonForm
+    public partial class FormFindPeople : KryptonForm
     {
         private readonly Button _cancelButton;
 
-        public FormAccountSearch()
+        public FormFindPeople()
         {
             InitializeComponent();
 

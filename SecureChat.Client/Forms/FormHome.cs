@@ -213,7 +213,7 @@ namespace SecureChat.Client.Forms
                 if (contact.IsAccepted)
                 {
                     if (MessageBox.Show("Are you sure you want to remove this contact?",
-                        ScConstants.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                        ScConstants.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
                     {
                         return;
                     }
@@ -221,7 +221,7 @@ namespace SecureChat.Client.Forms
                 else if (contact.IsAccepted == false)
                 {
                     if (MessageBox.Show("Are you sure you want to remove this contact request?",
-                        ScConstants.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                        ScConstants.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
                     {
                         return;
                     }
@@ -265,7 +265,7 @@ namespace SecureChat.Client.Forms
             try
             {
                 if (MessageBox.Show("Are you sure you want to accept this contact request?",
-                    ScConstants.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                    ScConstants.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
                 {
                     return;
                 }
@@ -837,12 +837,12 @@ namespace SecureChat.Client.Forms
             }
         }
 
-        private void SearchToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FindPeopleToolStripMenuItem_Click(object sender, EventArgs e)
         {
             try
             {
-                var formAccountSearch = new FormAccountSearch();
-                formAccountSearch.ShowDialog();
+                using var form = new FormFindPeople();
+                form.ShowDialog();
             }
             catch (Exception ex)
             {

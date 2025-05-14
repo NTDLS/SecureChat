@@ -38,7 +38,7 @@ namespace SecureChat.Client.Forms
             if (string.IsNullOrEmpty(_username))
             {
                 if (MessageBox.Show("Are you sure you want to cancel.",
-                    ScConstants.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                    ScConstants.AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
                 {
                     e.Cancel = true;
                 }

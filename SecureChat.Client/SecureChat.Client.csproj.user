@@ -20,7 +20,7 @@
     <Compile Update="Forms\FormAbout.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Forms\FormAccountSearch.cs">
+    <Compile Update="Forms\FormFindPeople.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\FormCreateAccount.cs">

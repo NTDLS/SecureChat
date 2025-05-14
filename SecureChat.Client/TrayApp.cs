@@ -307,6 +307,7 @@ namespace SecureChat.Client
                             _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
                             _trayIcon.ContextMenuStrip.Items.Add(awayItem);
                             _trayIcon.ContextMenuStrip.Items.Add("Profile", null, OnProfile);
+                            _trayIcon.ContextMenuStrip.Items.Add("Find People", null, OnFindPeople);
                             _trayIcon.ContextMenuStrip.Items.Add("Settings", null, OnSettings);
                             _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
                             _trayIcon.ContextMenuStrip.Items.Add("Logout", null, OnLogout);
@@ -440,6 +441,20 @@ namespace SecureChat.Client
             {
                 using var formAboutOnExit = new FormAbout(true);
                 formAboutOnExit.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void OnFindPeople(object? sender, EventArgs e)
+        {
+            try
+            {
+                using var form = new FormFindPeople();
+                form.ShowDialog();
             }
             catch (Exception ex)
             {
