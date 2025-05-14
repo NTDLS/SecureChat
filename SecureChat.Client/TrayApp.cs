@@ -18,12 +18,11 @@ namespace SecureChat.Client
     {
         public static bool IsOnlyInstance { get; set; } = true;
 
-        public string  DisplayName { get; private set; }
+        public string? DisplayName { get; private set; }
         private bool _applicationClosing = false;
         private readonly NotifyIcon _trayIcon;
         private FormLogin? _formLogin;
         private readonly System.Windows.Forms.Timer? _firstShownTimer = new();
-
 
         public TrayApp()
         {

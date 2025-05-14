@@ -60,7 +60,13 @@ namespace SecureChat.Client
 
         public RmClient CreateRmClient()
         {
-            var rmClient = new RmClient();
+            var rmConfig = new RmConfiguration()
+            {
+                AsynchronousNotifications = false //Used to ensure the order of chunks is preserved (such as file transfers).
+            };
+
+            var rmClient = new RmClient(rmConfig);
+
             rmClient.Connect(ServerAddress, ServerPort);
             return rmClient;
         }

@@ -27,7 +27,12 @@ namespace SecureChat.Server
         {
             _configuration = configuration;
 
-            _rmServer = new RmServer();
+            var rmConfig = new RmConfiguration()
+            {
+                AsynchronousNotifications = false //Used to ensure the order of chunks is preserved (such as file transfers).
+            };
+            _rmServer = new RmServer(rmConfig);
+
             _rmServer.OnException += (RmContext? context, Exception ex, IRmPayload? payload) =>
                 OnLog?.Invoke(this, ScErrorLevel.Error, "Reliable messaging exception.", ex);
             _rmServer.OnDisconnected += RmServer_OnDisconnected;
