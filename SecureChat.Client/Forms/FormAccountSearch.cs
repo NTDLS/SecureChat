@@ -31,7 +31,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (ServerConnection.Current == null || !ServerConnection.Current.ReliableClient.IsConnected)
+                if (ServerConnection.Current == null || !ServerConnection.Current.Connection.Client.IsConnected)
                 {
                     MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     this.InvokeClose(DialogResult.Cancel);
@@ -46,7 +46,7 @@ namespace SecureChat.Client.Forms
                         {
                             dataGridViewAccounts.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "Sending";
 
-                            ServerConnection.Current.ReliableClient.Query(new InviteContactQuery(account.Id)).ContinueWith(o =>
+                            ServerConnection.Current.Connection.Client.Query(new InviteContactQuery(account.Id)).ContinueWith(o =>
                             {
                                 if (!o.IsFaulted && o.Result.IsSuccess)
                                 {
@@ -63,7 +63,7 @@ namespace SecureChat.Client.Forms
                         {
                             dataGridViewAccounts.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "Removing";
 
-                            ServerConnection.Current.ReliableClient.Query(new RemoveContactQuery(account.Id)).ContinueWith(o =>
+                            ServerConnection.Current.Connection.Client.Query(new RemoveContactQuery(account.Id)).ContinueWith(o =>
                             {
                                 if (!o.IsFaulted && o.Result.IsSuccess)
                                 {
@@ -95,7 +95,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (ServerConnection.Current == null || !ServerConnection.Current.ReliableClient.IsConnected)
+                if (ServerConnection.Current == null || !ServerConnection.Current.Connection.Client.IsConnected)
                 {
                     MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     this.InvokeClose(DialogResult.Cancel);
@@ -111,7 +111,7 @@ namespace SecureChat.Client.Forms
                     return;
                 }
 
-                ServerConnection.Current.ReliableClient.Query(new AccountSearchQuery(displayName)).ContinueWith(o =>
+                ServerConnection.Current.Connection.Client.Query(new AccountSearchQuery(displayName)).ContinueWith(o =>
                 {
                     if (!o.IsFaulted && o.Result.IsSuccess)
                     {

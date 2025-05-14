@@ -38,7 +38,7 @@ namespace SecureChat.Client.Forms
 
                 FormClosing += (object? sender, FormClosingEventArgs e) =>
                 {
-                    if (_isFormClosing || ServerConnection.Current == null || _activeChat.IsTerminated || !ServerConnection.Current.ReliableClient.IsConnected)
+                    if (_isFormClosing || ServerConnection.Current == null || _activeChat.IsTerminated || !ServerConnection.Current.Connection.Client.IsConnected)
                     {
                         _timer?.Stop();
                         _timer?.Dispose();
@@ -199,7 +199,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (ServerConnection.Current == null || _activeChat.IsTerminated || !ServerConnection.Current.ReliableClient.IsConnected)
+                if (ServerConnection.Current == null || _activeChat.IsTerminated || !ServerConnection.Current.Connection.Client.IsConnected)
                 {
                     if (Visible == false)
                     {
@@ -287,7 +287,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (ServerConnection.Current == null || !ServerConnection.Current.ReliableClient.IsConnected)
+                if (ServerConnection.Current == null || !ServerConnection.Current.Connection.Client.IsConnected)
                 {
                     _activeChat.AppendSystemMessageLine("Not connected.");
                     return;

@@ -1,16 +1,13 @@
 ﻿using NTDLS.Helpers;
 using NTDLS.Persistence;
 using NTDLS.ReliableMessaging;
-using NTDLS.WinFormsHelpers;
 using SecureChat.Client.Forms;
 using SecureChat.Client.Helpers;
 using SecureChat.Client.Models;
 using SecureChat.Client.Properties;
 using SecureChat.Library;
-using SecureChat.Library.ReliableMessages;
 using Serilog;
 using System.Diagnostics;
-using System.Reflection;
 using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client
@@ -83,7 +80,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (ServerConnection.Current?.ReliableClient == null)
+                if (ServerConnection.Current?.Connection == null)
                 {
                     Login();
                 }
@@ -136,44 +133,9 @@ namespace SecureChat.Client
                     {
                         Task.Run(() =>
                         {
-                            var rmClient = Settings.Instance.CreateEncryptedRmClient(Client_OnException);
+                            var loginResult = Settings.Instance.CreateLoggedInConnection(autoLogin.Username, autoLogin.PasswordHash, RmExceptionHandler);
 
-                            bool explicitAway = false;
-                            if (Settings.Instance.Users.TryGetValue(autoLogin.Username, out var userPersist))
-                            {
-                                //If the user has an explicit away state, send it to the server at
-                                //  login so the server can update the user's status appropriately.
-                                explicitAway = userPersist.ExplicitAway;
-                            }
-
-                            var isSuccess = rmClient.Query(new LoginQuery(autoLogin.Username, autoLogin.PasswordHash, explicitAway)).ContinueWith(o =>
-                            {
-                                if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
-                                {
-                                    throw new Exception(o.Result.ErrorMessage);
-                                }
-
-                                if (!o.IsFaulted && o.Result.IsSuccess)
-                                {
-                                    loginResult = new LoginResult(rmClient,
-                                        o.Result.AccountId.EnsureNotNull(),
-                                        o.Result.Username.EnsureNotNull(),
-                                        o.Result.DisplayName.EnsureNotNull(),
-                                        o.Result.ProfileJson.EnsureNotNull()
-                                        );
-                                    return true;
-                                }
-
-                                return false;
-                            }).Result;
-
-                            rmClient.OnException -= Client_OnException;
-
-                            if (!isSuccess || loginResult == null)
-                            {
-                                rmClient.Disconnect();
-                            }
-                            else
+                            if (loginResult != null)
                             {
                                 if (!Settings.Instance.Users.TryGetValue(autoLogin.Username, out var userState))
                                 {
@@ -186,7 +148,7 @@ namespace SecureChat.Client
 
                                 Settings.Save();
 
-                                PropupLocalSession(loginResult);
+                                PropLocalSession(loginResult);
                             }
                         }).ContinueWith(o =>
                         {
@@ -197,7 +159,7 @@ namespace SecureChat.Client
                                     loginResult = _formLogin.DoLogin();
                                     if (loginResult != null)
                                     {
-                                        PropupLocalSession(loginResult);
+                                        PropLocalSession(loginResult);
                                     }
                                 }
                                 _formLogin = null;
@@ -211,7 +173,7 @@ namespace SecureChat.Client
                             loginResult = _formLogin.DoLogin();
                             if (loginResult != null)
                             {
-                                PropupLocalSession(loginResult);
+                                PropLocalSession(loginResult);
                             }
                         }
                         _formLogin = null;
@@ -233,14 +195,13 @@ namespace SecureChat.Client
             _trayIcon.BalloonTipTitle = title ?? string.Empty;
             _trayIcon.BalloonTipText = text;
             _trayIcon.ShowBalloonTip(duration);
-
         }
 
-        private void PropupLocalSession(LoginResult loginResult)
+        private void PropLocalSession(LoginResult loginResult)
         {
-            loginResult.ReliableClient.OnDisconnected += RmClient_OnDisconnected;
-            loginResult.ReliableClient.OnException += Client_OnException;
-            loginResult.ReliableClient.AddHandler(new ClientReliableMessageHandlers());
+            loginResult.Connection.Client.OnDisconnected += RmClient_OnDisconnected;
+            loginResult.Connection.Client.OnException += RmExceptionHandler;
+            loginResult.Connection.Client.AddHandler(new ClientReliableMessageHandlers());
 
             //Yea, I am using the ContextMenuStrips thread for form creation.
             var formHome = _trayIcon.ContextMenuStrip.EnsureNotNull().Invoke(() =>
@@ -256,7 +217,7 @@ namespace SecureChat.Client
                 persistedUserState = new();
             }
 
-            var serverConnection = new ServerConnection(this, formHome, loginResult.ReliableClient,
+            var serverConnection = new ServerConnection(this, formHome, loginResult.Connection,
                 loginResult.AccountId, loginResult.Username, loginResult.DisplayName)
             {
                 Profile = loginResult.Profile,
@@ -280,7 +241,7 @@ namespace SecureChat.Client
             _trayIcon.ShowBalloonTip(3000);
         }
 
-        private void Client_OnException(RmContext? context, Exception ex, IRmPayload? payload)
+        private void RmExceptionHandler(RmContext? context, Exception ex, IRmPayload? payload)
         {
             Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -460,7 +421,7 @@ namespace SecureChat.Client
         {
             try
             {
-                Task.Run(() => ServerConnection.Current?.ReliableClient?.Disconnect());
+                Task.Run(() => ServerConnection.Current?.Connection?.Client.Disconnect());
                 Thread.Sleep(10);
                 UpdateClientState(ScOnlineState.Offline);
                 ServerConnection.TerminateCurrent();

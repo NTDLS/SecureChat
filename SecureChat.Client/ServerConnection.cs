@@ -1,6 +1,5 @@
 ﻿using NTDLS.DatagramMessaging;
 using NTDLS.Helpers;
-using NTDLS.ReliableMessaging;
 using SecureChat.Client.Forms;
 using SecureChat.Library.DatagramMessages;
 using SecureChat.Library.Models;
@@ -29,7 +28,7 @@ namespace SecureChat.Client
 
         public bool IsTerminated { get; private set; } = false;
         public DmClient DatagramClient { get; private set; }
-        public RmClient ReliableClient { get; private set; }
+        public NegotiatedConnection Connection { get; private set; }
         public Guid AccountId { get; private set; }
         public string Username { get; private set; }
         public string DisplayName { get; set; }
@@ -40,11 +39,11 @@ namespace SecureChat.Client
         public TrayApp Tray { get; private set; }
         public ScOnlineState State { get; set; } = ScOnlineState.Offline;
 
-        public ServerConnection(TrayApp tray, FormHome formHome, RmClient reliableClient, Guid accountId, string username, string displayName)
+        public ServerConnection(TrayApp tray, FormHome formHome, NegotiatedConnection connection, Guid accountId, string username, string displayName)
         {
             Tray = tray;
             FormHome = formHome;
-            ReliableClient = reliableClient;
+            Connection = connection;
             Username = username;
             DisplayName = displayName;
             AccountId = accountId;
@@ -53,11 +52,11 @@ namespace SecureChat.Client
 
             new Thread(() =>
             {
-                while (!IsTerminated && ReliableClient.IsConnected == true)
+                while (!IsTerminated && Connection.Client.IsConnected == true)
                 {
                     try
                     {
-                        DatagramClient.Dispatch(new ConnectionKeepAliveDatagram(reliableClient.ConnectionId.EnsureNotNull()));
+                        DatagramClient.Dispatch(new ConnectionKeepAliveDatagram(connection.Client.ConnectionId.EnsureNotNull()));
                     }
                     catch (Exception ex)
                     {
@@ -65,7 +64,7 @@ namespace SecureChat.Client
                     }
 
                     var breakTime = DateTime.UtcNow.AddSeconds(10);
-                    while (!IsTerminated && ReliableClient.IsConnected == true && DateTime.UtcNow < breakTime)
+                    while (!IsTerminated && Connection.Client.IsConnected == true && DateTime.UtcNow < breakTime)
                     {
                         Thread.Sleep(500);
                     }
@@ -85,7 +84,7 @@ namespace SecureChat.Client
 
             Exceptions.Ignore(() => IsTerminated = true);
             Exceptions.Ignore(() => DatagramClient.Stop());
-            Exceptions.Ignore(() => ReliableClient?.Disconnect(false));
+            Exceptions.Ignore(() => Connection?.Client.Disconnect(false));
             Exceptions.Ignore(() => FormHome?.Invoke(() => FormHome.Close()));
         }
 

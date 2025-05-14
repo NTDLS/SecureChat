@@ -29,16 +29,19 @@ namespace SecureChat.Library.ReliableMessages
         public bool IsSuccess { get; set; }
         public string? ErrorMessage { get; set; }
         public byte[] PublicRsaKey { get; set; }
+        public Version ServerVersion { get; set; }
 
         public ExchangePublicKeyQueryReply(Exception exception)
         {
             PublicRsaKey = Array.Empty<byte>();
             IsSuccess = false;
             ErrorMessage = exception.GetBaseException().Message;
+            ServerVersion = new Version(0, 0, 0, 0);
         }
 
-        public ExchangePublicKeyQueryReply(byte[] publicRsaKey)
+        public ExchangePublicKeyQueryReply(Version serverVersion, byte[] publicRsaKey)
         {
+            ServerVersion = serverVersion;
             PublicRsaKey = publicRsaKey;
             IsSuccess = true;
         }
@@ -46,6 +49,7 @@ namespace SecureChat.Library.ReliableMessages
         public ExchangePublicKeyQueryReply()
         {
             PublicRsaKey = Array.Empty<byte>();
+            ServerVersion = new Version(0, 0, 0, 0);
         }
     }
 }

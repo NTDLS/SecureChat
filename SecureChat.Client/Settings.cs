@@ -62,6 +62,9 @@ namespace SecureChat.Client
         /// </summary>
         public Dictionary<string, PersistedUserState> Users = new(StringComparer.CurrentCultureIgnoreCase);
 
+        /// <summary>
+        /// Creates a new datagram client and adds the default handlers to it.
+        /// </summary>
         public DmClient CreateDmClient()
         {
             var dmClient = new DmClient(ServerAddress, ServerPort);
@@ -76,7 +79,80 @@ namespace SecureChat.Client
             return dmClient;
         }
 
-        public RmClient CreateEncryptedRmClient(RmClient.ExceptionEvent exceptionEvent, ProgressForm? progressForm = null)
+        /// <summary>
+        /// Creates a new encrypted RmClient, negotiates the cryptography with the server and logs in the user.
+        /// The exceptionEvent is only used to communicate RmClient exceptions to the caller and is unsubscribed from the RmClient when the method is done.
+        /// </summary>
+        public LoginResult? CreateLoggedInConnection(string username, string passwordHash,
+            RmClient.ExceptionEvent exceptionEvent, ProgressForm? progressForm = null)
+        {
+            var connection = CreateEncryptedConnection(exceptionEvent, progressForm);
+
+            try
+            {
+                connection.Client.OnException += exceptionEvent;
+
+                bool explicitAway = false;
+                if (Users.TryGetValue(username, out var userPersist))
+                {
+                    //If the user has an explicit away state, send it to the server at
+                    //  login so the server can update the user's status appropriately.
+                    explicitAway = userPersist.ExplicitAway;
+                }
+
+                progressForm?.SetHeaderText("Logging in...");
+                Thread.Sleep(250); //For aesthetics.
+
+                var loginResult = connection.Client.Query(new LoginQuery(username, passwordHash, explicitAway)).ContinueWith(o =>
+                {
+                    if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
+                    {
+                        throw new Exception(o.Result.ErrorMessage);
+                    }
+
+                    if (!o.IsFaulted && o.Result.IsSuccess)
+                    {
+                        return new LoginResult(connection,
+                            o.Result.AccountId.EnsureNotNull(),
+                            o.Result.Username.EnsureNotNull(),
+                            o.Result.DisplayName.EnsureNotNull(),
+                            o.Result.ProfileJson.EnsureNotNull());
+                    }
+
+                    return null;
+                }).Result;
+
+                if (loginResult == null)
+                {
+                    connection.Client.Disconnect();
+                }
+                else
+                {
+                    if (!Users.TryGetValue(username, out var userState))
+                    {
+                        Users.Add(username, new PersistedUserState());
+                    }
+                    else
+                    {
+                        userState.LastLogin = DateTime.UtcNow;
+                    }
+
+                    Save();
+                }
+
+                return loginResult;
+            }
+            finally
+            {
+                connection.Client.OnException -= exceptionEvent;
+            }
+        }
+
+        /// <summary>
+        /// Creates a new encrypted RmClient and negotiates the cryptography with the server.
+        /// The exceptionEvent is only used to communicate RmClient exceptions to the caller and is unsubscribed from the RmClient when the method is done.
+        /// </summary>
+        public NegotiatedConnection CreateEncryptedConnection(RmClient.ExceptionEvent exceptionEvent, ProgressForm? progressForm = null)
         {
             progressForm?.SetHeaderText("Negotiating cryptography...");
 
@@ -87,37 +163,51 @@ namespace SecureChat.Client
 
             var rmClient = new RmClient(rmConfig);
 
-            rmClient.Connect(ServerAddress, ServerPort);
+            rmClient.OnException += (RmContext? context, Exception ex, IRmPayload? payload) =>
+            {
+                var baseException = ex.GetBaseException();
+                Log.Error(baseException, baseException.Message);
+            };
 
-            var keyPair = Crypto.GeneratePublicPrivateKeyPair(RsaKeySize);
             rmClient.OnException += exceptionEvent;
 
-            var appVersion = (Assembly.GetEntryAssembly()?.GetName().Version).EnsureNotNull();
+            try
+            {
+                rmClient.Connect(ServerAddress, ServerPort);
 
-            //Send our public key to the server and wait on a reply of their public key.
-            var remotePublicKey = rmClient.Query(new ExchangePublicKeyQuery(rmClient.ConnectionId.EnsureNotNull(), appVersion,
-                keyPair.PublicRsaKey, RsaKeySize, AesKeySize))
-                .ContinueWith(o =>
-                {
-                    if (o.IsFaulted || !o.Result.IsSuccess)
+                var keyPair = Crypto.GeneratePublicPrivateKeyPair(RsaKeySize);
+
+                var clientVersion = (Assembly.GetEntryAssembly()?.GetName().Version).EnsureNotNull();
+
+                //Send our public key to the server and wait on a reply of their public key.
+                var keyExchangeResult = rmClient.Query(new ExchangePublicKeyQuery(rmClient.ConnectionId.EnsureNotNull(), clientVersion,
+                    keyPair.PublicRsaKey, RsaKeySize, AesKeySize))
+                    .ContinueWith(o =>
                     {
-                        throw new Exception(string.IsNullOrEmpty(o.Result.ErrorMessage) ? "Unknown negotiation error." : o.Result.ErrorMessage);
-                    }
+                        if (o.IsFaulted || !o.Result.IsSuccess)
+                        {
+                            throw new Exception(string.IsNullOrEmpty(o.Result.ErrorMessage) ? "Unknown negotiation error." : o.Result.ErrorMessage);
+                        }
 
-                    return o.Result.PublicRsaKey;
-                }).Result;
+                        return o.Result;
+                    }).Result;
 
-            progressForm?.SetHeaderText("Applying cryptography...");
+                progressForm?.SetHeaderText("Applying cryptography...");
 
-            rmClient.Notify(new InitializeServerClientCryptographyNotification());
-            rmClient.SetCryptographyProvider(new ReliableCryptographyProvider(
-                RsaKeySize, AesKeySize, remotePublicKey, keyPair.PrivateRsaKey));
+                rmClient.Notify(new InitializeServerClientCryptographyNotification());
+                rmClient.SetCryptographyProvider(new ReliableCryptographyProvider(
+                    RsaKeySize, AesKeySize, keyExchangeResult.PublicRsaKey, keyPair.PrivateRsaKey));
 
-            progressForm?.SetHeaderText("Waiting for server...");
+                progressForm?.SetHeaderText("Waiting for server...");
 
-            Thread.Sleep(1000); //Give the server a moment to initialize the cryptography.
+                Thread.Sleep(1000); //Give the server a moment to initialize the cryptography.
 
-            return rmClient;
+                return new NegotiatedConnection(rmClient, keyExchangeResult.ServerVersion);
+            }
+            finally
+            {
+                rmClient.OnException -= exceptionEvent;
+            }
         }
     }
 }

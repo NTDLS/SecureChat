@@ -161,7 +161,7 @@ namespace SecureChat.Client.Forms
         internal ActiveChat? EstablishEndToEndConnectionFor(Guid accountId, string displayName)
         {
             //Start the key exchange process then popup the chat window.
-            if (ServerConnection.Current == null || !ServerConnection.Current.ReliableClient.IsConnected)
+            if (ServerConnection.Current == null || !ServerConnection.Current.Connection.Client.IsConnected)
             {
                 MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.InvokeClose(DialogResult.Cancel);
@@ -176,7 +176,7 @@ namespace SecureChat.Client.Forms
             var negotiationToken = compoundNegotiator.GenerateNegotiationToken((int)(Math.Ceiling(Settings.Instance.EndToEndKeySize / 128.0)));
 
             //The first thing we do when we get a connection is start a new key exchange process.
-            var queryRequestKeyExchangeReply = ServerConnection.Current.ReliableClient.Query(
+            var queryRequestKeyExchangeReply = ServerConnection.Current.Connection.Client.Query(
                 new InitiatePeerToPeerSessionQuery(sessionId, ServerConnection.Current.AccountId, accountId, ServerConnection.Current.DisplayName, negotiationToken))
                 .ContinueWith(o =>
                 {
@@ -232,7 +232,7 @@ namespace SecureChat.Client.Forms
                     {
                         try
                         {
-                            ServerConnection.Current.ReliableClient.Query(new RemoveContactQuery(contact.Id)).ContinueWith(o =>
+                            ServerConnection.Current.Connection.Client.Query(new RemoveContactQuery(contact.Id)).ContinueWith(o =>
                             {
                                 if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
                                 {
@@ -275,7 +275,7 @@ namespace SecureChat.Client.Forms
                     {
                         try
                         {
-                            ServerConnection.Current.ReliableClient.Query(new AcceptContactInviteQuery(contact.Id)).ContinueWith(o =>
+                            ServerConnection.Current.Connection.Client.Query(new AcceptContactInviteQuery(contact.Id)).ContinueWith(o =>
                             {
                                 if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
                                 {
@@ -306,7 +306,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (ServerConnection.Current == null || !ServerConnection.Current.ReliableClient.IsConnected)
+                if (ServerConnection.Current == null || !ServerConnection.Current.Connection.Client.IsConnected)
                 {
                     return null;
                 }
@@ -391,20 +391,20 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (ServerConnection.Current != null && ServerConnection.Current.ReliableClient.IsConnected)
+                if (ServerConnection.Current != null && ServerConnection.Current.Connection.Client.IsConnected)
                 {
                     Repopulate();
 
                     var idleTime = IdleTime.GetIdleTime();
                     if (idleTime.TotalSeconds >= Settings.Instance.AutoAwayIdleSeconds)
                     {
-                        ServerConnection.Current.ReliableClient.Notify(new UpdateAccountStateNotification(
+                        ServerConnection.Current.Connection.Client.Notify(new UpdateAccountStateNotification(
                                 ServerConnection.Current.AccountId,
                                 ScOnlineState.Away));
                     }
                     else
                     {
-                        ServerConnection.Current.ReliableClient.Notify(new UpdateAccountStateNotification(
+                        ServerConnection.Current.Connection.Client.Notify(new UpdateAccountStateNotification(
                                 ServerConnection.Current.AccountId,
                                 ServerConnection.Current.ExplicitAway ? ScOnlineState.Away : ScOnlineState.Online));
                     }
@@ -496,7 +496,7 @@ namespace SecureChat.Client.Forms
                     }
 
                     //Start the key exchange process then popup the chat window.
-                    if (ServerConnection.Current == null || !ServerConnection.Current.ReliableClient.IsConnected)
+                    if (ServerConnection.Current == null || !ServerConnection.Current.Connection.Client.IsConnected)
                     {
                         MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         this.InvokeClose(DialogResult.Cancel);
@@ -553,7 +553,7 @@ namespace SecureChat.Client.Forms
                     _repopulateInProgress = true;
                 }
 
-                if (ServerConnection.Current == null || !ServerConnection.Current.ReliableClient.IsConnected)
+                if (ServerConnection.Current == null || !ServerConnection.Current.Connection.Client.IsConnected)
                 {
                     //MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     this.InvokeClose(DialogResult.Cancel);
@@ -565,7 +565,7 @@ namespace SecureChat.Client.Forms
                 {
                     try
                     {
-                        ServerConnection.Current.ReliableClient.Query(new GetContactsQuery()).ContinueWith(o =>
+                        ServerConnection.Current.Connection.Client.Query(new GetContactsQuery()).ContinueWith(o =>
                         {
                             try
                             {
@@ -605,7 +605,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (ServerConnection.Current == null || !ServerConnection.Current.ReliableClient.IsConnected)
+                if (ServerConnection.Current == null || !ServerConnection.Current.Connection.Client.IsConnected)
                 {
                     MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     this.InvokeClose(DialogResult.Cancel);
@@ -866,7 +866,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                Task.Run(() => ServerConnection.Current?.ReliableClient?.Disconnect());
+                Task.Run(() => ServerConnection.Current?.Connection?.Client.Disconnect());
                 Exceptions.Ignore(() => LocalUserApplicationData.DeleteFromDisk(ScConstants.AppName, typeof(AutoLogin)));
             }
             catch (Exception ex)

@@ -1,14 +1,11 @@
 ﻿using Krypton.Toolkit;
-using NTDLS.Helpers;
 using NTDLS.Persistence;
 using NTDLS.ReliableMessaging;
 using NTDLS.WinFormsHelpers;
 using SecureChat.Client.Models;
 using SecureChat.Library;
-using SecureChat.Library.ReliableMessages;
 using Serilog;
 using System.Diagnostics;
-using System.Reflection;
 
 namespace SecureChat.Client.Forms
 {
@@ -78,59 +75,9 @@ namespace SecureChat.Client.Forms
                 {
                     try
                     {
-                        var rmClient = Settings.Instance.CreateEncryptedRmClient(Client_OnException, progressForm);
-
-                        bool explicitAway = false;
-                        if (Settings.Instance.Users.TryGetValue(username, out var userPersist))
+                        var loginResult = Settings.Instance.CreateLoggedInConnection(username, passwordHash, RmExceptionHandler, progressForm);
+                        if (loginResult != null)
                         {
-                            //If the user has an explicit away state, send it to the server at
-                            //  login so the server can update the user's status appropriately.
-                            explicitAway = userPersist.ExplicitAway;
-                        }
-
-                        progressForm.SetHeaderText("Logging in...");
-                        Thread.Sleep(250); //For aesthetics.
-
-                        var isSuccess = rmClient.Query(new LoginQuery(username, passwordHash, explicitAway)).ContinueWith(o =>
-                        {
-                            if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
-                            {
-                                throw new Exception(o.Result.ErrorMessage);
-                            }
-
-                            if (!o.IsFaulted && o.Result.IsSuccess)
-                            {
-                                _loginResult = new LoginResult(rmClient,
-                                    o.Result.AccountId.EnsureNotNull(),
-                                    o.Result.Username.EnsureNotNull(),
-                                    o.Result.DisplayName.EnsureNotNull(),
-                                    o.Result.ProfileJson.EnsureNotNull()
-                                    );
-                                return true;
-                            }
-
-                            return false;
-                        }).Result;
-
-                        rmClient.OnException -= Client_OnException;
-
-                        if (!isSuccess)
-                        {
-                            rmClient.Disconnect();
-                        }
-                        else
-                        {
-                            if (!Settings.Instance.Users.TryGetValue(username, out var userState))
-                            {
-                                Settings.Instance.Users.Add(username, new PersistedUserState());
-                            }
-                            else
-                            {
-                                userState.LastLogin = DateTime.UtcNow;
-                            }
-
-                            Settings.Save();
-
                             if (checkBoxStayLoggedIn.Checked)
                             {
                                 var autoLogin = new AutoLogin(username, passwordHash);
@@ -138,7 +85,7 @@ namespace SecureChat.Client.Forms
                             }
                         }
 
-                        this.InvokeClose(isSuccess ? DialogResult.OK : DialogResult.Cancel);
+                        this.InvokeClose(loginResult != null ? DialogResult.OK : DialogResult.Cancel);
                     }
                     catch (Exception ex)
                     {
@@ -153,7 +100,7 @@ namespace SecureChat.Client.Forms
             }
         }
 
-        private void Client_OnException(RmContext? context, Exception ex, IRmPayload? payload)
+        private void RmExceptionHandler(RmContext? context, Exception ex, IRmPayload? payload)
         {
             Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);

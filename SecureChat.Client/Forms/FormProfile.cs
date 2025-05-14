@@ -16,7 +16,7 @@ namespace SecureChat.Client.Forms
 
             BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
 
-            if (ServerConnection.Current == null || !ServerConnection.Current.ReliableClient.IsConnected)
+            if (ServerConnection.Current == null || !ServerConnection.Current.Connection.Client.IsConnected)
             {
                 return;
             }
@@ -43,7 +43,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (ServerConnection.Current == null || !ServerConnection.Current.ReliableClient.IsConnected)
+                if (ServerConnection.Current == null || !ServerConnection.Current.Connection.Client.IsConnected)
                 {
                     MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     this.InvokeClose(DialogResult.Cancel);
@@ -58,7 +58,7 @@ namespace SecureChat.Client.Forms
                     Biography = textBoxBiography.TextBox.GetAndValidateText(0, 2500, "If a biography is supplied, it must not exceed [max] characters.")
                 };
 
-                ServerConnection.Current.ReliableClient.Query(new UpdateAccountProfileQuery(displayName, profile)).ContinueWith(o =>
+                ServerConnection.Current.Connection.Client.Query(new UpdateAccountProfileQuery(displayName, profile)).ContinueWith(o =>
                 {
                     if (!o.IsFaulted && o.Result.IsSuccess)
                     {

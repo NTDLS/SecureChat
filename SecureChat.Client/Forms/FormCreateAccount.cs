@@ -6,7 +6,6 @@ using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
 using System.Diagnostics;
-using System.Reflection;
 
 namespace SecureChat.Client.Forms
 {
@@ -79,12 +78,12 @@ namespace SecureChat.Client.Forms
                     {
                         progressForm.SetHeaderText("Negotiating cryptography...");
 
-                        var rmClient = Settings.Instance.CreateEncryptedRmClient(Client_OnException, progressForm);
+                        var connection = Settings.Instance.CreateEncryptedConnection(RmExceptionHandler, progressForm);
 
                         progressForm.SetHeaderText("Creating account...");
                         Thread.Sleep(250); //For aesthetics.
 
-                        var isSuccess = rmClient.Query(new CreateAccountQuery(username, displayName, passwordHash)).ContinueWith(o =>
+                        var isSuccess = connection.Client.Query(new CreateAccountQuery(username, displayName, passwordHash)).ContinueWith(o =>
                         {
                             if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
                             {
@@ -94,7 +93,7 @@ namespace SecureChat.Client.Forms
                             return !o.IsFaulted && o.Result.IsSuccess;
                         }).Result;
 
-                        rmClient.Disconnect();
+                        connection.Client.Disconnect();
 
                         _username = isSuccess ? username : string.Empty;
 
@@ -113,7 +112,7 @@ namespace SecureChat.Client.Forms
             }
         }
 
-        private void Client_OnException(RmContext? context, Exception ex, IRmPayload? payload)
+        private void RmExceptionHandler(RmContext? context, Exception ex, IRmPayload? payload)
         {
             Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);

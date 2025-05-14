@@ -76,7 +76,7 @@ namespace SecureChat.Client
             SharedSecret = sharedSecret;
 
             //Obtain the public and private key-pair from the reliable connection so we can use it for the datagram messaging.
-            var rmCryptographyProvider = ServerConnection.Current?.ReliableClient.GetCryptographyProvider() as ReliableCryptographyProvider
+            var rmCryptographyProvider = ServerConnection.Current?.Connection.Client.GetCryptographyProvider() as ReliableCryptographyProvider
                 ?? throw new Exception("Reliable cryptography has not been initialized.");
 
             SessionId = sessionId;
@@ -100,11 +100,11 @@ namespace SecureChat.Client
 
             new Thread(() =>
                 {
-                    while (!IsTerminated && ServerConnection.Current?.ReliableClient.IsConnected == true)
+                    while (!IsTerminated && ServerConnection.Current?.Connection.Client.IsConnected == true)
                     {
                         try
                         {
-                            ServerConnection.Current?.ReliableClient.Notify(new SessionKeepAliveNotification(SessionId));
+                            ServerConnection.Current?.Connection.Client.Notify(new SessionKeepAliveNotification(SessionId));
                         }
                         catch (Exception ex)
                         {
@@ -112,7 +112,7 @@ namespace SecureChat.Client
                         }
 
                         var breakTime = DateTime.UtcNow.AddSeconds(10);
-                        while (!IsTerminated && ServerConnection.Current?.ReliableClient.IsConnected == true && DateTime.UtcNow < breakTime)
+                        while (!IsTerminated && ServerConnection.Current?.Connection.Client.IsConnected == true && DateTime.UtcNow < breakTime)
                         {
                             Thread.Sleep(500);
                         }
@@ -128,10 +128,10 @@ namespace SecureChat.Client
             }
             IsTerminated = true;
 
-            if (ServerConnection.Current?.ReliableClient?.IsConnected == true)
+            if (ServerConnection.Current?.Connection?.Client.IsConnected == true)
             {
                 Exceptions.Ignore(() =>
-                ServerConnection.Current.ReliableClient.Notify(new TerminateChatNotification(SessionId, PeerConnectionId)));
+                ServerConnection.Current.Connection.Client.Notify(new TerminateChatNotification(SessionId, PeerConnectionId)));
             }
 
             Exceptions.Ignore(() => AppendSystemMessageLine($"Conversation has ended."));
@@ -157,7 +157,7 @@ namespace SecureChat.Client
 
             var query = new ExchangeMessageTextQuery(SessionId, PeerConnectionId, EncryptString(plaintText));
 
-            return ServerConnection.Current?.ReliableClient.Query(query)
+            return ServerConnection.Current?.Connection.Client.Query(query)
                 .ContinueWith(o => !o.IsFaulted && o.Result.IsSuccess).Result ?? false;
         }
 
@@ -207,7 +207,7 @@ namespace SecureChat.Client
             {
                 if (_audioPump != null)
                 {
-                    ServerConnection.Current?.ReliableClient.Notify(new TerminateVoiceCallNotification(SessionId, PeerConnectionId));
+                    ServerConnection.Current?.Connection.Client.Notify(new TerminateVoiceCallNotification(SessionId, PeerConnectionId));
                 }
                 TerminateVoiceCall();
             }
@@ -251,7 +251,7 @@ namespace SecureChat.Client
             _outputDeviceIndex = outputDeviceIndex;
             _bitrate = bitrate;
 
-            ServerConnection.Current?.ReliableClient.Notify(new RequestVoiceCallNotification(SessionId, PeerConnectionId));
+            ServerConnection.Current?.Connection.Client.Notify(new RequestVoiceCallNotification(SessionId, PeerConnectionId));
         }
 
         /// <summary>
@@ -259,7 +259,7 @@ namespace SecureChat.Client
         /// </summary>
         public void CancelVoiceCallRequest()
         {
-            ServerConnection.Current?.ReliableClient.Notify(new CancelVoiceCallRequestNotification(SessionId, PeerConnectionId));
+            ServerConnection.Current?.Connection.Client.Notify(new CancelVoiceCallRequestNotification(SessionId, PeerConnectionId));
         }
 
         /// <summary>
@@ -271,7 +271,7 @@ namespace SecureChat.Client
             _outputDeviceIndex = outputDeviceIndex;
             _bitrate = bitrate;
 
-            ServerConnection.Current?.ReliableClient.Notify(new AcceptVoiceCallNotification(SessionId, PeerConnectionId));
+            ServerConnection.Current?.Connection.Client.Notify(new AcceptVoiceCallNotification(SessionId, PeerConnectionId));
             AppendSystemMessageLine("Voice call is now connected.");
         }
 
@@ -280,7 +280,7 @@ namespace SecureChat.Client
         /// </summary>
         public void DeclineVoiceCallRequest()
         {
-            ServerConnection.Current?.ReliableClient.Notify(new DeclineVoiceCallNotification(SessionId, PeerConnectionId));
+            ServerConnection.Current?.Connection.Client.Notify(new DeclineVoiceCallNotification(SessionId, PeerConnectionId));
         }
 
         #endregion
@@ -333,7 +333,7 @@ namespace SecureChat.Client
         /// </summary>
         public void CancelFileTransfer(Guid fileId)
         {
-            ServerConnection.Current?.ReliableClient.Notify(new FileTransferCancelNotification(SessionId, PeerConnectionId, fileId));
+            ServerConnection.Current?.Connection.Client.Notify(new FileTransferCancelNotification(SessionId, PeerConnectionId, fileId));
         }
 
         /// <summary>
@@ -342,7 +342,7 @@ namespace SecureChat.Client
         /// <param name="fileId"></param>
         public void AcceptFileTransfer(Guid fileId)
         {
-            ServerConnection.Current?.ReliableClient.Notify(new FileTransferAcceptRequestNotification(SessionId, PeerConnectionId, fileId));
+            ServerConnection.Current?.Connection.Client.Notify(new FileTransferAcceptRequestNotification(SessionId, PeerConnectionId, fileId));
         }
 
         /// <summary>
@@ -351,7 +351,7 @@ namespace SecureChat.Client
         /// <param name="fileId"></param>
         public void DeclineFileTransfer(FlowControlFileTransferRequest ftc)
         {
-            ServerConnection.Current?.ReliableClient.Notify(new FileTransferDeclineRequestNotification(SessionId, PeerConnectionId, ftc.FileId));
+            ServerConnection.Current?.Connection.Client.Notify(new FileTransferDeclineRequestNotification(SessionId, PeerConnectionId, ftc.FileId));
         }
 
         /// <summary>
@@ -418,7 +418,7 @@ namespace SecureChat.Client
             {
                 //If this is another typo of file, then we need to request the remote
                 //  client to accept the file so they can select a location to save it.
-                ServerConnection.Current?.ReliableClient.Notify(new FileTransferBeginRequestNotification(
+                ServerConnection.Current?.Connection.Client.Notify(new FileTransferBeginRequestNotification(
                     SessionId, PeerConnectionId, ftc.Transfer.FileId, Path.GetFileName(ftc.Transfer.FileName), ftc.Transfer.FileSize, ftc.Transfer.IsImage));
             }
         }
@@ -427,7 +427,7 @@ namespace SecureChat.Client
         {
             try
             {
-                ServerConnection.Current?.ReliableClient.Query(new FileTransferBeginQuery(
+                ServerConnection.Current?.Connection.Client.Query(new FileTransferBeginQuery(
                     SessionId, PeerConnectionId, ftc.Transfer.FileId, ftc.Transfer.FileName, ftc.Transfer.FileSize, ftc.Transfer.IsImage));
 
                 double totalBytesSent = 0;
@@ -449,12 +449,12 @@ namespace SecureChat.Client
                     ftc.SetProgressValue((int)completionPercentage);
 
                     // Transmit the current chunk
-                    ServerConnection.Current?.ReliableClient.Notify(new FileTransferChunkQuery(SessionId, PeerConnectionId, ftc.Transfer.FileId, Cipher(chunkToSend)));
+                    ServerConnection.Current?.Connection.Client.Notify(new FileTransferChunkQuery(SessionId, PeerConnectionId, ftc.Transfer.FileId, Cipher(chunkToSend)));
                 }
 
                 if (!ftc.IsCancelled)
                 {
-                    ServerConnection.Current?.ReliableClient.Query(new FileTransferCompleteQuery(SessionId, PeerConnectionId, ftc.Transfer.FileId)).ContinueWith(o =>
+                    ServerConnection.Current?.Connection.Client.Query(new FileTransferCompleteQuery(SessionId, PeerConnectionId, ftc.Transfer.FileId)).ContinueWith(o =>
                     {
                         if (!o.IsFaulted && o.Result.IsSuccess)
                         {

@@ -5,6 +5,7 @@ using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace SecureChat.Server
 {
@@ -507,9 +508,13 @@ namespace SecureChat.Server
                     throw new Exception($"Client version is unsupported, use version {ScConstants.MinClientVersion} or greater.");
 
                 var localPublicPrivateKeyPair = Crypto.GeneratePublicPrivateKeyPair(param.RsaKeySize);
+
                 _chatService.RegisterSession(context.ConnectionId, param.PeerConnectionId,
                     new ReliableCryptographyProvider(param.RsaKeySize, param.AesKeySize, param.PublicRsaKey, localPublicPrivateKeyPair.PrivateRsaKey));
-                return new ExchangePublicKeyQueryReply(localPublicPrivateKeyPair.PublicRsaKey);
+
+                var serverVersion = (Assembly.GetEntryAssembly()?.GetName().Version).EnsureNotNull();
+
+                return new ExchangePublicKeyQueryReply(serverVersion, localPublicPrivateKeyPair.PublicRsaKey);
             }
             catch (Exception ex)
             {
