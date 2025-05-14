@@ -113,7 +113,7 @@ namespace SecureChat.Client.Forms
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(534, 303);
+            ClientSize = new Size(538, 307);
             Controls.Add(dataGridViewAccounts);
             Controls.Add(buttonSearch);
             Controls.Add(textBoxDisplayName);

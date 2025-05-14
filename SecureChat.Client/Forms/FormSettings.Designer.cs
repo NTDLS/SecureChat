@@ -317,7 +317,7 @@ namespace SecureChat.Client.Forms
             textBoxRsaKeySize.Size = new Size(122, 23);
             textBoxRsaKeySize.TabIndex = 1;
             // 
-            // kryptonNavigator1
+            // kryptonNavigator
             // 
             kryptonNavigator.AllowPageDrag = true;
             kryptonNavigator.AllowPageReorder = false;
@@ -476,7 +476,7 @@ namespace SecureChat.Client.Forms
             // 
             // FormSettings
             // 
-            ClientSize = new Size(465, 345);
+            ClientSize = new Size(473, 352);
             Controls.Add(kryptonNavigator);
             Controls.Add(buttonCancel);
             Controls.Add(buttonSave);

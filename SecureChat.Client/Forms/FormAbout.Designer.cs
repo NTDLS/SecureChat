@@ -103,7 +103,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(533, 216);
+            ClientSize = new Size(541, 216);
             Controls.Add(linkWebsite);
             Controls.Add(listViewVersions);
             Controls.Add(buttonOk);

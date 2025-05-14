@@ -174,7 +174,7 @@ namespace SecureChat.Client.Forms
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(479, 260);
+            ClientSize = new Size(485, 263);
             Controls.Add(kryptonPanel1);
             Controls.Add(volumeMeterInput);
             Controls.Add(buttonCancel);

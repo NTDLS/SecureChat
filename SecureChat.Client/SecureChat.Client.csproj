@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <ApplicationIcon>Logo.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\Icon.ico</ApplicationIcon>
 
     <Company>NetworkDLS</Company>
     <Copyright>Copyright © 2025 NetworkDLS</Copyright>
@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Logo.ico" />
+    <Content Include="Resources\Icon.ico" />
   </ItemGroup>
 
   <ItemGroup>

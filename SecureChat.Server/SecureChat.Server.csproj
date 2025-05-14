@@ -5,7 +5,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <ApplicationIcon>Logo.ico</ApplicationIcon>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
 
     <Company>NetworkDLS</Company>
     <Copyright>Copyright © 2025 NetworkDLS</Copyright>
@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Logo.ico" />
+    <Content Include="Icon.ico" />
   </ItemGroup>
 
   <ItemGroup>

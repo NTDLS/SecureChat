@@ -53,7 +53,7 @@ namespace SecureChat.Client.Forms
             treeViewContacts.Location = new Point(5, 29);
             treeViewContacts.Name = "treeViewContacts";
             treeViewContacts.ShowRootLines = false;
-            treeViewContacts.Size = new Size(324, 438);
+            treeViewContacts.Size = new Size(328, 426);
             treeViewContacts.TabIndex = 0;
             // 
             // menuStrip1
@@ -62,7 +62,7 @@ namespace SecureChat.Client.Forms
             menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, contactsToolStripMenuItem, helpToolStripMenuItem });
             menuStrip1.Location = new Point(5, 5);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(324, 24);
+            menuStrip1.Size = new Size(328, 24);
             menuStrip1.TabIndex = 1;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -138,7 +138,7 @@ namespace SecureChat.Client.Forms
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(334, 472);
+            ClientSize = new Size(338, 460);
             Controls.Add(treeViewContacts);
             Controls.Add(menuStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");

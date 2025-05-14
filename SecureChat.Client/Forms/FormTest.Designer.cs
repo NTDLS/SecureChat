@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormTest));
             splitContainer1 = new Krypton.Toolkit.KryptonSplitContainer();
             flowLayoutPanelChat = new FlowLayoutPanel();
             kryptonTextBoxMessage = new Krypton.Toolkit.KryptonTextBox();
@@ -54,8 +55,8 @@
             // 
             splitContainer1.Panel2.Controls.Add(kryptonTextBoxMessage);
             splitContainer1.Panel2.Controls.Add(kryptonButtonSend);
-            splitContainer1.Size = new Size(582, 410);
-            splitContainer1.SplitterDistance = 359;
+            splitContainer1.Size = new Size(584, 404);
+            splitContainer1.SplitterDistance = 353;
             splitContainer1.TabIndex = 2;
             // 
             // flowLayoutPanelChat
@@ -66,7 +67,7 @@
             flowLayoutPanelChat.FlowDirection = FlowDirection.TopDown;
             flowLayoutPanelChat.Location = new Point(0, 0);
             flowLayoutPanelChat.Name = "flowLayoutPanelChat";
-            flowLayoutPanelChat.Size = new Size(582, 359);
+            flowLayoutPanelChat.Size = new Size(584, 353);
             flowLayoutPanelChat.TabIndex = 0;
             flowLayoutPanelChat.WrapContents = false;
             // 
@@ -76,13 +77,13 @@
             kryptonTextBoxMessage.Location = new Point(0, 0);
             kryptonTextBoxMessage.Multiline = true;
             kryptonTextBoxMessage.Name = "kryptonTextBoxMessage";
-            kryptonTextBoxMessage.Size = new Size(529, 46);
+            kryptonTextBoxMessage.Size = new Size(531, 46);
             kryptonTextBoxMessage.TabIndex = 1;
             // 
             // kryptonButtonSend
             // 
             kryptonButtonSend.Dock = DockStyle.Right;
-            kryptonButtonSend.Location = new Point(529, 0);
+            kryptonButtonSend.Location = new Point(531, 0);
             kryptonButtonSend.Name = "kryptonButtonSend";
             kryptonButtonSend.Size = new Size(53, 46);
             kryptonButtonSend.TabIndex = 2;
@@ -94,8 +95,9 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(582, 410);
+            ClientSize = new Size(584, 404);
             Controls.Add(splitContainer1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "FormTest";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "FormTest";

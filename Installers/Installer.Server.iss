@@ -8,7 +8,7 @@
  DefaultDirName                   = {commonpf}\NetworkDLS\Secure Chat Server
  DefaultGroupName                 = NetworkDLS\Secure Chat Server
  UninstallDisplayIcon             = {app}\SecureChat.Server.exe
- SetupIconFile                    = "..\MEdia\Logo.ico"
+ SetupIconFile                    = "..\MEdia\Icon.ico"
  PrivilegesRequired               = admin
  Uninstallable                    = Yes
  MinVersion                       = 0.0,7.0
@@ -23,7 +23,7 @@
 [Files]
  Source: "publish\SecureChat.Server\*.*"; DestDir: "{app}"; Flags: IgnoreVersion RecurseSubDirs;
  Source: "..\Data\server.db"; DestDir: "{app}\data"; Flags: RecurseSubDirs OnlyIfDoesntExist;
- Source: "..\Media\Logo.ico"; DestDir: "{app}"; Flags: IgnoreVersion;
+ Source: "..\Media\Icon.ico"; DestDir: "{app}"; Flags: IgnoreVersion;
 
 [Run]
  Filename: "{app}\SecureChat.Server.exe"; Parameters: "install"; Flags: runhidden; StatusMsg: "Installing service...";

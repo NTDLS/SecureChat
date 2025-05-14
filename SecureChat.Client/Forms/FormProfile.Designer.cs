@@ -121,7 +121,7 @@ namespace SecureChat.Client.Forms
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(303, 278);
+            ClientSize = new Size(307, 282);
             Controls.Add(textBoxBiography);
             Controls.Add(buttonCancel);
             Controls.Add(buttonSave);

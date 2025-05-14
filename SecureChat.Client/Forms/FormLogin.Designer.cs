@@ -125,7 +125,7 @@ namespace SecureChat.Client.Forms
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(315, 198);
+            ClientSize = new Size(321, 203);
             Controls.Add(checkBoxStayLoggedIn);
             Controls.Add(linkLabelCreateAccount);
             Controls.Add(buttonCancel);

@@ -45,17 +45,18 @@ namespace SecureChat.Client.Forms
             pictureBoxImage.Dock = DockStyle.Fill;
             pictureBoxImage.Location = new Point(0, 24);
             pictureBoxImage.Name = "pictureBoxImage";
-            pictureBoxImage.Size = new Size(453, 386);
+            pictureBoxImage.Size = new Size(457, 374);
             pictureBoxImage.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxImage.TabIndex = 0;
             pictureBoxImage.TabStop = false;
             // 
             // menuStrip1
             // 
+            menuStrip1.Font = new Font("Segoe UI", 9F);
             menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(453, 24);
+            menuStrip1.Size = new Size(457, 24);
             menuStrip1.TabIndex = 1;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -77,7 +78,7 @@ namespace SecureChat.Client.Forms
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(453, 410);
+            ClientSize = new Size(457, 398);
             Controls.Add(pictureBoxImage);
             Controls.Add(menuStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");
