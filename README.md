@@ -31,3 +31,7 @@ Accounts are stored at the server (which you can easily host, or use mine). The 
 
 ### Settings
 ![image](https://github.com/user-attachments/assets/ea8d8ce8-4bfe-4916-82e4-0e08c768d26c)
+
+### Roots
+This saga started in 2001, pictured here is the 5th revision from 2003! 🫣
+![WhatsApp Image 2025-05-15 at 12 14 24_2ea7d1d2](https://github.com/user-attachments/assets/9479afa9-b5ca-48b9-835a-02543ea0d32a)
