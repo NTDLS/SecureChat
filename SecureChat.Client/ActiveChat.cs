@@ -96,7 +96,7 @@ namespace SecureChat.Client
             }
             else
             {
-                AppendSuccessMessageLine($"Conversation {displayName} started.");
+                AppendSuccessMessageLine($"Conversation with {displayName} started.");
             }
 
             new Thread(() =>
