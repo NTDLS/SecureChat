@@ -565,7 +565,7 @@ namespace SecureChat.Client.Forms
                 {
                     try
                     {
-                        ServerConnection.Current.Connection.Client.Query(new GetContactsQuery(), TimeSpan.FromSeconds(1)).ContinueWith(o =>
+                        ServerConnection.Current.Connection.Client.Query(new GetContactsQuery(), TimeSpan.FromSeconds(5)).ContinueWith(o =>
                         {
                             try
                             {
