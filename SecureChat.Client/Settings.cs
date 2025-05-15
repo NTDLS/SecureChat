@@ -7,7 +7,6 @@ using SecureChat.Client.Helpers;
 using SecureChat.Client.Models;
 using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
-using Serilog;
 using System.Reflection;
 
 namespace SecureChat.Client
@@ -72,8 +71,7 @@ namespace SecureChat.Client
 
             dmClient.OnException += (DmContext? context, Exception ex) =>
             {
-                var baseException = ex.GetBaseException();
-                Log.Error(baseException, baseException.Message);
+                Program.Log.Error(ex);
             };
 
             return dmClient;
@@ -165,8 +163,7 @@ namespace SecureChat.Client
 
             rmClient.OnException += (RmContext? context, Exception ex, IRmPayload? payload) =>
             {
-                var baseException = ex.GetBaseException();
-                Log.Error(baseException, baseException.Message);
+                Program.Log.Error(ex);
             };
 
             rmClient.OnException += exceptionEvent;

@@ -3,7 +3,6 @@ using NTDLS.Helpers;
 using SecureChat.Client.Controls.FlowControls;
 using SecureChat.Client.Helpers;
 using SecureChat.Library;
-using Serilog;
 using System.ComponentModel;
 using System.Diagnostics;
 using static SecureChat.Library.ScConstants;
@@ -112,7 +111,7 @@ namespace SecureChat.Client.Forms
             }
             catch (Exception ex)
             {
-                Log.Fatal($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Fatal($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 throw;
             }
         }

@@ -3,7 +3,6 @@ using NTDLS.WinFormsHelpers;
 using SecureChat.Library;
 using SecureChat.Library.Models;
 using SecureChat.Library.ReliableMessages;
-using Serilog;
 using System.Diagnostics;
 
 namespace SecureChat.Client.Forms
@@ -75,7 +74,7 @@ namespace SecureChat.Client.Forms
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

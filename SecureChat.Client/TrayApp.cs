@@ -6,7 +6,6 @@ using SecureChat.Client.Helpers;
 using SecureChat.Client.Models;
 using SecureChat.Client.Properties;
 using SecureChat.Library;
-using Serilog;
 using System.Diagnostics;
 using static SecureChat.Library.ScConstants;
 
@@ -37,6 +36,7 @@ namespace SecureChat.Client
                 _trayIcon.MouseDoubleClick += TrayIcon_MouseDoubleClick;
 
                 _trayIcon.ContextMenuStrip.Items.Add("About", null, OnAbout);
+                _trayIcon.ContextMenuStrip.Items.Add("Log", null, OnLog);
                 _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
                 _trayIcon.ContextMenuStrip.Items.Add("Settings", null, OnSettings);
                 _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
@@ -51,7 +51,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Fatal($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Fatal($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 throw;
             }
@@ -71,7 +71,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -104,7 +104,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -183,7 +183,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 _trayIcon.BalloonTipTitle = "Login Failure";
                 _trayIcon.BalloonTipText = $"An error has occurred during the connection process.";
                 _trayIcon.ShowBalloonTip(3000);
@@ -243,7 +243,7 @@ namespace SecureChat.Client
 
         private void RmExceptionHandler(RmContext? context, Exception ex, IRmPayload? payload)
         {
-            Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             //MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
@@ -260,7 +260,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -304,6 +304,7 @@ namespace SecureChat.Client
                                 Checked = false
                             };
                             _trayIcon.ContextMenuStrip.Items.Add("About", null, OnAbout);
+                            _trayIcon.ContextMenuStrip.Items.Add("Log", null, OnLog);
                             _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
                             _trayIcon.ContextMenuStrip.Items.Add(awayItem);
                             _trayIcon.ContextMenuStrip.Items.Add("Profile", null, OnProfile);
@@ -319,6 +320,7 @@ namespace SecureChat.Client
                             _trayIcon.Text = $"{ScConstants.AppName} (offline)";
                             _trayIcon.Icon = Imaging.LoadIconFromResources(Resources.Offline16);
                             _trayIcon.ContextMenuStrip.Items.Add("About", null, OnAbout);
+                            _trayIcon.ContextMenuStrip.Items.Add("Log", null, OnLog);
                             _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
                             _trayIcon.ContextMenuStrip.Items.Add("Settings", null, OnSettings);
                             _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
@@ -338,6 +340,7 @@ namespace SecureChat.Client
                                 Checked = true
                             };
                             _trayIcon.ContextMenuStrip.Items.Add("About", null, OnAbout);
+                            _trayIcon.ContextMenuStrip.Items.Add("Log", null, OnLog);
                             _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
                             _trayIcon.ContextMenuStrip.Items.Add(awayItem);
                             _trayIcon.ContextMenuStrip.Items.Add("Profile", null, OnProfile);
@@ -353,7 +356,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 //MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -383,7 +386,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -396,7 +399,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -413,7 +416,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -430,7 +433,21 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void OnLog(object? sender, EventArgs e)
+        {
+            try
+            {
+                using var form = new FormLog();
+                form.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -444,7 +461,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -458,7 +475,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -472,7 +489,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -491,7 +508,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

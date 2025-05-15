@@ -5,7 +5,6 @@ using NTDLS.WinFormsHelpers;
 using SecureChat.Client.Helpers;
 using SecureChat.Client.Models;
 using SecureChat.Library;
-using Serilog;
 using System.Diagnostics;
 
 namespace SecureChat.Client.Forms
@@ -90,20 +89,21 @@ namespace SecureChat.Client.Forms
                     }
                     catch (Exception ex)
                     {
+                        Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                         progressForm.MessageBox(ex.GetBaseException().Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                     }
                 });
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void RmExceptionHandler(RmContext? context, Exception ex, IRmPayload? payload)
         {
-            Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 

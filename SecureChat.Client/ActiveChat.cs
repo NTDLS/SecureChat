@@ -9,7 +9,6 @@ using SecureChat.Client.Properties;
 using SecureChat.Library;
 using SecureChat.Library.DatagramMessages;
 using SecureChat.Library.ReliableMessages;
-using Serilog;
 using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client
@@ -109,7 +108,7 @@ namespace SecureChat.Client
                         }
                         catch (Exception ex)
                         {
-                            Log.Error(ex, "Error sending session keep-alive notification.");
+                            Program.Log.Error("Error sending session keep-alive notification.", ex);
                         }
 
                         var breakTime = DateTime.UtcNow.AddSeconds(10);
@@ -730,7 +729,7 @@ namespace SecureChat.Client
 
             var baseException = ex.GetBaseException();
             AppendFlowControl(new FlowControlSystemText(Form.FlowPanel, baseException.Message, color ?? Color.Red));
-            Log.Error(baseException, baseException.Message);
+            Program.Log.Error(baseException.Message, baseException);
         }
 
         public void AppendErrorLine(string message, Color? color = null)
@@ -741,7 +740,7 @@ namespace SecureChat.Client
             }
 
             AppendFlowControl(new FlowControlSystemText(Form.FlowPanel, message, color ?? Color.Red));
-            Log.Error(message);
+            Program.Log.Error(message);
         }
 
         public void AppendSystemMessageLine(string message, Color? color = null)

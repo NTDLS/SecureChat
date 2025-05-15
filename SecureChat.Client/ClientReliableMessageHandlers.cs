@@ -1,7 +1,6 @@
 ﻿using NTDLS.ReliableMessaging;
 using NTDLS.SecureKeyExchange;
 using SecureChat.Library.ReliableMessages;
-using Serilog;
 using System.Diagnostics;
 
 namespace SecureChat.Client
@@ -28,7 +27,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
 
@@ -44,7 +43,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
 
@@ -62,7 +61,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
 
@@ -79,7 +78,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
 
@@ -106,7 +105,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
 
@@ -121,7 +120,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
 
@@ -138,7 +137,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
 
@@ -154,7 +153,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
 
@@ -194,7 +193,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
 
@@ -216,7 +215,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 return new FileTransferBeginQueryReply(ex);
             }
         }
@@ -263,7 +262,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
 
@@ -280,7 +279,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
 
@@ -296,7 +295,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
 
@@ -312,7 +311,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
 
@@ -329,7 +328,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
             }
         }
 
@@ -362,7 +361,7 @@ namespace SecureChat.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 return new InitiatePeerToPeerSessionQueryReply(ex.GetBaseException());
             }
         }

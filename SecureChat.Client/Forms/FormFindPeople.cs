@@ -3,7 +3,6 @@ using NTDLS.WinFormsHelpers;
 using SecureChat.Library;
 using SecureChat.Library.Models;
 using SecureChat.Library.ReliableMessages;
-using Serilog;
 using System.Diagnostics;
 
 namespace SecureChat.Client.Forms
@@ -81,7 +80,7 @@ namespace SecureChat.Client.Forms
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -134,12 +133,15 @@ namespace SecureChat.Client.Forms
                                     button.Value = "Invite";
                                 }
 
-                                var row = new DataGridViewRow();
+                                var row = new DataGridViewRow()
+                                {
+                                    Tag = account
+                                };
                                 row.Cells.AddRange(
                                     new DataGridViewTextBoxCell { Value = account.DisplayName },
                                     new DataGridViewTextBoxCell { Value = account.State },
                                     button
-                                ); row.Tag = account;
+                                );
 
                                 dataGridViewAccounts.Rows.Add(row);
                             }
@@ -149,7 +151,7 @@ namespace SecureChat.Client.Forms
             }
             catch (Exception ex)
             {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

@@ -1,13 +1,14 @@
 ﻿using Krypton.Toolkit;
 using Microsoft.Extensions.Configuration;
 using SecureChat.Library;
-using Serilog;
 
 namespace SecureChat.Client
 {
     static class Program
     {
         public static KryptonManager ThemeManager = new KryptonManager();
+
+        public static Logger Log { get; set; } = new Logger();
 
         [STAThread]
         static void Main()
@@ -28,10 +29,6 @@ namespace SecureChat.Client
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", false)
                 .Build();
-
-            Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)
-                .CreateLogger();
 
             Settings.Save(); //Create a default persisted state if one does not exist.
 

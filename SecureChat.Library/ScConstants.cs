@@ -46,7 +46,6 @@
             Remote
         }
 
-
         public enum ScOnlineState
         {
             Offline,

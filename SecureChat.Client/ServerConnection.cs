@@ -3,7 +3,6 @@ using NTDLS.Helpers;
 using SecureChat.Client.Forms;
 using SecureChat.Library.DatagramMessages;
 using SecureChat.Library.Models;
-using Serilog;
 using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client
@@ -60,7 +59,7 @@ namespace SecureChat.Client
                     }
                     catch (Exception ex)
                     {
-                        Log.Error(ex, "Error sending connection keep-alive notification.");
+                        Program.Log.Error("Error sending connection keep-alive notification.", ex);
                     }
 
                     var breakTime = DateTime.UtcNow.AddSeconds(10);
