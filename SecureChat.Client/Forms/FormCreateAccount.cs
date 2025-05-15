@@ -2,6 +2,7 @@
 using NTDLS.Helpers;
 using NTDLS.ReliableMessaging;
 using NTDLS.WinFormsHelpers;
+using SecureChat.Client.Helpers;
 using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
 using Serilog;
@@ -70,7 +71,7 @@ namespace SecureChat.Client.Forms
                 }
 
                 var passwordHash = Crypto.ComputeSha256Hash(password);
-                var progressForm = new ProgressForm(ScConstants.AppName, "Please wait...", (Form f) => Themes.ApplyDarkTheme(f));
+                using var progressForm = new ThemedProgressForm(ScConstants.AppName, "Please wait...");
 
                 progressForm.Execute(() =>
                 {

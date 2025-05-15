@@ -3,7 +3,7 @@ using NTDLS.DatagramMessaging;
 using NTDLS.Helpers;
 using NTDLS.Persistence;
 using NTDLS.ReliableMessaging;
-using NTDLS.WinFormsHelpers;
+using SecureChat.Client.Helpers;
 using SecureChat.Client.Models;
 using SecureChat.Library;
 using SecureChat.Library.ReliableMessages;
@@ -84,7 +84,7 @@ namespace SecureChat.Client
         /// The exceptionEvent is only used to communicate RmClient exceptions to the caller and is unsubscribed from the RmClient when the method is done.
         /// </summary>
         public LoginResult? CreateLoggedInConnection(string username, string passwordHash,
-            RmClient.ExceptionEvent exceptionEvent, ProgressForm? progressForm = null)
+            RmClient.ExceptionEvent exceptionEvent, ThemedProgressForm? progressForm = null)
         {
             var connection = CreateEncryptedConnection(exceptionEvent, progressForm);
 
@@ -152,7 +152,7 @@ namespace SecureChat.Client
         /// Creates a new encrypted RmClient and negotiates the cryptography with the server.
         /// The exceptionEvent is only used to communicate RmClient exceptions to the caller and is unsubscribed from the RmClient when the method is done.
         /// </summary>
-        public NegotiatedConnection CreateEncryptedConnection(RmClient.ExceptionEvent exceptionEvent, ProgressForm? progressForm = null)
+        public NegotiatedConnection CreateEncryptedConnection(RmClient.ExceptionEvent exceptionEvent, ThemedProgressForm? progressForm = null)
         {
             progressForm?.SetHeaderText("Negotiating cryptography...");
 
@@ -191,6 +191,9 @@ namespace SecureChat.Client
 
                         return o.Result;
                     }).Result;
+
+                if (keyExchangeResult.ServerVersion < ScConstants.MinServerVersion)
+                    throw new Exception($"Server version is unsupported, use version {ScConstants.MinServerVersion} or greater.");
 
                 progressForm?.SetHeaderText("Applying cryptography...");
 

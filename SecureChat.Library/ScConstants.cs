@@ -15,6 +15,9 @@
         public static readonly int[] AcceptableRsaKeySizes = new int[] { 1024, 2048, 3072, 4096 };
         public static readonly int[] AcceptableAesKeySizes = new int[] { 128, 192, 256 };
 
+        public readonly static Version MinClientVersion = new(1, 0, 12, 0);
+        public readonly static Version MinServerVersion = new(1, 0, 12, 0);
+
         public const float DefaultFontSize = 10.0f;
         public const int DefaultAesKeySize = 256;
         public const int DefaultAutoAwayIdleSeconds = 600;
@@ -29,7 +32,6 @@
         public const string AppName = "Secure Chat";
         public const string DefaultFont = "Cascadia Mono SemiLight";
         public const string DefaultServerAddress = "securechat.ntdls.com";
-        public readonly static Version MinClientVersion = new(1, 0, 11, 0);
 
         public enum ScAlignment
         {

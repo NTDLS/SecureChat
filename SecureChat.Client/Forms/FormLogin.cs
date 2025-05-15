@@ -2,6 +2,7 @@
 using NTDLS.Persistence;
 using NTDLS.ReliableMessaging;
 using NTDLS.WinFormsHelpers;
+using SecureChat.Client.Helpers;
 using SecureChat.Client.Models;
 using SecureChat.Library;
 using Serilog;
@@ -69,7 +70,7 @@ namespace SecureChat.Client.Forms
             {
                 var username = textBoxUsername.TextBox.GetAndValidateText("A username is required.");
                 var passwordHash = Crypto.ComputeSha256Hash(textBoxPassword.Text);
-                var progressForm = new ProgressForm(ScConstants.AppName, "Please wait...", (Form f) => Themes.ApplyDarkTheme(f));
+                using var progressForm = new ThemedProgressForm(ScConstants.AppName, "Please wait...");
 
                 progressForm.Execute(() =>
                 {
