@@ -12,17 +12,17 @@ Message history is not persistent and is lost when logging out of the chat appli
 ### Login
 ![image](https://github.com/user-attachments/assets/ef329f08-2276-44a4-b563-b1124306eecb)
 
-### Messaging
-![image](https://github.com/user-attachments/assets/eafb793c-cdb2-427b-9c6e-933048442f01)
-
 ### Contacts
 ![image](https://github.com/user-attachments/assets/0694ba0d-61d0-49f9-8149-a23b96c526a1)
+
+### Messaging
+![image](https://github.com/user-attachments/assets/b6e696aa-1891-4610-bcfa-f6d750af13e9)
 
 ### Tray Icon
 ![image](https://github.com/user-attachments/assets/0c5f9c6f-fed4-4875-a425-fc5ff3ee5542)
 
 ### Voice Chat
-![image](https://github.com/user-attachments/assets/5b279caf-f390-4f35-90ae-0ed407c3be00)
+![image](https://github.com/user-attachments/assets/74aa49b7-21bd-4ded-ae78-21b8292320c4)
 
 ### Settings
-![image](https://github.com/user-attachments/assets/5382a51e-38ef-4652-9ae9-036adb9171fc)
+![image](https://github.com/user-attachments/assets/ea8d8ce8-4bfe-4916-82e4-0e08c768d26c)
