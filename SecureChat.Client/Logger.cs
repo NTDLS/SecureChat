@@ -14,11 +14,16 @@ namespace SecureChat.Client
             }
         }
 
+        private void RemoveStaleEntries()
+        {
+            Entries.RemoveAll(entry => (DateTime.UtcNow - entry.TimestampUTC).TotalMinutes > 60);
+        }
 
         public void Error(string message)
         {
             lock (Entries)
             {
+                RemoveStaleEntries();
                 Entries.Add(new LogEntry(ScErrorLevel.Error, message));
             }
         }
@@ -27,6 +32,7 @@ namespace SecureChat.Client
         {
             lock (Entries)
             {
+                RemoveStaleEntries();
                 Entries.Add(new LogEntry(ScErrorLevel.Error, ex.GetBaseException().Message));
             }
         }
@@ -35,15 +41,17 @@ namespace SecureChat.Client
         {
             lock (Entries)
             {
+                RemoveStaleEntries();
                 Entries.Add(new LogEntry(ScErrorLevel.Error, $"{message}\r\n{ex.GetBaseException().Message}"));
             }
         }
 
-        public void Fatal(string message, Exception ex)
+        public void Fatal(string message)
         {
             lock (Entries)
             {
-                Entries.Add(new LogEntry(ScErrorLevel.Fatal, $"{message}\r\n{ex.GetBaseException().Message}"));
+                RemoveStaleEntries();
+                Entries.Add(new LogEntry(ScErrorLevel.Fatal, message));
             }
         }
 
@@ -51,7 +59,44 @@ namespace SecureChat.Client
         {
             lock (Entries)
             {
+                RemoveStaleEntries();
                 Entries.Add(new LogEntry(ScErrorLevel.Fatal, ex.GetBaseException().Message));
+            }
+        }
+
+        public void Fatal(string message, Exception ex)
+        {
+            lock (Entries)
+            {
+                RemoveStaleEntries();
+                Entries.Add(new LogEntry(ScErrorLevel.Fatal, $"{message}\r\n{ex.GetBaseException().Message}"));
+            }
+        }
+
+        public void Warning(string message)
+        {
+            lock (Entries)
+            {
+                RemoveStaleEntries();
+                Entries.Add(new LogEntry(ScErrorLevel.Warning, message));
+            }
+        }
+
+        public void Warning(Exception ex)
+        {
+            lock (Entries)
+            {
+                RemoveStaleEntries();
+                Entries.Add(new LogEntry(ScErrorLevel.Warning, ex.GetBaseException().Message));
+            }
+        }
+
+        public void Warning(string message, Exception ex)
+        {
+            lock (Entries)
+            {
+                RemoveStaleEntries();
+                Entries.Add(new LogEntry(ScErrorLevel.Warning, $"{message}\r\n{ex.GetBaseException().Message}"));
             }
         }
 
@@ -59,6 +104,7 @@ namespace SecureChat.Client
         {
             lock (Entries)
             {
+                RemoveStaleEntries();
                 Entries.Add(new LogEntry(ScErrorLevel.Verbose, message));
             }
         }
@@ -67,6 +113,7 @@ namespace SecureChat.Client
         {
             lock (Entries)
             {
+                RemoveStaleEntries();
                 Entries.Add(new LogEntry(ScErrorLevel.Information, message));
             }
         }
