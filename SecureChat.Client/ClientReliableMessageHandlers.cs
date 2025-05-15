@@ -232,58 +232,38 @@ namespace SecureChat.Client
 
                 if (activeChat.InboundFileTransfers.TryGetValue(param.FileId, out var control))
                 {
-                    control.Transfer.AppendData(activeChat.Cipher(param.Bytes));
-                    control.SetProgressValue(control.Transfer.PercentComplete);
-                }
-                else
-                {
-                    throw new Exception("File buffer not found, transfer cancelled?.");
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-            }
-        }
-
-        /// <summary>
-        /// A client has finished transmitting a file to us.
-        /// </summary>
-        public FileTransferEndQueryReply FileTransferEndQuery(RmContext context, FileTransferCompleteQuery param)
-        {
-            try
-            {
-                var activeChat = VerifyAndActiveChat(context, param.SessionId);
-
-                if (activeChat.InboundFileTransfers.TryGetValue(param.FileId, out var control))
-                {
-                    if (control.Transfer.IsImage)
+                    if (control.Transfer.AppendChunk(param.Bytes, param.ChunkNumber))
                     {
-                        //The file is an image, so we need to display it.
-                        activeChat.ReceiveImageMessage(control.Transfer.GetFileBytes());
-                        //control.Remove(); //We should probably remove these controls when finished.
+                        if (control.Transfer.IsImage)
+                        {
+                            //The file is an image, so we need to display it.
+                            activeChat.ReceiveImageMessage(param.FileId, control.Transfer.GetFileBytes());
+                        }
+                        else
+                        {
+                            //The file is not an image, so we need to show the control with a link to the local file.
+                            activeChat.ReceiveFileMessage(param.FileId, control.Transfer.SaveAsFileName);
+                        }
+
+                        control.Remove();
+                        activeChat.InboundFileTransfers.Remove(param.FileId);
+
+                        //Let the user know that the file transfer is complete.
+                        context.Notify(new FileTransferAcknowledgmentNotification(param.SessionId, activeChat.PeerConnectionId, param.FileId));
                     }
                     else
                     {
-                        //The file is not an image, so we need to show the control with a link to the local file.
-                        //control.Remove(); //We should probably remove these controls when finished.
-                        activeChat.ReceiveFileMessage(control.Transfer.SaveAsFileName);
+                        control.SetProgressValue(control.Transfer.PercentComplete);
                     }
-
-                    control.Remove();
-                    activeChat.InboundFileTransfers.Remove(param.FileId);
                 }
                 else
                 {
                     throw new Exception("File buffer not found, transfer cancelled?.");
                 }
-
-                return new FileTransferEndQueryReply();
             }
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new FileTransferEndQueryReply(ex);
             }
         }
 
@@ -305,14 +285,30 @@ namespace SecureChat.Client
         }
 
         /// <summary>
-        /// A client is reporting that it received a text message.
+        /// A client is reporting that it received a file.
         /// </summary>
-        public void TextMessageReceivedNotification(RmContext context, TextMessageReceivedNotification param)
+        public void FileTransferAcknowledgmentNotification(RmContext context, FileTransferAcknowledgmentNotification param)
         {
             try
             {
                 var activeChat = VerifyAndActiveChat(context, param.SessionId);
-                activeChat?.ReceiveTextMessageDeliveryNotification(param.MessageId);
+                activeChat?.ReceiveFileTransferAcknowledgment(param.FileId);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// A client is reporting that it received a text message.
+        /// </summary>
+        public void TextMessageAcknowledgmentNotification(RmContext context, TextMessageAcknowledgmentNotification param)
+        {
+            try
+            {
+                var activeChat = VerifyAndActiveChat(context, param.SessionId);
+                activeChat?.ReceiveTextMessageAcknowledgment(param.MessageId);
             }
             catch (Exception ex)
             {

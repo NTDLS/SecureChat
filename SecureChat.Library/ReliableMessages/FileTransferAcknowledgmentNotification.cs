@@ -2,13 +2,13 @@
 
 namespace SecureChat.Library.ReliableMessages
 {
-    public class TextMessageReceivedNotification
+    /// <summary>
+    /// Tells the remote peer that the file transfer was fully received.
+    /// </summary>
+    public class FileTransferAcknowledgmentNotification
         : IRmNotification
     {
-        /// <summary>
-        /// Unique identifier for this message.
-        /// </summary>
-        public Guid MessageId { get; set; }
+        public Guid FileId { get; set; }
 
         /// <summary>
         /// The connection id of the remote peer that this message is being sent to.
@@ -21,11 +21,11 @@ namespace SecureChat.Library.ReliableMessages
         /// </summary>
         public Guid SessionId { get; set; }
 
-        public TextMessageReceivedNotification(Guid sessionId, Guid peerConnectionId, Guid messageId)
+        public FileTransferAcknowledgmentNotification(Guid sessionId, Guid peerConnectionId, Guid fileId)
         {
             SessionId = sessionId;
             PeerConnectionId = peerConnectionId;
-            MessageId = messageId;
+            FileId = fileId;
         }
     }
 }

@@ -11,6 +11,15 @@ namespace SecureChat.Library.ReliableMessages
         /// The connection id of the remote peer that this message is being sent to.
         /// </summary>
         public Guid PeerConnectionId { get; set; }
+
+        /// <summary>
+        /// The chunk number of the file data being sent.
+        /// </summary>
+        public int ChunkNumber { get; set; }
+
+        /// <summary>
+        /// Encrypted file data.
+        /// </summary>
         public byte[] Bytes { get; set; }
 
         /// <summary>
@@ -19,8 +28,9 @@ namespace SecureChat.Library.ReliableMessages
         /// </summary>
         public Guid SessionId { get; set; }
 
-        public FileTransferChunkQuery(Guid sessionId, Guid peerConnectionId, Guid fileId, byte[] bytes)
+        public FileTransferChunkQuery(Guid sessionId, Guid peerConnectionId, Guid fileId, int chunkNumber, byte[] bytes)
         {
+            ChunkNumber = chunkNumber;
             SessionId = sessionId;
             PeerConnectionId = peerConnectionId;
             FileId = fileId;

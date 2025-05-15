@@ -139,7 +139,36 @@ namespace SecureChat.Client
             Exceptions.Ignore(() => StopAudioPump());
         }
 
-        public void ReceiveTextMessageDeliveryNotification(Guid messageId)
+        public void ReceiveFileTransferAcknowledgment(Guid fileId)
+        {
+            if (IsTerminated)
+            {
+                return;
+            }
+
+            try
+            {
+                if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
+                {
+                    return;
+                }
+
+                Form.Invoke(() =>
+                {
+                    lock (Form.FlowPanel)
+                    {
+                        var bubble = Form.FlowPanel.Controls.OfType<FlowControlImage>().FirstOrDefault(o => o.FileId == fileId);
+                        bubble?.SetStatusDelivered();
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                AppendErrorLine(ex);
+            }
+        }
+
+        public void ReceiveTextMessageAcknowledgment(Guid messageId)
         {
             if (IsTerminated)
             {
@@ -179,7 +208,7 @@ namespace SecureChat.Client
 
             //Let the server know that we have received the message.
             ServerConnection.Current?.Connection.Client.Notify(
-                new TextMessageReceivedNotification(SessionId, PeerConnectionId, param.MessageId));
+                new TextMessageAcknowledgmentNotification(SessionId, PeerConnectionId, param.MessageId));
         }
 
         public void SendTextMessage(Guid messageId, string plaintText)
@@ -331,28 +360,28 @@ namespace SecureChat.Client
         /// <summary>
         /// A file transfer was completed for what is presumably a non-image, show the user a link to the file.
         /// </summary>
-        public void ReceiveFileMessage(string? saveAsFileName)
+        public void ReceiveFileMessage(Guid fileId, string? saveAsFileName)
         {
             if (IsTerminated)
             {
                 return;
             }
 
-            AppendFolderLinkMessage(DisplayName, Path.GetFileName(saveAsFileName) ?? "Open File Location",
+            AppendFolderLinkMessage(DisplayName, fileId, Path.GetFileName(saveAsFileName) ?? "Open File Location",
                  Path.GetDirectoryName(saveAsFileName) ?? Environment.GetEnvironmentVariable("SystemDrive") ?? string.Empty, ScOrigin.Remote);
         }
 
         /// <summary>
         /// A file transfer was completed for an image, show it to the user.
         /// </summary>
-        public void ReceiveImageMessage(byte[] imageBytes)
+        public void ReceiveImageMessage(Guid fileId, byte[] imageBytes)
         {
             if (IsTerminated)
             {
                 return;
             }
 
-            AppendImageMessage(DisplayName, imageBytes, ScOrigin.Remote);
+            AppendImageMessage(DisplayName, fileId, imageBytes, ScOrigin.Remote);
         }
 
         /// <summary>
@@ -461,6 +490,9 @@ namespace SecureChat.Client
 
                 var buffer = new byte[Settings.Instance.FileTransferChunkSize];
                 int bytesRead;
+                int chunkNumber = 0;
+
+                using var crypto = new PermafrostCipher(SharedSecret, PermafrostMode.Continuous);
 
                 while (!ftc.IsCancelled && (bytesRead = ftc.Transfer.Stream.Read(buffer, 0, buffer.Length)) > 0)
                 {
@@ -475,33 +507,24 @@ namespace SecureChat.Client
                     double completionPercentage = (totalBytesSent / ftc.Transfer.FileSize) * 100.0;
                     ftc.SetProgressValue((int)completionPercentage);
 
-                    // Transmit the current chunk
-                    ServerConnection.Current?.Connection.Client.Notify(new FileTransferChunkQuery(SessionId, PeerConnectionId, ftc.Transfer.FileId, Cipher(chunkToSend)));
+                    ServerConnection.Current?.Connection.Client.Notify( // Transmit the current chunk.
+                        new FileTransferChunkQuery(SessionId, PeerConnectionId, ftc.Transfer.FileId, chunkNumber++, crypto.Cipher(chunkToSend)));
                 }
 
-                if (!ftc.IsCancelled)
+                if (!ftc.IsCancelled && ServerConnection.Current != null)
                 {
-                    ServerConnection.Current?.Connection.Client.Query(new FileTransferCompleteQuery(SessionId, PeerConnectionId, ftc.Transfer.FileId)).ContinueWith(o =>
+                    if (ftc.Transfer.IsImage)
                     {
-                        if (!o.IsFaulted && o.Result.IsSuccess)
-                        {
-                            if (ftc.Transfer.IsImage)
-                            {
-                                // Load the image only after successful transfer
-                                var imageData = ftc.Transfer.GetFileBytes();
-                                AppendImageMessage(ServerConnection.Current.DisplayName, imageData, ScOrigin.Local);
-                            }
-                            else
-                            {
-                                AppendSuccessMessageLine($"File '{Path.GetFileName(ftc.Transfer.FileName)}' transferred successfully.");
-                            }
-                        }
-                        else
-                        {
-                            AppendErrorLine($"Failed to transfer file '{Path.GetFileName(ftc.Transfer.FileName)}'.");
-                        }
-                    });
+                        // Load the image only after successful transfer
+                        var imageData = ftc.Transfer.GetFileBytes();
+                        AppendImageMessage(ServerConnection.Current.DisplayName, ftc.Transfer.FileId, imageData, ScOrigin.Local);
+                    }
+                    else
+                    {
+                        AppendSuccessMessageLine($"File '{Path.GetFileName(ftc.Transfer.FileName)}' transferred successfully.");
+                    }
                 }
+
             }
             catch (Exception ex)
             {
@@ -590,7 +613,7 @@ namespace SecureChat.Client
             }
         }
 
-        private void AppendFolderLinkMessage(string fromName, string displayText, string folderPath, ScOrigin origin)
+        private void AppendFolderLinkMessage(string fromName, Guid fileId, string displayText, string folderPath, ScOrigin origin)
         {
             try
             {
@@ -619,7 +642,7 @@ namespace SecureChat.Client
 
                 LastMessageReceived = DateTime.Now;
 
-                AppendFlowControl(new FlowControlFolderHyperlink(Form.FlowPanel, displayText, folderPath, origin, null, fromName));
+                AppendFlowControl(new FlowControlFolderHyperlink(Form.FlowPanel, displayText, folderPath, fileId, origin, null, fromName));
             }
             catch (Exception ex)
             {
@@ -627,7 +650,7 @@ namespace SecureChat.Client
             }
         }
 
-        private void AppendImageMessage(string fromName, byte[] imageBytes, ScOrigin origin)
+        private void AppendImageMessage(string fromName, Guid fileId, byte[] imageBytes, ScOrigin origin)
         {
             try
             {
@@ -636,7 +659,9 @@ namespace SecureChat.Client
                     return;
                 }
 
-                AppendFlowControl(new FlowControlImage(Form.FlowPanel, imageBytes, origin, fromName));
+                AppendFlowControl(new FlowControlImage(Form.FlowPanel, imageBytes, fileId, origin,
+                    origin == ScOrigin.Local ? Resources.MessageStatusSent16 : null, //If the message is being sent, show the sent icon.
+                    fromName));
 
                 Form.Invoke(() =>
                 {

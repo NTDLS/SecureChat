@@ -2,10 +2,16 @@
 
 namespace SecureChat.Library.ReliableMessages
 {
-    public class FileTransferCompleteQuery
-        : IRmQuery<FileTransferEndQueryReply>
+    /// <summary>
+    /// Let the remote peer know that the message was received and decrypted successfully.
+    /// </summary>
+    public class TextMessageAcknowledgmentNotification
+        : IRmNotification
     {
-        public Guid FileId { get; set; }
+        /// <summary>
+        /// Unique identifier for this message.
+        /// </summary>
+        public Guid MessageId { get; set; }
 
         /// <summary>
         /// The connection id of the remote peer that this message is being sent to.
@@ -18,29 +24,11 @@ namespace SecureChat.Library.ReliableMessages
         /// </summary>
         public Guid SessionId { get; set; }
 
-        public FileTransferCompleteQuery(Guid sessionId, Guid peerConnectionId, Guid fileId)
+        public TextMessageAcknowledgmentNotification(Guid sessionId, Guid peerConnectionId, Guid messageId)
         {
             SessionId = sessionId;
             PeerConnectionId = peerConnectionId;
-            FileId = fileId;
-        }
-    }
-
-    public class FileTransferEndQueryReply
-    : IRmQueryReply
-    {
-        public bool IsSuccess { get; set; }
-        public string? ErrorMessage { get; set; }
-
-        public FileTransferEndQueryReply(Exception exception)
-        {
-            IsSuccess = false;
-            ErrorMessage = exception.GetBaseException().Message;
-        }
-
-        public FileTransferEndQueryReply()
-        {
-            IsSuccess = true;
+            MessageId = messageId;
         }
     }
 }

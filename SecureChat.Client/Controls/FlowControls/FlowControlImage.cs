@@ -1,6 +1,7 @@
 ﻿using NTDLS.Helpers;
 using SecureChat.Client.Forms;
 using SecureChat.Client.Helpers;
+using System.ComponentModel;
 using static SecureChat.Library.ScConstants;
 
 namespace SecureChat.Client.Controls.FlowControls
@@ -8,13 +9,18 @@ namespace SecureChat.Client.Controls.FlowControls
     public class FlowControlImage
         : FlowControlOriginBubble, IFlowControl
     {
-        public FlowControlImage(FlowLayoutPanel parent, byte[] imageBytes, ScOrigin origin, /*Image? initialStatusImage = null,*/ string? displayName = null)
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Guid FileId { get; private set; }
+
+        public FlowControlImage(FlowLayoutPanel parent, byte[] imageBytes, Guid fileId, ScOrigin origin, Image? initialStatusImage = null, string? displayName = null)
             : base(parent, new PictureBox
             {
                 SizeMode = PictureBoxSizeMode.Zoom,
                 MaximumSize = new Size(100, 100),
-            }, origin, null, displayName)
+            }, origin, initialStatusImage, displayName)
         {
+            FileId = fileId;
+
             using var ms = new MemoryStream(imageBytes);
             var image = Image.FromStream(ms);
 

@@ -25,11 +25,11 @@ namespace SecureChat.Client.Controls
 
             if (string.IsNullOrEmpty(saveAsFileName))
             {
-                Transfer = new FileInboundTransfer(fileId, fileName, fileSize, isImage);
+                Transfer = new FileInboundTransfer(activeChat.SharedSecret, fileId, fileName, fileSize, isImage);
             }
             else
             {
-                Transfer = new FileInboundTransfer(fileId, fileName, fileSize, isImage, saveAsFileName);
+                Transfer = new FileInboundTransfer(activeChat.SharedSecret, fileId, fileName, fileSize, isImage, saveAsFileName);
             }
 
             _activeChat = activeChat;

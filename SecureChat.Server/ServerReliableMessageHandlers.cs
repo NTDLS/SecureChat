@@ -27,9 +27,22 @@ namespace SecureChat.Server
         }
 
         /// <summary>
-        /// A client is reporting that it received a text message.
+        /// A client is reporting that it received a file.
         /// </summary>
-        public void TextMessageReceivedNotification(RmContext context, TextMessageReceivedNotification param)
+        public void FileTransferAcknowledgmentNotification(RmContext context, FileTransferAcknowledgmentNotification param)
+        {
+            try
+            {
+                var accountConnection = VerifyAndGetAccountConnection(context);
+                _chatService.RmServer.Notify(param.PeerConnectionId, param);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+            }
+        }
+
+        public void TextMessageAcknowledgmentNotification(RmContext context, TextMessageAcknowledgmentNotification param)
         {
             try
             {
@@ -306,25 +319,6 @@ namespace SecureChat.Server
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-            }
-        }
-
-        /// <summary>
-        /// A client has finished transmitting a file.
-        /// Route the message to the appropriate connection.
-        /// </summary>
-        public FileTransferEndQueryReply FileTransferEndQuery(RmContext context, FileTransferCompleteQuery param)
-        {
-            try
-            {
-                var accountConnection = VerifyAndGetAccountConnection(context);
-
-                return _chatService.RmServer.Query(param.PeerConnectionId, param).Result;
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                return new FileTransferEndQueryReply(ex);
             }
         }
 

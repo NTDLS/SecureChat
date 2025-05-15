@@ -1,4 +1,5 @@
 ﻿using NTDLS.Helpers;
+using System.ComponentModel;
 using System.Diagnostics;
 using static SecureChat.Library.ScConstants;
 
@@ -9,10 +10,14 @@ namespace SecureChat.Client.Controls.FlowControls
     {
         private readonly string _folderPath;
 
-        public FlowControlFolderHyperlink(FlowLayoutPanel parent, string displayText, string folderPath, ScOrigin origin, Image? initialStatusImage = null, string? displayName = null)
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Guid FileId { get; private set; }
+
+        public FlowControlFolderHyperlink(FlowLayoutPanel parent, string displayText, string folderPath, Guid fileId, ScOrigin origin, Image? initialStatusImage = null, string? displayName = null)
             : base(parent, new LinkLabel { Text = displayText }, origin, initialStatusImage, displayName)
         {
             _folderPath = folderPath;
+            FileId = fileId;
 
             if (ChildControl is LinkLabel child)
             {

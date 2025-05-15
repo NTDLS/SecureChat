@@ -1,4 +1,5 @@
 ﻿using NTDLS.Helpers;
+using NTDLS.Permafrost;
 
 namespace SecureChat.Client
 {
@@ -20,12 +21,17 @@ namespace SecureChat.Client
         public DateTime BeginTimestamp { get; private set; } = DateTime.UtcNow;
 
         private readonly Stream _stream;
+        private readonly PermafrostCipher _crypto;
+        private readonly List<OrderedChunk> _chunkBuffer = new();
+        private int _lastChunkNumber = -1;
 
         /// <summary>
         /// Buffered file data.
         /// </summary>
-        public FileInboundTransfer(Guid fileId, string fileName, long fileSize, bool isImage)
+        public FileInboundTransfer(byte[] sharedSecret, Guid fileId, string fileName, long fileSize, bool isImage)
         {
+            _crypto = new PermafrostCipher(sharedSecret, PermafrostMode.Continuous);
+
             FileId = fileId;
             FileName = fileName;
             FileSize = fileSize;
@@ -37,8 +43,10 @@ namespace SecureChat.Client
         /// <summary>
         /// Physical file data.
         /// </summary>
-        public FileInboundTransfer(Guid fileId, string fileName, long fileSize, bool isImage, string saveAsFileName)
+        public FileInboundTransfer(byte[] sharedSecret, Guid fileId, string fileName, long fileSize, bool isImage, string saveAsFileName)
         {
+            _crypto = new PermafrostCipher(sharedSecret, PermafrostMode.Continuous);
+
             SaveAsFileName = saveAsFileName;
             FileId = fileId;
             FileName = fileName;
@@ -48,21 +56,53 @@ namespace SecureChat.Client
             _stream = new FileStream(saveAsFileName, FileMode.Create, FileAccess.Write);
         }
 
-        public void AppendData(byte[] data)
+        /// <summary>
+        /// Appends the received chunk to the stream.
+        /// If the chunk is out of order, it will be buffered until the previous chunk is received.
+        /// </summary>
+        /// <returns>True when the file is fully received, otherwise false.</returns>
+        public bool AppendChunk(byte[] data, int chunkNumber)
         {
-            ReceivedByteCount += data.Length;
-            _stream.Write(data, 0, data.Length);
+            lock (_chunkBuffer)
+            {
+                OrderedChunk? bufferedChunk; //Flush out any buffered chunks that are now in order.
+                while ((bufferedChunk = _chunkBuffer.FirstOrDefault(x => x.ChunkNumber == _lastChunkNumber + 1)) != null)
+                {
+                    ReceivedByteCount += data.Length;
+                    _stream.Write(_crypto.Cipher(data), 0, data.Length);
+                    _lastChunkNumber = chunkNumber;
+                    _chunkBuffer.Remove(bufferedChunk);
+                }
+
+                if (chunkNumber == _lastChunkNumber + 1)
+                {
+                    //We can write this chunk immediately because it is the next chunk in order.
+                    ReceivedByteCount += data.Length;
+                    _stream.Write(_crypto.Cipher(data), 0, data.Length);
+                    _lastChunkNumber = chunkNumber;
+                }
+                else
+                {
+                    //The chunk is out of order, so we need to buffer it until we receive the previous chunk.
+                    _chunkBuffer.Add(new OrderedChunk(chunkNumber, data));
+                }
+
+                if (ReceivedByteCount == FileSize)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public byte[] GetFileBytes()
         {
-            /*
             //Since we sent file chunks asynchronously, we need to wait for the stream to be fully received.
             for (int retry = 0; _stream.Length != FileSize && retry < 100; retry++)
             {
                 Thread.Sleep(100);
             }
-            */
 
             if (_stream.Length != FileSize)
             {
@@ -82,6 +122,8 @@ namespace SecureChat.Client
             Exceptions.Ignore(() => _stream.Flush());
             Exceptions.Ignore(() => _stream.Close());
             Exceptions.Ignore(() => _stream.Dispose());
+            Exceptions.Ignore(() => _crypto.Dispose());
+            Exceptions.Ignore(() => _chunkBuffer.Clear());
         }
     }
 }

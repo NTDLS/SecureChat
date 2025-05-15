@@ -565,15 +565,10 @@ namespace SecureChat.Client.Forms
                 {
                     try
                     {
-                        ServerConnection.Current.Connection.Client.Query(new GetContactsQuery()).ContinueWith(o =>
+                        ServerConnection.Current.Connection.Client.Query(new GetContactsQuery(), TimeSpan.FromSeconds(1)).ContinueWith(o =>
                         {
                             try
                             {
-                                if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
-                                {
-                                    throw new Exception(o.Result.ErrorMessage);
-                                }
-
                                 if (!o.IsFaulted && o.Result.IsSuccess)
                                 {
                                     DeltaRepopulateTree(o.Result.Contacts);
