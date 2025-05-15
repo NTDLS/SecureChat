@@ -8,7 +8,7 @@ If you want to chat with me, download the client, navigate to the "Contacts" men
 The **default** server is hosted by me, but you can install your own server and point the client to your server in the client settings window.
 However it should be noted that the server is merely a passthough as the chat encryption is end-to-end (client-to-client).
 
-## Security Blurb 🛡️
+## Encryption 🛡️
 Each client connects to a central server using two pairs of 4096-bit RSA public-private key pairs. Communication begins with data encrypted using symmetric 256-bit AES, with the AES key itself encrypted using RSA for secure key exchange. When a chat session starts, each client generates 32 sets of 1024-bit Diffie-Hellman key pairs (providing a total of 8,192 bits of entropy) to negotiate a single shared secret. This shared key is then used for symmetric end-to-end encryption of all communication. Messages are encrypted using all negotiated layers and decrypted directly within the recipient’s chat dialog, ensuring in-flight confidentiality. Message history is not persistent and is lost upon logging out of the chat application.
 
 ### Login
