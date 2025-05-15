@@ -241,7 +241,7 @@ namespace SecureChat.Client.Forms
             // 
             // checkBoxAutoStartAtWindowsLogin
             // 
-            checkBoxAutoStartAtWindowsLogin.Location = new Point(5, 240);
+            checkBoxAutoStartAtWindowsLogin.Location = new Point(3, 235);
             checkBoxAutoStartAtWindowsLogin.Name = "checkBoxAutoStartAtWindowsLogin";
             checkBoxAutoStartAtWindowsLogin.Size = new Size(180, 20);
             checkBoxAutoStartAtWindowsLogin.TabIndex = 4;
@@ -343,9 +343,12 @@ namespace SecureChat.Client.Forms
             kryptonNavigator.NavigatorMode = Krypton.Navigator.NavigatorMode.BarRibbonTabGroup;
             kryptonNavigator.Owner = null;
             kryptonNavigator.PageBackStyle = PaletteBackStyle.PanelClient;
-            kryptonNavigator.Pages.AddRange(new Krypton.Navigator.KryptonPage[] { kryptonPageMessages, kryptonPageUI, kryptonPageNotifications, kryptonPageServer, kryptonPageAdvanced, kryptonPageCryptography });
+            kryptonNavigator.Pages.AddRange(new Krypton.Navigator.KryptonPage[] { kryptonPageNotifications, kryptonPageMessages, kryptonPageUI, kryptonPageServer, kryptonPageAdvanced, kryptonPageCryptography });
+            kryptonNavigator.PopupPages.AllowPopupPages = Krypton.Navigator.PopupPageAllow.Never;
+            kryptonNavigator.PopupPages.Element = Krypton.Navigator.PopupPageElement.Item;
+            kryptonNavigator.PopupPages.Position = Krypton.Navigator.PopupPagePosition.ModeAppropriate;
             kryptonNavigator.SelectedIndex = 0;
-            kryptonNavigator.Size = new Size(440, 288);
+            kryptonNavigator.Size = new Size(444, 288);
             kryptonNavigator.TabIndex = 5;
             // 
             // kryptonPageMessages
@@ -359,7 +362,7 @@ namespace SecureChat.Client.Forms
             kryptonPageMessages.LastVisibleSet = true;
             kryptonPageMessages.MinimumSize = new Size(150, 50);
             kryptonPageMessages.Name = "kryptonPageMessages";
-            kryptonPageMessages.Size = new Size(438, 259);
+            kryptonPageMessages.Size = new Size(442, 259);
             kryptonPageMessages.Text = "Messages";
             kryptonPageMessages.TextDescription = "Messages";
             kryptonPageMessages.TextTitle = "Messages";
@@ -415,7 +418,7 @@ namespace SecureChat.Client.Forms
             kryptonPageNotifications.LastVisibleSet = true;
             kryptonPageNotifications.MinimumSize = new Size(150, 50);
             kryptonPageNotifications.Name = "kryptonPageNotifications";
-            kryptonPageNotifications.Size = new Size(432, 262);
+            kryptonPageNotifications.Size = new Size(442, 259);
             kryptonPageNotifications.Text = "Notifications";
             kryptonPageNotifications.TextDescription = "Notifications";
             kryptonPageNotifications.TextTitle = "Notifications";
@@ -433,7 +436,7 @@ namespace SecureChat.Client.Forms
             kryptonPageServer.LastVisibleSet = true;
             kryptonPageServer.MinimumSize = new Size(150, 50);
             kryptonPageServer.Name = "kryptonPageServer";
-            kryptonPageServer.Size = new Size(432, 262);
+            kryptonPageServer.Size = new Size(442, 259);
             kryptonPageServer.Text = "Server";
             kryptonPageServer.TextDescription = "Server";
             kryptonPageServer.TextTitle = "Server";
@@ -452,7 +455,7 @@ namespace SecureChat.Client.Forms
             kryptonPageAdvanced.LastVisibleSet = true;
             kryptonPageAdvanced.MinimumSize = new Size(150, 50);
             kryptonPageAdvanced.Name = "kryptonPageAdvanced";
-            kryptonPageAdvanced.Size = new Size(432, 262);
+            kryptonPageAdvanced.Size = new Size(442, 259);
             kryptonPageAdvanced.Text = "Advanced";
             kryptonPageAdvanced.TextDescription = "Advanced";
             kryptonPageAdvanced.TextTitle = "Advanced";
@@ -472,7 +475,7 @@ namespace SecureChat.Client.Forms
             kryptonPageCryptography.LastVisibleSet = true;
             kryptonPageCryptography.MinimumSize = new Size(150, 50);
             kryptonPageCryptography.Name = "kryptonPageCryptography";
-            kryptonPageCryptography.Size = new Size(432, 262);
+            kryptonPageCryptography.Size = new Size(442, 259);
             kryptonPageCryptography.Text = "Cryptography";
             kryptonPageCryptography.TextDescription = "Cryptography";
             kryptonPageCryptography.TextTitle = "Cryptography";
@@ -497,13 +500,13 @@ namespace SecureChat.Client.Forms
             // 
             splitContainer1.Panel2.Controls.Add(buttonSave);
             splitContainer1.Panel2.Controls.Add(buttonCancel);
-            splitContainer1.Size = new Size(440, 335);
+            splitContainer1.Size = new Size(444, 335);
             splitContainer1.SplitterDistance = 288;
             splitContainer1.TabIndex = 6;
             // 
             // FormSettings
             // 
-            ClientSize = new Size(440, 335);
+            ClientSize = new Size(444, 335);
             Controls.Add(splitContainer1);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
