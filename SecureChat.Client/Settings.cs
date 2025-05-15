@@ -15,19 +15,19 @@ namespace SecureChat.Client
         {
             get
             {
-                _instance ??= LocalUserApplicationData.LoadFromDisk(ScConstants.AppName, new Settings());
+                _instance ??= LocalUserApplicationData.LoadFromDisk($"NetworkDLS\\{ScConstants.AppName}", new Settings());
                 return _instance;
             }
             set
             {
                 _instance = value;
-                LocalUserApplicationData.SaveToDisk(ScConstants.AppName, _instance);
+                LocalUserApplicationData.SaveToDisk($"NetworkDLS\\{ScConstants.AppName}", _instance);
             }
         }
 
         public static void Save()
         {
-            LocalUserApplicationData.SaveToDisk(ScConstants.AppName, Instance);
+            LocalUserApplicationData.SaveToDisk($"NetworkDLS\\{ScConstants.AppName}", Instance);
         }
 
         public PaletteMode Theme { get; set; } = Theming.IsWindowsDarkMode() ? PaletteMode.Microsoft365BlackDarkModeAlternate : PaletteMode.ProfessionalSystem;
