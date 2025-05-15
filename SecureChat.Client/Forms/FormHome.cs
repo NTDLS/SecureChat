@@ -83,12 +83,8 @@ namespace SecureChat.Client.Forms
                     {
                         e.Cancel = true;
                         Hide();
-                        _backgroundForm.Hide();
                     }
-                    else
-                    {
-                        _backgroundForm.Close();
-                    }
+                    _backgroundForm.Hide();
                 }
                 catch (Exception ex)
                 {
