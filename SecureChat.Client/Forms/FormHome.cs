@@ -21,11 +21,9 @@ namespace SecureChat.Client.Forms
         /// These are chat message forms per account ID. If they remain open, they will be recycled for subsequent chats.
         /// </summary>
         private readonly Dictionary<Guid, FormMessage> _accountMessageForms = new();
-
         private readonly ImageList _treeImages = new();
         private readonly ToolTip _treeToolTip = new();
-
-        private FormBackground _backgroundForm = new();
+        private readonly FormBackground _backgroundForm = new();
 
         public FormHome()
         {
@@ -57,12 +55,14 @@ namespace SecureChat.Client.Forms
 
             this.Activated += (object? sender, EventArgs e) =>
             {
-                if (_backgroundForm.Visible == false)
+                //There seems to be cases when the form is Activated while it is being hidden,
+                //  so we check this.Visible because we hide this before _backgroundForm.
+                if (_backgroundForm.Visible == false && Visible)
                 {
                     _backgroundForm.Visible = true;
+                    _backgroundForm.Bounds = new Rectangle(this.Bounds.X + 1, this.Bounds.Y + 1, this.Bounds.Width - 2, this.Bounds.Height - 2);
+                    Win32.SetWindowPos(_backgroundForm.Handle, this.Handle, 0, 0, 0, 0, Win32.SWP_NOMOVE | Win32.SWP_NOSIZE | Win32.SWP_NOACTIVATE);
                 }
-                _backgroundForm.Bounds = new Rectangle(this.Bounds.X + 1, this.Bounds.Y + 1, this.Bounds.Width - 2, this.Bounds.Height - 2);
-                Win32.SetWindowPos(_backgroundForm.Handle, this.Handle, 0, 0, 0, 0, Win32.SWP_NOMOVE | Win32.SWP_NOSIZE | Win32.SWP_NOACTIVATE);
             };
 
             this.Resize += (object? sender, EventArgs e) =>
@@ -82,8 +82,12 @@ namespace SecureChat.Client.Forms
                     if (ServerConnection.Current != null)
                     {
                         e.Cancel = true;
-                        _backgroundForm.Hide();
                         Hide();
+                        _backgroundForm.Hide();
+                    }
+                    else
+                    {
+                        _backgroundForm.Close();
                     }
                 }
                 catch (Exception ex)
@@ -92,7 +96,6 @@ namespace SecureChat.Client.Forms
                     MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             };
-
 
             try
             {
