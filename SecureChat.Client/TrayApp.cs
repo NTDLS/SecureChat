@@ -33,7 +33,8 @@ namespace SecureChat.Client
                     ContextMenuStrip = new ContextMenuStrip()
                 };
 
-                _trayIcon.MouseDoubleClick += TrayIcon_MouseDoubleClick;
+                _trayIcon.MouseClick += TrayIcon_MouseClick;
+                _trayIcon.BalloonTipClicked += TrayIcon_BalloonTipClicked;
 
                 _trayIcon.ContextMenuStrip.Items.Add("About", null, OnAbout);
                 _trayIcon.ContextMenuStrip.Items.Add("Log", null, OnLog);
@@ -76,8 +77,18 @@ namespace SecureChat.Client
             }
         }
 
-        private void TrayIcon_MouseDoubleClick(object? sender, MouseEventArgs e)
+        private void TrayIcon_BalloonTipClicked(object? sender, EventArgs e)
         {
+            TrayIcon_MouseClick(sender, new MouseEventArgs(MouseButtons.Left, 1, 0, 0, 0));
+        }
+
+        private void TrayIcon_MouseClick(object? sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left)
+            {
+                return;
+            }
+
             try
             {
                 if (ServerConnection.Current?.Connection == null)

@@ -35,6 +35,7 @@
             columnHeaderApplication = new ColumnHeader();
             columnHeaderVersion = new ColumnHeader();
             linkWebsite = new LinkLabel();
+            labelVersion = new Krypton.Toolkit.KryptonLabel();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
@@ -99,11 +100,20 @@
             linkWebsite.Text = "www.NetworkDLS.com";
             linkWebsite.LinkClicked += LinkWebsite_LinkClicked;
             // 
+            // labelVersion
+            // 
+            labelVersion.Location = new Point(12, 178);
+            labelVersion.Name = "labelVersion";
+            labelVersion.Size = new Size(42, 20);
+            labelVersion.TabIndex = 10;
+            labelVersion.Values.Text = "v0.0.0";
+            // 
             // FormAbout
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(541, 216);
+            ClientSize = new Size(545, 204);
+            Controls.Add(labelVersion);
             Controls.Add(linkWebsite);
             Controls.Add(listViewVersions);
             Controls.Add(buttonOk);
@@ -131,5 +141,6 @@
         private ColumnHeader columnHeaderApplication;
         private ColumnHeader columnHeaderVersion;
         private LinkLabel linkWebsite;
+        private Krypton.Toolkit.KryptonLabel labelVersion;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Krypton.Toolkit;
+using NTDLS.Helpers;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -11,6 +12,8 @@ namespace SecureChat.Client.Forms
         public FormAbout()
         {
             InitializeComponent();
+
+            BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
         }
 
         public FormAbout(bool showInTaskbar)
@@ -37,6 +40,9 @@ namespace SecureChat.Client.Forms
         {
             AcceptButton = buttonOk;
             CancelButton = buttonOk;
+
+            var serverVersion = (Assembly.GetEntryAssembly()?.GetName().Version).EnsureNotNull();
+            labelVersion.Text = $"v{serverVersion}";
 
             if (assembly == null || assembly.Location == null)
             {
