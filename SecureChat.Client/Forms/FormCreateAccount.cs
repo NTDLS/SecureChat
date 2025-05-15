@@ -78,7 +78,7 @@ namespace SecureChat.Client.Forms
                     {
                         progressForm.SetHeaderText("Negotiating cryptography...");
 
-                        var connection = Settings.Instance.CreateEncryptedConnection(RmExceptionHandler, progressForm);
+                        var connection = ConnectionHelpers.CreateEncryptedConnection(RmExceptionHandler, progressForm);
 
                         try
                         {

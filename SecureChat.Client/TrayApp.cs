@@ -144,7 +144,7 @@ namespace SecureChat.Client
                     {
                         Task.Run(() =>
                         {
-                            loginResult = Settings.Instance.CreateLoggedInConnection(autoLogin.Username, autoLogin.PasswordHash, RmExceptionHandler);
+                            loginResult = ConnectionHelpers.CreateLoggedInConnection(autoLogin.Username, autoLogin.PasswordHash, RmExceptionHandler);
 
                             if (loginResult != null)
                             {

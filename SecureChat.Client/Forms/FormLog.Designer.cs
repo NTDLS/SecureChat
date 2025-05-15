@@ -142,8 +142,6 @@ namespace SecureChat.Client.Forms
 
         #endregion
 
-        private KryptonTextBox textBoxDisplayName;
-        private KryptonLabel labelDisplayName;
         private KryptonButton buttonClear;
         private KryptonDataGridView dataGridViewLog;
         private SplitContainer splitContainer1;

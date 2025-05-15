@@ -563,6 +563,25 @@ namespace SecureChat.Server
         }
 
         /// <summary>
+        /// Client is requesting information about a single contact.
+        /// </summary>
+        public GetAccountProfileQueryReply GetAccountProfileQuery(RmContext context, GetAccountProfileQuery param)
+        {
+            try
+            {
+                var accountConnection = VerifyAndGetAccountConnection(context);
+
+                var contact = _dbRepository.GetContact(accountConnection.AccountId.EnsureNotNull(), param.AccountId);
+
+                return new GetAccountProfileQueryReply(contact);
+            }
+            catch (Exception ex)
+            {
+                return new GetAccountProfileQueryReply(ex.GetBaseException());
+            }
+        }
+
+        /// <summary>
         /// Client is requesting a list of contacts for their account.
         /// </summary>
         public GetContactsQueryReply GetContactsQuery(RmContext context, GetContactsQuery param)

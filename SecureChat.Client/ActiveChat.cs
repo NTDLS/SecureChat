@@ -134,7 +134,7 @@ namespace SecureChat.Client
                 ServerConnection.Current.Connection.Client.Notify(new TerminateChatNotification(SessionId, PeerConnectionId)));
             }
 
-            Exceptions.Ignore(() => AppendSystemMessageLine($"Conversation has ended."));
+            Exceptions.Ignore(() => AppendSystemMessageLine($"Conversation with {DisplayName} disconnected."));
             Exceptions.Ignore(() => StopAudioPump());
         }
 
@@ -147,7 +147,7 @@ namespace SecureChat.Client
 
             try
             {
-                if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
+                if (Form?.FlowPanel == null || Form.IsDisposed || Form.Disposing)
                 {
                     return;
                 }
@@ -176,7 +176,7 @@ namespace SecureChat.Client
 
             try
             {
-                if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
+                if (Form?.FlowPanel == null || Form.IsDisposed || Form.Disposing)
                 {
                     return;
                 }
@@ -353,7 +353,7 @@ namespace SecureChat.Client
                 return;
             }
 
-            AppendFileTransferRequestMessage(DisplayName, fileId, fileName, fileSize, isImage, true, Themes.FromRemoteColor);
+            AppendFileTransferRequestMessage(DisplayName, fileId, fileName, fileSize, isImage, true, Theming.FromRemoteColor);
         }
 
         /// <summary>
@@ -529,7 +529,7 @@ namespace SecureChat.Client
             {
                 if (ftc.IsCancelled == false)
                 {
-                    AppendErrorLine($"Error transferring file: {ex.Message}", Color.Red);
+                    AppendErrorLine($"Error transferring file: {ex.Message}");
                 }
             }
             finally
@@ -547,7 +547,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
+                if (Form?.FlowPanel == null || Form.IsDisposed || Form.Disposing)
                 {
                     return;
                 }
@@ -579,7 +579,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
+                if (Form?.FlowPanel == null || Form.IsDisposed || Form.Disposing)
                 {
                     return;
                 }
@@ -616,7 +616,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
+                if (Form?.FlowPanel == null || Form.IsDisposed || Form.Disposing)
                 {
                     return;
                 }
@@ -653,7 +653,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
+                if (Form?.FlowPanel == null || Form.IsDisposed || Form.Disposing)
                 {
                     return;
                 }
@@ -692,7 +692,7 @@ namespace SecureChat.Client
         /// <returns></returns>
         public FlowControlFileTransferReceiveProgress AppendFileTransferReceiveProgress(Guid fileId, string fileName, long fileSize, bool isImage, string? saveAsFileName = null)
         {
-            if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
+            if (Form?.FlowPanel == null || Form.IsDisposed || Form.Disposing)
             {
                 throw new Exception("Form is not initialized.");
             }
@@ -709,7 +709,7 @@ namespace SecureChat.Client
         /// <returns></returns>
         public FlowControlFileTransferSendProgress AppendFileTransferSendProgress(string fileName, long fileSize, Stream stream)
         {
-            if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
+            if (Form?.FlowPanel == null || Form.IsDisposed || Form.Disposing)
             {
                 throw new Exception("Form is not initialized.");
             }
@@ -722,52 +722,50 @@ namespace SecureChat.Client
 
         public void AppendErrorLine(Exception ex, Color? color = null)
         {
-            if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
+            if (Form?.FlowPanel == null || Form.IsDisposed || Form.Disposing)
             {
                 return;
             }
 
             var baseException = ex.GetBaseException();
-            AppendFlowControl(new FlowControlSystemText(Form.FlowPanel, baseException.Message, color ?? Color.Red));
+            AppendFlowControl(new FlowControlInformationText(Form.FlowPanel, baseException.Message, Color.Red));
             Program.Log.Error(baseException.Message, baseException);
         }
 
-        public void AppendErrorLine(string message, Color? color = null)
+        public void AppendErrorLine(string message)
         {
-            if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
+            if (Form?.FlowPanel == null || Form.IsDisposed || Form.Disposing)
             {
                 return;
             }
 
-            AppendFlowControl(new FlowControlSystemText(Form.FlowPanel, message, color ?? Color.Red));
+            AppendFlowControl(new FlowControlInformationText(Form.FlowPanel, message, Color.Red));
             Program.Log.Error(message);
         }
 
-        public void AppendSystemMessageLine(string message, Color? color = null)
+        public void AppendSystemMessageLine(string message)
         {
-            if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
+            if (Form?.FlowPanel == null || Form.IsDisposed || Form.Disposing)
             {
                 return;
             }
 
-            AppendFlowControl(new FlowControlSystemText(Form.FlowPanel, message, color));
+            AppendFlowControl(new FlowControlInformationText(Form.FlowPanel, message, Color.Gray));
         }
 
-        public void AppendSuccessMessageLine(string message, Color? color = null)
+        public void AppendSuccessMessageLine(string message)
         {
-            color ??= Themes.ChooseColor(Color.Green, Color.LightGreen);
-
-            if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
+            if (Form?.FlowPanel == null || Form.IsDisposed || Form.Disposing)
             {
                 return;
             }
 
-            AppendFlowControl(new FlowControlSystemText(Form.FlowPanel, message, color));
+            AppendFlowControl(new FlowControlInformationText(Form.FlowPanel, message, Color.Green));
         }
 
         public void AppendIncomingCallRequest(string fromName)
         {
-            if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
+            if (Form?.FlowPanel == null || Form.IsDisposed || Form.Disposing)
             {
                 return;
             }
@@ -777,7 +775,7 @@ namespace SecureChat.Client
 
         public void AppendOutgoingCallRequest(string toName)
         {
-            if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
+            if (Form?.FlowPanel == null || Form.IsDisposed || Form.Disposing)
             {
                 return;
             }
@@ -792,7 +790,7 @@ namespace SecureChat.Client
 
             try
             {
-                if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
+                if (Form?.FlowPanel == null || Form.IsDisposed || Form.Disposing)
                 {
                     return null;
                 }
@@ -846,7 +844,7 @@ namespace SecureChat.Client
         {
             try
             {
-                if (Form == null || Form.FlowPanel == null || Form.IsDisposed || Form.Disposing)
+                if (Form?.FlowPanel == null || Form.IsDisposed || Form.Disposing)
                 {
                     return;
                 }

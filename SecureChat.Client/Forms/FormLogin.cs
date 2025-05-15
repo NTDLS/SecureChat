@@ -75,7 +75,7 @@ namespace SecureChat.Client.Forms
                 {
                     try
                     {
-                        _loginResult = Settings.Instance.CreateLoggedInConnection(username, passwordHash, RmExceptionHandler, progressForm);
+                        _loginResult = ConnectionHelpers.CreateLoggedInConnection(username, passwordHash, RmExceptionHandler, progressForm);
                         if (_loginResult != null)
                         {
                             if (checkBoxStayLoggedIn.Checked)

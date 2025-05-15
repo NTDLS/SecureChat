@@ -65,50 +65,44 @@ namespace SecureChat.Client.Forms
 
             #region Themes.
 
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("365 Black Dark Mode Alternate", PaletteMode.Microsoft365BlackDarkModeAlternate));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("365 Black Dark Mode", PaletteMode.Microsoft365BlackDarkMode));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("365 Black", PaletteMode.Microsoft365Black));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("365 Blue Dark Mode", PaletteMode.Microsoft365BlueDarkMode));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("365 Blue Light Mode", PaletteMode.Microsoft365BlueLightMode));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("365 Blue", PaletteMode.Microsoft365Blue));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("365 Silver Dark Mode", PaletteMode.Microsoft365SilverDarkMode));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("365 Silver Light Mode", PaletteMode.Microsoft365SilverLightMode));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("365 Silver", PaletteMode.Microsoft365Silver));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("365 White", PaletteMode.Microsoft365White));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office 2003", PaletteMode.ProfessionalOffice2003));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office 2007 Black Dark Mode", PaletteMode.Office2007BlackDarkMode));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office 2007 Black", PaletteMode.Office2007Black));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office 2007 Blue Dark Mode", PaletteMode.Office2007BlueDarkMode));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office 2007 Blue Light Mode", PaletteMode.Office2007BlueLightMode));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office 2007 Blue", PaletteMode.Office2007Blue));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office 2007 Silver Dark Mode", PaletteMode.Office2007SilverDarkMode));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office 2007 Silver Light Mode", PaletteMode.Office2007SilverLightMode));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office 2007 Silver", PaletteMode.Office2007Silver));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office 2007 White", PaletteMode.Office2007White));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office 2010 Black Dark Mode", PaletteMode.Office2010BlackDarkMode));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office 2010 Black", PaletteMode.Office2010Black));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office 2010 Blue Dark Mode", PaletteMode.Office2010BlueDarkMode));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office 2010 Blue Light Mode", PaletteMode.Office2010BlueLightMode));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office 2010 Blue", PaletteMode.Office2010Blue));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office 2010 Silver Dark Mode", PaletteMode.Office2010SilverDarkMode));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office 2010 Silver Light Mode", PaletteMode.Office2010SilverLightMode));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office 2010 Silver", PaletteMode.Office2010Silver));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office 2010 White", PaletteMode.Office2010White));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office 2013 White", PaletteMode.Office2013White));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Professional", PaletteMode.ProfessionalSystem));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Sparkle Blue Dark Mode", PaletteMode.SparkleBlueDarkMode));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Sparkle Blue Light Mode", PaletteMode.SparkleBlueLightMode));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Sparkle Blue", PaletteMode.SparkleBlue));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Sparkle Orange Dark Mode", PaletteMode.SparkleOrangeDarkMode));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Sparkle Orange Light Mode", PaletteMode.SparkleOrangeLightMode));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Sparkle Orange", PaletteMode.SparkleOrange));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Sparkle Purple Dark Mode", PaletteMode.SparklePurpleDarkMode));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Sparkle Purple Light Mode", PaletteMode.SparklePurpleLightMode));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Sparkle Purple", PaletteMode.SparklePurple));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Studio Render 2007", PaletteMode.VisualStudio2010Render2007));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Studio Render 2010", PaletteMode.VisualStudio2010Render2010));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Studio Render 2013", PaletteMode.VisualStudio2010Render2013));
-            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Studio Render 365", PaletteMode.VisualStudio2010Render365));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Cloud Black (Dark)", PaletteMode.Microsoft365BlackDarkMode));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Cloud Blue (Light)", PaletteMode.Microsoft365Blue));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Cloud Gray (Dark)", PaletteMode.Microsoft365Black));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Cloud Gray (Light)", PaletteMode.Microsoft365Silver));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Cloud Refuge (Dark)", PaletteMode.Microsoft365BlackDarkModeAlternate));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Cloud Silver (Dark)", PaletteMode.Microsoft365SilverDarkMode));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Cloud Silver (Light)", PaletteMode.Microsoft365SilverLightMode));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Cloud Stark (Light)", PaletteMode.Microsoft365BlueDarkMode));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Cloud Vibrant (Light)", PaletteMode.Microsoft365BlueLightMode));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Cloud White (Light)", PaletteMode.Microsoft365White));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office Classic (Light)", PaletteMode.ProfessionalOffice2003));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office Metro Azure (Light)", PaletteMode.Office2010Blue));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office Metro Black (Dark)", PaletteMode.Office2010BlackDarkMode));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office Metro Blue (Light)", PaletteMode.Office2010BlueDarkMode));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office Metro Blue (Light)", PaletteMode.Office2010BlueLightMode));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office Metro Gray (Dark)", PaletteMode.Office2010Black));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office Metro Silver (Dark)", PaletteMode.Office2010SilverDarkMode));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office Metro Silver (Light)", PaletteMode.Office2010SilverLightMode));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office Metro Vibrant (Light)", PaletteMode.Office2010Silver));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office Metro White (Light)", PaletteMode.Office2010White));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office Modern (Light)", PaletteMode.Office2013White));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office Slate Azure (Light)", PaletteMode.Office2007Blue));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office Slate Black (Dark)", PaletteMode.Office2007BlackDarkMode));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office Slate Blue (Light)", PaletteMode.Office2007BlueLightMode));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office Slate Gray (Dark)", PaletteMode.Office2007Black));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office Slate Gray (Light)", PaletteMode.Office2007Silver));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office Slate Silver (Dark)", PaletteMode.Office2007SilverDarkMode));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office Slate Silver (Light)", PaletteMode.Office2007SilverLightMode));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office Slate Vibrant (Light)", PaletteMode.Office2007BlueDarkMode));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Office Slate White (Light)", PaletteMode.Office2007White));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Professional (Light)", PaletteMode.ProfessionalSystem));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Sparkle Blue (Dark)", PaletteMode.SparkleBlue));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Sparkle Orange (Dark)", PaletteMode.SparkleOrange));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Sparkle Purple (Dark)", PaletteMode.SparklePurple));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Studio Render Cloud (Light)", PaletteMode.VisualStudio2010Render365));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Studio Render Metro (Light)", PaletteMode.VisualStudio2010Render2010));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Studio Render Modern (Light)", PaletteMode.VisualStudio2010Render2013));
+            kryptonComboBoxTheme.Items.Add(new ThemeComboItem("Studio Render Slate (Light)", PaletteMode.VisualStudio2010Render2007));
 
             foreach (var item in kryptonComboBoxTheme.Items)
             {
@@ -146,6 +140,10 @@ namespace SecureChat.Client.Forms
             try
             {
                 var settings = LocalUserApplicationData.LoadFromDisk(ScConstants.AppName, new Settings());
+
+                settings.Theme = (kryptonComboBoxTheme.SelectedItem as ThemeComboItem)?.Mode
+                    ?? throw new ArgumentNullException("Theme must be selected.");
+
                 settings.ServerAddress = textBoxServerAddress.TextBox.GetAndValidateText("Server address must not be empty.");
                 settings.Font = comboBoxFont.Text;
                 settings.FontSize = (float)numericUpDownFontSize.Value;
@@ -163,7 +161,6 @@ namespace SecureChat.Client.Forms
                 settings.PlaySoundWhenContactComesOnline = checkBoxPlaySoundWhenContactComesOnline.Checked;
                 settings.PlaySoundWhenMessageReceived = checkBoxPlaySoundWhenMessageReceived.Checked;
                 settings.FlashWindowWhenMessageReceived = checkBoxFlashWindowWhenMessageReceived.Checked;
-
 
                 if (ScConstants.AcceptableAesKeySizes.Contains(settings.AesKeySize) == false)
                 {
@@ -204,6 +201,19 @@ namespace SecureChat.Client.Forms
 
         private void ButtonCancel_Click(object sender, EventArgs e)
         {
+            try
+            {
+                //On cancel, we need to reset the theme to the original value.
+                Program.ThemeManager.GlobalPaletteMode = Settings.Instance.Theme;
+                foreach (Form form in Application.OpenForms)
+                {
+                    form.BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
+                }
+            }
+            catch
+            {
+            }
+
             this.InvokeClose(DialogResult.Cancel);
         }
 
@@ -212,6 +222,16 @@ namespace SecureChat.Client.Forms
             if (kryptonComboBoxTheme.SelectedItem is ThemeComboItem item)
             {
                 Program.ThemeManager.GlobalPaletteMode = item.Mode;
+                try
+                {
+                    foreach (Form form in Application.OpenForms)
+                    {
+                        form.BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
+                    }
+                }
+                catch
+                {
+                }
             }
         }
     }

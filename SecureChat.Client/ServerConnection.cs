@@ -47,7 +47,7 @@ namespace SecureChat.Client
             DisplayName = displayName;
             AccountId = accountId;
 
-            DatagramClient = Settings.Instance.CreateDmClient();
+            DatagramClient = ConnectionHelpers.CreateDmClient();
 
             new Thread(() =>
             {

@@ -15,7 +15,7 @@ namespace SecureChat.Client.Forms
 
             BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
 
-            if (ServerConnection.Current == null || !ServerConnection.Current.Connection.Client.IsConnected)
+            if (ServerConnection.Current?.Connection.Client.IsConnected != true)
             {
                 return;
             }
@@ -42,7 +42,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (ServerConnection.Current == null || !ServerConnection.Current.Connection.Client.IsConnected)
+                if (ServerConnection.Current?.Connection.Client.IsConnected != true)
                 {
                     MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     this.InvokeClose(DialogResult.Cancel);

@@ -9,7 +9,7 @@
 
     <Company>NetworkDLS</Company>
     <Copyright>Copyright © 2025 NetworkDLS</Copyright>
-    <Version>1.0.14</Version>
+    <Version>1.0.15</Version>
     <Authors>NetworkDLS</Authors>
   </PropertyGroup>
 
@@ -24,6 +24,7 @@
   <ItemGroup>
     <EmbeddedResource Include="SqlQueries\AcceptContactInvite.sql" />
     <EmbeddedResource Include="SqlQueries\GetAccountById.sql" />
+    <EmbeddedResource Include="SqlQueries\GetContact.sql" />
     <EmbeddedResource Include="SqlQueries\RemoveContact.sql" />
     <EmbeddedResource Include="SqlQueries\AddContactInvite.sql" />
     <EmbeddedResource Include="SqlQueries\GetAccountIdByUserName.sql" />

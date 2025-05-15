@@ -27,7 +27,6 @@ namespace SecureChat.Client.Forms
             InitializeComponent();
 
             BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
-            FlowPanel.BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
 
             try
             {
@@ -283,7 +282,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (ServerConnection.Current == null || !ServerConnection.Current.Connection.Client.IsConnected)
+                if (ServerConnection.Current?.Connection.Client.IsConnected != true)
                 {
                     _activeChat.AppendSystemMessageLine("Not connected.");
                     return;
@@ -293,11 +292,11 @@ namespace SecureChat.Client.Forms
                 {
                     try
                     {
-                        ServerConnection.Current.FormHome.EstablishEndToEndConnectionFor(_activeChat.AccountId, _activeChat.DisplayName);
+                        ConnectionHelpers.EstablishEndToEndConnectionFor(_activeChat.AccountId);
                     }
                     catch (Exception ex)
                     {
-                        _activeChat.AppendSystemMessageLine(ex.GetBaseException().Message);
+                        _activeChat.AppendErrorLine(ex.GetBaseException().Message);
                         return;
                     }
                 }

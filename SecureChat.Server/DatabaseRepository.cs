@@ -201,6 +201,24 @@ namespace SecureChat.Server
             });
         }
 
+        /// <summary>
+        /// Gets the contact information for a specific account.
+        /// Only returns the contact information if the account is a contact of the user and the contact is accepted.
+        /// </summary>
+        public ContactModel? GetContact(Guid accountId, Guid queryAccountId)
+        {
+            return _dbFactory.Ephemeral(o =>
+            {
+                var contact = o.QueryFirstOrDefault<ContactModel>(@"SqlQueries\GetContact.sql",
+                    new
+                    {
+                        AccountId = accountId,
+                        QueryAccountId = queryAccountId
+                    });
+                return contact;
+            });
+        }
+
         public List<ContactModel> GetContacts(Guid accountId)
         {
             var accounts = _dbFactory.Ephemeral(o =>

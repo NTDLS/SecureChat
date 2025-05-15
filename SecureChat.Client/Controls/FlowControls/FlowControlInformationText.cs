@@ -4,28 +4,28 @@ using SecureChat.Client.Helpers;
 
 namespace SecureChat.Client.Controls.FlowControls
 {
-    public class FlowControlSystemText
+    public class FlowControlInformationText
         : FlowLayoutPanel, IFlowControl
     {
         private readonly FlowLayoutPanel _parent;
         private readonly Label _labelMessage;
 
-        public FlowControlSystemText(FlowLayoutPanel parent, string message, Color? color = null)
+        public FlowControlInformationText(FlowLayoutPanel parent, string message, Color requestedForeColor)
         {
             BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
+
+            var foreColor = Theming.ShiftToContrast(requestedForeColor, BackColor);
 
             _parent = parent;
             FlowDirection = FlowDirection.TopDown;
             AutoSize = true;
             Margin = new Padding(0);
 
-            color ??= Themes.ChooseColor(Color.LightGray, Color.Maroon);
-
             _labelMessage = new Label
             {
                 Text = message,
                 AutoSize = true,
-                ForeColor = color.EnsureNotNull(),
+                ForeColor = foreColor,
                 Font = Fonts.Instance.Italic,
                 Padding = new Padding(0)
             };

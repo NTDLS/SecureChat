@@ -1,7 +1,6 @@
 ﻿using Krypton.Toolkit;
 using NTDLS.Helpers;
 using NTDLS.Persistence;
-using NTDLS.SecureKeyExchange;
 using NTDLS.WinFormsHelpers;
 using SecureChat.Client.Helpers;
 using SecureChat.Client.Models;
@@ -157,53 +156,6 @@ namespace SecureChat.Client.Forms
             });
         }
 
-        internal ActiveChat? EstablishEndToEndConnectionFor(Guid accountId, string displayName)
-        {
-            //Start the key exchange process then popup the chat window.
-            if (ServerConnection.Current == null || !ServerConnection.Current.Connection.Client.IsConnected)
-            {
-                MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.InvokeClose(DialogResult.Cancel);
-                return null;
-            }
-
-            ActiveChat? activeChat = null;
-
-            var sessionId = Guid.NewGuid();
-
-            var compoundNegotiator = new CompoundNegotiator();
-            var negotiationToken = compoundNegotiator.GenerateNegotiationToken((int)(Math.Ceiling(Settings.Instance.EndToEndKeySize / 128.0)));
-
-            //The first thing we do when we get a connection is start a new key exchange process.
-            var queryRequestKeyExchangeReply = ServerConnection.Current.Connection.Client.Query(
-                new InitiatePeerToPeerSessionQuery(sessionId, ServerConnection.Current.AccountId, accountId, ServerConnection.Current.DisplayName, negotiationToken))
-                .ContinueWith(o =>
-                {
-                    if (!o.IsFaulted && o.Result.IsSuccess)
-                    {
-                        return o.Result;
-                    }
-                    return null;
-                }).Result;
-
-            if (queryRequestKeyExchangeReply != null)
-            {
-                //We received a reply to the secure key exchange, apply it.
-                compoundNegotiator.ApplyNegotiationResponseToken(queryRequestKeyExchangeReply.NegotiationToken);
-
-                activeChat = ServerConnection.Current.AddActiveChat(sessionId,
-                    queryRequestKeyExchangeReply.PeerConnectionId, accountId, displayName, compoundNegotiator.SharedSecret);
-
-                activeChat.Form.Show();
-            }
-            else
-            {
-                throw new Exception("Failed to establish a connection with the contact.");
-            }
-
-            return activeChat;
-        }
-
         private void RemoveContact(ContactModel contact)
         {
             try
@@ -305,7 +257,7 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (ServerConnection.Current == null || !ServerConnection.Current.Connection.Client.IsConnected)
+                if (ServerConnection.Current?.Connection.Client.IsConnected != true)
                 {
                     return null;
                 }
@@ -475,6 +427,14 @@ namespace SecureChat.Client.Forms
         {
             try
             {
+                //Start the key exchange process then popup the chat window.
+                if (ServerConnection.Current?.Connection.Client.IsConnected != true)
+                {
+                    this.InvokeClose(DialogResult.Cancel);
+                    ServerConnection.TerminateCurrent();
+                    return;
+                }
+
                 if (e.Button != MouseButtons.Left)
                 {
                     return;
@@ -494,20 +454,12 @@ namespace SecureChat.Client.Forms
                         return;
                     }
 
-                    //Start the key exchange process then popup the chat window.
-                    if (ServerConnection.Current == null || !ServerConnection.Current.Connection.Client.IsConnected)
-                    {
-                        MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        this.InvokeClose(DialogResult.Cancel);
-                        return;
-                    }
-
                     var activeChat = ServerConnection.Current.GetActiveChatByAccountId(contactsModel.Id);
                     if (activeChat == null)
                     {
                         try
                         {
-                            EstablishEndToEndConnectionFor(contactsModel.Id, contactsModel.DisplayName);
+                            ConnectionHelpers.EstablishEndToEndConnectionFor(contactsModel.Id);
                         }
                         catch (Exception ex)
                         {
@@ -552,9 +504,8 @@ namespace SecureChat.Client.Forms
                     _repopulateInProgress = true;
                 }
 
-                if (ServerConnection.Current == null || !ServerConnection.Current.Connection.Client.IsConnected)
+                if (ServerConnection.Current?.Connection.Client.IsConnected != true)
                 {
-                    //MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     this.InvokeClose(DialogResult.Cancel);
                     ServerConnection.TerminateCurrent();
                     return;
@@ -599,10 +550,10 @@ namespace SecureChat.Client.Forms
         {
             try
             {
-                if (ServerConnection.Current == null || !ServerConnection.Current.Connection.Client.IsConnected)
+                if (ServerConnection.Current?.Connection.Client.IsConnected != true)
                 {
-                    MessageBox.Show("Connection to the server was lost.", ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     this.InvokeClose(DialogResult.Cancel);
+                    ServerConnection.TerminateCurrent();
                     return;
                 }
 

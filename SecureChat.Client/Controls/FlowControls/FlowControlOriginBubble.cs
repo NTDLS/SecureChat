@@ -37,11 +37,11 @@ namespace SecureChat.Client.Controls.FlowControls
 
             if (origin == ScOrigin.Local)
             {
-                _bubbleColor = Themes.FromLocalColor;
+                _bubbleColor = Theming.FromLocalColor;
             }
             else
             {
-                _bubbleColor = Themes.FromRemoteColor;
+                _bubbleColor = Theming.FromRemoteColor;
             }
 
             using var font = new Font(Settings.Instance.Font, Settings.Instance.FontSize);
@@ -52,7 +52,7 @@ namespace SecureChat.Client.Controls.FlowControls
                 {
                     AutoSize = true,
                     BackColor = Color.Transparent,
-                    ForeColor = Themes.AdjustBrightness(Themes.InvertColor(_bubbleColor), 0.85f),
+                    ForeColor = Theming.AdjustBrightness(Theming.InvertColor(_bubbleColor), 0.85f),
                     Font = font,
                     Text = displayName,
                     Top = 0,
@@ -71,7 +71,7 @@ namespace SecureChat.Client.Controls.FlowControls
 
             _childControl.AutoSize = true;
             _childControl.BackColor = Color.Transparent;
-            _childControl.ForeColor = Themes.AdjustBrightness(Themes.InvertColor(_bubbleColor), 0.5f);
+            _childControl.ForeColor = Theming.AdjustBrightness(Theming.InvertColor(_bubbleColor), 0.5f);
             _childControl.Font = font;
             _childControl.Top = _labelDisplayName?.Top + _labelDisplayName?.Height + 5 ?? 0;
             Controls.Add(_childControl);
