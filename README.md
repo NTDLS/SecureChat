@@ -11,6 +11,9 @@ However it should be noted that the server is merely a passthough as the chat en
 ## Encryption 🛡️
 Each client connects to a central server using two pairs of 4096-bit RSA public-private key pairs. Communication begins with data encrypted using symmetric 256-bit AES, with the AES key itself encrypted using RSA for secure key exchange. When a chat session starts, each client generates 32 sets of 1024-bit Diffie-Hellman key pairs (providing a total of 8,192 bits of entropy) to negotiate a single shared secret. This shared key is then used for symmetric end-to-end encryption of all communication. Messages are encrypted using all negotiated layers and decrypted directly within the recipient’s chat dialog, ensuring in-flight confidentiality. Message history is not persistent and is lost upon logging out of the chat application.
 
+## Accounts 🧍
+Accounts are stored at the server (which you can easily host, or use mine). The only thing stored is your preferred username, the SHA-256 of your chosen password, and your status (if you choose to have one).
+
 ### Login
 ![image](https://github.com/user-attachments/assets/ef329f08-2276-44a4-b563-b1124306eecb)
 
