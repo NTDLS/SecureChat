@@ -29,6 +29,7 @@ namespace SecureChat.Server
 
             var rmConfig = new RmConfiguration()
             {
+                MultiThreadedFrameProcessing = _configuration.GetValue<bool>("MultiThreadedFrameProcessing"),
                 AsynchronousNotifications = _configuration.GetValue<bool>("AsynchronousNotifications"),
                 AsynchronousQueryWaiting = _configuration.GetValue<bool>("AsynchronousQueryWaiting"),
                 QueryTimeout = TimeSpan.FromSeconds(_configuration.GetValue<int>("QueryTimeout"))

@@ -65,15 +65,6 @@ namespace SecureChat.Client
         {
             lock (_chunkBuffer)
             {
-                OrderedChunk? bufferedChunk; //Flush out any buffered chunks that are now in order.
-                while ((bufferedChunk = _chunkBuffer.FirstOrDefault(x => x.ChunkNumber == _lastChunkNumber + 1)) != null)
-                {
-                    ReceivedByteCount += data.Length;
-                    _stream.Write(_crypto.Cipher(data), 0, data.Length);
-                    _lastChunkNumber = chunkNumber;
-                    _chunkBuffer.Remove(bufferedChunk);
-                }
-
                 if (chunkNumber == _lastChunkNumber + 1)
                 {
                     //We can write this chunk immediately because it is the next chunk in order.
@@ -85,6 +76,15 @@ namespace SecureChat.Client
                 {
                     //The chunk is out of order, so we need to buffer it until we receive the previous chunk.
                     _chunkBuffer.Add(new OrderedChunk(chunkNumber, data));
+                }
+
+                OrderedChunk? bufferedChunk; //Flush out any buffered chunks that are now in order.
+                while ((bufferedChunk = _chunkBuffer.FirstOrDefault(x => x.ChunkNumber == _lastChunkNumber + 1)) != null)
+                {
+                    ReceivedByteCount += bufferedChunk.Bytes.Length;
+                    _stream.Write(_crypto.Cipher(bufferedChunk.Bytes), 0, bufferedChunk.Bytes.Length);
+                    _lastChunkNumber = bufferedChunk.ChunkNumber;
+                    _chunkBuffer.Remove(bufferedChunk);
                 }
 
                 if (ReceivedByteCount == FileSize)
