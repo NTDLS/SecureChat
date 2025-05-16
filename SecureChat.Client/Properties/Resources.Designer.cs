@@ -61,41 +61,38 @@ namespace SecureChat.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream AudioContactOnline {
+            get {
+                return ResourceManager.GetStream("AudioContactOnline", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream AudioIncommingCall {
+            get {
+                return ResourceManager.GetStream("AudioIncommingCall", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream AudioMessageReceived {
+            get {
+                return ResourceManager.GetStream("AudioMessageReceived", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] Away16 {
             get {
                 object obj = ResourceManager.GetObject("Away16", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] ContactOnline {
-            get {
-                object obj = ResourceManager.GetObject("ContactOnline", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] IncomingCall {
-            get {
-                object obj = ResourceManager.GetObject("IncomingCall", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] MessageReceived {
-            get {
-                object obj = ResourceManager.GetObject("MessageReceived", resourceCulture);
                 return ((byte[])(obj));
             }
         }

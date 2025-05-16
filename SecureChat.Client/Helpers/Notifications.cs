@@ -9,12 +9,8 @@ namespace SecureChat.Client.Helpers
         {
             if (Settings.Instance.PlaySoundWhenContactComesOnline)
             {
-                using var stream = new MemoryStream(Resources.ContactOnline);
-                if (stream != null)
-                {
-                    using var player = new SoundPlayer(stream);
-                    player.Play();
-                }
+                using var player = new SoundPlayer(Resources.AudioContactOnline);
+                player.Play();
             }
             if (Settings.Instance.AlertToastWhenContactComesOnline && ServerConnection.Current != null)
             {
@@ -26,12 +22,8 @@ namespace SecureChat.Client.Helpers
         {
             if (Settings.Instance.PlaySoundWhenMessageReceived)
             {
-                using var stream = new MemoryStream(Resources.MessageReceived);
-                if (stream != null)
-                {
-                    using var player = new SoundPlayer(stream);
-                    player.Play();
-                }
+                using var player = new SoundPlayer(Resources.AudioMessageReceived);
+                player.Play();
             }
             if (Settings.Instance.AlertToastWhenMessageReceived && ServerConnection.Current != null)
             {
@@ -43,12 +35,8 @@ namespace SecureChat.Client.Helpers
         {
             if (Settings.Instance.PlaySoundWhenMessageReceived)
             {
-                using var stream = new MemoryStream(Resources.IncomingCall);
-                if (stream != null)
-                {
-                    using var player = new SoundPlayer(stream);
-                    player.Play();
-                }
+                using var player = new SoundPlayer(Resources.AudioIncommingCall);
+                player.Play();
             }
             if (Settings.Instance.AlertToastWhenMessageReceived && ServerConnection.Current != null)
             {
