@@ -48,11 +48,11 @@
 
         public enum ScOnlineState
         {
-            Connecting,
             Offline,
             Online,
             Away,
-            Pending
+            Pending,
+            Connecting
         }
 
         /// <summary>
