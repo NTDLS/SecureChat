@@ -1,5 +1,5 @@
-﻿using Talkster.Library.Models;
-using System.Text.Json;
+﻿using System.Text.Json;
+using Talkster.Library.Models;
 
 namespace Talkster.Client.Models
 {

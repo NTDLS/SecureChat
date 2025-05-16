@@ -2,10 +2,10 @@
 using NTDLS.Helpers;
 using NTDLS.ReliableMessaging;
 using NTDLS.WinFormsHelpers;
+using System.Diagnostics;
 using Talkster.Client.Helpers;
 using Talkster.Library;
 using Talkster.Library.ReliableMessages;
-using System.Diagnostics;
 
 namespace Talkster.Client.Forms
 {

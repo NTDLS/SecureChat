@@ -1,5 +1,5 @@
-﻿using Talkster.Library;
-using System.Net;
+﻿using System.Net;
+using Talkster.Library;
 
 namespace Talkster.Server
 {

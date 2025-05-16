@@ -1,6 +1,6 @@
 ﻿using Krypton.Toolkit;
-using Talkster.Client.Helpers;
 using System.ComponentModel;
+using Talkster.Client.Helpers;
 
 namespace Talkster.Client.Forms
 {

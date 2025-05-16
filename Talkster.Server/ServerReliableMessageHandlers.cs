@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using NTDLS.Helpers;
 using NTDLS.ReliableMessaging;
-using Talkster.Library;
-using Talkster.Library.ReliableMessages;
 using Serilog;
 using System.Diagnostics;
 using System.Reflection;
+using Talkster.Library;
+using Talkster.Library.ReliableMessages;
 
 namespace Talkster.Server
 {

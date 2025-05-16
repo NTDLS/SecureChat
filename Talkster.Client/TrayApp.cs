@@ -1,12 +1,12 @@
 ﻿using NTDLS.Helpers;
 using NTDLS.Persistence;
 using NTDLS.ReliableMessaging;
+using System.Diagnostics;
 using Talkster.Client.Forms;
 using Talkster.Client.Helpers;
 using Talkster.Client.Models;
 using Talkster.Client.Properties;
 using Talkster.Library;
-using System.Diagnostics;
 using static Talkster.Library.ScConstants;
 
 namespace Talkster.Client

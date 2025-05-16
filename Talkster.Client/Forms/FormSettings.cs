@@ -2,10 +2,10 @@
 using NTDLS.Helpers;
 using NTDLS.Persistence;
 using NTDLS.WinFormsHelpers;
+using System.Diagnostics;
 using Talkster.Client.Controls;
 using Talkster.Client.Helpers;
 using Talkster.Library;
-using System.Diagnostics;
 
 namespace Talkster.Client.Forms
 {

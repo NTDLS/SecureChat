@@ -1,7 +1,7 @@
 ﻿using NTDLS.ReliableMessaging;
 using NTDLS.SecureKeyExchange;
-using Talkster.Library.ReliableMessages;
 using System.Diagnostics;
+using Talkster.Library.ReliableMessages;
 
 namespace Talkster.Client
 {

@@ -1,7 +1,7 @@
-﻿using Talkster.Client.Forms;
+﻿using System.Media;
+using Talkster.Client.Forms;
 using Talkster.Client.Properties;
 using Talkster.Library;
-using System.Media;
 using static Talkster.Client.Forms.FormToast;
 
 namespace Talkster.Client.Helpers

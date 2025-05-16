@@ -1,7 +1,7 @@
 ﻿using Krypton.Toolkit;
 using NTDLS.Helpers;
-using Talkster.Client.Controls.FlowControls;
 using System.ComponentModel;
+using Talkster.Client.Controls.FlowControls;
 
 namespace Talkster.Client.Controls
 {

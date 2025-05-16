@@ -2,11 +2,11 @@
 using NTDLS.Helpers;
 using NTDLS.ReliableMessaging;
 using NTDLS.SecureKeyExchange;
+using System.Reflection;
 using Talkster.Client.Helpers;
 using Talkster.Client.Models;
 using Talkster.Library;
 using Talkster.Library.ReliableMessages;
-using System.Reflection;
 
 namespace Talkster.Client
 {

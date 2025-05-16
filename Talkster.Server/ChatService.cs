@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using NTDLS.DatagramMessaging;
 using NTDLS.ReliableMessaging;
-using Talkster.Library;
 using Serilog;
+using Talkster.Library;
 using static Talkster.Library.ScConstants;
 
 namespace Talkster.Server

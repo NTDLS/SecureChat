@@ -1,7 +1,7 @@
 ﻿using Krypton.Toolkit;
+using System.Diagnostics;
 using Talkster.Client.Helpers;
 using Talkster.Library;
-using System.Diagnostics;
 
 namespace Talkster.Client.Forms
 {

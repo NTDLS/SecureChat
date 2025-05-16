@@ -2,13 +2,13 @@
 using NTDLS.Helpers;
 using NTDLS.Persistence;
 using NTDLS.WinFormsHelpers;
+using System.Diagnostics;
 using Talkster.Client.Helpers;
 using Talkster.Client.Models;
 using Talkster.Client.Properties;
 using Talkster.Library;
 using Talkster.Library.Models;
 using Talkster.Library.ReliableMessages;
-using System.Diagnostics;
 using static Talkster.Library.ScConstants;
 
 namespace Talkster.Client.Forms

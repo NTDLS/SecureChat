@@ -1,10 +1,10 @@
 ﻿using Krypton.Toolkit;
 using NTDLS.Helpers;
+using System.ComponentModel;
+using System.Diagnostics;
 using Talkster.Client.Controls.FlowControls;
 using Talkster.Client.Helpers;
 using Talkster.Library;
-using System.ComponentModel;
-using System.Diagnostics;
 using static Talkster.Library.ScConstants;
 
 namespace Talkster.Client.Forms

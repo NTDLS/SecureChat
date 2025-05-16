@@ -1,9 +1,9 @@
 ﻿using Krypton.Toolkit;
 using NTDLS.WinFormsHelpers;
+using System.Diagnostics;
 using Talkster.Library;
 using Talkster.Library.Models;
 using Talkster.Library.ReliableMessages;
-using System.Diagnostics;
 
 namespace Talkster.Client.Forms
 {

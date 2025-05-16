@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using NTDLS.SqliteDapperWrapper;
+using System.Text.Json;
 using Talkster.Library;
 using Talkster.Library.Models;
-using System.Text.Json;
 using static Talkster.Library.ScConstants;
 
 namespace Talkster.Server
