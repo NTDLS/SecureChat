@@ -61,6 +61,16 @@ namespace SecureChat.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap AppLogo32 {
+            get {
+                object obj = ResourceManager.GetObject("AppLogo32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
         /// </summary>
         internal static System.IO.UnmanagedMemoryStream AudioContactOnline {
@@ -174,6 +184,36 @@ namespace SecureChat.Client.Properties {
             get {
                 object obj = ResourceManager.GetObject("Pending16", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ToastError32 {
+            get {
+                object obj = ResourceManager.GetObject("ToastError32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ToastSuccess32 {
+            get {
+                object obj = ResourceManager.GetObject("ToastSuccess32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ToastWarning32 {
+            get {
+                object obj = ResourceManager.GetObject("ToastWarning32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }

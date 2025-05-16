@@ -19,8 +19,8 @@
         public readonly static Version MinServerVersion = new(1, 0, 16, 0);
 
         public const float DefaultFontSize = 10.0f;
-        public const int DefaultAesKeySize = 256;
-        public const int DefaultAutoAwayIdleSeconds = 600;
+        public const int DefaultAesKeySize = 256; //128, 192, 256
+        public const int DefaultAutoAwayIdleMinutes = 5;
         public const int DefaultFileTransferChunkSize = 1024 * 8;
         public const int DefaultMaxMessages = 100;
         public const int DefaultMaxFileDrops = 10;
@@ -28,7 +28,7 @@
         public const int DefaultEndToEndKeySize = 4096;
         public const int MinPasswordLength = 8;
         public const int OfflineLastSeenSeconds = 60;
-        public const int DefaultRsaKeySize = 4096;
+        public const int DefaultRsaKeySize = 2048; //1024, 2048, 3072, 4096
         public const string AppName = "Secure Chat";
         public const string DefaultFont = "Cascadia Mono SemiLight";
         public const string DefaultServerAddress = "securechat.ntdls.com";

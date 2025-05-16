@@ -189,23 +189,16 @@ namespace SecureChat.Client
                         }
                         _formLogin = null;
                     }
-
                 }
             }
             catch (Exception ex)
             {
                 Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
-                _trayIcon.BalloonTipTitle = "Login Failure";
-                _trayIcon.BalloonTipText = $"An error has occurred during the connection process.";
-                _trayIcon.ShowBalloonTip(3000);
+                if (Settings.Instance.AlertToastErrorMessages)
+                {
+                    Notifications.ToastError(ScConstants.AppName, $"An error has occurred during the connection process.", 4000);
+                }
             }
-        }
-
-        public void ShowBalloon(string? title, string text, int duration = 3000)
-        {
-            _trayIcon.BalloonTipTitle = title ?? string.Empty;
-            _trayIcon.BalloonTipText = text;
-            _trayIcon.ShowBalloonTip(duration);
         }
 
         private void PropLocalSession(LoginResult loginResult)
@@ -248,8 +241,10 @@ namespace SecureChat.Client
 
             ServerConnection.SetCurrent(serverConnection);
 
-            _trayIcon.BalloonTipText = $"Welcome back {loginResult.DisplayName}, you are now logged in.";
-            _trayIcon.ShowBalloonTip(3000);
+            if (Settings.Instance.AlertToastWhenMyOnlineStatusChanges)
+            {
+                Notifications.ToastPlain(ScConstants.AppName, $"Welcome back {loginResult.DisplayName}, you are now logged in.", 4000);
+            }
         }
 
         private void RmExceptionHandler(RmContext? context, Exception ex, IRmPayload? payload)
@@ -338,8 +333,10 @@ namespace SecureChat.Client
                             _trayIcon.ContextMenuStrip.Items.Add("Login", null, OnLogin);
                             _trayIcon.ContextMenuStrip.Items.Add("Exit", null, OnExit);
 
-                            _trayIcon.BalloonTipText = $"You have been disconnected.";
-                            _trayIcon.ShowBalloonTip(3000);
+                            if (Settings.Instance.AlertToastWhenMyOnlineStatusChanges)
+                            {
+                                Notifications.ToastPlain(ScConstants.AppName, $"You have been disconnected.", 4000);
+                            }
                         }
                         break;
                     case ScOnlineState.Away:

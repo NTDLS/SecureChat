@@ -15,19 +15,19 @@ namespace SecureChat.Client
         {
             get
             {
-                _instance ??= LocalUserApplicationData.LoadFromDisk($"NetworkDLS\\{ScConstants.AppName}", new Settings());
+                _instance ??= LocalUserApplicationData.LoadFromDisk(ScConstants.AppName, new Settings());
                 return _instance;
             }
             set
             {
                 _instance = value;
-                LocalUserApplicationData.SaveToDisk($"NetworkDLS\\{ScConstants.AppName}", _instance);
+                LocalUserApplicationData.SaveToDisk(ScConstants.AppName, _instance);
             }
         }
 
         public static void Save()
         {
-            LocalUserApplicationData.SaveToDisk($"NetworkDLS\\{ScConstants.AppName}", Instance);
+            LocalUserApplicationData.SaveToDisk(ScConstants.AppName, Instance);
         }
 
         public PaletteMode Theme { get; set; } = Theming.IsWindowsDarkMode() ? PaletteMode.Microsoft365BlackDarkModeAlternate : PaletteMode.ProfessionalSystem;
@@ -36,13 +36,16 @@ namespace SecureChat.Client
         public string Font { get; set; } = ScConstants.DefaultFont;
         public float FontSize { get; set; } = ScConstants.DefaultFontSize;
         public int ServerPort { get; set; } = ScConstants.DefaultServerPort;
-        public int AutoAwayIdleSeconds { get; set; } = ScConstants.DefaultAutoAwayIdleSeconds;
+        public int AutoAwayIdleMinutes { get; set; } = ScConstants.DefaultAutoAwayIdleMinutes;
         public int MaxMessages { get; set; } = ScConstants.DefaultMaxMessages;
         public int FileTransferChunkSize { get; set; } = ScConstants.DefaultFileTransferChunkSize;
 
         public int RsaKeySize { get; set; } = ScConstants.DefaultRsaKeySize;
         public int AesKeySize { get; set; } = ScConstants.DefaultAesKeySize;
         public int EndToEndKeySize { get; set; } = ScConstants.DefaultEndToEndKeySize;
+
+        public bool AlertToastWhenMyOnlineStatusChanges { get; set; } = true;
+        public bool AlertToastErrorMessages { get; set; } = true;
 
         public bool AlertToastWhenContactComesOnline { get; set; } = true;
         public bool AlertToastWhenMessageReceived { get; set; } = true;

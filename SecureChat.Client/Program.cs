@@ -1,5 +1,6 @@
 ﻿using Krypton.Toolkit;
 using Microsoft.Extensions.Configuration;
+using SecureChat.Client.Helpers;
 using SecureChat.Library;
 
 namespace SecureChat.Client
@@ -34,7 +35,8 @@ namespace SecureChat.Client
 
             ThemeManager.GlobalPaletteMode = Settings.Instance.Theme;
 
-            //Application.Run(new FormTest());
+            Notifications.InitializeToast();
+
             Application.Run(new TrayApp());
 
             if (createdNewMutex)

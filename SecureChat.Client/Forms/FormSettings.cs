@@ -42,7 +42,7 @@ namespace SecureChat.Client.Forms
             textBoxEndToEndKeySize.Text = $"{Settings.Instance.EndToEndKeySize:n0}";
             textBoxServerAddress.Text = Settings.Instance.ServerAddress;
             textBoxServerPort.Text = $"{Settings.Instance.ServerPort:n0}";
-            textBoxAutoAwayIdleSeconds.Text = $"{Settings.Instance.AutoAwayIdleSeconds:n0}";
+            textBoxAutoAwayIdleMinutes.Text = $"{Settings.Instance.AutoAwayIdleMinutes:n0}";
             textBoxMaxMessages.Text = $"{Settings.Instance.MaxMessages:n0}";
             textBoxFileTransferChunkSize.Text = $"{Settings.Instance.FileTransferChunkSize:n0}";
             checkBoxAlertToastWhenContactComesOnline.Checked = Settings.Instance.AlertToastWhenContactComesOnline;
@@ -50,6 +50,8 @@ namespace SecureChat.Client.Forms
             checkBoxPlaySoundWhenContactComesOnline.Checked = Settings.Instance.PlaySoundWhenContactComesOnline;
             checkBoxPlaySoundWhenMessageReceived.Checked = Settings.Instance.PlaySoundWhenMessageReceived;
             checkBoxFlashWindowWhenMessageReceived.Checked = Settings.Instance.FlashWindowWhenMessageReceived;
+            checkBoxAlertToastWhenMyOnlineStatusChanges.Checked = Settings.Instance.AlertToastWhenMyOnlineStatusChanges;
+            checkBoxAlertToastErrorMessages.Checked = Settings.Instance.AlertToastErrorMessages;
 
             textBoxFontSample.Text = "John: Hey, how's is been going?\r\nJane: Pretty good. I've about to head out.\r\nJohn: Wanna grab some lunch?\r\nJane: Thai?\r\nJohn: Are you kidding me? Absolutely!\r\n";
 
@@ -148,19 +150,20 @@ namespace SecureChat.Client.Forms
                 settings.Font = comboBoxFont.Text;
                 settings.FontSize = (float)numericUpDownFontSize.Value;
                 settings.ServerPort = textBoxServerPort.TextBox.GetAndValidateNumeric(1, 65535, "Server port must be between [min] and [max].");
-                settings.AutoAwayIdleSeconds = textBoxAutoAwayIdleSeconds.TextBox.GetAndValidateNumeric(60, 86400, "Auto-away idle seconds must be between [min] and [max].");
+                settings.AutoAwayIdleMinutes = textBoxAutoAwayIdleMinutes.TextBox.GetAndValidateNumeric(1, 1440, "Auto-away idle minutes must be between [min] and [max].");
                 settings.MaxMessages = textBoxMaxMessages.TextBox.GetAndValidateNumeric(10, 10000, "Max messages must be between [min] and [max].");
-
                 settings.RsaKeySize = textBoxRsaKeySize.TextBox.GetAndValidateNumeric(1024, 4096, "Max messages must be between [min] and [max].");
                 settings.AesKeySize = textBoxAesKeySize.TextBox.GetAndValidateNumeric(128, 256, "Max messages must be between [min] and [max].");
                 settings.EndToEndKeySize = textBoxEndToEndKeySize.TextBox.GetAndValidateNumeric(128, 10240, "Max messages must be between [min] and [max].");
-
                 settings.FileTransferChunkSize = textBoxFileTransferChunkSize.TextBox.GetAndValidateNumeric(128, 1024 * 1024, "File transfer chunk size must be between [min] and [max].");
+
                 settings.AlertToastWhenContactComesOnline = checkBoxAlertToastWhenContactComesOnline.Checked;
                 settings.AlertToastWhenMessageReceived = checkBoxAlertToastWhenMessageReceived.Checked;
                 settings.PlaySoundWhenContactComesOnline = checkBoxPlaySoundWhenContactComesOnline.Checked;
                 settings.PlaySoundWhenMessageReceived = checkBoxPlaySoundWhenMessageReceived.Checked;
                 settings.FlashWindowWhenMessageReceived = checkBoxFlashWindowWhenMessageReceived.Checked;
+                settings.AlertToastWhenMyOnlineStatusChanges = checkBoxAlertToastWhenMyOnlineStatusChanges.Checked;
+                settings.AlertToastErrorMessages = checkBoxAlertToastErrorMessages.Checked;
 
                 if (ScConstants.AcceptableAesKeySizes.Contains(settings.AesKeySize) == false)
                 {

@@ -26,7 +26,7 @@
  Source: "..\Media\Icon.ico"; DestDir: "{app}"; Flags: IgnoreVersion;
 
 [Icons]
- Name: "{commondesktop}\Secure Chat"; Filename: "{app}\Secure Chat.exe";
+ Name: "{commondesktop}\Secure Chat"; Filename: "{app}\SecureChat.Client.exe";
  Name: "{group}\Secure Chat"; Filename: "{app}\Secure Chat.exe";
 
 [Tasks]

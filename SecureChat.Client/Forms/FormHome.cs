@@ -59,7 +59,7 @@ namespace SecureChat.Client.Forms
                 {
                     _backgroundForm.Visible = true;
                     _backgroundForm.Bounds = new Rectangle(this.Bounds.X + 1, this.Bounds.Y + 1, this.Bounds.Width - 2, this.Bounds.Height - 2);
-                    Win32.SetWindowPos(_backgroundForm.Handle, this.Handle, 0, 0, 0, 0, Win32.SWP_NOMOVE | Win32.SWP_NOSIZE | Win32.SWP_NOACTIVATE);
+                    Win32s.SetWindowPos(_backgroundForm.Handle, this.Handle, 0, 0, 0, 0, Win32s.SWP_NOMOVE | Win32s.SWP_NOSIZE | Win32s.SWP_NOACTIVATE);
                 }
             };
 
@@ -346,8 +346,8 @@ namespace SecureChat.Client.Forms
                 {
                     Repopulate();
 
-                    var idleTime = IdleTime.GetIdleTime();
-                    if (idleTime.TotalSeconds >= Settings.Instance.AutoAwayIdleSeconds)
+                    var idleTime = Win32s.GetIdleTime();
+                    if (idleTime.TotalMinutes >= Settings.Instance.AutoAwayIdleMinutes)
                     {
                         ServerConnection.Current.Connection.Client.Notify(new UpdateAccountStateNotification(
                                 ServerConnection.Current.AccountId,

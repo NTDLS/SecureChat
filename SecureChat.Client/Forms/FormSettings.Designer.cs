@@ -44,7 +44,7 @@ namespace SecureChat.Client.Forms
             checkBoxFlashWindowWhenMessageReceived = new KryptonCheckBox();
             checkBoxPlaySoundWhenMessageReceived = new KryptonCheckBox();
             checkBoxPlaySoundWhenContactComesOnline = new KryptonCheckBox();
-            textBoxAutoAwayIdleSeconds = new KryptonTextBox();
+            textBoxAutoAwayIdleMinutes = new KryptonTextBox();
             checkBoxAlertToastWhenMessageReceived = new KryptonCheckBox();
             labelAutoAwayIdleSeconds = new KryptonLabel();
             checkBoxAlertToastWhenContactComesOnline = new KryptonCheckBox();
@@ -65,24 +65,26 @@ namespace SecureChat.Client.Forms
             textBoxRsaKeySize = new KryptonTextBox();
             kryptonManager1 = new KryptonManager(components);
             kryptonNavigator = new Krypton.Navigator.KryptonNavigator();
+            kryptonPageNotifications = new Krypton.Navigator.KryptonPage();
+            checkBoxAlertToastErrorMessages = new KryptonCheckBox();
+            checkBoxAlertToastWhenMyOnlineStatusChanges = new KryptonCheckBox();
             kryptonPageMessages = new Krypton.Navigator.KryptonPage();
             kryptonPageUI = new Krypton.Navigator.KryptonPage();
             kryptonComboBoxTheme = new KryptonComboBox();
             labelTheme = new KryptonLabel();
-            kryptonPageNotifications = new Krypton.Navigator.KryptonPage();
             kryptonPageServer = new Krypton.Navigator.KryptonPage();
             kryptonPageAdvanced = new Krypton.Navigator.KryptonPage();
             kryptonPageCryptography = new Krypton.Navigator.KryptonPage();
             splitContainer1 = new SplitContainer();
             ((ISupportInitialize)comboBoxFont).BeginInit();
             ((ISupportInitialize)kryptonNavigator).BeginInit();
+            ((ISupportInitialize)kryptonPageNotifications).BeginInit();
+            kryptonPageNotifications.SuspendLayout();
             ((ISupportInitialize)kryptonPageMessages).BeginInit();
             kryptonPageMessages.SuspendLayout();
             ((ISupportInitialize)kryptonPageUI).BeginInit();
             kryptonPageUI.SuspendLayout();
             ((ISupportInitialize)kryptonComboBoxTheme).BeginInit();
-            ((ISupportInitialize)kryptonPageNotifications).BeginInit();
-            kryptonPageNotifications.SuspendLayout();
             ((ISupportInitialize)kryptonPageServer).BeginInit();
             kryptonPageServer.SuspendLayout();
             ((ISupportInitialize)kryptonPageAdvanced).BeginInit();
@@ -156,57 +158,57 @@ namespace SecureChat.Client.Forms
             // 
             // checkBoxFlashWindowWhenMessageReceived
             // 
-            checkBoxFlashWindowWhenMessageReceived.Location = new Point(9, 103);
+            checkBoxFlashWindowWhenMessageReceived.Location = new Point(11, 5);
             checkBoxFlashWindowWhenMessageReceived.Name = "checkBoxFlashWindowWhenMessageReceived";
             checkBoxFlashWindowWhenMessageReceived.Size = new Size(230, 20);
-            checkBoxFlashWindowWhenMessageReceived.TabIndex = 4;
+            checkBoxFlashWindowWhenMessageReceived.TabIndex = 0;
             checkBoxFlashWindowWhenMessageReceived.Values.Text = "Flash window when message received";
             // 
             // checkBoxPlaySoundWhenMessageReceived
             // 
-            checkBoxPlaySoundWhenMessageReceived.Location = new Point(9, 78);
+            checkBoxPlaySoundWhenMessageReceived.Location = new Point(11, 57);
             checkBoxPlaySoundWhenMessageReceived.Name = "checkBoxPlaySoundWhenMessageReceived";
             checkBoxPlaySoundWhenMessageReceived.Size = new Size(191, 20);
-            checkBoxPlaySoundWhenMessageReceived.TabIndex = 3;
+            checkBoxPlaySoundWhenMessageReceived.TabIndex = 2;
             checkBoxPlaySoundWhenMessageReceived.Values.Text = "Sound when message received";
             // 
             // checkBoxPlaySoundWhenContactComesOnline
             // 
-            checkBoxPlaySoundWhenContactComesOnline.Location = new Point(9, 53);
+            checkBoxPlaySoundWhenContactComesOnline.Location = new Point(11, 31);
             checkBoxPlaySoundWhenContactComesOnline.Name = "checkBoxPlaySoundWhenContactComesOnline";
             checkBoxPlaySoundWhenContactComesOnline.Size = new Size(211, 20);
-            checkBoxPlaySoundWhenContactComesOnline.TabIndex = 2;
+            checkBoxPlaySoundWhenContactComesOnline.TabIndex = 1;
             checkBoxPlaySoundWhenContactComesOnline.Values.Text = "Sound when contact comes online";
             // 
-            // textBoxAutoAwayIdleSeconds
+            // textBoxAutoAwayIdleMinutes
             // 
-            textBoxAutoAwayIdleSeconds.Location = new Point(8, 149);
-            textBoxAutoAwayIdleSeconds.Name = "textBoxAutoAwayIdleSeconds";
-            textBoxAutoAwayIdleSeconds.Size = new Size(119, 23);
-            textBoxAutoAwayIdleSeconds.TabIndex = 5;
+            textBoxAutoAwayIdleMinutes.Location = new Point(11, 212);
+            textBoxAutoAwayIdleMinutes.Name = "textBoxAutoAwayIdleMinutes";
+            textBoxAutoAwayIdleMinutes.Size = new Size(119, 23);
+            textBoxAutoAwayIdleMinutes.TabIndex = 8;
             // 
             // checkBoxAlertToastWhenMessageReceived
             // 
-            checkBoxAlertToastWhenMessageReceived.Location = new Point(9, 28);
+            checkBoxAlertToastWhenMessageReceived.Location = new Point(11, 135);
             checkBoxAlertToastWhenMessageReceived.Name = "checkBoxAlertToastWhenMessageReceived";
             checkBoxAlertToastWhenMessageReceived.Size = new Size(216, 20);
-            checkBoxAlertToastWhenMessageReceived.TabIndex = 1;
+            checkBoxAlertToastWhenMessageReceived.TabIndex = 5;
             checkBoxAlertToastWhenMessageReceived.Values.Text = "Visual alert when message received";
             // 
             // labelAutoAwayIdleSeconds
             // 
-            labelAutoAwayIdleSeconds.Location = new Point(5, 129);
+            labelAutoAwayIdleSeconds.Location = new Point(8, 191);
             labelAutoAwayIdleSeconds.Name = "labelAutoAwayIdleSeconds";
-            labelAutoAwayIdleSeconds.Size = new Size(120, 20);
-            labelAutoAwayIdleSeconds.TabIndex = 0;
-            labelAutoAwayIdleSeconds.Values.Text = "Auto-Away Seconds";
+            labelAutoAwayIdleSeconds.Size = new Size(197, 20);
+            labelAutoAwayIdleSeconds.TabIndex = 7;
+            labelAutoAwayIdleSeconds.Values.Text = "Set my status away after (minutes)";
             // 
             // checkBoxAlertToastWhenContactComesOnline
             // 
-            checkBoxAlertToastWhenContactComesOnline.Location = new Point(9, 3);
+            checkBoxAlertToastWhenContactComesOnline.Location = new Point(11, 109);
             checkBoxAlertToastWhenContactComesOnline.Name = "checkBoxAlertToastWhenContactComesOnline";
             checkBoxAlertToastWhenContactComesOnline.Size = new Size(236, 20);
-            checkBoxAlertToastWhenContactComesOnline.TabIndex = 0;
+            checkBoxAlertToastWhenContactComesOnline.TabIndex = 4;
             checkBoxAlertToastWhenContactComesOnline.Values.Text = "Visual alert when contact comes online";
             // 
             // labelServerPort
@@ -348,8 +350,47 @@ namespace SecureChat.Client.Forms
             kryptonNavigator.PopupPages.Element = Krypton.Navigator.PopupPageElement.Item;
             kryptonNavigator.PopupPages.Position = Krypton.Navigator.PopupPagePosition.ModeAppropriate;
             kryptonNavigator.SelectedIndex = 0;
-            kryptonNavigator.Size = new Size(444, 288);
+            kryptonNavigator.Size = new Size(456, 288);
             kryptonNavigator.TabIndex = 5;
+            // 
+            // kryptonPageNotifications
+            // 
+            kryptonPageNotifications.AutoHiddenSlideSize = new Size(200, 200);
+            kryptonPageNotifications.Controls.Add(checkBoxAlertToastErrorMessages);
+            kryptonPageNotifications.Controls.Add(checkBoxAlertToastWhenMyOnlineStatusChanges);
+            kryptonPageNotifications.Controls.Add(checkBoxFlashWindowWhenMessageReceived);
+            kryptonPageNotifications.Controls.Add(checkBoxAlertToastWhenContactComesOnline);
+            kryptonPageNotifications.Controls.Add(checkBoxPlaySoundWhenMessageReceived);
+            kryptonPageNotifications.Controls.Add(checkBoxPlaySoundWhenContactComesOnline);
+            kryptonPageNotifications.Controls.Add(checkBoxAlertToastWhenMessageReceived);
+            kryptonPageNotifications.Controls.Add(textBoxAutoAwayIdleMinutes);
+            kryptonPageNotifications.Controls.Add(labelAutoAwayIdleSeconds);
+            kryptonPageNotifications.Flags = 65534;
+            kryptonPageNotifications.LastVisibleSet = true;
+            kryptonPageNotifications.MinimumSize = new Size(150, 50);
+            kryptonPageNotifications.Name = "kryptonPageNotifications";
+            kryptonPageNotifications.Size = new Size(454, 259);
+            kryptonPageNotifications.Text = "Notifications";
+            kryptonPageNotifications.TextDescription = "Notifications";
+            kryptonPageNotifications.TextTitle = "Notifications";
+            kryptonPageNotifications.ToolTipTitle = "Notifications";
+            kryptonPageNotifications.UniqueName = "c7d547960feb40a6ab6e1917d01c78ac";
+            // 
+            // checkBoxAlertToastErrorMessages
+            // 
+            checkBoxAlertToastErrorMessages.Location = new Point(11, 83);
+            checkBoxAlertToastErrorMessages.Name = "checkBoxAlertToastErrorMessages";
+            checkBoxAlertToastErrorMessages.Size = new Size(179, 20);
+            checkBoxAlertToastErrorMessages.TabIndex = 3;
+            checkBoxAlertToastErrorMessages.Values.Text = "Visual alert on various errors";
+            // 
+            // checkBoxAlertToastWhenMyOnlineStatusChanges
+            // 
+            checkBoxAlertToastWhenMyOnlineStatusChanges.Location = new Point(11, 161);
+            checkBoxAlertToastWhenMyOnlineStatusChanges.Name = "checkBoxAlertToastWhenMyOnlineStatusChanges";
+            checkBoxAlertToastWhenMyOnlineStatusChanges.Size = new Size(257, 20);
+            checkBoxAlertToastWhenMyOnlineStatusChanges.TabIndex = 6;
+            checkBoxAlertToastWhenMyOnlineStatusChanges.Values.Text = "Visual alert when my online status changes";
             // 
             // kryptonPageMessages
             // 
@@ -403,27 +444,6 @@ namespace SecureChat.Client.Forms
             labelTheme.Size = new Size(48, 20);
             labelTheme.TabIndex = 2;
             labelTheme.Values.Text = "Theme";
-            // 
-            // kryptonPageNotifications
-            // 
-            kryptonPageNotifications.AutoHiddenSlideSize = new Size(200, 200);
-            kryptonPageNotifications.Controls.Add(checkBoxFlashWindowWhenMessageReceived);
-            kryptonPageNotifications.Controls.Add(checkBoxAlertToastWhenContactComesOnline);
-            kryptonPageNotifications.Controls.Add(checkBoxPlaySoundWhenMessageReceived);
-            kryptonPageNotifications.Controls.Add(checkBoxPlaySoundWhenContactComesOnline);
-            kryptonPageNotifications.Controls.Add(checkBoxAlertToastWhenMessageReceived);
-            kryptonPageNotifications.Controls.Add(textBoxAutoAwayIdleSeconds);
-            kryptonPageNotifications.Controls.Add(labelAutoAwayIdleSeconds);
-            kryptonPageNotifications.Flags = 65534;
-            kryptonPageNotifications.LastVisibleSet = true;
-            kryptonPageNotifications.MinimumSize = new Size(150, 50);
-            kryptonPageNotifications.Name = "kryptonPageNotifications";
-            kryptonPageNotifications.Size = new Size(442, 259);
-            kryptonPageNotifications.Text = "Notifications";
-            kryptonPageNotifications.TextDescription = "Notifications";
-            kryptonPageNotifications.TextTitle = "Notifications";
-            kryptonPageNotifications.ToolTipTitle = "Notifications";
-            kryptonPageNotifications.UniqueName = "c7d547960feb40a6ab6e1917d01c78ac";
             // 
             // kryptonPageServer
             // 
@@ -500,13 +520,13 @@ namespace SecureChat.Client.Forms
             // 
             splitContainer1.Panel2.Controls.Add(buttonSave);
             splitContainer1.Panel2.Controls.Add(buttonCancel);
-            splitContainer1.Size = new Size(444, 335);
+            splitContainer1.Size = new Size(456, 335);
             splitContainer1.SplitterDistance = 288;
             splitContainer1.TabIndex = 6;
             // 
             // FormSettings
             // 
-            ClientSize = new Size(444, 335);
+            ClientSize = new Size(456, 335);
             Controls.Add(splitContainer1);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
@@ -518,6 +538,9 @@ namespace SecureChat.Client.Forms
             Text = "Secure Chat";
             ((ISupportInitialize)comboBoxFont).EndInit();
             ((ISupportInitialize)kryptonNavigator).EndInit();
+            ((ISupportInitialize)kryptonPageNotifications).EndInit();
+            kryptonPageNotifications.ResumeLayout(false);
+            kryptonPageNotifications.PerformLayout();
             ((ISupportInitialize)kryptonPageMessages).EndInit();
             kryptonPageMessages.ResumeLayout(false);
             kryptonPageMessages.PerformLayout();
@@ -525,9 +548,6 @@ namespace SecureChat.Client.Forms
             kryptonPageUI.ResumeLayout(false);
             kryptonPageUI.PerformLayout();
             ((ISupportInitialize)kryptonComboBoxTheme).EndInit();
-            ((ISupportInitialize)kryptonPageNotifications).EndInit();
-            kryptonPageNotifications.ResumeLayout(false);
-            kryptonPageNotifications.PerformLayout();
             ((ISupportInitialize)kryptonPageServer).EndInit();
             kryptonPageServer.ResumeLayout(false);
             kryptonPageServer.PerformLayout();
@@ -555,7 +575,7 @@ namespace SecureChat.Client.Forms
         private KryptonTextBox textBoxServerAddress;
         private KryptonTextBox textBoxFileTransferChunkSize;
         private KryptonTextBox textBoxMaxMessages;
-        private KryptonTextBox textBoxAutoAwayIdleSeconds;
+        private KryptonTextBox textBoxAutoAwayIdleMinutes;
         private KryptonLabel labelFileTransferChunkSize;
         private KryptonLabel labelMaxMessages;
         private KryptonLabel labelAutoAwayIdleSeconds;
@@ -582,5 +602,7 @@ namespace SecureChat.Client.Forms
         private KryptonComboBox kryptonComboBoxTheme;
         private KryptonLabel labelTheme;
         private SplitContainer splitContainer1;
+        private KryptonCheckBox checkBoxAlertToastErrorMessages;
+        private KryptonCheckBox checkBoxAlertToastWhenMyOnlineStatusChanges;
     }
 }
