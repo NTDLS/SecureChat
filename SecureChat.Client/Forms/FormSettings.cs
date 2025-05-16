@@ -17,7 +17,7 @@ namespace SecureChat.Client.Forms
 
             BackColor = KryptonManager.CurrentGlobalPalette.GetBackColor1(PaletteBackStyle.PanelClient, PaletteState.Normal);
 
-            kryptonNavigator.SelectedPage = kryptonPageMessages;
+            kryptonNavigator.SelectedPage = kryptonPageNotifications;
 
             if (showInTaskbar)
             {
