@@ -1,15 +1,15 @@
 
-SecureChat.Client/bin/
+Talkster.Client/bin/
 
-SecureChat.Client/obj/
+Talkster.Client/obj/
 
-SecureChat.Library/bin/
+Talkster.Library/bin/
 
-SecureChat.Library/obj/
+Talkster.Library/obj/
 
-SecureChat.Server/obj/
+Talkster.Server/obj/
 
-SecureChat.Server/bin/
+Talkster.Server/bin/
 
 .vs/
 

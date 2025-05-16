@@ -3,9 +3,9 @@
 
 cd 
 md publish
-dotnet publish ..\SecureChat.Client -c Release -o publish\SecureChat.Client --runtime win-x64 --self-contained false
-del publish\SecureChat.Client\*.pdb /q
+dotnet publish ..\Talkster.Client -c Release -o publish\Talkster.Client --runtime win-x64 --self-contained false
+del publish\Talkster.Client\*.pdb /q
 
 iscc Installer.Client.iss
-rd publish\SecureChat.Client /s /q
+rd publish\Talkster.Client /s /q
 pause
