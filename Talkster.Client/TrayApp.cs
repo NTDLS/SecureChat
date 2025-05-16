@@ -20,6 +20,11 @@ namespace Talkster.Client
         private readonly NotifyIcon _trayIcon;
         private FormLogin? _formLogin;
         private readonly System.Windows.Forms.Timer? _firstShownTimer = new();
+        private readonly System.Windows.Forms.Timer _reconnectTimer = new();
+
+        /// This is used to determine if the disconnect was intentional or not so we can auto-reconnect.
+        private bool _intentionalDisconnect = true;
+        private bool _busyLoggingIn = false;
 
         public TrayApp()
         {
@@ -47,8 +52,12 @@ namespace Talkster.Client
                 _ = _trayIcon.ContextMenuStrip.Handle;
 
                 _firstShownTimer.Interval = 250;
-                _firstShownTimer.Tick += Timer_Tick;
+                _firstShownTimer.Tick += FirstShownTimer_Tick;
                 _firstShownTimer.Enabled = true;
+
+                _reconnectTimer.Interval = 10000;
+                _reconnectTimer.Tick += ReconnectTimer_Tick;
+
             }
             catch (Exception ex)
             {
@@ -58,7 +67,27 @@ namespace Talkster.Client
             }
         }
 
-        private void Timer_Tick(object? sender, EventArgs e)
+        private void ReconnectTimer_Tick(object? sender, EventArgs e)
+        {
+            try
+            {
+                _reconnectTimer.Stop();
+
+                if (_intentionalDisconnect)
+                {
+                    return;
+                }
+
+                Login(true);
+            }
+            catch (Exception ex)
+            {
+                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void FirstShownTimer_Tick(object? sender, EventArgs e)
         {
             try
             {
@@ -120,8 +149,16 @@ namespace Talkster.Client
             }
         }
 
-        private void Login()
+        private void Login(bool isReconnectAttempt = false)
         {
+            if (_busyLoggingIn)
+            {
+                return;
+            }
+
+            _busyLoggingIn = true;
+            UpdateClientState(ScOnlineState.Connecting);
+
             try
             {
                 ServerConnection.TerminateCurrent();
@@ -163,17 +200,29 @@ namespace Talkster.Client
                             }
                         }).ContinueWith(o =>
                         {
+                            _busyLoggingIn = false;
+
                             if (loginResult == null)
                             {
-                                using (_formLogin = new FormLogin())
+                                UpdateClientState(ScOnlineState.Offline);
+
+                                if (isReconnectAttempt)
                                 {
-                                    loginResult = _formLogin.DoLogin();
-                                    if (loginResult != null)
-                                    {
-                                        PropLocalSession(loginResult);
-                                    }
+                                    //Failed to auto-reconnect, lets try again.
+                                    _trayIcon.ContextMenuStrip?.Invoke(() => _reconnectTimer.Start());
                                 }
-                                _formLogin = null;
+                                else
+                                {
+                                    using (_formLogin = new FormLogin())
+                                    {
+                                        loginResult = _formLogin.DoLogin();
+                                        if (loginResult != null)
+                                        {
+                                            PropLocalSession(loginResult);
+                                        }
+                                    }
+                                    _formLogin = null;
+                                }
                             }
                         });
                     }
@@ -203,6 +252,8 @@ namespace Talkster.Client
 
         private void PropLocalSession(LoginResult loginResult)
         {
+            _intentionalDisconnect = false;
+
             loginResult.Connection.Client.OnDisconnected += RmClient_OnDisconnected;
             loginResult.Connection.Client.OnException += RmExceptionHandler;
             loginResult.Connection.Client.AddHandler(new ClientReliableMessageHandlers());
@@ -263,6 +314,17 @@ namespace Talkster.Client
             {
                 ServerConnection.TerminateCurrent();
                 UpdateClientState(ScOnlineState.Offline);
+
+                if (Settings.Instance.AlertToastWhenMyOnlineStatusChanges)
+                {
+                    Notifications.ToastPlain(ScConstants.AppName, $"You have been disconnected.", 4000);
+                }
+
+                if (!_intentionalDisconnect)
+                {
+                    _trayIcon.ContextMenuStrip?.Invoke(() => _reconnectTimer.Start());
+                }
+
             }
             catch (Exception ex)
             {
@@ -301,6 +363,19 @@ namespace Talkster.Client
 
                 switch (state)
                 {
+                    case ScOnlineState.Connecting:
+                        {
+                            _trayIcon.Text = $"{ScConstants.AppName} - (connecting...)";
+                            _trayIcon.Icon = Imaging.LoadIconFromResources(Resources.Offline16);
+                            _trayIcon.ContextMenuStrip.Items.Add("About", null, OnAbout);
+                            _trayIcon.ContextMenuStrip.Items.Add("Log", null, OnLog);
+                            _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+                            _trayIcon.ContextMenuStrip.Items.Add("Settings", null, OnSettings);
+                            _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+                            _trayIcon.ContextMenuStrip.Items.Add("Login", null, OnLogin).Enabled = false;
+                            _trayIcon.ContextMenuStrip.Items.Add("Exit", null, OnExit);
+                        }
+                        break;
                     case ScOnlineState.Online:
                         {
                             _trayIcon.Text = $"{ScConstants.AppName} - {DisplayName} (online)";
@@ -332,11 +407,6 @@ namespace Talkster.Client
                             _trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
                             _trayIcon.ContextMenuStrip.Items.Add("Login", null, OnLogin);
                             _trayIcon.ContextMenuStrip.Items.Add("Exit", null, OnExit);
-
-                            if (Settings.Instance.AlertToastWhenMyOnlineStatusChanges)
-                            {
-                                Notifications.ToastPlain(ScConstants.AppName, $"You have been disconnected.", 4000);
-                            }
                         }
                         break;
                     case ScOnlineState.Away:
@@ -403,6 +473,8 @@ namespace Talkster.Client
         {
             try
             {
+                //The user is trying to manually login, so we need to stop the reconnect timer.
+                _intentionalDisconnect = true;
                 Login();
             }
             catch (Exception ex)
@@ -433,6 +505,8 @@ namespace Talkster.Client
         {
             try
             {
+                _intentionalDisconnect = true;
+
                 Task.Run(() => ServerConnection.Current?.Connection?.Client.Disconnect());
                 Thread.Sleep(10);
                 UpdateClientState(ScOnlineState.Offline);
@@ -505,6 +579,7 @@ namespace Talkster.Client
         private void OnExit(object? sender, EventArgs e)
         {
             _applicationClosing = true;
+            _intentionalDisconnect = true;
 
             try
             {

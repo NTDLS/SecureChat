@@ -126,6 +126,7 @@ namespace Talkster.Client
                         return new LoginResult(connection,
                             o.Result.AccountId.EnsureNotNull(),
                             o.Result.Username.EnsureNotNull(),
+                            passwordHash,
                             o.Result.DisplayName.EnsureNotNull(),
                             o.Result.ProfileJson.EnsureNotNull());
                     }

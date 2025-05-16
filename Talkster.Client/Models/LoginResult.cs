@@ -12,6 +12,7 @@ namespace Talkster.Client.Models
         public NegotiatedConnection Connection { get; private set; }
         public string DisplayName { get; private set; }
         public string Username { get; private set; }
+        public string PasswordHash { get; private set; }
         public string? ProfileJson { get; set; }
 
         private AccountProfileModel? _profile = null;
@@ -24,13 +25,14 @@ namespace Talkster.Client.Models
             }
         }
 
-        public LoginResult(NegotiatedConnection connection, Guid accountId, string username, string displayName, string profileJson)
+        public LoginResult(NegotiatedConnection connection, Guid accountId, string username, string passwordHash, string displayName, string profileJson)
         {
             AccountId = accountId;
             Connection = connection;
             DisplayName = displayName;
             ProfileJson = profileJson;
             Username = username;
+            PasswordHash = passwordHash;
         }
     }
 }
