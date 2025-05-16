@@ -38,7 +38,7 @@ namespace SecureChat.Client.Helpers
             }
         }
 
-        public static void MessageReceived(string contactName)
+        public static void MessageReceived(string contactName, Form formToActive)
         {
             if (Settings.Instance.PlaySoundWhenMessageReceived)
             {
@@ -47,7 +47,17 @@ namespace SecureChat.Client.Helpers
             }
             if (Settings.Instance.AlertToastWhenMessageReceived && ServerConnection.Current != null)
             {
-                ToastPlain(ScConstants.AppName, $"{contactName} sent you a message.");
+                ToastPlain(ScConstants.AppName, $"{contactName} sent you a message.",
+                    () =>
+                    {
+                        formToActive.Invoke(() =>
+                        {
+                            formToActive.Activate();
+                            formToActive.BringToFront();
+                            formToActive.WindowState = FormWindowState.Normal;
+                            formToActive.Focus();
+                        });
+                    }, 3000, ToastPosition.BottomRight);
             }
         }
 

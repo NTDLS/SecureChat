@@ -601,7 +601,7 @@ namespace SecureChat.Client
                     {
                         if (WindowFlasher.FlashWindow(Form))
                         {
-                            Notifications.MessageReceived(fromName);
+                            Notifications.MessageReceived(fromName, Form);
                         }
                     }
                 });
@@ -634,7 +634,7 @@ namespace SecureChat.Client
                     {
                         if (WindowFlasher.FlashWindow(Form))
                         {
-                            Notifications.MessageReceived(fromName);
+                            Notifications.MessageReceived(fromName, Form);
                         }
                     }
                 });
@@ -675,7 +675,7 @@ namespace SecureChat.Client
                     {
                         if (WindowFlasher.FlashWindow(Form))
                         {
-                            Notifications.MessageReceived(fromName);
+                            Notifications.MessageReceived(fromName, Form);
                         }
                     }
                 });
@@ -808,7 +808,7 @@ namespace SecureChat.Client
                     {
                         if (WindowFlasher.FlashWindow(Form))
                         {
-                            Notifications.MessageReceived(fromName);
+                            Notifications.MessageReceived(fromName, Form);
                         }
                     }
                 });
