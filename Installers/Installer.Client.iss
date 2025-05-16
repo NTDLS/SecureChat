@@ -8,7 +8,7 @@
  AppCopyright                     = Copyright © 1995-2025 NetworkDLS.
  DefaultDirName                   = {commonpf}\NetworkDLS\Talkster
  DefaultGroupName                 = NetworkDLS\Talkster
- UninstallDisplayIcon             = {app}\Talkster.exe
+ UninstallDisplayIcon             = {app}\Talkster.Client.exe
  SetupIconFile                    = "..\Media\Icon.ico"
  PrivilegesRequired               = admin 
  Uninstallable                    = Yes
@@ -27,14 +27,14 @@
 
 [Icons]
  Name: "{commondesktop}\Talkster"; Filename: "{app}\Talkster.Client.exe";
- Name: "{group}\Talkster"; Filename: "{app}\Talkster.exe";
+ Name: "{group}\Talkster"; Filename: "{app}\Talkster.Client.exe";
 
 [Tasks]
   Name: "AutoStartAtLogin"; Description: "Start when I log into Windows?"; GroupDescription: "Startup options:";
 
 [Run]
- Filename: "{app}\Talkster.exe"; Description: "Run Talkster now?"; Flags: postinstall nowait skipifsilent shellexec;
+ Filename: "{app}\Talkster.Client.exe"; Description: "Run Talkster now?"; Flags: postinstall nowait skipifsilent shellexec;
 
 [Registry]
-  Root: HKCU; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "Talkster"; ValueData: """{app}\Talkster.exe"""; Flags: uninsdeletevalue; Tasks: AutoStartAtLogin
+  Root: HKCU; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "Talkster"; ValueData: """{app}\Talkster.Client.exe"""; Flags: uninsdeletevalue; Tasks: AutoStartAtLogin
  
