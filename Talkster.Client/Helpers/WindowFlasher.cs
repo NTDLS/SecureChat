@@ -24,7 +24,7 @@ namespace Talkster.Client.Helpers
 
         private static void FlashWindow(nint hWnd, int count)
         {
-            FLASHWINFO fw = new FLASHWINFO
+            var fw = new FLASHWINFO
             {
                 cbSize = (uint)Marshal.SizeOf(typeof(FLASHWINFO)),
                 hwnd = hWnd,
@@ -44,7 +44,7 @@ namespace Talkster.Client.Helpers
         /// </summary>
         public static bool FlashWindow(Form form, int count = 5)
         {
-            if (!form.Focused || form.WindowState == FormWindowState.Minimized)
+            if (!form.ContainsFocus || form.WindowState == FormWindowState.Minimized)
             {
                 _flashCache.TryGetValue(form.Handle, out DateTime? lastFlash);
 
