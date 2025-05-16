@@ -1,5 +1,5 @@
-# Secure Chat
-Secure Chat is a solution to secure private messaging, employing multiple layers of encryption and stream compression.
+# Talkster
+Talkster is a solution to secure private messaging, employing multiple layers of encryption and stream compression.
 
 ## Want to chat? 🗨️
 If you want to chat with me, download the client, navigate to the "Contacts" menu and click "Find People". Search for me: NOP.
