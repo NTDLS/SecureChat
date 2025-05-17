@@ -1,4 +1,6 @@
 ﻿using Krypton.Toolkit;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using NTDLS.Persistence;
 using Talkster.Client.Models;
 using Talkster.Library;
@@ -30,6 +32,7 @@ namespace Talkster.Client
             LocalUserApplicationData.SaveToDisk(ScConstants.AppName, Instance);
         }
 
+        [JsonConverter(typeof(StringEnumConverter))]
         public PaletteMode Theme { get; set; } = Theming.IsWindowsDarkMode() ? PaletteMode.Microsoft365BlackDarkModeAlternate : PaletteMode.ProfessionalSystem;
 
         public string ServerAddress { get; set; } = ScConstants.DefaultServerAddress;
@@ -41,6 +44,8 @@ namespace Talkster.Client
         public int FileTransferChunkSize { get; set; } = ScConstants.DefaultFileTransferChunkSize;
 
         public int RsaKeySize { get; set; } = ScConstants.DefaultRsaKeySize;
+
+        public int ToastTimeoutSeconds { get; set; } = ScConstants.DefaultToastSeconds;
         public int AesKeySize { get; set; } = ScConstants.DefaultAesKeySize;
         public int EndToEndKeySize { get; set; } = ScConstants.DefaultEndToEndKeySize;
 

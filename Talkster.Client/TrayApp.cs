@@ -16,7 +16,7 @@ namespace Talkster.Client
         public static bool IsOnlyInstance { get; set; } = true;
 
         public string? DisplayName { get; private set; }
-        private bool _applicationClosing = false;
+        private bool _isApplicationClosing = false;
         private readonly NotifyIcon _trayIcon;
         private FormLogin? _formLogin;
         private readonly System.Windows.Forms.Timer? _firstShownTimer = new();
@@ -24,7 +24,7 @@ namespace Talkster.Client
 
         /// This is used to determine if the disconnect was intentional or not so we can auto-reconnect.
         private bool _intentionalDisconnect = true;
-        private bool _busyLoggingIn = false;
+        private bool _IsBusyLoggingIn = false;
 
         public TrayApp()
         {
@@ -151,12 +151,12 @@ namespace Talkster.Client
 
         private void Login(bool isReconnectAttempt = false)
         {
-            if (_busyLoggingIn)
+            if (_IsBusyLoggingIn)
             {
                 return;
             }
 
-            _busyLoggingIn = true;
+            _IsBusyLoggingIn = true;
             UpdateClientState(ScOnlineState.Connecting);
 
             try
@@ -200,7 +200,7 @@ namespace Talkster.Client
                             }
                         }).ContinueWith(o =>
                         {
-                            _busyLoggingIn = false;
+                            _IsBusyLoggingIn = false;
 
                             if (loginResult == null)
                             {
@@ -294,7 +294,7 @@ namespace Talkster.Client
 
             if (Settings.Instance.AlertToastWhenMyOnlineStatusChanges)
             {
-                Notifications.ToastPlain(ScConstants.AppName, $"Welcome back {loginResult.DisplayName}, you are now logged in.", 4000);
+                Notifications.ToastPlain(ScConstants.AppName, $"Welcome back {loginResult.DisplayName}, you are now logged in.");
             }
         }
 
@@ -306,7 +306,7 @@ namespace Talkster.Client
 
         private void RmClient_OnDisconnected(RmContext context)
         {
-            if (_applicationClosing)
+            if (_isApplicationClosing)
             {
                 return;
             }
@@ -317,7 +317,7 @@ namespace Talkster.Client
 
                 if (Settings.Instance.AlertToastWhenMyOnlineStatusChanges)
                 {
-                    Notifications.ToastPlain(ScConstants.AppName, $"You have been disconnected.", 4000);
+                    Notifications.ToastPlain(ScConstants.AppName, $"You have been disconnected.");
                 }
 
                 if (!_intentionalDisconnect)
@@ -337,14 +337,16 @@ namespace Talkster.Client
         {
             try
             {
-                if (_applicationClosing)
+                if (_isApplicationClosing)
                 {
                     return;
                 }
+
                 if (state == ServerConnection.Current?.State)
                 {
                     return;
                 }
+
                 if (ServerConnection.Current != null)
                 {
                     ServerConnection.Current.State = state;
@@ -365,7 +367,7 @@ namespace Talkster.Client
                 {
                     case ScOnlineState.Connecting:
                         {
-                            _trayIcon.Text = $"{ScConstants.AppName} - (connecting...)";
+                            _trayIcon.Text = $"{ScConstants.AppName} - connecting...";
                             _trayIcon.Icon = Imaging.LoadIconFromResources(Resources.Offline16);
                             _trayIcon.ContextMenuStrip.Items.Add("About", null, OnAbout);
                             _trayIcon.ContextMenuStrip.Items.Add("Log", null, OnLog);
@@ -378,7 +380,7 @@ namespace Talkster.Client
                         break;
                     case ScOnlineState.Online:
                         {
-                            _trayIcon.Text = $"{ScConstants.AppName} - {DisplayName} (online)";
+                            _trayIcon.Text = $"{ScConstants.AppName} - {DisplayName}";
                             _trayIcon.Icon = Imaging.LoadIconFromResources(Resources.Online16);
                             var awayItem = new ToolStripMenuItem("Away", null, OnAway)
                             {
@@ -578,7 +580,7 @@ namespace Talkster.Client
 
         private void OnExit(object? sender, EventArgs e)
         {
-            _applicationClosing = true;
+            _isApplicationClosing = true;
             _intentionalDisconnect = true;
 
             try

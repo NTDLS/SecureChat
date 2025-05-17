@@ -37,6 +37,7 @@ namespace Talkster.Client.Forms
 
             Exceptions.Ignore(() => checkBoxAutoStartAtWindowsLogin.Checked = RegistryHelper.IsAutoStartEnabled());
 
+            textBoxToastTimeoutSeconds.Text = $"{Settings.Instance.ToastTimeoutSeconds:n0}";
             textBoxRsaKeySize.Text = $"{Settings.Instance.RsaKeySize:n0}";
             textBoxAesKeySize.Text = $"{Settings.Instance.AesKeySize:n0}";
             textBoxEndToEndKeySize.Text = $"{Settings.Instance.EndToEndKeySize:n0}";
@@ -156,6 +157,7 @@ namespace Talkster.Client.Forms
                 settings.AesKeySize = textBoxAesKeySize.TextBox.GetAndValidateNumeric(128, 256, "Max messages must be between [min] and [max].");
                 settings.EndToEndKeySize = textBoxEndToEndKeySize.TextBox.GetAndValidateNumeric(128, 10240, "Max messages must be between [min] and [max].");
                 settings.FileTransferChunkSize = textBoxFileTransferChunkSize.TextBox.GetAndValidateNumeric(128, 1024 * 1024, "File transfer chunk size must be between [min] and [max].");
+                settings.ToastTimeoutSeconds = textBoxToastTimeoutSeconds.TextBox.GetAndValidateNumeric(1, 300, "Duration of visual alerts (seconds) must be between [min] and [max].");
 
                 settings.AlertToastWhenContactComesOnline = checkBoxAlertToastWhenContactComesOnline.Checked;
                 settings.AlertToastWhenMessageReceived = checkBoxAlertToastWhenMessageReceived.Checked;

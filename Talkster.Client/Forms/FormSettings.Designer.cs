@@ -76,6 +76,8 @@ namespace Talkster.Client.Forms
             kryptonPageAdvanced = new Krypton.Navigator.KryptonPage();
             kryptonPageCryptography = new Krypton.Navigator.KryptonPage();
             splitContainer1 = new SplitContainer();
+            labelToastTimeoutSeconds = new KryptonLabel();
+            textBoxToastTimeoutSeconds = new KryptonTextBox();
             ((ISupportInitialize)comboBoxFont).BeginInit();
             ((ISupportInitialize)kryptonNavigator).BeginInit();
             ((ISupportInitialize)kryptonPageNotifications).BeginInit();
@@ -158,31 +160,31 @@ namespace Talkster.Client.Forms
             // 
             // checkBoxFlashWindowWhenMessageReceived
             // 
-            checkBoxFlashWindowWhenMessageReceived.Location = new Point(11, 5);
+            checkBoxFlashWindowWhenMessageReceived.Location = new Point(11, 57);
             checkBoxFlashWindowWhenMessageReceived.Name = "checkBoxFlashWindowWhenMessageReceived";
-            checkBoxFlashWindowWhenMessageReceived.Size = new Size(230, 20);
+            checkBoxFlashWindowWhenMessageReceived.Size = new Size(241, 20);
             checkBoxFlashWindowWhenMessageReceived.TabIndex = 0;
-            checkBoxFlashWindowWhenMessageReceived.Values.Text = "Flash window when message received";
+            checkBoxFlashWindowWhenMessageReceived.Values.Text = "Flash window when message is received";
             // 
             // checkBoxPlaySoundWhenMessageReceived
             // 
-            checkBoxPlaySoundWhenMessageReceived.Location = new Point(11, 57);
+            checkBoxPlaySoundWhenMessageReceived.Location = new Point(11, 31);
             checkBoxPlaySoundWhenMessageReceived.Name = "checkBoxPlaySoundWhenMessageReceived";
-            checkBoxPlaySoundWhenMessageReceived.Size = new Size(191, 20);
+            checkBoxPlaySoundWhenMessageReceived.Size = new Size(226, 20);
             checkBoxPlaySoundWhenMessageReceived.TabIndex = 2;
-            checkBoxPlaySoundWhenMessageReceived.Values.Text = "Sound when message received";
+            checkBoxPlaySoundWhenMessageReceived.Values.Text = "Audible alert when message received";
             // 
             // checkBoxPlaySoundWhenContactComesOnline
             // 
-            checkBoxPlaySoundWhenContactComesOnline.Location = new Point(11, 31);
+            checkBoxPlaySoundWhenContactComesOnline.Location = new Point(11, 5);
             checkBoxPlaySoundWhenContactComesOnline.Name = "checkBoxPlaySoundWhenContactComesOnline";
-            checkBoxPlaySoundWhenContactComesOnline.Size = new Size(211, 20);
+            checkBoxPlaySoundWhenContactComesOnline.Size = new Size(245, 20);
             checkBoxPlaySoundWhenContactComesOnline.TabIndex = 1;
-            checkBoxPlaySoundWhenContactComesOnline.Values.Text = "Sound when contact comes online";
+            checkBoxPlaySoundWhenContactComesOnline.Values.Text = "Audible alert when contact comes online";
             // 
             // textBoxAutoAwayIdleMinutes
             // 
-            textBoxAutoAwayIdleMinutes.Location = new Point(11, 212);
+            textBoxAutoAwayIdleMinutes.Location = new Point(284, 72);
             textBoxAutoAwayIdleMinutes.Name = "textBoxAutoAwayIdleMinutes";
             textBoxAutoAwayIdleMinutes.Size = new Size(119, 23);
             textBoxAutoAwayIdleMinutes.TabIndex = 8;
@@ -191,17 +193,17 @@ namespace Talkster.Client.Forms
             // 
             checkBoxAlertToastWhenMessageReceived.Location = new Point(11, 135);
             checkBoxAlertToastWhenMessageReceived.Name = "checkBoxAlertToastWhenMessageReceived";
-            checkBoxAlertToastWhenMessageReceived.Size = new Size(216, 20);
+            checkBoxAlertToastWhenMessageReceived.Size = new Size(228, 20);
             checkBoxAlertToastWhenMessageReceived.TabIndex = 5;
-            checkBoxAlertToastWhenMessageReceived.Values.Text = "Visual alert when message received";
+            checkBoxAlertToastWhenMessageReceived.Values.Text = "Visual alert when message is received";
             // 
             // labelAutoAwayIdleSeconds
             // 
-            labelAutoAwayIdleSeconds.Location = new Point(8, 191);
+            labelAutoAwayIdleSeconds.Location = new Point(284, 54);
             labelAutoAwayIdleSeconds.Name = "labelAutoAwayIdleSeconds";
-            labelAutoAwayIdleSeconds.Size = new Size(197, 20);
+            labelAutoAwayIdleSeconds.Size = new Size(152, 20);
             labelAutoAwayIdleSeconds.TabIndex = 7;
-            labelAutoAwayIdleSeconds.Values.Text = "Set my status away after (minutes)";
+            labelAutoAwayIdleSeconds.Values.Text = "Auto-away after (minutes)";
             // 
             // checkBoxAlertToastWhenContactComesOnline
             // 
@@ -243,10 +245,10 @@ namespace Talkster.Client.Forms
             // 
             // checkBoxAutoStartAtWindowsLogin
             // 
-            checkBoxAutoStartAtWindowsLogin.Location = new Point(3, 235);
+            checkBoxAutoStartAtWindowsLogin.Location = new Point(7, 54);
             checkBoxAutoStartAtWindowsLogin.Name = "checkBoxAutoStartAtWindowsLogin";
             checkBoxAutoStartAtWindowsLogin.Size = new Size(180, 20);
-            checkBoxAutoStartAtWindowsLogin.TabIndex = 4;
+            checkBoxAutoStartAtWindowsLogin.TabIndex = 2;
             checkBoxAutoStartAtWindowsLogin.Values.Text = "Auto-start at windows login?";
             // 
             // textBoxFileTransferChunkSize
@@ -350,12 +352,14 @@ namespace Talkster.Client.Forms
             kryptonNavigator.PopupPages.Element = Krypton.Navigator.PopupPageElement.Item;
             kryptonNavigator.PopupPages.Position = Krypton.Navigator.PopupPagePosition.ModeAppropriate;
             kryptonNavigator.SelectedIndex = 0;
-            kryptonNavigator.Size = new Size(456, 288);
+            kryptonNavigator.Size = new Size(460, 288);
             kryptonNavigator.TabIndex = 5;
             // 
             // kryptonPageNotifications
             // 
             kryptonPageNotifications.AutoHiddenSlideSize = new Size(200, 200);
+            kryptonPageNotifications.Controls.Add(textBoxToastTimeoutSeconds);
+            kryptonPageNotifications.Controls.Add(labelToastTimeoutSeconds);
             kryptonPageNotifications.Controls.Add(checkBoxAlertToastErrorMessages);
             kryptonPageNotifications.Controls.Add(checkBoxAlertToastWhenMyOnlineStatusChanges);
             kryptonPageNotifications.Controls.Add(checkBoxFlashWindowWhenMessageReceived);
@@ -369,7 +373,7 @@ namespace Talkster.Client.Forms
             kryptonPageNotifications.LastVisibleSet = true;
             kryptonPageNotifications.MinimumSize = new Size(150, 50);
             kryptonPageNotifications.Name = "kryptonPageNotifications";
-            kryptonPageNotifications.Size = new Size(454, 259);
+            kryptonPageNotifications.Size = new Size(458, 259);
             kryptonPageNotifications.Text = "Notifications";
             kryptonPageNotifications.TextDescription = "Notifications";
             kryptonPageNotifications.TextTitle = "Notifications";
@@ -403,7 +407,7 @@ namespace Talkster.Client.Forms
             kryptonPageMessages.LastVisibleSet = true;
             kryptonPageMessages.MinimumSize = new Size(150, 50);
             kryptonPageMessages.Name = "kryptonPageMessages";
-            kryptonPageMessages.Size = new Size(442, 259);
+            kryptonPageMessages.Size = new Size(458, 259);
             kryptonPageMessages.Text = "Messages";
             kryptonPageMessages.TextDescription = "Messages";
             kryptonPageMessages.TextTitle = "Messages";
@@ -413,13 +417,14 @@ namespace Talkster.Client.Forms
             // kryptonPageUI
             // 
             kryptonPageUI.AutoHiddenSlideSize = new Size(200, 200);
+            kryptonPageUI.Controls.Add(checkBoxAutoStartAtWindowsLogin);
             kryptonPageUI.Controls.Add(kryptonComboBoxTheme);
             kryptonPageUI.Controls.Add(labelTheme);
             kryptonPageUI.Flags = 65534;
             kryptonPageUI.LastVisibleSet = true;
             kryptonPageUI.MinimumSize = new Size(150, 50);
             kryptonPageUI.Name = "kryptonPageUI";
-            kryptonPageUI.Size = new Size(432, 262);
+            kryptonPageUI.Size = new Size(458, 259);
             kryptonPageUI.Text = "UI";
             kryptonPageUI.TextDescription = "UI";
             kryptonPageUI.TextTitle = "UI";
@@ -456,7 +461,7 @@ namespace Talkster.Client.Forms
             kryptonPageServer.LastVisibleSet = true;
             kryptonPageServer.MinimumSize = new Size(150, 50);
             kryptonPageServer.Name = "kryptonPageServer";
-            kryptonPageServer.Size = new Size(442, 259);
+            kryptonPageServer.Size = new Size(458, 259);
             kryptonPageServer.Text = "Server";
             kryptonPageServer.TextDescription = "Server";
             kryptonPageServer.TextTitle = "Server";
@@ -466,7 +471,6 @@ namespace Talkster.Client.Forms
             // kryptonPageAdvanced
             // 
             kryptonPageAdvanced.AutoHiddenSlideSize = new Size(200, 200);
-            kryptonPageAdvanced.Controls.Add(checkBoxAutoStartAtWindowsLogin);
             kryptonPageAdvanced.Controls.Add(textBoxFileTransferChunkSize);
             kryptonPageAdvanced.Controls.Add(textBoxMaxMessages);
             kryptonPageAdvanced.Controls.Add(labelMaxMessages);
@@ -475,7 +479,7 @@ namespace Talkster.Client.Forms
             kryptonPageAdvanced.LastVisibleSet = true;
             kryptonPageAdvanced.MinimumSize = new Size(150, 50);
             kryptonPageAdvanced.Name = "kryptonPageAdvanced";
-            kryptonPageAdvanced.Size = new Size(442, 259);
+            kryptonPageAdvanced.Size = new Size(458, 259);
             kryptonPageAdvanced.Text = "Advanced";
             kryptonPageAdvanced.TextDescription = "Advanced";
             kryptonPageAdvanced.TextTitle = "Advanced";
@@ -495,7 +499,7 @@ namespace Talkster.Client.Forms
             kryptonPageCryptography.LastVisibleSet = true;
             kryptonPageCryptography.MinimumSize = new Size(150, 50);
             kryptonPageCryptography.Name = "kryptonPageCryptography";
-            kryptonPageCryptography.Size = new Size(442, 259);
+            kryptonPageCryptography.Size = new Size(458, 259);
             kryptonPageCryptography.Text = "Cryptography";
             kryptonPageCryptography.TextDescription = "Cryptography";
             kryptonPageCryptography.TextTitle = "Cryptography";
@@ -520,13 +524,28 @@ namespace Talkster.Client.Forms
             // 
             splitContainer1.Panel2.Controls.Add(buttonSave);
             splitContainer1.Panel2.Controls.Add(buttonCancel);
-            splitContainer1.Size = new Size(456, 335);
+            splitContainer1.Size = new Size(460, 335);
             splitContainer1.SplitterDistance = 288;
             splitContainer1.TabIndex = 6;
             // 
+            // labelToastTimeoutSeconds
+            // 
+            labelToastTimeoutSeconds.Location = new Point(280, 5);
+            labelToastTimeoutSeconds.Name = "labelToastTimeoutSeconds";
+            labelToastTimeoutSeconds.Size = new Size(175, 20);
+            labelToastTimeoutSeconds.TabIndex = 7;
+            labelToastTimeoutSeconds.Values.Text = "Visual alert duration (seconds)";
+            // 
+            // textBoxToastTimeoutSeconds
+            // 
+            textBoxToastTimeoutSeconds.Location = new Point(284, 25);
+            textBoxToastTimeoutSeconds.Name = "textBoxToastTimeoutSeconds";
+            textBoxToastTimeoutSeconds.Size = new Size(100, 23);
+            textBoxToastTimeoutSeconds.TabIndex = 7;
+            // 
             // FormSettings
             // 
-            ClientSize = new Size(456, 335);
+            ClientSize = new Size(460, 335);
             Controls.Add(splitContainer1);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
@@ -604,5 +623,7 @@ namespace Talkster.Client.Forms
         private SplitContainer splitContainer1;
         private KryptonCheckBox checkBoxAlertToastErrorMessages;
         private KryptonCheckBox checkBoxAlertToastWhenMyOnlineStatusChanges;
+        private KryptonTextBox textBoxToastTimeoutSeconds;
+        private KryptonLabel labelToastTimeoutSeconds;
     }
 }

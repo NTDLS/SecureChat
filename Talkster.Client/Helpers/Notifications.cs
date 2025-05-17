@@ -57,7 +57,7 @@ namespace Talkster.Client.Helpers
                             formToActive.WindowState = FormWindowState.Normal;
                             formToActive.Focus();
                         });
-                    }, 3000, ToastPosition.BottomRight);
+                    });
             }
         }
 
@@ -102,33 +102,33 @@ namespace Talkster.Client.Helpers
             }
         }
 
-        public static void ToastSuccess(string headerText, string bodyText, ToastClickActionParameterized action, object actionParameter, int duration = 3000, ToastPosition position = ToastPosition.BottomRight)
-            => _notificationForm?.InvokePopup(ToastStyle.Success, headerText, bodyText, action, actionParameter, duration, position);
-        public static void ToastSuccess(string headerText, string bodyText, ToastClickAction action, int duration = 3000, ToastPosition position = ToastPosition.BottomRight)
-            => _notificationForm?.InvokePopup(ToastStyle.Success, headerText, bodyText, action, duration, position);
-        public static void ToastSuccess(string headerText, string bodyText, int duration = 3000, ToastPosition position = ToastPosition.BottomRight)
-            => _notificationForm?.InvokePopup(ToastStyle.Success, headerText, bodyText, null, duration, position);
+        public static void ToastSuccess(string headerText, string bodyText, ToastClickActionParameterized action, object actionParameter, int? duration = null, ToastPosition position = ToastPosition.BottomRight)
+            => _notificationForm?.InvokePopup(ToastStyle.Success, headerText, bodyText, action, actionParameter, duration ?? Settings.Instance.ToastTimeoutSeconds * 1000, position);
+        public static void ToastSuccess(string headerText, string bodyText, ToastClickAction action, int? duration = null, ToastPosition position = ToastPosition.BottomRight)
+            => _notificationForm?.InvokePopup(ToastStyle.Success, headerText, bodyText, action, duration ?? Settings.Instance.ToastTimeoutSeconds * 1000, position);
+        public static void ToastSuccess(string headerText, string bodyText, int? duration = null, ToastPosition position = ToastPosition.BottomRight)
+            => _notificationForm?.InvokePopup(ToastStyle.Success, headerText, bodyText, null, duration ?? Settings.Instance.ToastTimeoutSeconds * 1000, position);
 
-        public static void ToastWarning(string headerText, string bodyText, ToastClickActionParameterized action, object actionParameter, int duration = 3000, ToastPosition position = ToastPosition.BottomRight)
-            => _notificationForm?.InvokePopup(ToastStyle.Warning, headerText, bodyText, action, actionParameter, duration, position);
-        public static void ToastWarning(string headerText, string bodyText, ToastClickAction action, int duration = 3000, ToastPosition position = ToastPosition.BottomRight)
-            => _notificationForm?.InvokePopup(ToastStyle.Warning, headerText, bodyText, action, duration, position);
-        public static void ToastWarning(string headerText, string bodyText, int duration = 3000, ToastPosition position = ToastPosition.BottomRight)
-            => _notificationForm?.InvokePopup(ToastStyle.Warning, headerText, bodyText, null, duration, position);
+        public static void ToastWarning(string headerText, string bodyText, ToastClickActionParameterized action, object actionParameter, int? duration = null, ToastPosition position = ToastPosition.BottomRight)
+            => _notificationForm?.InvokePopup(ToastStyle.Warning, headerText, bodyText, action, actionParameter, duration ?? Settings.Instance.ToastTimeoutSeconds * 1000, position);
+        public static void ToastWarning(string headerText, string bodyText, ToastClickAction action, int? duration = null, ToastPosition position = ToastPosition.BottomRight)
+            => _notificationForm?.InvokePopup(ToastStyle.Warning, headerText, bodyText, action, duration ?? Settings.Instance.ToastTimeoutSeconds * 1000, position);
+        public static void ToastWarning(string headerText, string bodyText, int? duration = null, ToastPosition position = ToastPosition.BottomRight)
+            => _notificationForm?.InvokePopup(ToastStyle.Warning, headerText, bodyText, null, duration ?? Settings.Instance.ToastTimeoutSeconds * 1000, position);
 
-        public static void ToastError(string headerText, string bodyText, ToastClickActionParameterized action, object actionParameter, int duration = 3000, ToastPosition position = ToastPosition.BottomRight)
-            => _notificationForm?.InvokePopup(ToastStyle.Error, headerText, bodyText, action, actionParameter, duration, position);
-        public static void ToastError(string headerText, string bodyText, ToastClickAction action, int duration = 3000, ToastPosition position = ToastPosition.BottomRight)
-            => _notificationForm?.InvokePopup(ToastStyle.Error, headerText, bodyText, action, duration, position);
-        public static void ToastError(string headerText, string bodyText, int duration = 3000, ToastPosition position = ToastPosition.BottomRight)
-            => _notificationForm?.InvokePopup(ToastStyle.Error, headerText, bodyText, null, duration, position);
+        public static void ToastError(string headerText, string bodyText, ToastClickActionParameterized action, object actionParameter, int? duration = null, ToastPosition position = ToastPosition.BottomRight)
+            => _notificationForm?.InvokePopup(ToastStyle.Error, headerText, bodyText, action, actionParameter, duration ?? Settings.Instance.ToastTimeoutSeconds * 1000, position);
+        public static void ToastError(string headerText, string bodyText, ToastClickAction action, int? duration = null, ToastPosition position = ToastPosition.BottomRight)
+            => _notificationForm?.InvokePopup(ToastStyle.Error, headerText, bodyText, action, duration ?? Settings.Instance.ToastTimeoutSeconds * 1000, position);
+        public static void ToastError(string headerText, string bodyText, int? duration = null, ToastPosition position = ToastPosition.BottomRight)
+            => _notificationForm?.InvokePopup(ToastStyle.Error, headerText, bodyText, null, duration ?? Settings.Instance.ToastTimeoutSeconds * 1000, position);
 
-        public static void ToastPlain(string headerText, string bodyText, ToastClickActionParameterized action, object actionParameter, int duration = 3000, ToastPosition position = ToastPosition.BottomRight)
-            => _notificationForm?.InvokePopup(ToastStyle.None, headerText, bodyText, action, actionParameter, duration, position);
-        public static void ToastPlain(string headerText, string bodyText, ToastClickAction action, int duration = 3000, ToastPosition position = ToastPosition.BottomRight)
-            => _notificationForm?.InvokePopup(ToastStyle.None, headerText, bodyText, action, duration, position);
-        public static void ToastPlain(string headerText, string bodyText, int duration = 3000, ToastPosition position = ToastPosition.BottomRight)
-            => _notificationForm?.InvokePopup(ToastStyle.None, headerText, bodyText, null, duration, position);
+        public static void ToastPlain(string headerText, string bodyText, ToastClickActionParameterized action, object actionParameter, int? duration = null, ToastPosition position = ToastPosition.BottomRight)
+            => _notificationForm?.InvokePopup(ToastStyle.None, headerText, bodyText, action, actionParameter, duration ?? Settings.Instance.ToastTimeoutSeconds * 1000, position);
+        public static void ToastPlain(string headerText, string bodyText, ToastClickAction action, int? duration = null, ToastPosition position = ToastPosition.BottomRight)
+            => _notificationForm?.InvokePopup(ToastStyle.None, headerText, bodyText, action, duration ?? Settings.Instance.ToastTimeoutSeconds * 1000, position);
+        public static void ToastPlain(string headerText, string bodyText, int? duration = null, ToastPosition position = ToastPosition.BottomRight)
+            => _notificationForm?.InvokePopup(ToastStyle.None, headerText, bodyText, null, duration ?? Settings.Instance.ToastTimeoutSeconds * 1000, position);
 
         #endregion
     }

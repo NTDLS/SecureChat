@@ -67,8 +67,8 @@ namespace Talkster.Client.Forms
             // 
             splitContainer1.Panel2.Controls.Add(textBoxMessage);
             splitContainer1.Panel2.Controls.Add(buttonSend);
-            splitContainer1.Size = new Size(530, 463);
-            splitContainer1.SplitterDistance = 405;
+            splitContainer1.Size = new Size(534, 451);
+            splitContainer1.SplitterDistance = 393;
             splitContainer1.TabIndex = 2;
             // 
             // flowPanel
@@ -82,7 +82,7 @@ namespace Talkster.Client.Forms
             flowPanel.FlowDirection = FlowDirection.TopDown;
             flowPanel.Location = new Point(0, 0);
             flowPanel.Name = "flowPanel";
-            flowPanel.Size = new Size(530, 405);
+            flowPanel.Size = new Size(534, 393);
             flowPanel.TabIndex = 2;
             flowPanel.WrapContents = false;
             // 
@@ -92,15 +92,15 @@ namespace Talkster.Client.Forms
             textBoxMessage.Location = new Point(0, 0);
             textBoxMessage.Multiline = true;
             textBoxMessage.Name = "textBoxMessage";
-            textBoxMessage.Size = new Size(455, 53);
+            textBoxMessage.Size = new Size(477, 53);
             textBoxMessage.TabIndex = 0;
             // 
             // buttonSend
             // 
             buttonSend.Dock = DockStyle.Right;
-            buttonSend.Location = new Point(455, 0);
+            buttonSend.Location = new Point(477, 0);
             buttonSend.Name = "buttonSend";
-            buttonSend.Size = new Size(75, 53);
+            buttonSend.Size = new Size(57, 53);
             buttonSend.TabIndex = 1;
             buttonSend.Values.DropDownArrowColor = Color.Empty;
             buttonSend.Values.Text = "Send";
@@ -112,7 +112,7 @@ namespace Talkster.Client.Forms
             toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButtonTerminate, toolStripSeparator1, toolStripButtonAttachFile, toolStripButtonVoiceCall, toolStripButtonVoiceCallEnd, toolStripSeparator2, toolStripButtonExport, toolStripButtonProperties });
             toolStrip1.Location = new Point(5, 0);
             toolStrip1.Name = "toolStrip1";
-            toolStrip1.Size = new Size(530, 25);
+            toolStrip1.Size = new Size(534, 25);
             toolStrip1.TabIndex = 4;
             toolStrip1.Text = "toolStrip1";
             // 
@@ -192,7 +192,7 @@ namespace Talkster.Client.Forms
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(540, 493);
+            ClientSize = new Size(544, 481);
             Controls.Add(splitContainer1);
             Controls.Add(toolStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");

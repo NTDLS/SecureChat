@@ -100,6 +100,7 @@ namespace Talkster.Client.Forms
                 textBoxMessage.DragDrop += TextBoxMessage_DragDrop;
                 flowPanel.DragDrop += TextBoxMessage_DragDrop;
                 textBoxMessage.Focus();
+                textBoxMessage.MaxLength = ScConstants.MaxTextMessageSize;
 
                 _timer = new System.Windows.Forms.Timer
                 {
@@ -302,7 +303,8 @@ namespace Talkster.Client.Forms
                 }
 
                 string text = textBoxMessage.Text;
-                if (text.Trim().Length == 0)
+                int textMessageSize = text.Length;
+                if (textMessageSize == 0 || textMessageSize > ScConstants.MaxTextMessageSize)
                 {
                     return;
                 }
