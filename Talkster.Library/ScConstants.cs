@@ -2,12 +2,6 @@
 {
     public static class ScConstants
     {
-        public enum Theme
-        {
-            Light,
-            Dark
-        }
-
         public const string MutexName = "Global\\NetworkDLS.Talkster";
 
         public static readonly string[] ImageFileTypes = { ".bmp", ".jpg", ".jpeg", ".png", ".gif" };
@@ -33,13 +27,7 @@
         public const int DefaultToastSeconds = 5;
         public const string AppName = "Talkster";
         public const string DefaultFont = "Cascadia Mono SemiLight";
-        public const string DefaultServerAddress = "Talkster.ntdls.com";
-
-        public enum ScAlignment
-        {
-            Left,
-            Right
-        }
+        public const string DefaultServerAddress = "talkster.ntdls.com";
 
         public enum ScOrigin
         {

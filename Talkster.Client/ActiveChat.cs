@@ -862,7 +862,7 @@ namespace Talkster.Client
                     {
                         if (WindowFlasher.FlashWindow(Form))
                         {
-                            Notifications.IncomingCall(fromName);
+                            Notifications.IncomingCall(fromName, Form);
                         }
                     }
                 });

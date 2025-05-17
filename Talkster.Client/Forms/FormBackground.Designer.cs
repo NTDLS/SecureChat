@@ -29,23 +29,23 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormBackground));
-            pictureBox1 = new PictureBox();
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            pictureBoxBackground = new PictureBox();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxBackground).BeginInit();
             SuspendLayout();
             // 
-            // pictureBox1
+            // pictureBoxBackground
             // 
-            pictureBox1.BackgroundImageLayout = ImageLayout.Center;
-            pictureBox1.Dock = DockStyle.Fill;
-            pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
-            pictureBox1.Location = new Point(0, 0);
-            pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(656, 658);
-            pictureBox1.SizeMode = PictureBoxSizeMode.CenterImage;
-            pictureBox1.TabIndex = 0;
-            pictureBox1.TabStop = false;
+            pictureBoxBackground.BackgroundImageLayout = ImageLayout.Center;
+            pictureBoxBackground.Dock = DockStyle.Fill;
+            pictureBoxBackground.Image = (Image)resources.GetObject("pictureBoxBackground.Image");
+            pictureBoxBackground.Location = new Point(0, 0);
+            pictureBoxBackground.Name = "pictureBoxBackground";
+            pictureBoxBackground.Size = new Size(656, 658);
+            pictureBoxBackground.SizeMode = PictureBoxSizeMode.CenterImage;
+            pictureBoxBackground.TabIndex = 0;
+            pictureBoxBackground.TabStop = false;
             // 
-            // BackgroundForm
+            // FormBackground
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -53,20 +53,21 @@
             CausesValidation = false;
             ClientSize = new Size(656, 658);
             ControlBox = false;
-            Controls.Add(pictureBox1);
+            Controls.Add(pictureBoxBackground);
+            DoubleBuffered = true;
             FormBorderStyle = FormBorderStyle.None;
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MinimizeBox = false;
-            Name = "BackgroundForm";
+            Name = "FormBackground";
             ShowIcon = false;
             ShowInTaskbar = false;
             StartPosition = FormStartPosition.Manual;
-            Text = "BackgroundForm";
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxBackground).EndInit();
             ResumeLayout(false);
         }
 
         #endregion
 
-        private PictureBox pictureBox1;
+        private PictureBox pictureBoxBackground;
     }
 }

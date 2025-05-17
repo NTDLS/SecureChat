@@ -71,6 +71,28 @@ namespace Talkster.Client
             }).Start();
         }
 
+        public void ShowHomeForm()
+        {
+            if (FormHome == null)
+            {
+                return;
+            }
+
+            FormHome.Invoke(() =>
+            {
+                FormHome.Show();
+
+                if (FormHome.WindowState == FormWindowState.Minimized)
+                {
+                    FormHome.WindowState = FormWindowState.Normal;
+                }
+
+                FormHome.BringToFront();
+                FormHome.Activate();
+                FormHome.Focus();
+            });
+        }
+
         public void Terminate()
         {
             foreach (var activeChat in ActiveChats)

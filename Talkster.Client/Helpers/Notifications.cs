@@ -25,6 +25,7 @@ namespace Talkster.Client.Helpers
             Success,
             Warning
         }
+
         public static void ContactOnline(string contactName)
         {
             if (Settings.Instance.PlaySoundWhenContactComesOnline)
@@ -47,8 +48,7 @@ namespace Talkster.Client.Helpers
             }
             if (Settings.Instance.AlertToastWhenMessageReceived && ServerConnection.Current != null)
             {
-                ToastPlain(ScConstants.AppName, $"{contactName} sent you a message.",
-                    () =>
+                ToastPlain(ScConstants.AppName, $"{contactName} sent you a message.", () =>
                     {
                         formToActive.Invoke(() =>
                         {
@@ -61,7 +61,7 @@ namespace Talkster.Client.Helpers
             }
         }
 
-        public static void IncomingCall(string contactName)
+        public static void IncomingCall(string contactName, Form formToActive)
         {
             if (Settings.Instance.PlaySoundWhenMessageReceived)
             {
@@ -70,7 +70,16 @@ namespace Talkster.Client.Helpers
             }
             if (Settings.Instance.AlertToastWhenMessageReceived && ServerConnection.Current != null)
             {
-                ToastPlain(ScConstants.AppName, $"{contactName} is calling you.");
+                ToastPlain(ScConstants.AppName, $"{contactName} is calling you.", () =>
+                    {
+                        formToActive.Invoke(() =>
+                        {
+                            formToActive.Activate();
+                            formToActive.BringToFront();
+                            formToActive.WindowState = FormWindowState.Normal;
+                            formToActive.Focus();
+                        });
+                    });
             }
         }
 
@@ -97,8 +106,6 @@ namespace Talkster.Client.Helpers
                 _thread.SetApartmentState(ApartmentState.STA);
                 _thread.IsBackground = true;
                 _thread.Start();
-
-                Thread.Sleep(500);
             }
         }
 

@@ -14,8 +14,8 @@ namespace Talkster.Client
     internal class TrayApp : ApplicationContext
     {
         public static bool IsOnlyInstance { get; set; } = true;
-
         public string? DisplayName { get; private set; }
+
         private bool _isApplicationClosing = false;
         private readonly NotifyIcon _trayIcon;
         private FormLogin? _formLogin;
@@ -39,7 +39,6 @@ namespace Talkster.Client
                 };
 
                 _trayIcon.MouseClick += TrayIcon_MouseClick;
-                _trayIcon.BalloonTipClicked += TrayIcon_BalloonTipClicked;
 
                 _trayIcon.ContextMenuStrip.Items.Add("About", null, OnAbout);
                 _trayIcon.ContextMenuStrip.Items.Add("Log", null, OnLog);
@@ -57,7 +56,6 @@ namespace Talkster.Client
 
                 _reconnectTimer.Interval = 10000;
                 _reconnectTimer.Tick += ReconnectTimer_Tick;
-
             }
             catch (Exception ex)
             {
@@ -67,13 +65,32 @@ namespace Talkster.Client
             }
         }
 
+        #region Invokers.
+
+        public bool InvokeRequired
+            => _trayIcon.ContextMenuStrip.EnsureNotNull().InvokeRequired;
+
+        public void Invoke(Action method)
+            => _trayIcon.ContextMenuStrip.EnsureNotNull().Invoke(method);
+
+        public object Invoke(Delegate method)
+             => _trayIcon.ContextMenuStrip.EnsureNotNull().Invoke(method, null);
+
+        public object Invoke(Delegate method, params object?[]? args)
+            => _trayIcon.ContextMenuStrip.EnsureNotNull().Invoke(method, args);
+
+        public T Invoke<T>(Func<T> method)
+            => _trayIcon.ContextMenuStrip.EnsureNotNull().Invoke(method);
+
+        #endregion
+
         private void ReconnectTimer_Tick(object? sender, EventArgs e)
         {
             try
             {
                 _reconnectTimer.Stop();
 
-                if (_intentionalDisconnect)
+                if (_intentionalDisconnect || ServerConnection.Current?.Connection != null)
                 {
                     return;
                 }
@@ -82,7 +99,6 @@ namespace Talkster.Client
             }
             catch (Exception ex)
             {
-                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -101,18 +117,16 @@ namespace Talkster.Client
             }
             catch (Exception ex)
             {
-                Program.Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
                 MessageBox.Show(ex.Message, ScConstants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void TrayIcon_BalloonTipClicked(object? sender, EventArgs e)
-        {
-            TrayIcon_MouseClick(sender, new MouseEventArgs(MouseButtons.Left, 1, 0, 0, 0));
-        }
-
         private void TrayIcon_MouseClick(object? sender, MouseEventArgs e)
         {
+            if (_IsBusyLoggingIn)
+            {
+                return;
+            }
             if (e.Button != MouseButtons.Left)
             {
                 return;
@@ -126,20 +140,7 @@ namespace Talkster.Client
                 }
                 else
                 {
-                    if (ServerConnection.Current.FormHome == null)
-                    {
-                        throw new Exception("Home form should not be null.");
-                    }
-                    ServerConnection.Current.FormHome.Show();
-
-                    if (ServerConnection.Current.FormHome.WindowState == FormWindowState.Minimized)
-                    {
-                        ServerConnection.Current.FormHome.WindowState = FormWindowState.Normal;
-                    }
-
-                    ServerConnection.Current.FormHome.BringToFront();
-                    ServerConnection.Current.FormHome.Activate();
-                    ServerConnection.Current.FormHome.Focus();
+                    ServerConnection.Current?.ShowHomeForm();
                 }
             }
             catch (Exception ex)
@@ -209,7 +210,7 @@ namespace Talkster.Client
                                 if (isReconnectAttempt)
                                 {
                                     //Failed to auto-reconnect, lets try again.
-                                    _trayIcon.ContextMenuStrip?.Invoke(() => _reconnectTimer.Start());
+                                    Invoke(() => _reconnectTimer.Start());
                                 }
                                 else
                                 {
@@ -259,7 +260,7 @@ namespace Talkster.Client
             loginResult.Connection.Client.AddHandler(new ClientReliableMessageHandlers());
 
             //Yea, I am using the ContextMenuStrips thread for form creation.
-            var formHome = _trayIcon.ContextMenuStrip.EnsureNotNull().Invoke(() =>
+            var formHome = Invoke(() =>
             {
                 var formHome = new FormHome();
                 formHome.CreateControl(); //Force the window handle to be created before the form is shown,
@@ -294,7 +295,8 @@ namespace Talkster.Client
 
             if (Settings.Instance.AlertToastWhenMyOnlineStatusChanges)
             {
-                Notifications.ToastPlain(ScConstants.AppName, $"Welcome back {loginResult.DisplayName}, you are now logged in.");
+                Notifications.ToastPlain(ScConstants.AppName, $"Welcome back {loginResult.DisplayName}, you are now logged in.",
+                    () => ServerConnection.Current?.ShowHomeForm());
             }
         }
 
@@ -322,7 +324,7 @@ namespace Talkster.Client
 
                 if (!_intentionalDisconnect)
                 {
-                    _trayIcon.ContextMenuStrip?.Invoke(() => _reconnectTimer.Start());
+                    Invoke(() => _reconnectTimer.Start());
                 }
 
             }
@@ -355,9 +357,9 @@ namespace Talkster.Client
 
                 _trayIcon.ContextMenuStrip.EnsureNotNull();
 
-                if (_trayIcon.ContextMenuStrip.InvokeRequired)
+                if (InvokeRequired)
                 {
-                    _trayIcon.ContextMenuStrip.Invoke(UpdateClientState, state);
+                    Invoke(UpdateClientState, state);
                     return;
                 }
 

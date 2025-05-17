@@ -46,6 +46,10 @@ namespace Talkster.Client.Forms
                 {
                     textBoxPassword.Focus();
                 }
+
+                BringToFront();
+                Activate();
+                Focus();
             };
         }
 
