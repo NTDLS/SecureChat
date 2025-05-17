@@ -158,7 +158,6 @@ namespace Talkster.Client
             }
 
             _IsBusyLoggingIn = true;
-            UpdateClientState(ScOnlineState.Connecting);
 
             try
             {
@@ -180,6 +179,8 @@ namespace Talkster.Client
 
                     if (autoLogin != null)
                     {
+                        UpdateClientState(ScOnlineState.Connecting);
+
                         Task.Run(() =>
                         {
                             loginResult = ConnectionHelpers.CreateLoggedInConnection(autoLogin.Username, autoLogin.PasswordHash, RmExceptionHandler);
@@ -232,6 +233,7 @@ namespace Talkster.Client
                         using (_formLogin = new FormLogin())
                         {
                             loginResult = _formLogin.DoLogin();
+                            _IsBusyLoggingIn = false;
                             if (loginResult != null)
                             {
                                 PropLocalSession(loginResult);
