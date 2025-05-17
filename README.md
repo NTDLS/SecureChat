@@ -15,22 +15,22 @@ Each client connects to a central server using two pairs of 4096-bit RSA public-
 Accounts are stored at the server (which you can easily host, or use mine). The only thing stored is your preferred username, the SHA-256 of your chosen password, and your status (if you choose to have one).
 
 ### Login
-![image](https://github.com/user-attachments/assets/ef329f08-2276-44a4-b563-b1124306eecb)
+![image](https://github.com/user-attachments/assets/7ac1f26b-bef6-47e2-9314-e457814cce82)
 
 ### Contacts
-![image](https://github.com/user-attachments/assets/0694ba0d-61d0-49f9-8149-a23b96c526a1)
+![image](https://github.com/user-attachments/assets/47612d1c-9736-48f0-81fc-e96add2a6649)
 
 ### Messaging
-![image](https://github.com/user-attachments/assets/b6e696aa-1891-4610-bcfa-f6d750af13e9)
+![image](https://github.com/user-attachments/assets/b3f73059-fd74-43a8-8113-4da6b7043f29)
 
 ### Tray Icon
 ![image](https://github.com/user-attachments/assets/0c5f9c6f-fed4-4875-a425-fc5ff3ee5542)
 
 ### Voice Chat
-![image](https://github.com/user-attachments/assets/74aa49b7-21bd-4ded-ae78-21b8292320c4)
+![image](https://github.com/user-attachments/assets/11baa0aa-3d98-4697-b33b-856006032819)
 
 ### Settings
-![image](https://github.com/user-attachments/assets/ea8d8ce8-4bfe-4916-82e4-0e08c768d26c)
+![image](https://github.com/user-attachments/assets/9f10ed90-739a-487d-9325-af1a9dd2ed62)
 
 ### Roots
 This saga started in 2001, pictured here is the 5th revision from 2003! 🫣
