@@ -54,7 +54,10 @@ namespace Talkster.Client.Helpers
                         {
                             formToActive.Activate();
                             formToActive.BringToFront();
-                            formToActive.WindowState = FormWindowState.Normal;
+                            if (formToActive.WindowState != FormWindowState.Maximized)
+                            {
+                                formToActive.WindowState = FormWindowState.Normal;
+                            }
                             formToActive.Focus();
                         });
                     });
@@ -76,7 +79,10 @@ namespace Talkster.Client.Helpers
                         {
                             formToActive.Activate();
                             formToActive.BringToFront();
-                            formToActive.WindowState = FormWindowState.Normal;
+                            if (formToActive.WindowState != FormWindowState.Maximized)
+                            {
+                                formToActive.WindowState = FormWindowState.Normal;
+                            }
                             formToActive.Focus();
                         });
                     });

@@ -2,9 +2,11 @@
 using NTDLS.Helpers;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 using Talkster.Client.Controls.FlowControls;
 using Talkster.Client.Helpers;
 using Talkster.Library;
+using static System.Windows.Forms.DataFormats;
 using static Talkster.Library.ScConstants;
 
 namespace Talkster.Client.Forms
@@ -101,6 +103,7 @@ namespace Talkster.Client.Forms
                 flowPanel.DragDrop += TextBoxMessage_DragDrop;
                 textBoxMessage.Focus();
                 textBoxMessage.MaxLength = ScConstants.MaxTextMessageSize;
+                textBoxMessage.Font = new Font(Settings.Instance.Font, (float)Settings.Instance.FontSize);
 
                 _timer = new System.Windows.Forms.Timer
                 {
@@ -250,18 +253,31 @@ namespace Talkster.Client.Forms
                 {
                     if (Clipboard.ContainsImage())
                     {
-                        var image = Clipboard.GetImage();
-                        if (image != null)
+                        var dataObject = Clipboard.GetDataObject();
+
+                        if (dataObject?.GetFormats().Contains("HTML Format") == true)
                         {
-                            var imageBytes = Imaging.ImageToPngBytes(image);
-                            _activeChat.TransmitFileAsync("clipboard.png", imageBytes);
+                            var bytes = GetAnimatedGifFromHTML();
+                            if (bytes != null)
+                            {
+                                _activeChat.TransmitFileAsync($"clipboard.gif", bytes);
+                            }
                         }
+                        else
+                        {
+                            var image = Clipboard.GetImage();
+                            if (image != null)
+                            {
+                                var imageBytes = Imaging.ImageToPngBytes(image);
+                                _activeChat.TransmitFileAsync($"clipboard.png", imageBytes);
+                            }
+                        }
+
                         e.SuppressKeyPress = true;
                     }
                     else if (Clipboard.ContainsFileDropList()) // If clipboard contains file(s)
                     {
                         var fileNames = Clipboard.GetFileDropList().Cast<string>().ToArray();
-
                         foreach (var fileName in fileNames)
                         {
                             _activeChat.TransmitFileAsync(fileName);
@@ -277,6 +293,38 @@ namespace Talkster.Client.Forms
             {
                 _activeChat.AppendErrorLine(ex);
             }
+        }
+
+        /// <summary>
+        /// This is used to get the animated gif images from the ("Windows-Key" + ".") GIF picker.
+        /// </summary>
+        /// <returns></returns>
+        private byte[]? GetAnimatedGifFromHTML()
+        {
+            try
+            {
+                var dataObject = Clipboard.GetDataObject();
+
+                if (dataObject?.GetData("HTML Format") is string html)
+                {
+                    if (!string.IsNullOrEmpty(html))
+                    {
+                        var match = Regex.Match(html, @"<img[^>]+src=[""']([^""']+\.gif)[""']", RegexOptions.IgnoreCase);
+                        if (match.Success)
+                        {
+                            var gifUrl = match.Groups[1].Value;
+                            using var client = new HttpClient();
+                            return client.GetByteArrayAsync(gifUrl).Result;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _activeChat.AppendErrorLine(ex);
+            }
+
+            return null;
         }
 
         private void ButtonSend_Click(object? sender, EventArgs e)

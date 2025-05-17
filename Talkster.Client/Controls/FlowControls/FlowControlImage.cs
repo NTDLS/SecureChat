@@ -12,6 +12,8 @@ namespace Talkster.Client.Controls.FlowControls
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Guid FileId { get; private set; }
 
+        private MemoryStream? _stream;
+
         public FlowControlImage(FlowLayoutPanel parent, byte[] imageBytes, Guid fileId, ScOrigin origin, Image? initialStatusImage = null, string? displayName = null)
             : base(parent, new PictureBox
             {
@@ -21,12 +23,18 @@ namespace Talkster.Client.Controls.FlowControls
         {
             FileId = fileId;
 
-            using var ms = new MemoryStream(imageBytes);
-            var image = Image.FromStream(ms);
+            _stream = new MemoryStream(imageBytes);
+            var image = Image.FromStream(_stream);
+
+            if (!ImageAnimator.CanAnimate(image))
+            {
+                _stream.Dispose();
+                _stream = null;
+            }
 
             if (ChildControl is PictureBox child)
             {
-                child.Image = Image.FromStream(ms);
+                child.Image = image;
                 child.SizeMode = PictureBoxSizeMode.Zoom;
                 child.MouseEnter += Image_MouseEnter;
                 child.MouseLeave += Image_MouseLeave;
@@ -56,6 +64,12 @@ namespace Talkster.Client.Controls.FlowControls
                 contextMenu.Items.Add("Remove", null, OnRemove);
                 contextMenu.Show(sender as Control ?? this, e.Location);
             }
+        }
+
+        public override void OnRemove(object? sender, EventArgs e)
+        {
+            base.OnRemove(sender, e);
+            _stream?.Dispose();
         }
 
         private void OnSaveImage(object? sender, EventArgs e)
