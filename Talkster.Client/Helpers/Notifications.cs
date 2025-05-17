@@ -106,6 +106,11 @@ namespace Talkster.Client.Helpers
                 _thread.SetApartmentState(ApartmentState.STA);
                 _thread.IsBackground = true;
                 _thread.Start();
+
+                while (_notificationForm == null)
+                {
+                    Thread.Sleep(10);
+                }
             }
         }
 

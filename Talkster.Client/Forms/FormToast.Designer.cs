@@ -32,7 +32,9 @@
             pictureBoxIcon = new PictureBox();
             labelHeader = new Label();
             labelBody = new Label();
+            pictureBoxClose = new PictureBox();
             ((System.ComponentModel.ISupportInitialize)pictureBoxIcon).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxClose).BeginInit();
             SuspendLayout();
             // 
             // pictureBoxIcon
@@ -46,22 +48,30 @@
             // 
             // labelHeader
             // 
-            labelHeader.Dock = DockStyle.Top;
+            labelHeader.AutoSize = true;
             labelHeader.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             labelHeader.Location = new Point(43, 0);
             labelHeader.Name = "labelHeader";
-            labelHeader.Size = new Size(307, 20);
+            labelHeader.Size = new Size(74, 15);
             labelHeader.TabIndex = 1;
             labelHeader.Text = "labelHeader";
             // 
             // labelBody
             // 
-            labelBody.Dock = DockStyle.Fill;
             labelBody.Location = new Point(43, 20);
             labelBody.Name = "labelBody";
             labelBody.Size = new Size(307, 70);
             labelBody.TabIndex = 2;
             labelBody.Text = "labelBody";
+            // 
+            // pictureBoxClose
+            // 
+            pictureBoxClose.Image = Properties.Resources.ToastClose16;
+            pictureBoxClose.Location = new Point(332, 0);
+            pictureBoxClose.Name = "pictureBoxClose";
+            pictureBoxClose.Size = new Size(18, 22);
+            pictureBoxClose.TabIndex = 3;
+            pictureBoxClose.TabStop = false;
             // 
             // FormToast
             // 
@@ -69,6 +79,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(350, 90);
             ControlBox = false;
+            Controls.Add(pictureBoxClose);
             Controls.Add(labelBody);
             Controls.Add(labelHeader);
             Controls.Add(pictureBoxIcon);
@@ -84,7 +95,9 @@
             ShowInTaskbar = false;
             StartPosition = FormStartPosition.Manual;
             ((System.ComponentModel.ISupportInitialize)pictureBoxIcon).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxClose).EndInit();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -92,5 +105,6 @@
         private PictureBox pictureBoxIcon;
         private Label labelHeader;
         private Label labelBody;
+        private PictureBox pictureBoxClose;
     }
 }

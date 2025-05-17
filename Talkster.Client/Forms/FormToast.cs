@@ -30,10 +30,29 @@ namespace Talkster.Client.Forms
             _timer.Tick += Timer_Tick;
             _timer.Interval = 10;
 
+            pictureBoxClose.Click += LabelClose_Click;
+
             Click += FormToast_Click;
             labelBody.Click += FormToast_Click;
             labelHeader.Click += FormToast_Click;
             pictureBoxIcon.Click += FormToast_Click;
+
+            labelHeader.Top = 10;
+            labelHeader.Left = pictureBoxIcon.Right;
+
+            labelBody.Left = pictureBoxIcon.Right;
+            labelBody.Top = labelHeader.Bottom + 5;
+            labelBody.Height = this.Height - labelBody.Top;
+            labelBody.Width = this.Width - labelBody.Left - 10;
+
+            pictureBoxClose.Top = 10;
+            pictureBoxClose.Left = this.Width - pictureBoxClose.Width - 10;
+        }
+
+        private void LabelClose_Click(object? sender, EventArgs e)
+        {
+            //Trigger the fade-out immediately.
+            _startTimeUTC = DateTime.UtcNow.AddMilliseconds(-_duration);
         }
 
         public void InvokePopup(ToastStyle style, string headerText, string bodyText,

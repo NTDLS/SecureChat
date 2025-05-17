@@ -190,6 +190,16 @@ namespace Talkster.Client.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ToastClose16 {
+            get {
+                object obj = ResourceManager.GetObject("ToastClose16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ToastError32 {
             get {
                 object obj = ResourceManager.GetObject("ToastError32", resourceCulture);
