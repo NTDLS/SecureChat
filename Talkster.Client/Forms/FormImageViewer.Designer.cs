@@ -35,17 +35,18 @@ namespace Talkster.Client.Forms
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
             saveToolStripMenuItem = new ToolStripMenuItem();
+            panel1 = new Panel();
             ((System.ComponentModel.ISupportInitialize)pictureBoxImage).BeginInit();
             menuStrip1.SuspendLayout();
+            panel1.SuspendLayout();
             SuspendLayout();
             // 
             // pictureBoxImage
             // 
             pictureBoxImage.BorderStyle = BorderStyle.FixedSingle;
-            pictureBoxImage.Dock = DockStyle.Fill;
-            pictureBoxImage.Location = new Point(0, 24);
+            pictureBoxImage.Location = new Point(0, 0);
             pictureBoxImage.Name = "pictureBoxImage";
-            pictureBoxImage.Size = new Size(457, 374);
+            pictureBoxImage.Size = new Size(290, 131);
             pictureBoxImage.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxImage.TabIndex = 0;
             pictureBoxImage.TabStop = false;
@@ -56,7 +57,7 @@ namespace Talkster.Client.Forms
             menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(457, 24);
+            menuStrip1.Size = new Size(294, 24);
             menuStrip1.TabIndex = 1;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -74,21 +75,33 @@ namespace Talkster.Client.Forms
             saveToolStripMenuItem.Text = "Save";
             saveToolStripMenuItem.Click += SaveToolStripMenuItem_Click;
             // 
+            // panel1
+            // 
+            panel1.AutoScroll = true;
+            panel1.Controls.Add(pictureBoxImage);
+            panel1.Dock = DockStyle.Fill;
+            panel1.Location = new Point(0, 24);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(294, 131);
+            panel1.TabIndex = 2;
+            // 
             // FormImageViewer
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(457, 398);
-            Controls.Add(pictureBoxImage);
+            ClientSize = new Size(294, 155);
+            Controls.Add(panel1);
             Controls.Add(menuStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
+            MinimumSize = new Size(300, 200);
             Name = "FormImageViewer";
             StartPosition = FormStartPosition.CenterParent;
             Text = "Talkster";
             ((System.ComponentModel.ISupportInitialize)pictureBoxImage).EndInit();
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
+            panel1.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -99,5 +112,6 @@ namespace Talkster.Client.Forms
         private MenuStrip menuStrip1;
         private ToolStripMenuItem fileToolStripMenuItem;
         private ToolStripMenuItem saveToolStripMenuItem;
+        private Panel panel1;
     }
 }

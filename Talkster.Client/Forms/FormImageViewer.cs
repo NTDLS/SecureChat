@@ -9,6 +9,11 @@ namespace Talkster.Client.Forms
     {
         private readonly Image _image;
 
+        private float _zoomFactor = 1.0f;
+        private const float ZoomStep = 0.1f;
+        private const float ZoomMin = 0.1f;
+        private const float ZoomMax = 10f;
+
         public FormImageViewer(Image image)
         {
             InitializeComponent();
@@ -17,12 +22,15 @@ namespace Talkster.Client.Forms
 
             _image = image;
 
-            Resize += OnResize;
+            Resize += (object? sender, EventArgs e) =>
+            {
+                DoResize();
+            };
 
-            pictureBoxImage.SizeMode = PictureBoxSizeMode.Zoom;
-            pictureBoxImage.Dock = DockStyle.Fill;
+            pictureBoxImage.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBoxImage.Image = image;
             pictureBoxImage.MouseClick += Image_MouseClick;
+            pictureBoxImage.BorderStyle = BorderStyle.None;
 
             if (image.Width > 800 || image.Height > 600)
             {
@@ -40,12 +48,33 @@ namespace Talkster.Client.Forms
                 Height = image.Height < 600 ? image.Height + 20 : 600;
             }
 
-            AdjustImageSize();
+            DoResize();
+
+            pictureBoxImage.MouseWheel += PictureBoxImage_MouseWheel;
+            pictureBoxImage.Focus();
+            pictureBoxImage.MouseEnter += (s, e) => pictureBoxImage.Focus();
         }
 
-        private void OnResize(object? sender, EventArgs e)
+        private void PictureBoxImage_MouseWheel(object? sender, MouseEventArgs e)
         {
-            AdjustImageSize();
+            var previousZoomFactor = _zoomFactor;
+
+            if (e.Delta > 0)
+            {
+                _zoomFactor += ZoomStep;
+            }
+            else if (e.Delta < 0)
+            {
+                _zoomFactor -= ZoomStep;
+            }
+
+            //Prevent the size from getting too small.
+            if ((pictureBoxImage.Size.Width < 32 || pictureBoxImage.Width < 32) && (_zoomFactor < previousZoomFactor))
+            {
+                _zoomFactor = previousZoomFactor;
+            }
+
+            DoResize();
         }
 
         private void Image_MouseClick(object? sender, MouseEventArgs e)
@@ -67,20 +96,21 @@ namespace Talkster.Client.Forms
             }
         }
 
-        private void AdjustImageSize()
+        private void DoResize()
         {
             try
             {
-                if (_image == null) return;
+                _zoomFactor = Math.Max(ZoomMin, Math.Min(ZoomMax, _zoomFactor));
 
-                if (ClientSize.Width > _image.Width && ClientSize.Height > _image.Height)
-                {
-                    pictureBoxImage.SizeMode = PictureBoxSizeMode.CenterImage;
-                }
-                else
-                {
-                    pictureBoxImage.SizeMode = PictureBoxSizeMode.Zoom;
-                }
+                int newWidth = (int)(_image.Width * _zoomFactor);
+                int newHeight = (int)(_image.Height * _zoomFactor);
+
+                pictureBoxImage.Size = new Size(newWidth, newHeight);
+
+                pictureBoxImage.Location = new Point(
+                    (ClientSize.Width - pictureBoxImage.Width) / 2,
+                    (ClientSize.Height - pictureBoxImage.Height) / 2);
+
             }
             catch (Exception ex)
             {
@@ -96,19 +126,25 @@ namespace Talkster.Client.Forms
 
         private void OnSaveImage(object? sender, EventArgs e)
         {
-            if (pictureBoxImage.Image != null)
+            try
             {
-                var imageBytes = Imaging.ImageToPngBytes(pictureBoxImage.Image);
-
-                using var sfd = new SaveFileDialog();
-                sfd.Filter = "PNG Image|*.png";
-                sfd.Title = "Save Image As";
-                sfd.FileName = "image.png";
-
-                if (sfd.ShowDialog() == DialogResult.OK)
+                if (pictureBoxImage.Image != null)
                 {
-                    File.WriteAllBytes(sfd.FileName, imageBytes);
+                    var imageBytes = Imaging.ImageToPngBytes(pictureBoxImage.Image);
+
+                    using var sfd = new SaveFileDialog();
+                    sfd.Filter = "PNG Image|*.png";
+                    sfd.Title = "Save Image As";
+                    sfd.FileName = "image.png";
+
+                    if (sfd.ShowDialog() == DialogResult.OK)
+                    {
+                        File.WriteAllBytes(sfd.FileName, imageBytes);
+                    }
                 }
+            }
+            catch
+            {
             }
         }
 
