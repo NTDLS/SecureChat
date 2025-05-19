@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="NTDLS.DatagramMessaging" Version="1.7.4" />
-    <PackageReference Include="NTDLS.ReliableMessaging" Version="3.0.1" />
+    <PackageReference Include="NTDLS.ReliableMessaging" Version="3.0.2" />
   </ItemGroup>
 
 </Project>
