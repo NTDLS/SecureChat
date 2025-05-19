@@ -16,3 +16,5 @@ Talkster.Server/bin/
 Installers/publish/
 
 Installers/Output/
+
+*.user

@@ -170,8 +170,6 @@ namespace Talkster.Client
 
             var rmConfig = new RmConfiguration()
             {
-                AsynchronousQueryWaiting = true,
-                AsynchronousNotifications = true
             };
 
             var rmClient = new RmClient(rmConfig);

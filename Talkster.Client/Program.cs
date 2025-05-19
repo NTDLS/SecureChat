@@ -7,7 +7,7 @@ namespace Talkster.Client
 {
     static class Program
     {
-        public static KryptonManager ThemeManager = new KryptonManager();
+        public static KryptonManager ThemeManager = new();
 
         public static Logger Log { get; set; } = new Logger();
 
