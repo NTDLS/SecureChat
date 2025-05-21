@@ -7,13 +7,13 @@
 
     <Company>NetworkDLS</Company>
     <Copyright>Copyright © 2025 NetworkDLS</Copyright>
-    <Version>1.0.20</Version>
+    <Version>1.0.21</Version>
     <Authors>NetworkDLS</Authors>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="NTDLS.DatagramMessaging" Version="1.7.4" />
-    <PackageReference Include="NTDLS.ReliableMessaging" Version="3.0.2" />
+    <PackageReference Include="NTDLS.ReliableMessaging" Version="3.1.0" />
   </ItemGroup>
 
 </Project>

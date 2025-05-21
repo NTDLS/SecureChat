@@ -173,6 +173,7 @@ namespace Talkster.Client
             };
 
             var rmClient = new RmClient(rmConfig);
+            rmClient.SetCompressionProvider(new RmDeflateCompressionProvider());
 
             rmClient.OnException += (RmContext? context, Exception ex, IRmPayload? payload) =>
             {

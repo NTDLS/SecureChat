@@ -308,7 +308,7 @@ namespace Talkster.Server
         /// A client transmitting a file chunk.
         /// Route the message to the appropriate connection.
         /// </summary>
-        public void FileTransferChunkQuery(RmContext context, FileTransferChunkQuery param)
+        public void FileTransferChunkQuery(RmContext context, FileTransferChunkNotification param)
         {
             try
             {

@@ -507,7 +507,7 @@ namespace Talkster.Client
                     ftc.SetProgressValue((int)completionPercentage);
 
                     ServerConnection.Current?.Connection.Client.Notify( // Transmit the current chunk.
-                        new FileTransferChunkQuery(SessionId, PeerConnectionId, ftc.Transfer.FileId, chunkNumber++, crypto.Cipher(chunkToSend)));
+                        new FileTransferChunkNotification(SessionId, PeerConnectionId, ftc.Transfer.FileId, chunkNumber++, crypto.Cipher(chunkToSend)));
                 }
 
                 if (!ftc.IsCancelled && ServerConnection.Current != null)

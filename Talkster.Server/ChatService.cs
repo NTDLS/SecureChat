@@ -32,6 +32,7 @@ namespace Talkster.Server
                 QueryTimeout = TimeSpan.FromSeconds(_configuration.GetValue<int>("QueryTimeout"))
             };
             _rmServer = new RmServer(rmConfig);
+            _rmServer.SetCompressionProvider(new RmDeflateCompressionProvider());
 
             _rmServer.OnException += (RmContext? context, Exception ex, IRmPayload? payload) =>
                 OnLog?.Invoke(this, ScErrorLevel.Error, "Reliable messaging exception.", ex);

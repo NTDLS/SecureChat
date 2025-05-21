@@ -223,7 +223,7 @@ namespace Talkster.Client
         /// <summary>
         /// A client is transmitting a file chunk to us.
         /// </summary>
-        public void FileTransferChunkQuery(RmContext context, FileTransferChunkQuery param)
+        public void FileTransferChunkQuery(RmContext context, FileTransferChunkNotification param)
         {
             try
             {

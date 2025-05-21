@@ -1,4 +1,4 @@
-#define AppVersion "1.0.20"
+#define AppVersion "1.0.21"
 
 [Setup]
  AppName                          = Talkster Server

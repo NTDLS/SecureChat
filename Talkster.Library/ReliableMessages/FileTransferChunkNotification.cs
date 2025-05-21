@@ -2,7 +2,7 @@
 
 namespace Talkster.Library.ReliableMessages
 {
-    public class FileTransferChunkQuery
+    public class FileTransferChunkNotification
         : IRmNotification
     {
         public Guid FileId { get; set; }
@@ -28,7 +28,7 @@ namespace Talkster.Library.ReliableMessages
         /// </summary>
         public Guid SessionId { get; set; }
 
-        public FileTransferChunkQuery(Guid sessionId, Guid peerConnectionId, Guid fileId, int chunkNumber, byte[] bytes)
+        public FileTransferChunkNotification(Guid sessionId, Guid peerConnectionId, Guid fileId, int chunkNumber, byte[] bytes)
         {
             ChunkNumber = chunkNumber;
             SessionId = sessionId;
