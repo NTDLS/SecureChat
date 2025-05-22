@@ -231,7 +231,7 @@ namespace Talkster.Client
 
                 if (activeChat.InboundFileTransfers.TryGetValue(param.FileId, out var control))
                 {
-                    if (control.Transfer.AppendChunk(param.Bytes, param.ChunkNumber))
+                    if (control.Transfer.AppendChunk(param.Bytes, param.Sequence))
                     {
                         if (control.Transfer.IsImage)
                         {

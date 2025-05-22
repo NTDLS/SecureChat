@@ -22,8 +22,8 @@ namespace Talkster.Client
 
         private readonly Stream _stream;
         private readonly PermafrostCipher _crypto;
-        private readonly List<OrderedChunk> _chunkBuffer = new();
-        private int _lastChunkNumber = -1;
+        private readonly Dictionary<int, byte[]> _buffer = new();
+        private int _lastConsumedSequence = -1;
 
         /// <summary>
         /// Buffered file data.
@@ -61,30 +61,29 @@ namespace Talkster.Client
         /// If the chunk is out of order, it will be buffered until the previous chunk is received.
         /// </summary>
         /// <returns>True when the file is fully received, otherwise false.</returns>
-        public bool AppendChunk(byte[] data, int chunkNumber)
+        public bool AppendChunk(byte[] data, int sequence)
         {
-            lock (_chunkBuffer)
+            lock (_buffer)
             {
-                if (chunkNumber == _lastChunkNumber + 1)
+                //The next packet in the sequence is the next one that needs to be sent. Flush it to the stream.
+                if (_lastConsumedSequence + 1 == sequence)
                 {
-                    //We can write this chunk immediately because it is the next chunk in order.
-                    ReceivedByteCount += data.Length;
+                    _lastConsumedSequence = sequence;
                     _stream.Write(_crypto.Cipher(data), 0, data.Length);
-                    _lastChunkNumber = chunkNumber;
                 }
                 else
                 {
-                    //The chunk is out of order, so we need to buffer it until we receive the previous chunk.
-                    _chunkBuffer.Add(new OrderedChunk(chunkNumber, data));
+                    //We received out-of-order packets. Store them in the buffer.
+                    _buffer.Add(sequence, data);
                 }
 
-                OrderedChunk? bufferedChunk; //Flush out any buffered chunks that are now in order.
-                while ((bufferedChunk = _chunkBuffer.FirstOrDefault(x => x.ChunkNumber == _lastChunkNumber + 1)) != null)
+                //Flush any packets that are now in order.
+                while (_buffer.TryGetValue(_lastConsumedSequence + 1, out var bytes))
                 {
-                    ReceivedByteCount += bufferedChunk.Bytes.Length;
-                    _stream.Write(_crypto.Cipher(bufferedChunk.Bytes), 0, bufferedChunk.Bytes.Length);
-                    _lastChunkNumber = bufferedChunk.ChunkNumber;
-                    _chunkBuffer.Remove(bufferedChunk);
+                    _buffer.Remove(_lastConsumedSequence + 1);
+                    _lastConsumedSequence++;
+                    ReceivedByteCount += bytes.Length;
+                    _stream.Write(_crypto.Cipher(bytes), 0, bytes.Length);
                 }
 
                 if (ReceivedByteCount == FileSize)
@@ -123,7 +122,7 @@ namespace Talkster.Client
             Exceptions.Ignore(() => _stream.Close());
             Exceptions.Ignore(() => _stream.Dispose());
             Exceptions.Ignore(() => _crypto.Dispose());
-            Exceptions.Ignore(() => _chunkBuffer.Clear());
+            Exceptions.Ignore(() => _buffer.Clear());
         }
     }
 }

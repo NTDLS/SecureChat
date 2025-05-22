@@ -15,7 +15,7 @@ namespace Talkster.Library.ReliableMessages
         /// <summary>
         /// The chunk number of the file data being sent.
         /// </summary>
-        public int ChunkNumber { get; set; }
+        public int Sequence { get; set; }
 
         /// <summary>
         /// Encrypted file data.
@@ -28,9 +28,9 @@ namespace Talkster.Library.ReliableMessages
         /// </summary>
         public Guid SessionId { get; set; }
 
-        public FileTransferChunkNotification(Guid sessionId, Guid peerConnectionId, Guid fileId, int chunkNumber, byte[] bytes)
+        public FileTransferChunkNotification(Guid sessionId, Guid peerConnectionId, Guid fileId, int sequence, byte[] bytes)
         {
-            ChunkNumber = chunkNumber;
+            Sequence = sequence;
             SessionId = sessionId;
             PeerConnectionId = peerConnectionId;
             FileId = fileId;

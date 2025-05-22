@@ -489,7 +489,7 @@ namespace Talkster.Client
 
                 var buffer = new byte[Settings.Instance.FileTransferChunkSize];
                 int bytesRead;
-                int chunkNumber = 0;
+                int sequence = 0;
 
                 using var crypto = new PermafrostCipher(SharedSecret, PermafrostMode.Continuous);
 
@@ -507,7 +507,7 @@ namespace Talkster.Client
                     ftc.SetProgressValue((int)completionPercentage);
 
                     ServerConnection.Current?.Connection.Client.Notify( // Transmit the current chunk.
-                        new FileTransferChunkNotification(SessionId, PeerConnectionId, ftc.Transfer.FileId, chunkNumber++, crypto.Cipher(chunkToSend)));
+                        new FileTransferChunkNotification(SessionId, PeerConnectionId, ftc.Transfer.FileId, sequence++, crypto.Cipher(chunkToSend)));
                 }
 
                 if (!ftc.IsCancelled && ServerConnection.Current != null)
