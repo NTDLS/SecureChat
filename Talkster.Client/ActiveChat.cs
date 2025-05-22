@@ -489,7 +489,7 @@ namespace Talkster.Client
 
                 var buffer = new byte[Settings.Instance.FileTransferChunkSize];
                 int bytesRead;
-                int sequence = 0;
+                long sequence = 0;
 
                 using var crypto = new PermafrostCipher(SharedSecret, PermafrostMode.Continuous);
 

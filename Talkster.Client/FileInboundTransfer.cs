@@ -1,5 +1,6 @@
 ﻿using NTDLS.Helpers;
 using NTDLS.Permafrost;
+using NTDLS.ReliableMessaging;
 
 namespace Talkster.Client
 {
@@ -22,8 +23,7 @@ namespace Talkster.Client
 
         private readonly Stream _stream;
         private readonly PermafrostCipher _crypto;
-        private readonly Dictionary<int, byte[]> _buffer = new();
-        private int _lastConsumedSequence = -1;
+        private readonly RmSequenceBuffer<byte[]> _sequenceBuffer = new();
 
         /// <summary>
         /// Buffered file data.
@@ -61,35 +61,17 @@ namespace Talkster.Client
         /// If the chunk is out of order, it will be buffered until the previous chunk is received.
         /// </summary>
         /// <returns>True when the file is fully received, otherwise false.</returns>
-        public bool AppendChunk(byte[] data, int sequence)
+        public bool AppendChunk(long sequence, byte[] data)
         {
-            lock (_buffer)
+            _sequenceBuffer.Process(sequence, data, (data) =>
             {
-                //The next packet in the sequence is the next one that needs to be sent. Flush it to the stream.
-                if (_lastConsumedSequence + 1 == sequence)
-                {
-                    _lastConsumedSequence = sequence;
-                    _stream.Write(_crypto.Cipher(data), 0, data.Length);
-                }
-                else
-                {
-                    //We received out-of-order packets. Store them in the buffer.
-                    _buffer.Add(sequence, data);
-                }
+                _stream.Write(_crypto.Cipher(data), 0, data.Length);
+                ReceivedByteCount += data.Length;
+            });
 
-                //Flush any packets that are now in order.
-                while (_buffer.TryGetValue(_lastConsumedSequence + 1, out var bytes))
-                {
-                    _buffer.Remove(_lastConsumedSequence + 1);
-                    _lastConsumedSequence++;
-                    ReceivedByteCount += bytes.Length;
-                    _stream.Write(_crypto.Cipher(bytes), 0, bytes.Length);
-                }
-
-                if (ReceivedByteCount == FileSize)
-                {
-                    return true;
-                }
+            if (ReceivedByteCount == FileSize)
+            {
+                return true;
             }
 
             return false;
@@ -122,7 +104,7 @@ namespace Talkster.Client
             Exceptions.Ignore(() => _stream.Close());
             Exceptions.Ignore(() => _stream.Dispose());
             Exceptions.Ignore(() => _crypto.Dispose());
-            Exceptions.Ignore(() => _buffer.Clear());
+            Exceptions.Ignore(() => _sequenceBuffer.Clear());
         }
     }
 }
