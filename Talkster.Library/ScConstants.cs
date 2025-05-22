@@ -9,8 +9,8 @@
         public static readonly int[] AcceptableRsaKeySizes = new int[] { 1024, 2048, 3072, 4096 };
         public static readonly int[] AcceptableAesKeySizes = new int[] { 128, 192, 256 };
 
-        public readonly static Version MinClientVersion = new(1, 0, 17, 0);
-        public readonly static Version MinServerVersion = new(1, 0, 17, 0);
+        public readonly static Version MinClientVersion = new(1, 1, 0, 0);
+        public readonly static Version MinServerVersion = new(1, 1, 0, 0);
 
         public const float DefaultFontSize = 10.0f;
         public const int DefaultAesKeySize = 256; //128, 192, 256
