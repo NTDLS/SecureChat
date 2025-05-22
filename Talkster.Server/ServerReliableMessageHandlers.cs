@@ -484,7 +484,7 @@ namespace Talkster.Server
         /// The remote service is letting us know that they are about to start using the
         /// cryptography provider, so we need to apply the one that we have ready on this end.
         /// </summary>
-        public void InitializeServerClientCryptographyNotification(RmContext context, InitializeServerClientCryptographyNotification param)
+        public InitializeServerClientCryptographyQueryReply InitializeServerClientCryptographyQuery(RmContext context, InitializeServerClientCryptographyQuery param)
         {
             try
             {
@@ -495,10 +495,12 @@ namespace Talkster.Server
                     ?? throw new Exception("Session not found.");
 
                 context.SetCryptographyProvider(accountConnection.ServerClientCryptographyProvider);
+                return new InitializeServerClientCryptographyQueryReply();
             }
             catch (Exception ex)
             {
                 Log.Error($"Error in {new StackTrace().GetFrame(0)?.GetMethod()?.Name ?? "Unknown"}.", ex);
+                throw;
             }
         }
 

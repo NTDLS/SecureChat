@@ -112,45 +112,27 @@ namespace Talkster.Client
                 }
 
                 progressForm?.SetHeaderText("Logging in...");
-                Thread.Sleep(250); //For aesthetics.
 
-                var loginResult = connection.Client.Query(new LoginQuery(username, passwordHash, explicitAway)).ContinueWith(o =>
-                {
-                    if (string.IsNullOrEmpty(o.Result.ErrorMessage) == false)
-                    {
-                        throw new Exception(o.Result.ErrorMessage);
-                    }
-
-                    if (!o.IsFaulted && o.Result.IsSuccess)
-                    {
-                        return new LoginResult(connection,
-                            o.Result.AccountId.EnsureNotNull(),
-                            o.Result.Username.EnsureNotNull(),
-                            passwordHash,
-                            o.Result.DisplayName.EnsureNotNull(),
-                            o.Result.ProfileJson.EnsureNotNull());
-                    }
-
-                    return null;
-                }).Result;
-
-                if (loginResult == null)
+                var loginReply = connection.Client.Query(new LoginQuery(username, passwordHash, explicitAway)).Result;
+                if (!loginReply.IsSuccess)
                 {
                     connection.Client.Disconnect();
+                    throw new Exception(string.IsNullOrEmpty(loginReply.ErrorMessage) ? "Unknown login error." : loginReply.ErrorMessage);
+                }
+
+                var loginResult = new LoginResult(connection, loginReply.AccountId, loginReply.Username,
+                    passwordHash, loginReply.DisplayName, loginReply.ProfileJson.EnsureNotNull());
+
+                if (!Settings.Instance.Users.TryGetValue(username, out var userState))
+                {
+                    Settings.Instance.Users.Add(username, new PersistedUserState());
                 }
                 else
                 {
-                    if (!Settings.Instance.Users.TryGetValue(username, out var userState))
-                    {
-                        Settings.Instance.Users.Add(username, new PersistedUserState());
-                    }
-                    else
-                    {
-                        userState.LastLogin = DateTime.UtcNow;
-                    }
-
-                    Settings.Save();
+                    userState.LastLogin = DateTime.UtcNow;
                 }
+
+                Settings.Save();
 
                 return loginResult;
             }
@@ -192,29 +174,21 @@ namespace Talkster.Client
 
                 //Send our public key to the server and wait on a reply of their public key.
                 var keyExchangeResult = rmClient.Query(new ExchangePublicKeyQuery(rmClient.ConnectionId.EnsureNotNull(), clientVersion,
-                    keyPair.PublicRsaKey, Settings.Instance.RsaKeySize, Settings.Instance.AesKeySize))
-                    .ContinueWith(o =>
-                    {
-                        if (o.IsFaulted || !o.Result.IsSuccess)
-                        {
-                            throw new Exception(string.IsNullOrEmpty(o.Result.ErrorMessage) ? "Unknown negotiation error." : o.Result.ErrorMessage);
-                        }
+                    keyPair.PublicRsaKey, Settings.Instance.RsaKeySize, Settings.Instance.AesKeySize)).Result;
 
-                        return o.Result;
-                    }).Result;
+                if (!keyExchangeResult.IsSuccess)
+                {
+                    throw new Exception(string.IsNullOrEmpty(keyExchangeResult.ErrorMessage) ? "Unknown negotiation error." : keyExchangeResult.ErrorMessage);
+                }
 
                 if (keyExchangeResult.ServerVersion < ScConstants.MinServerVersion)
                     throw new Exception($"Server version is unsupported, use version {ScConstants.MinServerVersion} or greater.");
 
-                progressForm?.SetHeaderText("Applying cryptography...");
-
-                rmClient.Notify(new InitializeServerClientCryptographyNotification());
-                rmClient.SetCryptographyProvider(new ReliableCryptographyProvider(
-                    Settings.Instance.RsaKeySize, Settings.Instance.AesKeySize, keyExchangeResult.PublicRsaKey, keyPair.PrivateRsaKey));
-
-                progressForm?.SetHeaderText("Waiting for server...");
-
-                Thread.Sleep(1000); //Give the server a moment to initialize the cryptography.
+                rmClient.Query(new InitializeServerClientCryptographyQuery(), () =>
+                {
+                    rmClient.SetCryptographyProvider(new ReliableCryptographyProvider(
+                        Settings.Instance.RsaKeySize, Settings.Instance.AesKeySize, keyExchangeResult.PublicRsaKey, keyPair.PrivateRsaKey));
+                });
 
                 return new NegotiatedConnection(rmClient, keyExchangeResult.ServerVersion);
             }

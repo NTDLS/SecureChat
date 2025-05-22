@@ -29,6 +29,9 @@ namespace Talkster.Server
 
             var rmConfig = new RmConfiguration()
             {
+                AsynchronousFrameProcessing = _configuration.GetValue<bool>("AsynchronousFrameProcessing"),
+                AsynchronousNotifications = _configuration.GetValue<bool>("AsynchronousNotifications"),
+                AsynchronousQueryWaiting = _configuration.GetValue<bool>("AsynchronousQueryWaiting"),
                 QueryTimeout = TimeSpan.FromSeconds(_configuration.GetValue<int>("QueryTimeout"))
             };
             _rmServer = new RmServer(rmConfig);

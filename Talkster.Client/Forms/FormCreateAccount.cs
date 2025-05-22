@@ -83,7 +83,6 @@ namespace Talkster.Client.Forms
                         try
                         {
                             progressForm.SetHeaderText("Creating account...");
-                            Thread.Sleep(250); //For aesthetics.
 
                             var isSuccess = connection.Client.Query(new CreateAccountQuery(username, displayName, passwordHash)).ContinueWith(o =>
                             {
